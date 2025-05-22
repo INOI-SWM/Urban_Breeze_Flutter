@@ -1,0 +1,8 @@
+pre-push:
+  parallel: false
+  commands:
+    dart_fix:
+      run: dart fix --apply
+
+    flutter_analyze:
+      run: flutter analyze
