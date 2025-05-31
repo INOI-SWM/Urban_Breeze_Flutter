@@ -1,6 +1,9 @@
 pre-push:
   parallel: false
   commands:
+    validate_branch_name:
+      run: bash ./.lefthook/validate-branch-name.sh
+
     dart_fix:
       run: dart fix --apply
 
