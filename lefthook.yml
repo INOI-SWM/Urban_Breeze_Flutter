@@ -4,17 +4,19 @@ commit-msg:
       runner: bash
       script: .lefthook/validate-commit-msg.sh "{{.CommitMsgFile}}"
 
-pre-push:
-  parallel: false
+pre-commit:
   scripts:
-    validate_branch_name:
-      runner: bash
-      script: .lefthook/validate-branch-name.sh
-
     dart_fix:
       runner: bash
       script: dart fix --apply
 
+pre-push:
+  parallel: true
+  scripts:
+    validate_branch_name:
+      runner: bash
+      script: .lefthook/validate-branch-name.sh
     flutter_analyze:
       runner: bash
-      script: flutter analyze
+      script: |
+        flutter analyze || { echo "❌ Flutter analyze 에러로 push 중단됨"; exit 1; }
