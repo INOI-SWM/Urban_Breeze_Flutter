@@ -1,11 +1,17 @@
+commit-msg:
+  scripts:
+    validate_commit_msg:
+      runner: bash
+      script: .lefthook/validate-commit-msg.sh "{{.CommitMsgFile}}"
+
 pre-push:
   parallel: false
   commands:
-    validate_branch_name:
-      run: bash ./.lefthook/validate-branch-name.sh
+    validate_commit_msg:
+      run: "bash ./.lefthook/validate-commit-msg.sh"
 
     dart_fix:
-      run: dart fix --apply
+      run: "dart fix --apply"
 
     flutter_analyze:
-      run: flutter analyze
+      run: "flutter analyze"
