@@ -6,12 +6,15 @@ commit-msg:
 
 pre-push:
   parallel: false
-  commands:
-    validate_commit_msg:
-      run: "bash ./.lefthook/validate-commit-msg.sh"
+  scripts:
+    validate_branch_name:
+      runner: bash
+      script: .lefthook/validate-branch-name.sh
 
     dart_fix:
-      run: "dart fix --apply"
+      runner: bash
+      script: dart fix --apply
 
     flutter_analyze:
-      run: "flutter analyze"
+      runner: bash
+      script: flutter analyze

@@ -1,5 +1,4 @@
 #!/bin/bash
-
 branch="$(git rev-parse --abbrev-ref HEAD)"
 IFS='/' read -ra PARTS <<< "$branch"
 
