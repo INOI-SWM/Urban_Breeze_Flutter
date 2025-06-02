@@ -1,5 +1,58 @@
 import 'package:flutter/material.dart';
 
+class AppTextStyleConstants {
+  static const double display1Size = 56;
+  static const double display2Size = 40;
+  static const double title1Size = 36;
+  static const double title2Size = 28;
+  static const double title3Size = 24;
+  static const double heading1Size = 22;
+  static const double heading2Size = 20;
+  static const double headline1Size = 18;
+  static const double headline2Size = 17;
+  static const double body1Size = 16;
+  static const double body2Size = 15;
+  static const double label1Size = 14;
+  static const double label2Size = 13;
+  static const double caption1Size = 12;
+  static const double caption2Size = 11;
+
+  static const double display1LetterSpacing = -3.19;
+  static const double display2LetterSpacing = -2.82;
+  static const double title1LetterSpacing = -2.70;
+  static const double title2LetterSpacing = -2.36;
+  static const double title3LetterSpacing = -2.30;
+  static const double heading1LetterSpacing = -1.94;
+  static const double heading2LetterSpacing = -1.20;
+  static const double headline1LetterSpacing = -0.02;
+  static const double headline2LetterSpacing = 0.0;
+  static const double body1LetterSpacing = 0.57;
+  static const double body2LetterSpacing = 0.96;
+  static const double label1LetterSpacing = 1.45;
+  static const double label2LetterSpacing = 1.94;
+  static const double caption1LetterSpacing = 2.52;
+  static const double caption2LetterSpacing = 3.11;
+
+  static const double display1LineHeight = 1.286;
+  static const double display2LineHeight = 1.3;
+  static const double title1LineHeight = 1.334;
+  static const double title2LineHeight = 1.358;
+  static const double title3LineHeight = 1.334;
+  static const double heading1LineHeight = 1.364;
+  static const double heading2LineHeight = 1.4;
+  static const double headline1LineHeight = 1.445;
+  static const double headline2LineHeight = 1.412;
+  static const double body1NormalLineHeight = 1.5;
+  static const double body1ReadingLineHeight = 1.625;
+  static const double body2NormalLineHeight = 1.467;
+  static const double body2ReadingLineHeight = 1.6;
+  static const double label1NormalLineHeight = 1.429;
+  static const double label1ReadingLineHeight = 1.571;
+  static const double label2LineHeight = 1.385;
+  static const double caption1LineHeight = 1.334;
+  static const double caption2LineHeight = 1.273;
+}
+
 extension TextStyleExtensions on TextStyle {
   TextStyle withPercentageLetterSpacing(double percentage) {
     if (fontSize == null) {
@@ -51,18 +104,21 @@ class Display1 {
   TextStyle get bold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.bold,
-    fontSize: 56,
-  ).withPercentageLetterSpacing(-3.190000057220459);
+    fontSize: AppTextStyleConstants.display1Size,
+    height: AppTextStyleConstants.display1LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.display1LetterSpacing);
   TextStyle get medium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 56,
-  ).withPercentageLetterSpacing(-3.190000057220459);
+    fontSize: AppTextStyleConstants.display1Size,
+    height: AppTextStyleConstants.display1LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.display1LetterSpacing);
   TextStyle get regular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 56,
-  ).withPercentageLetterSpacing(-3.190000057220459);
+    fontSize: AppTextStyleConstants.display1Size,
+    height: AppTextStyleConstants.display1LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.display1LetterSpacing);
 }
 
 class Display2 {
@@ -70,18 +126,21 @@ class Display2 {
   TextStyle get regular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 40,
-  ).withPercentageLetterSpacing(-2.819999933242798);
+    fontSize: AppTextStyleConstants.display2Size,
+    height: AppTextStyleConstants.display2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.display2LetterSpacing);
   TextStyle get bold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.bold,
-    fontSize: 40,
-  ).withPercentageLetterSpacing(-2.819999933242798);
+    fontSize: AppTextStyleConstants.display2Size,
+    height: AppTextStyleConstants.display2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.display2LetterSpacing);
   TextStyle get medium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 40,
-  ).withPercentageLetterSpacing(-2.819999933242798);
+    fontSize: AppTextStyleConstants.display2Size,
+    height: AppTextStyleConstants.display2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.display2LetterSpacing);
 }
 
 class Title1 {
@@ -89,18 +148,21 @@ class Title1 {
   TextStyle get bold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.bold,
-    fontSize: 36,
-  ).withPercentageLetterSpacing(-2.700000047683716);
+    fontSize: AppTextStyleConstants.title1Size,
+    height: AppTextStyleConstants.title1LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.title1LetterSpacing);
   TextStyle get medium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 36,
-  ).withPercentageLetterSpacing(-2.700000047683716);
+    fontSize: AppTextStyleConstants.title1Size,
+    height: AppTextStyleConstants.title1LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.title1LetterSpacing);
   TextStyle get regular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 36,
-  ).withPercentageLetterSpacing(-2.700000047683716);
+    fontSize: AppTextStyleConstants.title1Size,
+    height: AppTextStyleConstants.title1LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.title1LetterSpacing);
 }
 
 class Title2 {
@@ -108,18 +170,21 @@ class Title2 {
   TextStyle get bold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.bold,
-    fontSize: 28,
-  ).withPercentageLetterSpacing(-2.359999895095825);
+    fontSize: AppTextStyleConstants.title2Size,
+    height: AppTextStyleConstants.title2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.title2LetterSpacing);
   TextStyle get medium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 28,
-  ).withPercentageLetterSpacing(-2.359999895095825);
+    fontSize: AppTextStyleConstants.title2Size,
+    height: AppTextStyleConstants.title2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.title2LetterSpacing);
   TextStyle get regular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 28,
-  ).withPercentageLetterSpacing(-2.359999895095825);
+    fontSize: AppTextStyleConstants.title2Size,
+    height: AppTextStyleConstants.title2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.title2LetterSpacing);
 }
 
 class Title3 {
@@ -127,18 +192,21 @@ class Title3 {
   TextStyle get bold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.bold,
-    fontSize: 24,
-  ).withPercentageLetterSpacing(-2.299999952316284);
+    fontSize: AppTextStyleConstants.title3Size,
+    height: AppTextStyleConstants.title3LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.title3LetterSpacing);
   TextStyle get medium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 24,
-  ).withPercentageLetterSpacing(-2.299999952316284);
+    fontSize: AppTextStyleConstants.title3Size,
+    height: AppTextStyleConstants.title3LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.title3LetterSpacing);
   TextStyle get regular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 24,
-  ).withPercentageLetterSpacing(-2.299999952316284);
+    fontSize: AppTextStyleConstants.title3Size,
+    height: AppTextStyleConstants.title3LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.title3LetterSpacing);
 }
 
 class Heading1 {
@@ -146,18 +214,21 @@ class Heading1 {
   TextStyle get bold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w600,
-    fontSize: 22,
-  ).withPercentageLetterSpacing(-1.940000057220459);
+    fontSize: AppTextStyleConstants.heading1Size,
+    height: AppTextStyleConstants.heading1LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.heading1LetterSpacing);
   TextStyle get medium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 22,
-  ).withPercentageLetterSpacing(-1.940000057220459);
+    fontSize: AppTextStyleConstants.heading1Size,
+    height: AppTextStyleConstants.heading1LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.heading1LetterSpacing);
   TextStyle get regular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 22,
-  ).withPercentageLetterSpacing(-1.940000057220459);
+    fontSize: AppTextStyleConstants.heading1Size,
+    height: AppTextStyleConstants.heading1LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.heading1LetterSpacing);
 }
 
 class Heading2 {
@@ -165,18 +236,21 @@ class Heading2 {
   TextStyle get bold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w600,
-    fontSize: 20,
-  ).withPercentageLetterSpacing(-1.2000000476837158);
+    fontSize: AppTextStyleConstants.heading2Size,
+    height: AppTextStyleConstants.heading2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.heading2LetterSpacing);
   TextStyle get medium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 20,
-  ).withPercentageLetterSpacing(-1.2000000476837158);
+    fontSize: AppTextStyleConstants.heading2Size,
+    height: AppTextStyleConstants.heading2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.heading2LetterSpacing);
   TextStyle get regular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 20,
-  ).withPercentageLetterSpacing(-1.2000000476837158);
+    fontSize: AppTextStyleConstants.heading2Size,
+    height: AppTextStyleConstants.heading2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.heading2LetterSpacing);
 }
 
 class Headline1 {
@@ -184,18 +258,21 @@ class Headline1 {
   TextStyle get bold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w600,
-    fontSize: 18,
-  ).withPercentageLetterSpacing(-0.019999999552965164);
+    fontSize: AppTextStyleConstants.headline1Size,
+    height: AppTextStyleConstants.headline1LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.headline1LetterSpacing);
   TextStyle get medium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 18,
-  ).withPercentageLetterSpacing(-0.019999999552965164);
+    fontSize: AppTextStyleConstants.headline1Size,
+    height: AppTextStyleConstants.headline1LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.headline1LetterSpacing);
   TextStyle get regular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 18,
-  ).withPercentageLetterSpacing(0);
+    fontSize: AppTextStyleConstants.headline1Size,
+    height: AppTextStyleConstants.headline1LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.headline1LetterSpacing);
 }
 
 class Headline2 {
@@ -203,18 +280,21 @@ class Headline2 {
   TextStyle get bold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w600,
-    fontSize: 17,
-  ).withPercentageLetterSpacing(0);
+    fontSize: AppTextStyleConstants.headline2Size,
+    height: AppTextStyleConstants.headline2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.headline2LetterSpacing);
   TextStyle get medium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 17,
-  ).withPercentageLetterSpacing(0);
+    fontSize: AppTextStyleConstants.headline2Size,
+    height: AppTextStyleConstants.headline2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.headline2LetterSpacing);
   TextStyle get regular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 17,
-  ).withPercentageLetterSpacing(0);
+    fontSize: AppTextStyleConstants.headline2Size,
+    height: AppTextStyleConstants.headline2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.headline2LetterSpacing);
 }
 
 class Body1 {
@@ -222,33 +302,39 @@ class Body1 {
   TextStyle get normalRegular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 16,
-  ).withPercentageLetterSpacing(0.5699999928474426);
+    fontSize: AppTextStyleConstants.body1Size,
+    height: AppTextStyleConstants.body1NormalLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.body1LetterSpacing);
   TextStyle get normalMedium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 16,
-  ).withPercentageLetterSpacing(0.5699999928474426);
+    fontSize: AppTextStyleConstants.body1Size,
+    height: AppTextStyleConstants.body1NormalLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.body1LetterSpacing);
   TextStyle get normalBold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w600,
-    fontSize: 16,
-  ).withPercentageLetterSpacing(0.5699999928474426);
+    fontSize: AppTextStyleConstants.body1Size,
+    height: AppTextStyleConstants.body1NormalLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.body1LetterSpacing);
   TextStyle get readingRegular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 16,
-  ).withPercentageLetterSpacing(0.5699999928474426);
+    fontSize: AppTextStyleConstants.body1Size,
+    height: AppTextStyleConstants.body1ReadingLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.body1LetterSpacing);
   TextStyle get readingMedium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 16,
-  ).withPercentageLetterSpacing(0.5699999928474426);
+    fontSize: AppTextStyleConstants.body1Size,
+    height: AppTextStyleConstants.body1ReadingLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.body1LetterSpacing);
   TextStyle get readingBold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w600,
-    fontSize: 16,
-  ).withPercentageLetterSpacing(0.5699999928474426);
+    fontSize: AppTextStyleConstants.body1Size,
+    height: AppTextStyleConstants.body1ReadingLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.body1LetterSpacing);
 }
 
 class Body2 {
@@ -256,33 +342,39 @@ class Body2 {
   TextStyle get normalRegular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 15,
-  ).withPercentageLetterSpacing(0.9599999785423279);
+    fontSize: AppTextStyleConstants.body2Size,
+    height: AppTextStyleConstants.body2NormalLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.body2LetterSpacing);
   TextStyle get normalMedium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 15,
-  ).withPercentageLetterSpacing(0.9599999785423279);
+    fontSize: AppTextStyleConstants.body2Size,
+    height: AppTextStyleConstants.body2NormalLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.body2LetterSpacing);
   TextStyle get normalBold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w600,
-    fontSize: 15,
-  ).withPercentageLetterSpacing(0.9599999785423279);
+    fontSize: AppTextStyleConstants.body2Size,
+    height: AppTextStyleConstants.body2NormalLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.body2LetterSpacing);
   TextStyle get readingRegular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 15,
-  ).withPercentageLetterSpacing(0.9599999785423279);
+    fontSize: AppTextStyleConstants.body2Size,
+    height: AppTextStyleConstants.body2ReadingLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.body2LetterSpacing);
   TextStyle get readingMedium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 15,
-  ).withPercentageLetterSpacing(0.9599999785423279);
+    fontSize: AppTextStyleConstants.body2Size,
+    height: AppTextStyleConstants.body2ReadingLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.body2LetterSpacing);
   TextStyle get readingBold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w600,
-    fontSize: 15,
-  ).withPercentageLetterSpacing(0.9599999785423279);
+    fontSize: AppTextStyleConstants.body2Size,
+    height: AppTextStyleConstants.body2ReadingLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.body2LetterSpacing);
 }
 
 class Label1 {
@@ -290,33 +382,39 @@ class Label1 {
   TextStyle get normalBold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w600,
-    fontSize: 14,
-  ).withPercentageLetterSpacing(1.4500000476837158);
+    fontSize: AppTextStyleConstants.label1Size,
+    height: AppTextStyleConstants.label1NormalLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.label1LetterSpacing);
   TextStyle get normalMedium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 14,
-  ).withPercentageLetterSpacing(1.4500000476837158);
+    fontSize: AppTextStyleConstants.label1Size,
+    height: AppTextStyleConstants.label1NormalLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.label1LetterSpacing);
   TextStyle get normalRegular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 14,
-  ).withPercentageLetterSpacing(1.4500000476837158);
+    fontSize: AppTextStyleConstants.label1Size,
+    height: AppTextStyleConstants.label1NormalLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.label1LetterSpacing);
   TextStyle get readingBold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w600,
-    fontSize: 14,
-  ).withPercentageLetterSpacing(1.4500000476837158);
+    fontSize: AppTextStyleConstants.label1Size,
+    height: AppTextStyleConstants.label1ReadingLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.label1LetterSpacing);
   TextStyle get readingMedium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 14,
-  ).withPercentageLetterSpacing(1.4500000476837158);
+    fontSize: AppTextStyleConstants.label1Size,
+    height: AppTextStyleConstants.label1ReadingLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.label1LetterSpacing);
   TextStyle get readingRegular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 14,
-  ).withPercentageLetterSpacing(1.4500000476837158);
+    fontSize: AppTextStyleConstants.label1Size,
+    height: AppTextStyleConstants.label1ReadingLineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.label1LetterSpacing);
 }
 
 class Label2 {
@@ -324,18 +422,21 @@ class Label2 {
   TextStyle get regular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 13,
-  ).withPercentageLetterSpacing(1.940000057220459);
+    fontSize: AppTextStyleConstants.label2Size,
+    height: AppTextStyleConstants.label2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.label2LetterSpacing);
   TextStyle get medium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 13,
-  ).withPercentageLetterSpacing(1.940000057220459);
+    fontSize: AppTextStyleConstants.label2Size,
+    height: AppTextStyleConstants.label2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.label2LetterSpacing);
   TextStyle get bold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w600,
-    fontSize: 13,
-  ).withPercentageLetterSpacing(1.940000057220459);
+    fontSize: AppTextStyleConstants.label2Size,
+    height: AppTextStyleConstants.label2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.label2LetterSpacing);
 }
 
 class Caption1 {
@@ -343,18 +444,21 @@ class Caption1 {
   TextStyle get regular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 12,
-  ).withPercentageLetterSpacing(2.5199999809265137);
+    fontSize: AppTextStyleConstants.caption1Size,
+    height: AppTextStyleConstants.caption1LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.caption1LetterSpacing);
   TextStyle get medium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 12,
-  ).withPercentageLetterSpacing(2.5199999809265137);
+    fontSize: AppTextStyleConstants.caption1Size,
+    height: AppTextStyleConstants.caption1LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.caption1LetterSpacing);
   TextStyle get bold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w600,
-    fontSize: 12,
-  ).withPercentageLetterSpacing(2.5199999809265137);
+    fontSize: AppTextStyleConstants.caption1Size,
+    height: AppTextStyleConstants.caption1LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.caption1LetterSpacing);
 }
 
 class Caption2 {
@@ -362,16 +466,19 @@ class Caption2 {
   TextStyle get regular => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.normal,
-    fontSize: 11,
-  ).withPercentageLetterSpacing(3.109999895095825);
+    fontSize: AppTextStyleConstants.caption2Size,
+    height: AppTextStyleConstants.caption2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.caption2LetterSpacing);
   TextStyle get medium => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w500,
-    fontSize: 11,
-  ).withPercentageLetterSpacing(3.109999895095825);
+    fontSize: AppTextStyleConstants.caption2Size,
+    height: AppTextStyleConstants.caption2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.caption2LetterSpacing);
   TextStyle get bold => const TextStyle(
     fontFamily: AppTextStyles._fontFamily,
     fontWeight: FontWeight.w600,
-    fontSize: 11,
-  ).withPercentageLetterSpacing(3.109999895095825);
+    fontSize: AppTextStyleConstants.caption2Size,
+    height: AppTextStyleConstants.caption2LineHeight,
+  ).withPercentageLetterSpacing(AppTextStyleConstants.caption2LetterSpacing);
 }
