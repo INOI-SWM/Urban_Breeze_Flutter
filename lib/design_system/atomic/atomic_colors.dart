@@ -43,8 +43,6 @@ class AtomicNeutral {
   final Color c90 = const Color(0xFFC4C4C4);
   final Color c95 = const Color(0xFFDCDCDC);
   final Color c99 = const Color(0xFFF7F7F7);
-  final Color c0 = const Color(0xFF000000);
-  final Color c100 = const Color(0xFFFFFFFF);
 }
 
 class AtomicCoolNeutral {
@@ -137,7 +135,7 @@ class AtomicLime {
   final Color c50 = const Color(0xFF58CF04);
   final Color c60 = const Color(0xFF6BE016);
   final Color c70 = const Color(0xFF88F03E);
-  final Color c80 = const Color(0X00aef779);
+  final Color c80 = const Color(0Xffaef779);
   final Color c90 = const Color(0xFFCCFCA9);
   final Color c95 = const Color(0xFFE6FFD4);
   final Color c99 = const Color(0xFFF8FFF2);
