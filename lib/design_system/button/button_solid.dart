@@ -45,12 +45,15 @@ class ButtonSolid extends StatelessWidget {
         boxShadow: shadow,
       ),
       child: Material(
+        color: Colors.transparent,
         child: InkWell(
           onTap: onPressed,
           borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: padding,
             child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 if (leftIcon != null) ...<Widget>[
                   Icon(leftIcon, size: iconSize, color: textColor),
