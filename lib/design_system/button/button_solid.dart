@@ -37,10 +37,11 @@ class ButtonSolid extends StatelessWidget {
     final TextStyle textStyle = _getTextStyle();
     final double iconSize = _getIconSize();
     final double gap = _getGap();
+    final double borderRadius = _getBorderRadius();
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(borderRadius),
         color: backgroundColor,
         boxShadow: shadow,
       ),
@@ -48,7 +49,7 @@ class ButtonSolid extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onPressed,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(borderRadius),
           child: Padding(
             padding: padding,
             child: Row(
@@ -120,6 +121,17 @@ class ButtonSolid extends StatelessWidget {
         return IconSize.small.size;
       case ButtonSize.small:
         return 18;
+    }
+  }
+
+  double _getBorderRadius() {
+    switch (size) {
+      case ButtonSize.large:
+        return 12;
+      case ButtonSize.medium:
+        return 10;
+      case ButtonSize.small:
+        return 8;
     }
   }
 }
