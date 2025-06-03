@@ -38,18 +38,19 @@ class IconButtonSolid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: _buttonSize,
-      height: _buttonSize,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: backgroundColor,
-        boxShadow: shadow,
-      ),
-      child: Material(
-        child: InkWell(
-          onTap: onPressed,
-          customBorder: const CircleBorder(),
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onPressed,
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: _buttonSize,
+          height: _buttonSize,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: backgroundColor,
+            boxShadow: shadow,
+          ),
           child: Center(
             child: Icon(icon, size: iconSize.size, color: iconColor),
           ),
