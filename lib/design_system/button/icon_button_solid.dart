@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/design_system/Icon/icon_size.dart';
 
 enum IconButtonSize {
@@ -16,10 +15,10 @@ class IconButtonSolid extends StatelessWidget {
     required this.icon,
     required this.onPressed,
     required this.iconSize,
+    required this.backgroundColor,
+    required this.iconColor,
     this.buttonSize,
     this.customButtonSize,
-    this.backgroundColor,
-    this.iconColor,
     this.shadow,
   }) : assert(
          buttonSize != null || customButtonSize != null,
@@ -29,10 +28,10 @@ class IconButtonSolid extends StatelessWidget {
   final IconData icon;
   final VoidCallback onPressed;
   final IconSize iconSize;
+  final Color backgroundColor;
+  final Color iconColor;
   final IconButtonSize? buttonSize;
   final double? customButtonSize;
-  final Color? backgroundColor;
-  final Color? iconColor;
   final List<BoxShadow>? shadow;
 
   double get _buttonSize => customButtonSize ?? buttonSize!.size;
@@ -44,20 +43,15 @@ class IconButtonSolid extends StatelessWidget {
       height: _buttonSize,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: backgroundColor ?? context.semanticColor.primaryNormal,
+        color: backgroundColor,
         boxShadow: shadow,
       ),
       child: Material(
-        color: Colors.transparent,
         child: InkWell(
           onTap: onPressed,
           customBorder: const CircleBorder(),
           child: Center(
-            child: Icon(
-              icon,
-              size: iconSize.size,
-              color: iconColor ?? context.semanticColor.staticWhite,
-            ),
+            child: Icon(icon, size: iconSize.size, color: iconColor),
           ),
         ),
       ),
