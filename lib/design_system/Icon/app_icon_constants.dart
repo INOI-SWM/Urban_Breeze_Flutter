@@ -1,9 +1,9 @@
 class AppIconConstants {
   const AppIconConstants._();
 
-  static const int xlarge = 16;
-  static const int large = 32;
-  static const int medium = 28;
-  static const int small = 24;
-  static const int xsmall = 20;
+  static const double xlarge = 16;
+  static const double large = 32;
+  static const double medium = 28;
+  static const double small = 24;
+  static const double xsmall = 20;
 }
