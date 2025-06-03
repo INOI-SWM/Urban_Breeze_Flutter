@@ -3,9 +3,8 @@ import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/design_system/Icon/icon_size.dart';
 
 enum IconButtonSize {
-  medium(40),
   small(32),
-  custom(0);
+  medium(40);
 
   const IconButtonSize(this.size);
   final double size;
@@ -16,36 +15,33 @@ class IconButtonSolid extends StatelessWidget {
     super.key,
     required this.icon,
     required this.onPressed,
-    required this.buttonSize,
     required this.iconSize,
+    this.buttonSize,
     this.customButtonSize,
     this.backgroundColor,
     this.iconColor,
     this.shadow,
   }) : assert(
-         buttonSize != IconButtonSize.custom || customButtonSize != null,
-         'customButtonSize must be provided when buttonSize is custom',
+         buttonSize != null || customButtonSize != null,
+         'Either buttonSize or customButtonSize must be provided',
        );
 
   final IconData icon;
   final VoidCallback onPressed;
-  final IconButtonSize buttonSize;
   final IconSize iconSize;
+  final IconButtonSize? buttonSize;
   final double? customButtonSize;
   final Color? backgroundColor;
   final Color? iconColor;
   final List<BoxShadow>? shadow;
 
+  double get _buttonSize => customButtonSize ?? buttonSize!.size;
+
   @override
   Widget build(BuildContext context) {
-    final double size =
-        buttonSize == IconButtonSize.custom
-            ? customButtonSize!
-            : buttonSize.size;
-
     return Container(
-      width: size,
-      height: size,
+      width: _buttonSize,
+      height: _buttonSize,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: backgroundColor ?? context.semanticColor.primaryNormal,
