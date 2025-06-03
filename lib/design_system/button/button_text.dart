@@ -28,41 +28,49 @@ class ButtonText extends StatelessWidget {
     const double gap = 4;
     const double interactionPadding = 7;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        customBorder: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: interactionPadding,
-            vertical: 4,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              if (leftIcon != null) ...<Widget>[
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Icon(leftIcon, size: iconSize, color: textColor),
-                ),
-                const SizedBox(width: gap),
-              ],
-              Text(text, style: textStyle.copyWith(color: textColor)),
-              if (rightIcon != null) ...<Widget>[
-                const SizedBox(width: gap),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Icon(rightIcon, size: iconSize, color: textColor),
-                ),
-              ],
+    return Stack(
+      clipBehavior: Clip.none,
+      children: <Widget>[
+        // 실제 보이는 텍스트와 아이콘
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            if (leftIcon != null) ...<Widget>[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Icon(leftIcon, size: iconSize, color: textColor),
+              ),
+              const SizedBox(width: gap),
             ],
+            Text(text, style: textStyle.copyWith(color: textColor)),
+            if (rightIcon != null) ...<Widget>[
+              const SizedBox(width: gap),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Icon(rightIcon, size: iconSize, color: textColor),
+              ),
+            ],
+          ],
+        ),
+        // 터치 영역 (레이아웃 공간을 차지하지 않음)
+        Positioned(
+          left: -interactionPadding,
+          right: -interactionPadding,
+          top: -4,
+          bottom: -4,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onPressed,
+              customBorder: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Container(),
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 
