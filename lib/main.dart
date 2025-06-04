@@ -1,7 +1,7 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/theme/app_theme.dart';
-import 'package:ridingmate/design_system/navigation/navigation_scaffold.dart';
+import 'package:ridingmate/ui/navigation/navigation_scaffold.dart';
 
 void main() {
   runApp(const MyApp());

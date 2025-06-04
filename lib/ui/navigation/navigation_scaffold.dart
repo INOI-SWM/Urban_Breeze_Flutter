@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/core/theme/app_theme.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
-import 'package:ridingmate/design_system/navigation/bottom_navigation_bar.dart';
+import 'package:ridingmate/ui/navigation/bottom_navigation_bar.dart';
+import 'package:ridingmate/ui/screens/history_screen.dart';
+import 'package:ridingmate/ui/screens/home_screen.dart';
+import 'package:ridingmate/ui/screens/my_screen.dart';
+import 'package:ridingmate/ui/screens/riding_screen.dart';
+import 'package:ridingmate/ui/screens/route_screen.dart';
 
 class NavigationScaffold extends StatefulWidget {
   const NavigationScaffold({super.key});
@@ -15,12 +20,11 @@ class _NavigationScaffoldState extends State<NavigationScaffold> {
   int _currentIndex = 0;
 
   static final List<Widget> _pages = <Widget>[
-    // 각 화면 위젯으로 교체 필요. 예시 : const HomeScreen(),
-    const Center(child: Text('홈')),
-    const Center(child: Text('경로 생성')),
-    const Center(child: Text('라이딩')),
-    const Center(child: Text('운동 기록')),
-    const Center(child: Text('MY')),
+    const HomeScreen(),
+    const RouteScreen(),
+    const RidingScreen(),
+    const HistoryScreen(),
+    const MyScreen(),
   ];
 
   void _onDestinationSelected(int index) {
