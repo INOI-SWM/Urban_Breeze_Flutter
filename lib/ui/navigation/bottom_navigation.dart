@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class AppNavigationBar extends StatelessWidget {
-  const AppNavigationBar({
+class BottomNavigation extends StatelessWidget {
+  const BottomNavigation({
     super.key,
     required this.currentIndex,
     required this.onDestinationSelected,
