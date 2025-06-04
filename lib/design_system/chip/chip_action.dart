@@ -59,7 +59,6 @@ class ChipAction extends StatelessWidget {
             padding: padding,
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start, // 수정됨
               children: <Widget>[
                 if (leftIcon != null) ...<Widget>[
                   Icon(leftIcon, size: iconSize, color: textColor),
