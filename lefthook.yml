@@ -12,11 +12,8 @@ pre-commit:
 
 pre-push:
   parallel: true
-  scripts:
-    validate_branch_name:
-      runner: bash
-      script: .lefthook/validate-branch-name.sh
-    flutter_analyze:
-      runner: bash
-      script: |
-        flutter analyze || { echo "❌ Flutter analyze 에러로 push 중단됨"; exit 1; }
+  commands:
+    validate-branch-name:
+      run: .lefthook/validate-branch-name.sh
+    flutter-analyze:
+      run: flutter analyze || { echo "❌ Flutter analyze 에러로 push 중단됨"; exit 1; }
