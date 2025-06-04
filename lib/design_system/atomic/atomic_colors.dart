@@ -220,6 +220,7 @@ class AtomicViolet {
   final Color c20 = const Color(0xFF23098F);
   final Color c30 = const Color(0xFF3A16C9);
   final Color c40 = const Color(0xFF5B37ED);
+  final Color c45 = const Color(0xFF5B37ED);
   final Color c50 = const Color(0xFF6541F2);
   final Color c60 = const Color(0xFF7A64F7);
   final Color c70 = const Color(0xFF9489FC);
@@ -254,6 +255,7 @@ class AtomicPink {
   final Color c20 = const Color(0xFF67004C);
   final Color c30 = const Color(0xFF9F007A);
   final Color c40 = const Color(0xFFD600A7);
+  final Color c46 = const Color(0xFFE846CD);
   final Color c50 = const Color(0xFFF553DA);
   final Color c60 = const Color(0xFFFA77E3);
   final Color c70 = const Color(0xFFFD9EEB);
