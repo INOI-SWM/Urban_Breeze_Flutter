@@ -45,6 +45,20 @@ abstract class SemanticColors {
   Color get accentBackgroundLightBlue;
   Color get accentBackgroundViolet;
   Color get accentBackgroundPink;
+  Color get accentBackgroundRedOrange;
+  Color get accentBackgroundPurple;
+
+  Color get accentForegroundLime;
+  Color get accentForegroundCyan;
+  Color get accentForegroundLightBlue;
+  Color get accentForegroundViolet;
+  Color get accentForegroundPink;
+  Color get accentForegroundRedOrange;
+  Color get accentForegroundPurple;
+  Color get accentForegroundRed;
+  Color get accentForegroundOrange;
+  Color get accentForegroundGreen;
+  Color get accentForegroundBlue;
 
   Color get materialDimmer;
 
@@ -135,6 +149,33 @@ class LightSemanticColors implements SemanticColors {
   Color get accentBackgroundViolet => Atomic.instance.violet.c50;
   @override
   Color get accentBackgroundPink => Atomic.instance.pink.c50;
+  @override
+  Color get accentBackgroundRedOrange => Atomic.instance.redOrange.c50;
+  @override
+  Color get accentBackgroundPurple => Atomic.instance.purple.c50;
+
+  @override
+  Color get accentForegroundLime => Atomic.instance.lime.c37;
+  @override
+  Color get accentForegroundCyan => Atomic.instance.cyan.c40;
+  @override
+  Color get accentForegroundLightBlue => Atomic.instance.lightBlue.c40;
+  @override
+  Color get accentForegroundViolet => Atomic.instance.violet.c45;
+  @override
+  Color get accentForegroundPink => Atomic.instance.pink.c46;
+  @override
+  Color get accentForegroundRedOrange => Atomic.instance.redOrange.c48;
+  @override
+  Color get accentForegroundPurple => Atomic.instance.purple.c40;
+  @override
+  Color get accentForegroundRed => Atomic.instance.red.c40;
+  @override
+  Color get accentForegroundOrange => Atomic.instance.orange.c39;
+  @override
+  Color get accentForegroundGreen => Atomic.instance.green.c40;
+  @override
+  Color get accentForegroundBlue => Atomic.instance.blue.c45;
 
   @override
   Color get materialDimmer => Atomic.instance.coolNeutral.c10.withAlpha(133);
@@ -229,6 +270,33 @@ class DarkSemanticColors implements SemanticColors {
   Color get accentBackgroundViolet => Atomic.instance.violet.c60;
   @override
   Color get accentBackgroundPink => Atomic.instance.pink.c60;
+  @override
+  Color get accentBackgroundRedOrange => Atomic.instance.redOrange.c60;
+  @override
+  Color get accentBackgroundPurple => Atomic.instance.purple.c60;
+
+  @override
+  Color get accentForegroundLime => Atomic.instance.lime.c50;
+  @override
+  Color get accentForegroundCyan => Atomic.instance.cyan.c50;
+  @override
+  Color get accentForegroundLightBlue => Atomic.instance.lightBlue.c50;
+  @override
+  Color get accentForegroundViolet => Atomic.instance.violet.c70;
+  @override
+  Color get accentForegroundPink => Atomic.instance.pink.c60;
+  @override
+  Color get accentForegroundRedOrange => Atomic.instance.redOrange.c60;
+  @override
+  Color get accentForegroundPurple => Atomic.instance.purple.c60;
+  @override
+  Color get accentForegroundRed => Atomic.instance.red.c60;
+  @override
+  Color get accentForegroundOrange => Atomic.instance.orange.c50;
+  @override
+  Color get accentForegroundGreen => Atomic.instance.green.c60;
+  @override
+  Color get accentForegroundBlue => Atomic.instance.blue.c65;
 
   @override
   Color get materialDimmer => Atomic.instance.coolNeutral.c10.withAlpha(189);

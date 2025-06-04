@@ -75,7 +75,7 @@ class AtomicCoolNeutral {
 class AtomicRed {
   const AtomicRed._();
   final Color c10 = const Color(0xFF3B0101);
-  final Color c20 = const Color(0xFF730303);
+  final Color c20 = const Color(0xFF750404);
   final Color c30 = const Color(0xFFB00C0C);
   final Color c40 = const Color(0xFFE52222);
   final Color c50 = const Color(0xFFFF4242);
@@ -91,16 +91,16 @@ class AtomicRed {
 
 class AtomicRedOrange {
   const AtomicRedOrange._();
-  final Color c10 = const Color(0xFF290F00);
-  final Color c20 = const Color(0xFF592100);
-  final Color c30 = const Color(0xFF913500);
-  final Color c40 = const Color(0xFFC94A00);
+  final Color c10 = const Color(0xFF2E1100);
+  final Color c20 = const Color(0xFF5C2200);
+  final Color c30 = const Color(0xFF943600);
+  final Color c40 = const Color(0xFFCC4B00);
   final Color c48 = const Color(0xFFF55A00);
   final Color c50 = const Color(0xFFFF5E00);
   final Color c60 = const Color(0xFFFF7B2E);
-  final Color c70 = const Color(0xFFFF9B61);
-  final Color c80 = const Color(0xFFFFBD96);
-  final Color c90 = const Color(0xFFFED9C4);
+  final Color c70 = const Color(0xFFFF9C63);
+  final Color c80 = const Color(0xFFFFC09C);
+  final Color c90 = const Color(0xFFFEDBC6);
   final Color c95 = const Color(0xFFFEEEE5);
   final Color c99 = const Color(0xFFFFFaf7);
   final Color c0 = const Color(0xFF000000);
@@ -219,48 +219,50 @@ class AtomicViolet {
   final Color c10 = const Color(0xFF11024D);
   final Color c20 = const Color(0xFF23098F);
   final Color c30 = const Color(0xFF3A16C9);
-  final Color c40 = const Color(0xFF5B37ED);
+  final Color c40 = const Color(0xFF4F29E5);
+  final Color c45 = const Color(0xFF5B37ED);
   final Color c50 = const Color(0xFF6541F2);
   final Color c60 = const Color(0xFF7A64F7);
   final Color c70 = const Color(0xFF9489FC);
   final Color c80 = const Color(0xFFB0ACFF);
-  final Color c90 = const Color(0xFFD0D0FF);
-  final Color c95 = const Color(0xFFEBEBFF);
-  final Color c99 = const Color(0xFFF8F8FF);
+  final Color c90 = const Color(0xFFDBD3FE);
+  final Color c95 = const Color(0xFFF0ECFE);
+  final Color c99 = const Color(0xFFFBFAFF);
   final Color c0 = const Color(0xFF000000);
   final Color c100 = const Color(0xFFFFFFFF);
 }
 
 class AtomicPurple {
   const AtomicPurple._();
-  final Color c10 = const Color(0xFF280036);
-  final Color c20 = const Color(0xFF51006E);
-  final Color c30 = const Color(0xFF7F00AA);
-  final Color c40 = const Color(0xFFB100E0);
+  final Color c10 = const Color(0xFF290247);
+  final Color c20 = const Color(0xFF580A7D);
+  final Color c30 = const Color(0xFF861CB8);
+  final Color c40 = const Color(0xFFAD36E3);
   final Color c50 = const Color(0xFFCB59FF);
-  final Color c60 = const Color(0xFFDA7EFF);
-  final Color c70 = const Color(0xFFEB9FFF);
-  final Color c80 = const Color(0xFFF7BFFF);
-  final Color c90 = const Color(0xFFFDDCFF);
-  final Color c95 = const Color(0xFFFEEFFD);
-  final Color c99 = const Color(0xFFFFF7FE);
+  final Color c60 = const Color(0xFFD478FF);
+  final Color c70 = const Color(0xFFDE96FF);
+  final Color c80 = const Color(0xFFE9BAFF);
+  final Color c90 = const Color(0xFFF2D6FF);
+  final Color c95 = const Color(0xFFF9EDFF);
+  final Color c99 = const Color(0xFFFEFBFF);
   final Color c0 = const Color(0xFF000000);
   final Color c100 = const Color(0xFFFFFFFF);
 }
 
 class AtomicPink {
   const AtomicPink._();
-  final Color c10 = const Color(0xFF330026);
-  final Color c20 = const Color(0xFF67004C);
-  final Color c30 = const Color(0xFF9F007A);
-  final Color c40 = const Color(0xFFD600A7);
+  final Color c10 = const Color(0xFF3D0133);
+  final Color c20 = const Color(0xFF730560);
+  final Color c30 = const Color(0xFFA81690);
+  final Color c40 = const Color(0xFFD331B8);
+  final Color c46 = const Color(0xFFE846CD);
   final Color c50 = const Color(0xFFF553DA);
-  final Color c60 = const Color(0xFFFA77E3);
-  final Color c70 = const Color(0xFFFD9EEB);
-  final Color c80 = const Color(0xFFFDC9F4);
-  final Color c90 = const Color(0xFFFDE8F9);
-  final Color c95 = const Color(0xFFFFF2FA);
-  final Color c99 = const Color(0xFFFFF8FC);
+  final Color c60 = const Color(0xFFFA73E3);
+  final Color c70 = const Color(0xFFFF94ED);
+  final Color c80 = const Color(0xFFFFB8F3);
+  final Color c90 = const Color(0xFFFED3F7);
+  final Color c95 = const Color(0xFFFEECFB);
+  final Color c99 = const Color(0xFFFFFAFE);
   final Color c0 = const Color(0xFF000000);
   final Color c100 = const Color(0xFFFFFFFF);
 }
