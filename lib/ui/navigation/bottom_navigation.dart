@@ -39,6 +39,9 @@ class BottomNavigation extends StatelessWidget {
               Colors
                   .transparent, // Make NavigationBar background transparent to show Container's background
           elevation: 0, // No shadow
+          indicatorColor:
+              Colors
+                  .transparent, // Remove background highlight on selected icon
           destinations: <Widget>[
             NavigationDestination(
               icon: Icon(
@@ -46,14 +49,14 @@ class BottomNavigation extends StatelessWidget {
                 color:
                     currentIndex == 0
                         ? semanticColors.primaryNormal
-                        : semanticColors.labelNeutral,
+                        : semanticColors.interactionInactive,
               ),
               selectedIcon: Icon(
                 Icons.home,
                 color:
                     currentIndex == 0
                         ? semanticColors.primaryNormal
-                        : semanticColors.labelNeutral,
+                        : semanticColors.interactionInactive,
               ),
               label: '홈',
             ),
@@ -63,14 +66,14 @@ class BottomNavigation extends StatelessWidget {
                 color:
                     currentIndex == 1
                         ? semanticColors.primaryNormal
-                        : semanticColors.labelNeutral,
+                        : semanticColors.interactionInactive,
               ),
               selectedIcon: Icon(
                 Icons.route,
                 color:
                     currentIndex == 1
                         ? semanticColors.primaryNormal
-                        : semanticColors.labelNeutral,
+                        : semanticColors.interactionInactive,
               ),
               label: '경로 생성',
             ),
@@ -80,14 +83,14 @@ class BottomNavigation extends StatelessWidget {
                 color:
                     currentIndex == 2
                         ? semanticColors.primaryNormal
-                        : semanticColors.labelNeutral,
+                        : semanticColors.interactionInactive,
               ),
               selectedIcon: Icon(
                 Icons.directions_bike,
                 color:
                     currentIndex == 2
                         ? semanticColors.primaryNormal
-                        : semanticColors.labelNeutral,
+                        : semanticColors.interactionInactive,
               ),
               label: '라이딩',
             ),
@@ -97,14 +100,14 @@ class BottomNavigation extends StatelessWidget {
                 color:
                     currentIndex == 3
                         ? semanticColors.primaryNormal
-                        : semanticColors.labelNeutral,
+                        : semanticColors.interactionInactive,
               ),
               selectedIcon: Icon(
                 Icons.bar_chart,
                 color:
                     currentIndex == 3
                         ? semanticColors.primaryNormal
-                        : semanticColors.labelNeutral,
+                        : semanticColors.interactionInactive,
               ),
               label: '운동 기록',
             ),
@@ -114,14 +117,14 @@ class BottomNavigation extends StatelessWidget {
                 color:
                     currentIndex == 4
                         ? semanticColors.primaryNormal
-                        : semanticColors.labelNeutral,
+                        : semanticColors.interactionInactive,
               ),
               selectedIcon: Icon(
                 Icons.person,
                 color:
                     currentIndex == 4
                         ? semanticColors.primaryNormal
-                        : semanticColors.labelNeutral,
+                        : semanticColors.interactionInactive,
               ),
               label: 'MY',
             ),
