@@ -18,14 +18,10 @@ class BottomNavigation extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color:
-            semanticColors
-                .backgroundNormalNormal, // White background from Figma
+        color: semanticColors.backgroundNormalNormal,
         border: Border(
           top: BorderSide(
-            color: semanticColors.lineNormalNormal.withOpacity(
-              0.16,
-            ), // Divider color from Figma
+            color: semanticColors.lineNormalNormal.withOpacity(0.16),
             width: 1.0,
           ),
         ),
@@ -35,13 +31,9 @@ class BottomNavigation extends StatelessWidget {
         child: NavigationBar(
           selectedIndex: currentIndex,
           onDestinationSelected: onDestinationSelected,
-          backgroundColor:
-              Colors
-                  .transparent, // Make NavigationBar background transparent to show Container's background
+          backgroundColor: Colors.transparent,
           elevation: 0, // No shadow
-          indicatorColor:
-              Colors
-                  .transparent, // Remove background highlight on selected icon
+          indicatorColor: Colors.transparent,
           destinations: <Widget>[
             NavigationDestination(
               icon: Icon(
