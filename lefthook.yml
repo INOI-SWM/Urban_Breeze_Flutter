@@ -1,8 +1,8 @@
 commit-msg:
-  scripts:
-    validate_commit_msg:
-      runner: bash
-      script: .lefthook/validate-commit-msg.sh "{{.CommitMsgFile}}"
+  parallel: true
+  commands:
+    validate-commit-msg:
+      run: .lefthook/validate-commit-msg.sh {1}
 
 pre-commit:
   scripts:
