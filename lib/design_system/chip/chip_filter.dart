@@ -1,33 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
 
-enum ChipActionSize { xsmall, small, medium, large }
+enum ChipFilterSize { xsmall, small, medium, large }
 
-enum ChipActionType { solid, outlined }
+enum ChipFilterType { solid, outlined }
 
-class ChipAction extends StatelessWidget {
-  const ChipAction({
+class ChipFilter extends StatelessWidget {
+  const ChipFilter({
     super.key,
     required this.text,
-    this.leftIcon,
-    this.rightIcon,
-    this.size = ChipActionSize.medium,
-    this.type = ChipActionType.solid,
+    this.size = ChipFilterSize.medium,
+    this.type = ChipFilterType.solid,
     required this.textColor,
+    this.iconColor,
     this.borderColor,
     this.backgroundColor,
     this.onPressed,
   }) : assert(
-         type == ChipActionType.solid ? backgroundColor != null : true,
+         type == ChipFilterType.solid ? backgroundColor != null : true,
          'backgroundColor is required when type is solid',
        );
 
   final String text;
-  final IconData? leftIcon;
-  final IconData? rightIcon;
-  final ChipActionSize size;
-  final ChipActionType type;
+  final ChipFilterSize size;
+  final ChipFilterType type;
   final Color textColor;
+  final Color? iconColor;
   final Color? borderColor;
   final Color? backgroundColor;
   final VoidCallback? onPressed;
@@ -46,7 +45,7 @@ class ChipAction extends StatelessWidget {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(borderRadius),
         border:
-            type == ChipActionType.outlined && borderColor != null
+            type == ChipFilterType.outlined && borderColor != null
                 ? Border.all(color: borderColor!)
                 : null,
       ),
@@ -60,10 +59,6 @@ class ChipAction extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                if (leftIcon != null) ...<Widget>[
-                  Icon(leftIcon, size: iconSize, color: textColor),
-                  SizedBox(width: gap),
-                ],
                 Padding(
                   padding: textPadding,
                   child: Text(
@@ -71,10 +66,16 @@ class ChipAction extends StatelessWidget {
                     style: textStyle.copyWith(color: textColor),
                   ),
                 ),
-                if (rightIcon != null) ...<Widget>[
-                  SizedBox(width: gap),
-                  Icon(rightIcon, size: iconSize, color: textColor),
-                ],
+                SizedBox(width: gap),
+                SvgPicture.asset(
+                  'assets/icons/svg/caret_down.svg',
+                  width: iconSize,
+                  height: iconSize,
+                  colorFilter: ColorFilter.mode(
+                    iconColor ?? textColor,
+                    BlendMode.srcIn,
+                  ),
+                ),
               ],
             ),
           ),
@@ -85,71 +86,71 @@ class ChipAction extends StatelessWidget {
 
   double _getBorderRadius() {
     switch (size) {
-      case ChipActionSize.xsmall:
+      case ChipFilterSize.xsmall:
         return 6;
-      case ChipActionSize.small:
+      case ChipFilterSize.small:
         return 8;
-      case ChipActionSize.medium:
-      case ChipActionSize.large:
+      case ChipFilterSize.medium:
+      case ChipFilterSize.large:
         return 10;
     }
   }
 
   EdgeInsets _getPadding() {
     switch (size) {
-      case ChipActionSize.xsmall:
-        return const EdgeInsets.symmetric(horizontal: 7, vertical: 4);
-      case ChipActionSize.small:
-        return const EdgeInsets.symmetric(horizontal: 8, vertical: 6);
-      case ChipActionSize.medium:
-        return const EdgeInsets.symmetric(horizontal: 11, vertical: 7);
-      case ChipActionSize.large:
-        return const EdgeInsets.symmetric(horizontal: 12, vertical: 9);
+      case ChipFilterSize.xsmall:
+        return const EdgeInsets.fromLTRB(7, 4, 5, 4);
+      case ChipFilterSize.small:
+        return const EdgeInsets.fromLTRB(8, 6, 6, 6);
+      case ChipFilterSize.medium:
+        return const EdgeInsets.fromLTRB(11, 7, 9, 7);
+      case ChipFilterSize.large:
+        return const EdgeInsets.fromLTRB(12, 9, 10, 9);
     }
   }
 
   EdgeInsets _getTextPadding() {
     switch (size) {
-      case ChipActionSize.xsmall:
+      case ChipFilterSize.xsmall:
         return const EdgeInsets.symmetric(horizontal: 1);
-      case ChipActionSize.small:
-      case ChipActionSize.medium:
-      case ChipActionSize.large:
+      case ChipFilterSize.small:
+      case ChipFilterSize.medium:
+      case ChipFilterSize.large:
         return const EdgeInsets.symmetric(horizontal: 2);
     }
   }
 
   double _getIconSize() {
     switch (size) {
-      case ChipActionSize.xsmall:
+      case ChipFilterSize.xsmall:
         return 12;
-      case ChipActionSize.small:
-      case ChipActionSize.medium:
+      case ChipFilterSize.small:
+      case ChipFilterSize.medium:
         return 14;
-      case ChipActionSize.large:
+      case ChipFilterSize.large:
         return 16;
     }
   }
 
   double _getGap() {
     switch (size) {
-      case ChipActionSize.xsmall:
-      case ChipActionSize.small:
+      case ChipFilterSize.xsmall:
+      case ChipFilterSize.small:
+        return 1;
+      case ChipFilterSize.medium:
+      case ChipFilterSize.large:
         return 2;
-      case ChipActionSize.medium:
-      case ChipActionSize.large:
-        return 3;
     }
   }
 
   TextStyle _getTextStyle() {
     switch (size) {
-      case ChipActionSize.xsmall:
+      case ChipFilterSize.xsmall:
         return AppTextStyles.caption1.medium;
-      case ChipActionSize.small:
+      case ChipFilterSize.small:
         return AppTextStyles.label1.normalMedium;
-      case ChipActionSize.medium:
-      case ChipActionSize.large:
+      case ChipFilterSize.medium:
+      case ChipFilterSize.large:
         return AppTextStyles.body2.normalMedium;
     }
   }
