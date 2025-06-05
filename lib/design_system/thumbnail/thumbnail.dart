@@ -31,12 +31,14 @@ class Thumbnail extends StatelessWidget {
     required this.ratio,
     required this.sourceType,
     this.fit = BoxFit.cover,
+    this.hasRadius = false,
   });
 
   final String path;
   final ThumbnailRatio ratio;
   final ThumbnailSourceType sourceType;
   final BoxFit fit;
+  final bool hasRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +66,16 @@ class Thumbnail extends StatelessWidget {
       ),
     };
 
-    return AspectRatio(aspectRatio: _getAspectRatio(), child: imageWidget);
+    return AspectRatio(
+      aspectRatio: _getAspectRatio(),
+      child: ClipRRect(
+        borderRadius:
+            hasRadius
+                ? const BorderRadius.all(Radius.circular(12))
+                : BorderRadius.zero,
+        child: imageWidget,
+      ),
+    );
   }
 
   double _getAspectRatio() {
