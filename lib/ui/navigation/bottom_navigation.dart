@@ -33,89 +33,29 @@ class BottomNavigation extends StatelessWidget {
           elevation: 0,
           indicatorColor: Colors.transparent,
           destinations: <Widget>[
-            NavigationDestination(
-              icon: Icon(
-                Icons.home_outlined,
-                color:
-                    currentIndex == 0
-                        ? semanticColors.primaryNormal
-                        : semanticColors.interactionInactive,
-              ),
-              selectedIcon: Icon(
-                Icons.home,
-                color:
-                    currentIndex == 0
-                        ? semanticColors.primaryNormal
-                        : semanticColors.interactionInactive,
-              ),
+            const NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home),
               label: '홈',
             ),
-            NavigationDestination(
-              icon: Icon(
-                Icons.route_outlined,
-                color:
-                    currentIndex == 1
-                        ? semanticColors.primaryNormal
-                        : semanticColors.interactionInactive,
-              ),
-              selectedIcon: Icon(
-                Icons.route,
-                color:
-                    currentIndex == 1
-                        ? semanticColors.primaryNormal
-                        : semanticColors.interactionInactive,
-              ),
+            const NavigationDestination(
+              icon: Icon(Icons.route_outlined),
+              selectedIcon: Icon(Icons.route),
               label: '경로 생성',
             ),
-            NavigationDestination(
-              icon: Icon(
-                Icons.directions_bike_outlined,
-                color:
-                    currentIndex == 2
-                        ? semanticColors.primaryNormal
-                        : semanticColors.interactionInactive,
-              ),
-              selectedIcon: Icon(
-                Icons.directions_bike,
-                color:
-                    currentIndex == 2
-                        ? semanticColors.primaryNormal
-                        : semanticColors.interactionInactive,
-              ),
+            const NavigationDestination(
+              icon: Icon(Icons.directions_bike_outlined),
+              selectedIcon: Icon(Icons.directions_bike),
               label: '라이딩',
             ),
-            NavigationDestination(
-              icon: Icon(
-                Icons.bar_chart_outlined,
-                color:
-                    currentIndex == 3
-                        ? semanticColors.primaryNormal
-                        : semanticColors.interactionInactive,
-              ),
-              selectedIcon: Icon(
-                Icons.bar_chart,
-                color:
-                    currentIndex == 3
-                        ? semanticColors.primaryNormal
-                        : semanticColors.interactionInactive,
-              ),
+            const NavigationDestination(
+              icon: Icon(Icons.bar_chart_outlined),
+              selectedIcon: Icon(Icons.bar_chart),
               label: '운동 기록',
             ),
-            NavigationDestination(
-              icon: Icon(
-                Icons.person_outline,
-                color:
-                    currentIndex == 4
-                        ? semanticColors.primaryNormal
-                        : semanticColors.interactionInactive,
-              ),
-              selectedIcon: Icon(
-                Icons.person,
-                color:
-                    currentIndex == 4
-                        ? semanticColors.primaryNormal
-                        : semanticColors.interactionInactive,
-              ),
+            const NavigationDestination(
+              icon: Icon(Icons.person_outline),
+              selectedIcon: Icon(Icons.person),
               label: 'MY',
             ),
           ],
