@@ -4,6 +4,8 @@ import 'package:ridingmate/design_system/chip/chip_action.dart';
 
 enum CategoryFilterSize { small, medium, large, xlarge }
 
+enum CategoryFilterMode { normal, alternative }
+
 class CategoryFilter extends StatelessWidget {
   const CategoryFilter({
     super.key,
@@ -11,12 +13,14 @@ class CategoryFilter extends StatelessWidget {
     required this.selectedCategories,
     required this.onCategorySelected,
     this.size = CategoryFilterSize.medium,
+    this.mode = CategoryFilterMode.alternative,
   });
 
   final List<String> categories;
   final Set<String> selectedCategories;
   final void Function(String category) onCategorySelected;
   final CategoryFilterSize size;
+  final CategoryFilterMode mode;
 
   double get _spacing {
     switch (size) {
@@ -59,22 +63,33 @@ class CategoryFilter extends StatelessWidget {
                 child: ChipAction(
                   text: category,
                   size: _chipSize,
-                  type: ChipActionType.outlined,
+                  type:
+                      isSelected
+                          ? (mode == CategoryFilterMode.normal
+                              ? ChipActionType.solid
+                              : ChipActionType.outlined)
+                          : ChipActionType.outlined,
                   textColor:
                       isSelected
-                          ? context.semanticColor.primaryNormal
-                          : context.semanticColor.labelNormal,
+                          ? (mode == CategoryFilterMode.normal
+                              ? context.semanticColor.inverseLabel
+                              : context.semanticColor.primaryNormal)
+                          : context.semanticColor.labelAlternative,
                   borderColor:
                       isSelected
-                          ? context.semanticColor.primaryNormal.withOpacity(
-                            0.43,
-                          )
+                          ? (mode == CategoryFilterMode.normal
+                              ? null
+                              : context.semanticColor.primaryNormal.withAlpha(
+                                110,
+                              ))
                           : context.semanticColor.lineNormalNeutral,
                   backgroundColor:
                       isSelected
-                          ? context.semanticColor.primaryNormal.withOpacity(
-                            0.05,
-                          )
+                          ? (mode == CategoryFilterMode.normal
+                              ? context.semanticColor.labelStrong
+                              : context.semanticColor.primaryNormal.withAlpha(
+                                13,
+                              ))
                           : null,
                   onPressed: () => onCategorySelected(category),
                 ),
