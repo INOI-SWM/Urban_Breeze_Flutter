@@ -48,6 +48,42 @@ class CategoryFilter extends StatelessWidget {
     }
   }
 
+  ChipActionType _getChipActionType(bool isSelected) {
+    if (isSelected) {
+      return mode == CategoryFilterMode.normal
+          ? ChipActionType.solid
+          : ChipActionType.outlined;
+    }
+    return ChipActionType.outlined;
+  }
+
+  Color _getChipActionTextColor(BuildContext context, bool isSelected) {
+    if (isSelected) {
+      return mode == CategoryFilterMode.normal
+          ? context.semanticColor.inverseLabel
+          : context.semanticColor.primaryNormal;
+    }
+    return context.semanticColor.labelAlternative;
+  }
+
+  Color? _getChipActionBorderColor(BuildContext context, bool isSelected) {
+    if (isSelected) {
+      return mode == CategoryFilterMode.normal
+          ? null
+          : context.semanticColor.primaryNormal.withValues(alpha: 0.43);
+    }
+    return context.semanticColor.lineNormalNeutral;
+  }
+
+  Color? _getChipActionBackgroundColor(BuildContext context, bool isSelected) {
+    if (isSelected) {
+      return mode == CategoryFilterMode.normal
+          ? context.semanticColor.labelStrong
+          : context.semanticColor.primaryNormal.withValues(alpha: 0.05);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -63,34 +99,13 @@ class CategoryFilter extends StatelessWidget {
                 child: ChipAction(
                   text: category,
                   size: _chipSize,
-                  type:
-                      isSelected
-                          ? (mode == CategoryFilterMode.normal
-                              ? ChipActionType.solid
-                              : ChipActionType.outlined)
-                          : ChipActionType.outlined,
-                  textColor:
-                      isSelected
-                          ? (mode == CategoryFilterMode.normal
-                              ? context.semanticColor.inverseLabel
-                              : context.semanticColor.primaryNormal)
-                          : context.semanticColor.labelAlternative,
-                  borderColor:
-                      isSelected
-                          ? (mode == CategoryFilterMode.normal
-                              ? null
-                              : context.semanticColor.primaryNormal.withAlpha(
-                                110,
-                              ))
-                          : context.semanticColor.lineNormalNeutral,
-                  backgroundColor:
-                      isSelected
-                          ? (mode == CategoryFilterMode.normal
-                              ? context.semanticColor.labelStrong
-                              : context.semanticColor.primaryNormal.withAlpha(
-                                13,
-                              ))
-                          : null,
+                  type: _getChipActionType(isSelected),
+                  textColor: _getChipActionTextColor(context, isSelected),
+                  borderColor: _getChipActionBorderColor(context, isSelected),
+                  backgroundColor: _getChipActionBackgroundColor(
+                    context,
+                    isSelected,
+                  ),
                   onPressed: () => onCategorySelected(category),
                 ),
               );
