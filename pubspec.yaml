@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  flutter_svg: ^2.0.9
 
 dev_dependencies:
   flutter_test:
@@ -29,3 +30,6 @@ flutter:
           weight: 600
         - asset: assets/fonts/PretendardJP-Bold.ttf
           weight: 700
+
+  assets:
+    - assets/icons/svg/
