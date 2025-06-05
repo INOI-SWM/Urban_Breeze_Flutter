@@ -97,6 +97,7 @@ class CategoryFilter extends StatelessWidget {
                   right: category == categories.last ? 0 : _spacing,
                 ),
                 child: ChipAction(
+                  key: ValueKey<String>(category),
                   text: category,
                   size: _chipSize,
                   type: _getChipActionType(isSelected),
