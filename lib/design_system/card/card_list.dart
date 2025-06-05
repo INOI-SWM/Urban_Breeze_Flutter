@@ -32,6 +32,7 @@ class CardList extends StatelessWidget {
               path: imageUrl,
               ratio: ThumbnailRatio.r3_2,
               sourceType: ThumbnailSourceType.network,
+              hasRadius: true,
             ),
           ),
           const SizedBox(width: 12),
