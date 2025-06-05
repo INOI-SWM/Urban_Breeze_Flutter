@@ -13,7 +13,6 @@ class BottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get semantic colors from the context
     final SemanticColors semanticColors = context.semanticColor;
 
     return Container(
@@ -21,18 +20,17 @@ class BottomNavigation extends StatelessWidget {
         color: semanticColors.backgroundNormalNormal,
         border: Border(
           top: BorderSide(
-            color: semanticColors.lineNormalNormal.withOpacity(0.16),
+            color: semanticColors.lineNormalNormal.withValues(alpha: 0.16),
             width: 1.0,
           ),
         ),
       ),
       child: SafeArea(
-        // To handle iOS safe area
         child: NavigationBar(
           selectedIndex: currentIndex,
           onDestinationSelected: onDestinationSelected,
           backgroundColor: Colors.transparent,
-          elevation: 0, // No shadow
+          elevation: 0,
           indicatorColor: Colors.transparent,
           destinations: <Widget>[
             NavigationDestination(
