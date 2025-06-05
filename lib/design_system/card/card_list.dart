@@ -60,8 +60,7 @@ class CardList extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Wrap(
-                  spacing: 4,
-                  runSpacing: 4,
+                  spacing: 6,
                   children: <Widget>[
                     ContentBadge(
                       text: distance,
