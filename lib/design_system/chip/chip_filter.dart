@@ -1,22 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
 
 enum ChipFilterSize { xsmall, small, medium, large }
+
+enum ChipFilterType { solid, outlined }
 
 class ChipFilter extends StatelessWidget {
   const ChipFilter({
     super.key,
     required this.text,
     this.size = ChipFilterSize.medium,
+    this.type = ChipFilterType.solid,
     required this.textColor,
     this.iconColor,
     this.borderColor,
     this.backgroundColor,
     this.onPressed,
-  });
+  }) : assert(
+         type == ChipFilterType.solid ? backgroundColor != null : true,
+         'backgroundColor is required when type is solid',
+       );
 
   final String text;
   final ChipFilterSize size;
+  final ChipFilterType type;
   final Color textColor;
   final Color? iconColor;
   final Color? borderColor;
@@ -36,7 +44,10 @@ class ChipFilter extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(borderRadius),
-        border: borderColor != null ? Border.all(color: borderColor!) : null,
+        border:
+            type == ChipFilterType.outlined && borderColor != null
+                ? Border.all(color: borderColor!)
+                : null,
       ),
       child: Material(
         color: Colors.transparent,
@@ -56,10 +67,14 @@ class ChipFilter extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: gap),
-                Icon(
-                  Icons.keyboard_arrow_down,
-                  size: iconSize,
-                  color: iconColor ?? textColor,
+                SvgPicture.asset(
+                  'assets/icons/svg/caret_down.svg',
+                  width: iconSize,
+                  height: iconSize,
+                  colorFilter: ColorFilter.mode(
+                    iconColor ?? textColor,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ],
             ),
