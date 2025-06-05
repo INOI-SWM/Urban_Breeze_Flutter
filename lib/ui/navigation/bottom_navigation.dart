@@ -11,6 +11,35 @@ class BottomNavigation extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onDestinationSelected;
 
+  static const List<Map<String, dynamic>> _navigationItems =
+      <Map<String, dynamic>>[
+        <String, dynamic>{
+          'icon': Icons.home_outlined,
+          'selectedIcon': Icons.home,
+          'label': '홈',
+        },
+        <String, dynamic>{
+          'icon': Icons.route_outlined,
+          'selectedIcon': Icons.route,
+          'label': '경로 생성',
+        },
+        <String, dynamic>{
+          'icon': Icons.directions_bike_outlined,
+          'selectedIcon': Icons.directions_bike,
+          'label': '라이딩',
+        },
+        <String, dynamic>{
+          'icon': Icons.bar_chart_outlined,
+          'selectedIcon': Icons.bar_chart,
+          'label': '운동 기록',
+        },
+        <String, dynamic>{
+          'icon': Icons.person_outline,
+          'selectedIcon': Icons.person,
+          'label': 'MY',
+        },
+      ];
+
   @override
   Widget build(BuildContext context) {
     final SemanticColors semanticColors = context.semanticColor;
@@ -33,31 +62,12 @@ class BottomNavigation extends StatelessWidget {
           elevation: 0,
           indicatorColor: Colors.transparent,
           destinations: <Widget>[
-            const NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
-              label: '홈',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.route_outlined),
-              selectedIcon: Icon(Icons.route),
-              label: '경로 생성',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.directions_bike_outlined),
-              selectedIcon: Icon(Icons.directions_bike),
-              label: '라이딩',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.bar_chart_outlined),
-              selectedIcon: Icon(Icons.bar_chart),
-              label: '운동 기록',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
-              label: 'MY',
-            ),
+            for (final Map<String, dynamic> item in _navigationItems)
+              NavigationDestination(
+                icon: Icon(item['icon']),
+                selectedIcon: Icon(item['selectedIcon']),
+                label: item['label'],
+              ),
           ],
         ),
       ),
