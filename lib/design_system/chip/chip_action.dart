@@ -86,8 +86,9 @@ class ChipAction extends StatelessWidget {
   double _getBorderRadius() {
     switch (size) {
       case ChipActionSize.xsmall:
-      case ChipActionSize.small:
         return 6;
+      case ChipActionSize.small:
+        return 8;
       case ChipActionSize.medium:
       case ChipActionSize.large:
         return 10;
