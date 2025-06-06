@@ -15,27 +15,27 @@ class BottomNavigation extends StatelessWidget {
   static const List<Map<String, dynamic>> _navigationItems =
       <Map<String, dynamic>>[
         <String, dynamic>{
-          'icon': Icons.home_outlined,
+          'icon': Icons.home,
           'selectedIcon': Icons.home,
           'label': '홈',
         },
         <String, dynamic>{
-          'icon': Icons.route_outlined,
+          'icon': Icons.route,
           'selectedIcon': Icons.route,
           'label': '경로 생성',
         },
         <String, dynamic>{
-          'icon': Icons.directions_bike_outlined,
+          'icon': Icons.directions_bike,
           'selectedIcon': Icons.directions_bike,
           'label': '라이딩',
         },
         <String, dynamic>{
-          'icon': Icons.bar_chart_outlined,
+          'icon': Icons.bar_chart,
           'selectedIcon': Icons.bar_chart,
           'label': '운동 기록',
         },
         <String, dynamic>{
-          'icon': Icons.person_outline,
+          'icon': Icons.person,
           'selectedIcon': Icons.person,
           'label': 'MY',
         },
