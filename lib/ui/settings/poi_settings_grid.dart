@@ -5,6 +5,12 @@ import 'package:ridingmate/design_system/Icon/icon_size.dart';
 import 'package:ridingmate/design_system/button/icon_button_solid.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
 
+class POISetting {
+  const POISetting({required this.icon, required this.label});
+  final IconData icon;
+  final String label;
+}
+
 class POISettingsGrid extends StatelessWidget {
   const POISettingsGrid({
     super.key,
@@ -20,7 +26,7 @@ class POISettingsGrid extends StatelessWidget {
   static const double _buttonCustomSize = 48.0;
   static const int _maxRows = 2;
 
-  final List<Map<String, dynamic>> settings;
+  final List<POISetting> settings;
   final Set<int> selectedIndices;
   final void Function(int) onToggleSetting;
 
@@ -52,7 +58,7 @@ class POISettingsGrid extends StatelessWidget {
                   }
 
                   final bool isSelected = selectedIndices.contains(index);
-                  final Map<String, dynamic> setting = settings[index];
+                  final POISetting setting = settings[index];
 
                   return SizedBox(
                     width: itemWidth,
@@ -64,7 +70,7 @@ class POISettingsGrid extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           IconButtonSolid(
-                            icon: setting['icon'] as IconData,
+                            icon: setting.icon,
                             onPressed: () => onToggleSetting(index),
                             iconSize: IconSize.xlarge,
                             backgroundColor:
@@ -79,7 +85,7 @@ class POISettingsGrid extends StatelessWidget {
                           ),
                           const SizedBox(height: _iconTextSpacing),
                           Text(
-                            setting['label'] as String,
+                            setting.label,
                             style: AppTextStyles.caption2.medium.copyWith(
                               color:
                                   isSelected
