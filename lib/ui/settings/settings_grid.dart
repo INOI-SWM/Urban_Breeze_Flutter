@@ -21,71 +21,76 @@ class POISettingsGrid extends StatelessWidget {
     final SemanticColors colors = context.semanticColor;
     final int rows = (settings.length / 4).ceil();
     final int maxRows = 2;
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double itemWidth = (screenWidth - 30) / 4; // 30은 요소 간 간격(10 * 3)
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: List<Widget>.generate(rows > maxRows ? maxRows : rows, (
-        int rowIndex,
-      ) {
-        return Padding(
-          padding: EdgeInsets.only(bottom: rowIndex < rows - 1 ? 10 : 0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List<Widget>.generate(4, (int colIndex) {
-              final int index = rowIndex * 4 + colIndex;
-              if (index >= settings.length) {
-                return SizedBox(width: itemWidth);
-              }
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final double itemWidth =
+            (constraints.maxWidth - 30) / 4; // 30은 요소 간 간격(10 * 3)
 
-              final bool isSelected = selectedIndices.contains(index);
-              final Map<String, dynamic> setting = settings[index];
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: List<Widget>.generate(rows > maxRows ? maxRows : rows, (
+            int rowIndex,
+          ) {
+            return Padding(
+              padding: EdgeInsets.only(bottom: rowIndex < rows - 1 ? 10 : 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List<Widget>.generate(4, (int colIndex) {
+                  final int index = rowIndex * 4 + colIndex;
+                  if (index >= settings.length) {
+                    return SizedBox(width: itemWidth);
+                  }
 
-              return SizedBox(
-                width: itemWidth,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          IconButtonSolid(
-                            icon: setting['icon'] as IconData,
-                            onPressed: () => onToggleSetting(index),
-                            iconSize: IconSize.xlarge,
-                            backgroundColor:
-                                isSelected
-                                    ? colors.primaryNormal
-                                    : colors.fillNormal,
-                            iconColor:
-                                isSelected
-                                    ? colors.staticWhite
-                                    : colors.labelDisable,
-                            customButtonSize: 48,
+                  final bool isSelected = selectedIndices.contains(index);
+                  final Map<String, dynamic> setting = settings[index];
+
+                  return SizedBox(
+                    width: itemWidth,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              IconButtonSolid(
+                                icon: setting['icon'] as IconData,
+                                onPressed: () => onToggleSetting(index),
+                                iconSize: IconSize.xlarge,
+                                backgroundColor:
+                                    isSelected
+                                        ? colors.primaryNormal
+                                        : colors.fillNormal,
+                                iconColor:
+                                    isSelected
+                                        ? colors.staticWhite
+                                        : colors.labelDisable,
+                                customButtonSize: 48,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                setting['label'] as String,
+                                style: AppTextStyles.caption2.medium.copyWith(
+                                  color:
+                                      isSelected
+                                          ? colors.primaryNormal
+                                          : colors.labelDisable,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            setting['label'] as String,
-                            style: AppTextStyles.caption2.medium.copyWith(
-                              color:
-                                  isSelected
-                                      ? colors.primaryNormal
-                                      : colors.labelDisable,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              );
-            }),
-          ),
+                  );
+                }),
+              ),
+            );
+          }),
         );
-      }),
+      },
     );
   }
 }
