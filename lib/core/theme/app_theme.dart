@@ -6,6 +6,7 @@ class AppTheme {
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
     navigationBarTheme: NavigationBarThemeData(
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((
         Set<WidgetState> states,
       ) {
@@ -15,7 +16,7 @@ class AppTheme {
           );
         }
         return AppTextStyles.caption2.medium.copyWith(
-          color: const LightSemanticColors().labelNeutral,
+          color: const LightSemanticColors().interactionInactive,
         );
       }),
       iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((
@@ -24,9 +25,13 @@ class AppTheme {
         if (states.contains(WidgetState.selected)) {
           return IconThemeData(
             color: const LightSemanticColors().primaryNormal,
+            size: 24.0,
           );
         }
-        return IconThemeData(color: const LightSemanticColors().labelNeutral);
+        return IconThemeData(
+          color: const LightSemanticColors().interactionInactive,
+          size: 24.0,
+        );
       }),
     ),
   );

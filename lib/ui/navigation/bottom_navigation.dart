@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/theme/extensions.dart'; // For context.semanticColor
 import 'package:ridingmate/core/theme/semantic_colors.dart';
-import 'package:ridingmate/design_system/typography/app_text_style.dart'; // For AppTextStyles
 
 class BottomNavigation extends StatelessWidget {
   const BottomNavigation({
@@ -45,8 +44,6 @@ class BottomNavigation extends StatelessWidget {
   Widget build(BuildContext context) {
     final SemanticColors semanticColors = context.semanticColor;
 
-    final TextStyle labelBaseStyle = AppTextStyles.caption2.medium;
-
     return Container(
       decoration: BoxDecoration(
         color: semanticColors.backgroundNormalNormal,
@@ -58,53 +55,20 @@ class BottomNavigation extends StatelessWidget {
         ),
       ),
       child: SafeArea(
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            navigationBarTheme: NavigationBarThemeData(
-              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-              labelTextStyle: WidgetStateProperty.resolveWith((
-                Set<WidgetState> states,
-              ) {
-                if (states.contains(WidgetState.selected)) {
-                  return labelBaseStyle.copyWith(
-                    color: semanticColors.primaryNormal,
-                  );
-                }
-                return labelBaseStyle.copyWith(
-                  color: semanticColors.interactionInactive,
-                );
-              }),
-              iconTheme: WidgetStateProperty.resolveWith((
-                Set<WidgetState> states,
-              ) {
-                if (states.contains(WidgetState.selected)) {
-                  return IconThemeData(
-                    color: semanticColors.primaryNormal,
-                    size: 24.0,
-                  );
-                }
-                return IconThemeData(
-                  color: semanticColors.interactionInactive,
-                  size: 24.0,
-                );
-              }),
-            ),
-          ),
-          child: NavigationBar(
-            selectedIndex: currentIndex,
-            onDestinationSelected: onDestinationSelected,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            indicatorColor: Colors.transparent,
-            destinations: <Widget>[
-              for (final Map<String, dynamic> item in _navigationItems)
-                NavigationDestination(
-                  icon: Icon(item['icon']),
-                  selectedIcon: Icon(item['selectedIcon']),
-                  label: item['label'],
-                ),
-            ],
-          ),
+        child: NavigationBar(
+          selectedIndex: currentIndex,
+          onDestinationSelected: onDestinationSelected,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          indicatorColor: Colors.transparent,
+          destinations: <Widget>[
+            for (final Map<String, dynamic> item in _navigationItems)
+              NavigationDestination(
+                icon: Icon(item['icon']),
+                selectedIcon: Icon(item['selectedIcon']),
+                label: item['label'],
+              ),
+          ],
         ),
       ),
     );
