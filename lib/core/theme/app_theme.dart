@@ -10,26 +10,21 @@ class AppTheme {
       labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((
         Set<WidgetState> states,
       ) {
-        if (states.contains(WidgetState.selected)) {
-          return AppTextStyles.caption2.medium.copyWith(
-            color: const LightSemanticColors().primaryNormal,
-          );
-        }
         return AppTextStyles.caption2.medium.copyWith(
-          color: const LightSemanticColors().interactionInactive,
+          color:
+              states.contains(WidgetState.selected)
+                  ? const LightSemanticColors().primaryNormal
+                  : const LightSemanticColors().interactionInactive,
         );
       }),
       iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((
         Set<WidgetState> states,
       ) {
-        if (states.contains(WidgetState.selected)) {
-          return IconThemeData(
-            color: const LightSemanticColors().primaryNormal,
-            size: 24.0,
-          );
-        }
         return IconThemeData(
-          color: const LightSemanticColors().interactionInactive,
+          color:
+              states.contains(WidgetState.selected)
+                  ? const LightSemanticColors().primaryNormal
+                  : const LightSemanticColors().interactionInactive,
           size: 24.0,
         );
       }),
@@ -42,22 +37,22 @@ class AppTheme {
       labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((
         Set<WidgetState> states,
       ) {
-        if (states.contains(WidgetState.selected)) {
-          return AppTextStyles.caption2.medium.copyWith(
-            color: const DarkSemanticColors().primaryNormal,
-          );
-        }
         return AppTextStyles.caption2.medium.copyWith(
-          color: const DarkSemanticColors().labelNeutral,
+          color:
+              states.contains(WidgetState.selected)
+                  ? const DarkSemanticColors().primaryNormal
+                  : const DarkSemanticColors().labelNeutral,
         );
       }),
       iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((
         Set<WidgetState> states,
       ) {
-        if (states.contains(WidgetState.selected)) {
-          return IconThemeData(color: const DarkSemanticColors().primaryNormal);
-        }
-        return IconThemeData(color: const DarkSemanticColors().labelNeutral);
+        return IconThemeData(
+          color:
+              states.contains(WidgetState.selected)
+                  ? const DarkSemanticColors().primaryNormal
+                  : const DarkSemanticColors().labelNeutral,
+        );
       }),
     ),
   );
