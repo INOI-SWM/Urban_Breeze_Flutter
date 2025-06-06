@@ -1,5 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:ridingmate/core/theme/extensions.dart'; // For context.semanticColor
+import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
 
 class BottomNavigation extends StatelessWidget {
@@ -44,6 +45,11 @@ class BottomNavigation extends StatelessWidget {
   Widget build(BuildContext context) {
     final SemanticColors semanticColors = context.semanticColor;
 
+    final double navigationBarHeight =
+        defaultTargetPlatform == TargetPlatform.iOS ? 51.0 : 64.0;
+    final double iconLabelVerticalGap =
+        defaultTargetPlatform == TargetPlatform.iOS ? 3.0 : 6.0;
+
     return Container(
       decoration: BoxDecoration(
         color: semanticColors.backgroundNormalNormal,
@@ -56,11 +62,13 @@ class BottomNavigation extends StatelessWidget {
       ),
       child: SafeArea(
         child: NavigationBar(
+          height: navigationBarHeight,
           selectedIndex: currentIndex,
           onDestinationSelected: onDestinationSelected,
           backgroundColor: Colors.transparent,
           elevation: 0,
           indicatorColor: Colors.transparent,
+          labelPadding: EdgeInsets.only(top: iconLabelVerticalGap),
           destinations: <Widget>[
             for (final Map<String, dynamic> item in _navigationItems)
               NavigationDestination(
