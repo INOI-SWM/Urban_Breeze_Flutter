@@ -33,76 +33,86 @@ class POISettingsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-    final int totalRows = (settings.length / _gridColumns).ceil();
-    final int effectiveRows = totalRows > _maxRows ? _maxRows : totalRows;
+    final TextStyle textStyle = AppTextStyles.caption2.medium;
+
+    final int effectiveItemCount =
+        settings.length > _gridColumns * _maxRows
+            ? _gridColumns * _maxRows
+            : settings.length;
+
+    final double textHeightEstimate = textStyle.fontSize! * textStyle.height!;
+    final double itemHeightEstimate =
+        _buttonCustomSize +
+        _iconTextSpacing +
+        textHeightEstimate +
+        (_itemVerticalPadding * 2);
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        final double totalHorizontalSpacing = _gridGap * (_gridColumns - 1);
-        final double itemWidth =
-            (constraints.maxWidth - totalHorizontalSpacing) / _gridColumns;
+        final double childAspectRatio = _calculateChildAspectRatio(
+          constraints,
+          itemHeightEstimate,
+        );
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: List<Widget>.generate(effectiveRows, (int rowIndex) {
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.zero,
+          itemCount: effectiveItemCount,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: _gridColumns,
+            crossAxisSpacing: _gridGap,
+            mainAxisSpacing: _gridGap,
+            childAspectRatio: childAspectRatio,
+          ),
+          itemBuilder: (BuildContext context, int index) {
+            final bool isSelected = selectedIndices.contains(index);
+            final POISetting setting = settings[index];
+
+            final Color textColor =
+                isSelected ? colors.primaryNormal : colors.labelDisable;
+            final TextStyle effectiveTextStyle = textStyle.copyWith(
+              color: textColor,
+            );
+
             return Padding(
-              padding: EdgeInsets.only(
-                bottom: rowIndex < effectiveRows - 1 ? _gridGap : 0,
+              padding: const EdgeInsets.symmetric(
+                vertical: _itemVerticalPadding,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List<Widget>.generate(_gridColumns, (int colIndex) {
-                  final int index = rowIndex * _gridColumns + colIndex;
-                  if (index >= settings.length) {
-                    return SizedBox(width: itemWidth);
-                  }
-
-                  final bool isSelected = selectedIndices.contains(index);
-                  final POISetting setting = settings[index];
-
-                  return SizedBox(
-                    width: itemWidth,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: _itemVerticalPadding,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          IconButtonSolid(
-                            icon: setting.icon,
-                            onPressed: () => onToggleSetting(index),
-                            iconSize: IconSize.xlarge,
-                            backgroundColor:
-                                isSelected
-                                    ? colors.primaryNormal
-                                    : colors.fillNormal,
-                            iconColor:
-                                isSelected
-                                    ? colors.staticWhite
-                                    : colors.labelDisable,
-                            customButtonSize: _buttonCustomSize,
-                          ),
-                          const SizedBox(height: _iconTextSpacing),
-                          Text(
-                            setting.label,
-                            style: AppTextStyles.caption2.medium.copyWith(
-                              color:
-                                  isSelected
-                                      ? colors.primaryNormal
-                                      : colors.labelDisable,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  IconButtonSolid(
+                    icon: setting.icon,
+                    onPressed: () => onToggleSetting(index),
+                    iconSize: IconSize.xlarge,
+                    backgroundColor:
+                        isSelected ? colors.primaryNormal : colors.fillNormal,
+                    iconColor:
+                        isSelected ? colors.staticWhite : colors.labelDisable,
+                    customButtonSize: _buttonCustomSize,
+                  ),
+                  const SizedBox(height: _iconTextSpacing),
+                  Text(
+                    setting.label,
+                    textAlign: TextAlign.center,
+                    style: effectiveTextStyle,
+                  ),
+                ],
               ),
             );
-          }),
+          },
         );
       },
     );
+  }
+
+  double _calculateChildAspectRatio(
+    BoxConstraints constraints,
+    double itemHeight,
+  ) {
+    final double itemWidth =
+        (constraints.maxWidth - (_gridGap * (_gridColumns - 1))) / _gridColumns;
+    return itemWidth / itemHeight;
   }
 }
