@@ -49,6 +49,21 @@ class _SearchFieldState extends State<SearchField> {
     super.dispose();
   }
 
+  @override
+  void didUpdateWidget(SearchField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.controller != oldWidget.controller) {
+      if (oldWidget.controller == null) {
+        _controller.removeListener(_updateHasText);
+        _controller.dispose();
+      }
+
+      _controller = widget.controller ?? TextEditingController();
+      _hasText = _controller.text.isNotEmpty;
+      _controller.addListener(_updateHasText);
+    }
+  }
+
   double get _padding => widget.size == SearchFieldSize.small ? 8 : 12;
 
   void _updateHasText() {
