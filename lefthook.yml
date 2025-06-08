@@ -1,19 +1,19 @@
 commit-msg:
-    parallel: true
-    commands:
-        validate-commit-msg:
-            run: .lefthook/validate-commit-msg.sh {1}
+  parallel: true
+  commands:
+    validate-commit-msg:
+      run: .lefthook/validate-commit-msg.sh {1}
 
 pre-commit:
-    scripts:
-        dart_fix:
-            runner: bash
-            script: dart fix --apply
+  scripts:
+    dart_fix:
+      runner: bash
+      script: dart fix --apply
 
 pre-push:
-    parallel: true
-    commands:
-        validate-branch-name:
-            run: .lefthook/validate-branch-name.sh
-        flutter-analyze:
-            run: .lefthook/flutter-analyze.sh
+  parallel: true
+  commands:
+    validate-branch-name:
+      run: .lefthook/validate-branch-name.sh
+    flutter-analyze:
+      run: .lefthook/flutter-analyze.sh
