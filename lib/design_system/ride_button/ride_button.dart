@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
 import 'package:ridingmate/design_system/effect/app_shadows.dart';
@@ -34,10 +35,17 @@ class RideButton extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Icon(
-                  Icons.play_arrow_rounded,
-                  size: _iconSize,
-                  color: semanticColors.backgroundElevatedNormal,
+                SizedBox(
+                  width: _iconSize,
+                  height: _iconSize,
+                  child: SvgPicture.asset(
+                    'assets/icons/svg/play.svg',
+                    fit: BoxFit.contain,
+                    colorFilter: ColorFilter.mode(
+                      semanticColors.backgroundElevatedNormal,
+                      BlendMode.srcIn,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: _spaceBetweenIconAndText),
                 Text(
