@@ -16,4 +16,4 @@ pre-push:
     validate-branch-name:
       run: .lefthook/validate-branch-name.sh
     flutter-analyze:
-      run: flutter analyze || { echo "❌ Flutter analyze 에러로 push 중단됨"; exit 1; }
+      run: .lefthook/flutter-analyze.sh
