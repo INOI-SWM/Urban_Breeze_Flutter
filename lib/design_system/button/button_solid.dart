@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/design_system/Icon/icon_size.dart';
+import 'package:ridingmate/design_system/button/button_size.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
-
-enum ButtonSize { small, medium, large }
 
 class ButtonSolid extends StatelessWidget {
   const ButtonSolid({
@@ -82,11 +81,11 @@ class ButtonSolid extends StatelessWidget {
             : const EdgeInsets.symmetric(horizontal: 28, vertical: 12);
       case ButtonSize.medium:
         return isIconOnly
-            ? const EdgeInsets.all(9)
+            ? const EdgeInsets.all(10)
             : const EdgeInsets.symmetric(horizontal: 20, vertical: 9);
       case ButtonSize.small:
         return isIconOnly
-            ? const EdgeInsets.all(7)
+            ? const EdgeInsets.all(8)
             : const EdgeInsets.symmetric(horizontal: 14, vertical: 7);
     }
   }
