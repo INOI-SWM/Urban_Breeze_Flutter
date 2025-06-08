@@ -3,6 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
 
+class NavigationItem {
+  const NavigationItem({
+    required this.icon,
+    required this.selectedIcon,
+    required this.label,
+  });
+
+  final IconData icon;
+  final IconData selectedIcon;
+  final String label;
+}
+
 class BottomNavigation extends StatelessWidget {
   const BottomNavigation({
     super.key,
@@ -12,34 +24,25 @@ class BottomNavigation extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onDestinationSelected;
 
-  static const List<Map<String, dynamic>> _navigationItems =
-      <Map<String, dynamic>>[
-        <String, dynamic>{
-          'icon': Icons.home,
-          'selectedIcon': Icons.home,
-          'label': '홈',
-        },
-        <String, dynamic>{
-          'icon': Icons.route,
-          'selectedIcon': Icons.route,
-          'label': '경로 생성',
-        },
-        <String, dynamic>{
-          'icon': Icons.directions_bike,
-          'selectedIcon': Icons.directions_bike,
-          'label': '라이딩',
-        },
-        <String, dynamic>{
-          'icon': Icons.bar_chart,
-          'selectedIcon': Icons.bar_chart,
-          'label': '운동 기록',
-        },
-        <String, dynamic>{
-          'icon': Icons.person,
-          'selectedIcon': Icons.person,
-          'label': 'MY',
-        },
-      ];
+  static const List<NavigationItem> _navigationItems = <NavigationItem>[
+    NavigationItem(icon: Icons.home, selectedIcon: Icons.home, label: '홈'),
+    NavigationItem(
+      icon: Icons.route,
+      selectedIcon: Icons.route,
+      label: '경로 생성',
+    ),
+    NavigationItem(
+      icon: Icons.directions_bike,
+      selectedIcon: Icons.directions_bike,
+      label: '라이딩',
+    ),
+    NavigationItem(
+      icon: Icons.bar_chart,
+      selectedIcon: Icons.bar_chart,
+      label: '운동 기록',
+    ),
+    NavigationItem(icon: Icons.person, selectedIcon: Icons.person, label: 'MY'),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -70,11 +73,11 @@ class BottomNavigation extends StatelessWidget {
           indicatorColor: Colors.transparent,
           labelPadding: EdgeInsets.only(top: iconLabelVerticalGap),
           destinations: <Widget>[
-            for (final Map<String, dynamic> item in _navigationItems)
+            for (final NavigationItem item in _navigationItems)
               NavigationDestination(
-                icon: Icon(item['icon']),
-                selectedIcon: Icon(item['selectedIcon']),
-                label: item['label'],
+                icon: Icon(item.icon),
+                selectedIcon: Icon(item.selectedIcon),
+                label: item.label,
               ),
           ],
         ),
