@@ -72,13 +72,10 @@ class TopNavigationBar extends StatelessWidget implements PreferredSizeWidget {
                       ) {
                         final Widget action = entry.value;
                         final bool isLast = entry.key == actions!.length - 1;
-                        if (action is Icon) {
-                          return Padding(
-                            padding: EdgeInsets.only(right: isLast ? 0 : 8),
-                            child: action,
-                          );
-                        }
-                        return action;
+                        return Padding(
+                          padding: EdgeInsets.only(right: isLast ? 0 : 8),
+                          child: action,
+                        );
                       }).toList(),
                 ),
               ),
