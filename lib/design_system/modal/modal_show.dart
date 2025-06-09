@@ -6,7 +6,7 @@ import 'package:ridingmate/design_system/modal/modal.dart';
 class ModalShow {
   static Future<T?> show<T>({
     required BuildContext context,
-    required String title,
+    String? title,
     required Widget content,
     String? primaryButtonText,
     String? secondaryButtonText,
