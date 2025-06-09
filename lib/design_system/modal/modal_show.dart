@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/theme/app_theme.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
-import 'package:ridingmate/design_system/modal/modal.dart';
+import 'package:ridingmate/design_system/modal/modal_popup.dart';
 
 class ModalShow {
   static Future<T?> show<T>({
@@ -23,7 +23,7 @@ class ModalShow {
         //todo: 추후 상태관리 툴 도입하면 구조변경
         return SemanticTheme(
           data: context.semanticColor,
-          child: Modal(
+          child: ModalPopup(
             title: title,
             content: content,
             primaryButtonText: primaryButtonText,
