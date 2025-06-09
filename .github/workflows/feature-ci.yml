@@ -11,31 +11,35 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.29.3"
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
 
-      - name: Cache Flutter dependencies
+      - name: Install FVM
+        run: dart pub global activate fvm
+
+      - name: Cache pub & FVM SDK
         uses: actions/cache@v3
         with:
           path: |
             ~/.pub-cache
-            .dart_tool
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+            .fvm/versions
+          key: ${{ runner.os }}-fvm-${{ hashFiles('.fvmrc') }}-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
-            ${{ runner.os }}-flutter-
+            ${{ runner.os }}-fvm-
+
+      - name: Install Flutter SDK via FVM
+        run: fvm install
 
       - name: Install dependencies
-        run: flutter pub get
+        run: fvm flutter pub get
 
       - name: Format check
-        run: dart format --set-exit-if-changed .
+        run: fvm dart format --set-exit-if-changed .
 
       - name: Analyze code
-        run: flutter analyze
+        run: fvm flutter analyze
 
       # - name: Run tests
-      #   run: flutter test
+      #   run: fvm flutter test
