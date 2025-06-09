@@ -14,6 +14,7 @@ class SearchField extends StatefulWidget {
     this.onSubmitted,
     this.focusNode,
     this.size = SearchFieldSize.medium,
+    this.backgroundColor,
   });
 
   static const String _hintText = '검색어를 입력해주세요';
@@ -23,6 +24,7 @@ class SearchField extends StatefulWidget {
   final ValueChanged<String>? onSubmitted;
   final FocusNode? focusNode;
   final SearchFieldSize size;
+  final Color? backgroundColor;
 
   @override
   State<SearchField> createState() => _SearchFieldState();
@@ -87,7 +89,7 @@ class _SearchFieldState extends State<SearchField> {
     return Container(
       padding: EdgeInsets.all(_padding),
       decoration: BoxDecoration(
-        color: colors.fillNormal,
+        color: widget.backgroundColor ?? colors.fillNormal,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
