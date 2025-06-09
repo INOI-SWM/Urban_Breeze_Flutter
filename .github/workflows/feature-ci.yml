@@ -42,6 +42,42 @@ jobs:
           key: ${{ runner.os }}-fvm-${{ hashFiles('.fvmrc') }}
           restore-keys: ${{ runner.os }}-fvm-
 
+      - name: Verify FVM directories after cache restore (for debugging)
+        run: |
+          echo ".fvm 디렉토리 내용 (캐시 복원 후):"
+          if [ -d ".fvm" ]; then
+            ls -la .fvm
+            if [ -d ".fvm/flutter_sdk" ]; then
+              echo ".fvm/flutter_sdk 존재. 내용:"
+              ls -la .fvm/flutter_sdk
+            else
+              echo ".fvm/flutter_sdk does NOT exist (symbolic link might be broken or target missing)."
+            fi
+          else
+            echo ".fvm 디렉토리가 캐시에서 복원되지 않았거나 존재하지 않습니다."
+          fi
+
+          FLUTTER_VERSION=$(cat .fvmrc | grep -o '"flutter": "[^"]*' | cut -d'"' -f4)
+          if [ -z "$FLUTTER_VERSION" ]; then
+            echo "Warning: Could not find Flutter version in .fvmrc. Falling back to 3.32.2 for check."
+            FLUTTER_VERSION="3.32.2"
+          fi
+
+          if [ -d "$HOME/.fvm/versions/$FLUTTER_VERSION" ]; then
+             echo "$HOME/.fvm/versions/$FLUTTER_VERSION exists. Contents:"
+             ls -la "$HOME/.fvm/versions/$FLUTTER_VERSION"
+          else
+             echo "$HOME/.fvm/versions/$FLUTTER_VERSION does NOT exist."
+          fi
+
+          if [ -f ".fvmrc" ]; then
+            echo ".fvmrc content:"
+            cat .fvmrc
+          else
+            echo ".fvmrc file does not exist."
+          fi
+        shell: bash
+
       - name: Install Flutter SDK via FVM
         run: fvm install
 
