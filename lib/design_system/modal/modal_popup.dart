@@ -31,89 +31,88 @@ class ModalPopup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
+    final double screenWidth = MediaQuery.of(context).size.width;
 
-    return Material(
-      color: Colors.transparent,
-      child: Center(
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 24),
-          decoration: BoxDecoration(
-            color: colors.backgroundNormalNormal,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              TopNavigationBar(
-                title: title,
-                actions:
-                    showCloseButton
-                        ? <Widget>[
-                          SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: IconButton(
-                              padding: EdgeInsets.zero,
-                              icon: Icon(
-                                Icons.close,
-                                size: 24,
-                                color: colors.labelNeutral,
-                              ),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                                onClose?.call();
-                              },
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        width: screenWidth,
+        decoration: BoxDecoration(
+          color: colors.backgroundNormalNormal,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            TopNavigationBar(
+              title: title,
+              actions:
+                  showCloseButton
+                      ? <Widget>[
+                        SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: Icon(
+                              Icons.close,
+                              size: 24,
+                              color: colors.labelNeutral,
                             ),
-                          ),
-                        ]
-                        : null,
-              ),
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: content,
-                ),
-              ),
-              if (primaryButtonText != null || secondaryButtonText != null)
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: <Widget>[
-                      if (secondaryButtonText != null)
-                        Expanded(
-                          child: ButtonOutlined(
-                            text: secondaryButtonText!,
-                            textColor: colors.labelNormal,
-                            borderColor: colors.lineNormalNeutral,
-                            size: ButtonSize.large,
                             onPressed: () {
                               Navigator.of(context).pop();
-                              onSecondaryButtonPressed?.call();
+                              onClose?.call();
                             },
                           ),
                         ),
-                      if (secondaryButtonText != null &&
-                          primaryButtonText != null)
-                        const SizedBox(width: 12),
-                      if (primaryButtonText != null)
-                        Expanded(
-                          child: ButtonSolid(
-                            text: primaryButtonText!,
-                            textColor: colors.staticWhite,
-                            backgroundColor: colors.primaryNormal,
-                            size: ButtonSize.large,
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              onPrimaryButtonPressed?.call();
-                            },
-                          ),
+                      ]
+                      : null,
+            ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: content,
+              ),
+            ),
+            if (primaryButtonText != null || secondaryButtonText != null)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: <Widget>[
+                    if (secondaryButtonText != null)
+                      Expanded(
+                        child: ButtonOutlined(
+                          text: secondaryButtonText!,
+                          textColor: colors.labelNormal,
+                          borderColor: colors.lineNormalNeutral,
+                          size: ButtonSize.large,
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            onSecondaryButtonPressed?.call();
+                          },
                         ),
-                    ],
-                  ),
+                      ),
+                    if (secondaryButtonText != null &&
+                        primaryButtonText != null)
+                      const SizedBox(width: 12),
+                    if (primaryButtonText != null)
+                      Expanded(
+                        child: ButtonSolid(
+                          text: primaryButtonText!,
+                          textColor: colors.staticWhite,
+                          backgroundColor: colors.primaryNormal,
+                          size: ButtonSize.large,
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            onPrimaryButtonPressed?.call();
+                          },
+                        ),
+                      ),
+                  ],
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );
