@@ -8,6 +8,8 @@ on:
 jobs:
   feature_ci:
     runs-on: ubuntu-latest
+    env: # FVM_USE_GIT_CACHE 환경 변수를 Job 레벨로 올려 전체 Job에 적용
+      FVM_USE_GIT_CACHE: false
 
     steps:
       - name: Checkout source code
@@ -29,17 +31,25 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-fvm-
 
-      - name: Check if FVM SDK is cached (for debugging)
+      - name: Check if FVM SDK directory exists after cache restore
         run: |
           if [ -d ".fvm/versions" ] && [ "$(ls -A .fvm/versions)" ]; then
-            echo "FVM SDK directory exists and is not empty. Cache restored."
+            echo "FVM SDK directory exists and is not empty. Cache restored successfully."
           else
             echo "FVM SDK directory is empty or does not exist. Will proceed with fvm install."
           fi
 
+      - name: List contents of .fvm/versions directory (for debugging)
+        run: ls -la .fvm/versions
+        # 캐시 복원 후 .fvm/versions 디렉토리에 실제 어떤 내용이 있는지 확인
+        # ls -la .fvm/versions/3.16.9 (실제 버전으로 교체) 와 같이 특정 버전 폴더 내부도 확인 가능
+
+      - name: Print .fvmrc content (for debugging)
+        run: cat .fvmrc
+        # 현재 프로젝트의 .fvmrc 파일 내용, 특히 flutterSdkVersion 확인
+
       - name: Install Flutter SDK via FVM
-        env:
-          FVM_USE_GIT_CACHE: false
+        # FVM_USE_GIT_CACHE가 Job 레벨에 설정되었으므로 여기서는 별도로 env를 명시하지 않음
         run: fvm install
 
       - name: Install dependencies
@@ -50,3 +60,6 @@ jobs:
 
       - name: Analyze code
         run: fvm flutter analyze
+
+      # - name: Run tests
+      #   run: fvm flutter test
