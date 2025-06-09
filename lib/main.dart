@@ -29,9 +29,7 @@ class MyApp extends StatelessWidget {
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: ThemeMode.system,
-            builder: (BuildContext context, Widget? child) {
-              return SemanticTheme(data: semanticColors, child: child!);
-            },
+            builder: (BuildContext context, Widget? child) => child!,
             home: const NavigationScaffold(),
           ),
         );
