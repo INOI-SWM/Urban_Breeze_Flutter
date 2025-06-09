@@ -16,18 +16,27 @@ jobs:
       - name: Set up Dart
         uses: dart-lang/setup-dart@v1
 
-      - name: Install FVM
-        run: dart pub global activate fvm
-
-      - name: Cache pub & FVM SDK
+      - name: Cache pub & FVM SDK & global bin
         uses: actions/cache@v3
         with:
           path: |
             ~/.pub-cache
+            ~/.pub-cache/bin
             .fvm/versions
           key: ${{ runner.os }}-fvm-${{ hashFiles('.fvmrc') }}-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
             ${{ runner.os }}-fvm-
+
+      - name: Add pub-cache bin to PATH
+        run: echo "${HOME}/.pub-cache/bin" >> $GITHUB_PATH
+
+      - name: Install FVM if needed
+        run: |
+          if ! command -v fvm > /dev/null; then
+            dart pub global activate fvm
+          else
+            echo "fvm already installed, skipping activation"
+          fi
 
       - name: Install Flutter SDK via FVM
         run: fvm install
@@ -40,6 +49,3 @@ jobs:
 
       - name: Analyze code
         run: fvm flutter analyze
-
-      # - name: Run tests
-      #   run: fvm flutter test
