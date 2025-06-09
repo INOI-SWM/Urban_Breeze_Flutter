@@ -10,19 +10,19 @@ class CardNormal extends StatefulWidget {
   const CardNormal({
     super.key,
     required this.thumbnailPath,
-    required this.thumbnailSourceType,
+    required this.sourceType,
     required this.badgeText,
     required this.title,
-    required this.date,
+    required this.createDate,
     required this.distance,
     required this.elevation,
   });
 
   final String thumbnailPath;
-  final ThumbnailSourceType thumbnailSourceType;
+  final ThumbnailSourceType sourceType;
   final String badgeText;
   final String title;
-  final String date;
+  final String createDate;
   final String distance;
   final String elevation;
 
@@ -50,7 +50,7 @@ class _CardNormalState extends State<CardNormal> {
               Thumbnail(
                 path: widget.thumbnailPath,
                 ratio: ThumbnailRatio.r21_9,
-                sourceType: widget.thumbnailSourceType,
+                sourceType: widget.sourceType,
                 hasRadius: true,
               ),
               Positioned(
@@ -105,7 +105,7 @@ class _CardNormalState extends State<CardNormal> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  widget.date,
+                  widget.createDate,
                   style: AppTextStyles.label2.medium.copyWith(
                     color: semanticColors.labelAlternative,
                   ),
