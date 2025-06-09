@@ -52,5 +52,8 @@ jobs:
       - name: Format check
         run: fvm dart format --set-exit-if-changed .
 
+      - name: Debug .fvm/versions contents
+        run: ls -Rlah .fvm/versions
+
       - name: Analyze code
         run: fvm flutter analyze
