@@ -5,8 +5,9 @@ import 'package:ridingmate/design_system/effect/app_shadows.dart';
 import 'package:ridingmate/design_system/input/search_field.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
 
-class FloatingSearchBar extends StatelessWidget implements PreferredSizeWidget {
-  const FloatingSearchBar({
+class FloatingSearchNavigationBar extends StatelessWidget
+    implements PreferredSizeWidget {
+  const FloatingSearchNavigationBar({
     super.key,
     required this.onSearchTap,
     this.onCloseTap,
