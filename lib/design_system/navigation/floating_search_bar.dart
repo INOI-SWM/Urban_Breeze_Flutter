@@ -35,13 +35,12 @@ class FloatingSearchBar extends StatelessWidget implements PreferredSizeWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: <Widget>[
-              // 뒤로가기 버튼
               Container(
-                width: 24,
-                height: 24,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: colors.backgroundNormalNormal,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(50),
                   boxShadow: AppShadows.instance.emphasize,
                 ),
                 child: IconButton(
@@ -53,7 +52,6 @@ class FloatingSearchBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              // 검색 필드
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),

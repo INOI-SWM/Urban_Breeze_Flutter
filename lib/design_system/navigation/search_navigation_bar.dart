@@ -34,10 +34,9 @@ class SearchNavigationBar extends StatelessWidget
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: <Widget>[
-              // 뒤로가기 버튼
               SizedBox(
-                width: 24,
-                height: 24,
+                width: 40,
+                height: 40,
                 child: IconButton(
                   iconSize: 24,
                   onPressed: onBackPressed ?? () => Navigator.of(context).pop(),
@@ -50,7 +49,6 @@ class SearchNavigationBar extends StatelessWidget
                 ),
               ),
               const SizedBox(width: 16),
-              // 검색 필드
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
