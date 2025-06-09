@@ -2,52 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
 
-class FavoriteToggle extends StatefulWidget {
+class FavoriteToggle extends StatelessWidget {
   const FavoriteToggle({
     super.key,
-    this.initiallyFavorite = false,
-    this.onChanged,
+    required this.isFavorite,
+    required this.onChanged,
   });
 
-  final bool initiallyFavorite;
-
-  final ValueChanged<bool>? onChanged;
-
-  @override
-  State<FavoriteToggle> createState() => _FavoriteToggleState();
-}
-
-class _FavoriteToggleState extends State<FavoriteToggle> {
-  late bool _isFavorite;
-
-  @override
-  void initState() {
-    super.initState();
-    _isFavorite = widget.initiallyFavorite;
-  }
-
-  void _toggle() {
-    setState(() => _isFavorite = !_isFavorite);
-    widget.onChanged?.call(_isFavorite);
-  }
+  final bool isFavorite;
+  final ValueChanged<bool> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final SemanticColors semanticColors = context.semanticColor;
-
+    final SemanticColors c = context.semanticColor;
     return InkWell(
       borderRadius: BorderRadius.circular(4),
-      onTap: _toggle,
+      onTap: () => onChanged(!isFavorite),
       child: SizedBox(
         width: 24,
         height: 24,
         child: Icon(
-          _isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
+          isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
           size: 24,
-          color:
-              _isFavorite
-                  ? semanticColors.primaryNormal
-                  : semanticColors.staticWhite,
+          color: isFavorite ? c.primaryNormal : c.staticWhite,
         ),
       ),
     );

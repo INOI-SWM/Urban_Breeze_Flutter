@@ -6,7 +6,7 @@ import 'package:ridingmate/design_system/button/favorite_toggle.dart';
 import 'package:ridingmate/design_system/thumbnail/thumbnail.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
 
-class CardNormal extends StatelessWidget {
+class CardNormal extends StatefulWidget {
   const CardNormal({
     super.key,
     required this.thumbnailPath,
@@ -27,6 +27,17 @@ class CardNormal extends StatelessWidget {
   final String elevation;
 
   @override
+  State<CardNormal> createState() => _CardNormalState();
+}
+
+class _CardNormalState extends State<CardNormal> {
+  bool _isFavorite = false;
+
+  void _handleFavoriteChanged(bool value) {
+    setState(() => _isFavorite = value);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final SemanticColors semanticColors = context.semanticColor;
 
@@ -37,9 +48,9 @@ class CardNormal extends StatelessWidget {
           Stack(
             children: <Widget>[
               Thumbnail(
-                path: thumbnailPath,
+                path: widget.thumbnailPath,
                 ratio: ThumbnailRatio.r21_9,
-                sourceType: thumbnailSourceType,
+                sourceType: widget.thumbnailSourceType,
                 hasRadius: true,
               ),
               Positioned(
@@ -53,7 +64,7 @@ class CardNormal extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       ContentBadge(
-                        text: badgeText,
+                        text: widget.badgeText,
                         size: ContentBadgeSize.medium,
                         type: ContentBadgeType.solid,
                         backgroundColor: semanticColors.fillNormal,
@@ -62,7 +73,10 @@ class CardNormal extends StatelessWidget {
                       ),
                       Row(
                         children: <Widget>[
-                          const FavoriteToggle(),
+                          FavoriteToggle(
+                            isFavorite: _isFavorite,
+                            onChanged: _handleFavoriteChanged,
+                          ),
                           const SizedBox(width: 4),
                           Icon(
                             Icons.more_horiz,
@@ -84,14 +98,14 @@ class CardNormal extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  title,
+                  widget.title,
                   style: AppTextStyles.body2.normalBold.copyWith(
                     color: semanticColors.labelNormal,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  date,
+                  widget.date,
                   style: AppTextStyles.label2.medium.copyWith(
                     color: semanticColors.labelAlternative,
                   ),
@@ -100,7 +114,7 @@ class CardNormal extends StatelessWidget {
                 Row(
                   children: <Widget>[
                     ContentBadge(
-                      text: distance,
+                      text: widget.distance,
                       leftIcon: Icons.route,
                       size: ContentBadgeSize.xsmall,
                       type: ContentBadgeType.solid,
@@ -109,7 +123,7 @@ class CardNormal extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     ContentBadge(
-                      text: elevation,
+                      text: widget.elevation,
                       leftIcon: Icons.terrain,
                       size: ContentBadgeSize.xsmall,
                       type: ContentBadgeType.solid,
