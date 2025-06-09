@@ -24,6 +24,16 @@ class _NavigationScaffoldState extends State<NavigationScaffold> {
     const MyScreen(),
   ];
 
+  PreferredSizeWidget? _getAppBar() {
+    final Widget currentPage = _pages[_currentIndex];
+
+    if (currentPage is PreferredSizeWidget) {
+      return currentPage;
+    }
+
+    return null;
+  }
+
   void _onDestinationSelected(int index) {
     setState(() {
       _currentIndex = index;
@@ -33,7 +43,8 @@ class _NavigationScaffoldState extends State<NavigationScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_currentIndex],
+      appBar: _getAppBar(),
+      body: SafeArea(child: _pages[_currentIndex]),
       bottomNavigationBar: BottomNavigation(
         currentIndex: _currentIndex,
         onDestinationSelected: _onDestinationSelected,
