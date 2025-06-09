@@ -33,44 +33,64 @@ jobs:
         uses: actions/cache@v3
         id: cache-fvm # Add an ID
         with:
-          # .fvm 디렉토리와 FVM의 전역 versions 디렉토리를 모두 캐싱합니다.
-          # (~/.fvm은 홈 디렉토리에 생성되므로 절대 경로로 지정)
           path: |
             .fvm
-            ~/.fvm/versions # FVM이 실제 SDK를 저장하는 전역 경로
-          key: ${{ runner.os }}-fvm-${{ hashFiles('.fvmrc') }} # .fvmrc 파일 해시를 키로 사용
+            ~/.fvm/versions
+          key: ${{ runner.os }}-fvm-${{ hashFiles('.fvmrc') }}
           restore-keys: ${{ runner.os }}-fvm-
 
       - name: Verify .fvm directory after cache restore (for debugging)
         run: |
           echo ".fvm 디렉토리 내용 (캐시 복원 후):"
-          ls -la .fvm
-          if [ -d ".fvm/flutter_sdk" ]; then
-            echo ".fvm/flutter_sdk 존재. 내용:"
-            ls -la .fvm/flutter_sdk
+          if [ -d ".fvm" ]; then # .fvm 디렉토리가 존재하는지 먼저 확인
+            ls -la .fvm
+            if [ -d ".fvm/flutter_sdk" ]; then
+              echo ".fvm/flutter_sdk 존재. 내용:"
+              ls -la .fvm/flutter_sdk
+            else
+              echo ".fvm/flutter_sdk does NOT exist (symbolic link might be broken or target missing)."
+            fi
           else
-            echo ".fvm/flutter_sdk does NOT exist."
+            echo ".fvm 디렉토리가 캐시에서 복원되지 않았거나 존재하지 않습니다."
           fi
-          if [ -d "~/.fvm/versions/3.32.2" ]; then # 실제 SDK 경로 확인
-             echo "~/.fvm/versions/3.32.2 exists. Contents:"
-             ls -la ~/.fvm/versions/3.32.2
+
+          # ~/.fvm/versions/3.32.2 경로에 실제 SDK가 존재하는지 확인 (캐시 복원 여부와 직결)
+          # 여기서 3.32.2는 .fvmrc에 명시된 버전이어야 합니다.
+          # 동적으로 .fvmrc에서 버전 정보를 읽어오는 것이 더 좋습니다.
+          FLUTTER_VERSION=$(cat .fvmrc | grep -o '"flutter": "[^"]*' | cut -d'"' -f4)
+          if [ -z "$FLUTTER_VERSION" ]; then
+            echo "경고: .fvmrc에서 Flutter 버전을 찾을 수 없습니다. 기본값 3.32.2를 사용합니다."
+            FLUTTER_VERSION="3.32.2" # .fvmrc에서 버전을 찾지 못했을 때의 폴백
+          fi
+
+          if [ -d "~/.fvm/versions/$FLUTTER_VERSION" ]; then
+             echo "~/.fvm/versions/$FLUTTER_VERSION exists. Contents:"
+             ls -la ~/.fvm/versions/$FLUTTER_VERSION
           else
-             echo "~/.fvm/versions/3.32.2 does NOT exist."
+             echo "~/.fvm/versions/$FLUTTER_VERSION does NOT exist."
           fi
+
           if [ -f ".fvmrc" ]; then
             echo ".fvmrc content:"
             cat .fvmrc
+          else
+            echo ".fvmrc 파일이 존재하지 않습니다."
           fi
         shell: bash
 
       - name: Conditionally install Flutter SDK via FVM
         run: |
-          # 캐시가 히트되지 않았거나, 전역 FVM versions 디렉토리에 해당 SDK가 없으면 install 실행
-          if [ "${{ steps.cache-fvm.outputs.cache-hit }}" != "true" ] || [ ! -d "~/.fvm/versions/3.32.2" ]; then
-            echo "FVM 캐시가 없거나 ~/.fvm/versions/3.32.2 가 존재하지 않습니다. fvm install을 실행합니다..."
+          FLUTTER_VERSION=$(cat .fvmrc | grep -o '"flutter": "[^"]*' | cut -d'"' -f4)
+          if [ -z "$FLUTTER_VERSION" ]; then
+            echo "오류: .fvmrc에서 Flutter 버전을 찾을 수 없습니다. fvm install을 건너뜁니다."
+            exit 1 # 버전을 찾을 수 없으면 에러로 종료
+          fi
+
+          if [ "${{ steps.cache-fvm.outputs.cache-hit }}" != "true" ] || [ ! -d "~/.fvm/versions/$FLUTTER_VERSION" ]; then
+            echo "FVM 캐시가 없거나 ~/.fvm/versions/$FLUTTER_VERSION 가 존재하지 않습니다. fvm install을 실행합니다..."
             fvm install
           else
-            echo "FVM 캐시가 있고 ~/.fvm/versions/3.32.2 가 존재합니다. fvm install을 건너뜁니다."
+            echo "FVM 캐시가 있고 ~/.fvm/versions/$FLUTTER_VERSION 가 존재합니다. fvm install을 건너뜁니다."
           fi
         shell: bash
 
