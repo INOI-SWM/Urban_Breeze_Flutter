@@ -25,11 +25,21 @@ jobs:
           path: |
             ~/.pub-cache
             .fvm/versions
-          key: ${{ runner.os }}-fvm-${{ hashFiles('.fvmrc') }}-${{ hashFiles('**/pubspec.lock') }}
+          key: ${{ runner.os }}-fvm-${{ hashFiles('.fvmrc') }}
           restore-keys: |
             ${{ runner.os }}-fvm-
 
+      - name: Check if FVM SDK is cached (for debugging)
+        run: |
+          if [ -d ".fvm/versions" ] && [ "$(ls -A .fvm/versions)" ]; then
+            echo "FVM SDK directory exists and is not empty. Cache restored."
+          else
+            echo "FVM SDK directory is empty or does not exist. Will proceed with fvm install."
+          fi
+
       - name: Install Flutter SDK via FVM
+        env:
+          FVM_USE_GIT_CACHE: false
         run: fvm install
 
       - name: Install dependencies
@@ -40,6 +50,3 @@ jobs:
 
       - name: Analyze code
         run: fvm flutter analyze
-
-      # - name: Run tests
-      #   run: fvm flutter test
