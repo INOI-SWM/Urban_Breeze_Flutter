@@ -10,34 +10,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 소스 코드 체크아웃
+      - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Dart 설정
+      - name: Set up Dart
         uses: dart-lang/setup-dart@v1
 
-      - name: FVM 설치 (버전 3.2.1)
+      - name: Install FVM (version 3.2.1)
         run: dart pub global activate fvm 3.2.1
 
-      - name: FVM 버전 확인
+      - name: Check FVM version
         run: fvm --version
 
-      - name: Pub 의존성 캐싱
+      - name: Cache pub dependencies
         uses: actions/cache@v3
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: ${{ runner.os }}-pub-
 
-      - name: FVM 디렉토리 전체 캐싱
+      - name: Cache FVM directories (Project local & Global versions)
         uses: actions/cache@v3
-        id: cache-fvm # ID 추가
+        id: cache-fvm # Add an ID
         with:
-          path: .fvm
-          key: ${{ runner.os }}-fvm-${{ hashFiles('.fvmrc') }}
+          # .fvm 디렉토리와 FVM의 전역 versions 디렉토리를 모두 캐싱합니다.
+          # (~/.fvm은 홈 디렉토리에 생성되므로 절대 경로로 지정)
+          path: |
+            .fvm
+            ~/.fvm/versions # FVM이 실제 SDK를 저장하는 전역 경로
+          key: ${{ runner.os }}-fvm-${{ hashFiles('.fvmrc') }} # .fvmrc 파일 해시를 키로 사용
           restore-keys: ${{ runner.os }}-fvm-
 
-      - name: .fvm 디렉토리 캐시 복원 확인 (디버깅 목적)
+      - name: Verify .fvm directory after cache restore (for debugging)
         run: |
           echo ".fvm 디렉토리 내용 (캐시 복원 후):"
           ls -la .fvm
@@ -45,32 +49,39 @@ jobs:
             echo ".fvm/flutter_sdk 존재. 내용:"
             ls -la .fvm/flutter_sdk
           else
-            echo ".fvm/flutter_sdk 존재하지 않음."
+            echo ".fvm/flutter_sdk does NOT exist."
+          fi
+          if [ -d "~/.fvm/versions/3.32.2" ]; then # 실제 SDK 경로 확인
+             echo "~/.fvm/versions/3.32.2 exists. Contents:"
+             ls -la ~/.fvm/versions/3.32.2
+          else
+             echo "~/.fvm/versions/3.32.2 does NOT exist."
           fi
           if [ -f ".fvmrc" ]; then
-            echo ".fvmrc 내용:"
+            echo ".fvmrc content:"
             cat .fvmrc
           fi
         shell: bash
 
-      - name: Flutter SDK 조건부 설치 (FVM 사용)
+      - name: Conditionally install Flutter SDK via FVM
         run: |
-          if [ "${{ steps.cache-fvm.outputs.cache-hit }}" != "true" ] || [ ! -d ".fvm/flutter_sdk" ]; then
-            echo "FVM 캐시가 없거나 .fvm/flutter_sdk가 존재하지 않습니다. fvm install을 실행합니다..."
+          # 캐시가 히트되지 않았거나, 전역 FVM versions 디렉토리에 해당 SDK가 없으면 install 실행
+          if [ "${{ steps.cache-fvm.outputs.cache-hit }}" != "true" ] || [ ! -d "~/.fvm/versions/3.32.2" ]; then
+            echo "FVM 캐시가 없거나 ~/.fvm/versions/3.32.2 가 존재하지 않습니다. fvm install을 실행합니다..."
             fvm install
           else
-            echo "FVM 캐시가 있고 .fvm/flutter_sdk가 존재합니다. fvm install을 건너뜁니다."
+            echo "FVM 캐시가 있고 ~/.fvm/versions/3.32.2 가 존재합니다. fvm install을 건너뜁니다."
           fi
         shell: bash
 
-      - name: FVM Flutter SDK 링크 설정
+      - name: Link FVM Flutter SDK
         run: fvm use --force
 
-      - name: 의존성 설치
+      - name: Install dependencies
         run: fvm flutter pub get
 
-      - name: 코드 포맷 확인
+      - name: Format check
         run: fvm dart format --set-exit-if-changed .
 
-      - name: 코드 분석
+      - name: Analyze code
         run: fvm flutter analyze
