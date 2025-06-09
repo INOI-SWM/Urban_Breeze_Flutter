@@ -10,40 +10,67 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
+      - name: 소스 코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: Set up Dart
+      - name: Dart 설정
         uses: dart-lang/setup-dart@v1
 
-      - name: Install FVM (version 3.2.1)
+      - name: FVM 설치 (버전 3.2.1)
         run: dart pub global activate fvm 3.2.1
 
-      - name: Check FVM version
+      - name: FVM 버전 확인
         run: fvm --version
 
-      - name: Cache pub dependencies
+      - name: Pub 의존성 캐싱
         uses: actions/cache@v3
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: ${{ runner.os }}-pub-
 
-      - name: Cache entire FVM directory
+      - name: FVM 디렉토리 전체 캐싱
         uses: actions/cache@v3
+        id: cache-fvm # ID 추가
         with:
           path: .fvm
           key: ${{ runner.os }}-fvm-${{ hashFiles('.fvmrc') }}
           restore-keys: ${{ runner.os }}-fvm-
 
-      - name: Install Flutter SDK via FVM
-        run: fvm install
+      - name: .fvm 디렉토리 캐시 복원 확인 (디버깅 목적)
+        run: |
+          echo ".fvm 디렉토리 내용 (캐시 복원 후):"
+          ls -la .fvm
+          if [ -d ".fvm/flutter_sdk" ]; then
+            echo ".fvm/flutter_sdk 존재. 내용:"
+            ls -la .fvm/flutter_sdk
+          else
+            echo ".fvm/flutter_sdk 존재하지 않음."
+          fi
+          if [ -f ".fvmrc" ]; then
+            echo ".fvmrc 내용:"
+            cat .fvmrc
+          fi
+        shell: bash
 
-      - name: Install dependencies
+      - name: Flutter SDK 조건부 설치 (FVM 사용)
+        run: |
+          if [ "${{ steps.cache-fvm.outputs.cache-hit }}" != "true" ] || [ ! -d ".fvm/flutter_sdk" ]; then
+            echo "FVM 캐시가 없거나 .fvm/flutter_sdk가 존재하지 않습니다. fvm install을 실행합니다..."
+            fvm install
+          else
+            echo "FVM 캐시가 있고 .fvm/flutter_sdk가 존재합니다. fvm install을 건너뜁니다."
+          fi
+        shell: bash
+
+      - name: FVM Flutter SDK 링크 설정
+        run: fvm use --force
+
+      - name: 의존성 설치
         run: fvm flutter pub get
 
-      - name: Format check
+      - name: 코드 포맷 확인
         run: fvm dart format --set-exit-if-changed .
 
-      - name: Analyze code
+      - name: 코드 분석
         run: fvm flutter analyze
