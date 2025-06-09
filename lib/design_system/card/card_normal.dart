@@ -4,6 +4,7 @@ import 'package:ridingmate/core/theme/semantic_colors.dart';
 import 'package:ridingmate/design_system/badge/content_badge.dart';
 import 'package:ridingmate/design_system/button/favorite_toggle.dart';
 import 'package:ridingmate/design_system/thumbnail/thumbnail.dart';
+import 'package:ridingmate/design_system/typography/app_text_style.dart';
 
 class CardNormal extends StatelessWidget {
   const CardNormal({
@@ -11,11 +12,19 @@ class CardNormal extends StatelessWidget {
     required this.thumbnailPath,
     required this.thumbnailSourceType,
     required this.badgeText,
+    required this.title,
+    required this.date,
+    required this.distance,
+    required this.elevation,
   });
 
   final String thumbnailPath;
   final ThumbnailSourceType thumbnailSourceType;
   final String badgeText;
+  final String title;
+  final String date;
+  final String distance;
+  final String elevation;
 
   @override
   Widget build(BuildContext context) {
@@ -23,45 +32,93 @@ class CardNormal extends StatelessWidget {
 
     return SizedBox(
       width: 353,
-      child: Stack(
+      child: Column(
         children: <Widget>[
-          Thumbnail(
-            path: thumbnailPath,
-            ratio: ThumbnailRatio.r21_9,
-            sourceType: thumbnailSourceType,
-            hasRadius: true,
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 56,
-              padding: const EdgeInsets.all(14),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  ContentBadge(
-                    text: badgeText,
-                    size: ContentBadgeSize.medium,
-                    type: ContentBadgeType.solid,
-                    backgroundColor: semanticColors.fillNormal,
-                    textColor: semanticColors.labelAlternative,
-                    leftIcon: Icons.person,
-                  ),
-                  Row(
+          Stack(
+            children: <Widget>[
+              Thumbnail(
+                path: thumbnailPath,
+                ratio: ThumbnailRatio.r21_9,
+                sourceType: thumbnailSourceType,
+                hasRadius: true,
+              ),
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 56,
+                  padding: const EdgeInsets.all(14),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      const FavoriteToggle(),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.more_horiz,
-                        size: 24,
-                        color: semanticColors.staticWhite,
+                      ContentBadge(
+                        text: badgeText,
+                        size: ContentBadgeSize.medium,
+                        type: ContentBadgeType.solid,
+                        backgroundColor: semanticColors.fillNormal,
+                        textColor: semanticColors.labelAlternative,
+                        leftIcon: Icons.person,
+                      ),
+                      Row(
+                        children: <Widget>[
+                          const FavoriteToggle(),
+                          const SizedBox(width: 4),
+                          Icon(
+                            Icons.more_horiz,
+                            size: 24,
+                            color: semanticColors.staticWhite,
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  title,
+                  style: AppTextStyles.body2.normalBold.copyWith(
+                    color: semanticColors.labelNormal,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  date,
+                  style: AppTextStyles.label2.medium.copyWith(
+                    color: semanticColors.labelAlternative,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: <Widget>[
+                    ContentBadge(
+                      text: distance,
+                      leftIcon: Icons.route,
+                      size: ContentBadgeSize.xsmall,
+                      type: ContentBadgeType.solid,
+                      backgroundColor: semanticColors.fillNormal,
+                      textColor: semanticColors.labelNeutral,
+                    ),
+                    const SizedBox(width: 4),
+                    ContentBadge(
+                      text: elevation,
+                      leftIcon: Icons.terrain,
+                      size: ContentBadgeSize.xsmall,
+                      type: ContentBadgeType.solid,
+                      backgroundColor: semanticColors.fillNormal,
+                      textColor: semanticColors.labelNeutral,
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
