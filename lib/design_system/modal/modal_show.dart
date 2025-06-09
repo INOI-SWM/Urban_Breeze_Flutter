@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/core/theme/app_theme.dart';
-import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/design_system/modal/modal_popup.dart';
 
 class ModalShow {
@@ -20,19 +18,15 @@ class ModalShow {
       context: context,
       barrierDismissible: barrierDismissible,
       builder: (BuildContext dialogContext) {
-        //todo: 추후 상태관리 툴 도입하면 구조변경
-        return SemanticTheme(
-          data: context.semanticColor,
-          child: ModalPopup(
-            title: title,
-            content: content,
-            primaryButtonText: primaryButtonText,
-            secondaryButtonText: secondaryButtonText,
-            onPrimaryButtonPressed: onPrimaryButtonPressed,
-            onSecondaryButtonPressed: onSecondaryButtonPressed,
-            showCloseButton: showCloseButton,
-            onClose: onClose,
-          ),
+        return ModalPopup(
+          title: title,
+          content: content,
+          primaryButtonText: primaryButtonText,
+          secondaryButtonText: secondaryButtonText,
+          onPrimaryButtonPressed: onPrimaryButtonPressed,
+          onSecondaryButtonPressed: onSecondaryButtonPressed,
+          showCloseButton: showCloseButton,
+          onClose: onClose,
         );
       },
     );
