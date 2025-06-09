@@ -36,23 +36,6 @@ jobs:
           key: ${{ runner.os }}-fvm-${{ hashFiles('.fvmrc') }}
           restore-keys: ${{ runner.os }}-fvm-
 
-      - name: Check cache and Flutter SDK status
-        run: |
-          echo "Checking if pub cache exists:"
-          if [ -d "$HOME/.pub-cache" ]; then
-            echo "Pub cache directory exists"
-          else
-            echo "Pub cache directory NOT found"
-          fi
-          echo "Checking if .fvm directory exists:"
-          if [ -d ".fvm" ]; then
-            echo ".fvm directory exists"
-          else
-            echo ".fvm directory NOT found"
-          fi
-          echo "Flutter SDK version via fvm:"
-          fvm flutter --version
-
       - name: Install Flutter SDK via FVM
         run: fvm install
 
