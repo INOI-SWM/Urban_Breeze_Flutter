@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/design_system/button/base_button.dart';
 
-class ButtonSolid extends BaseButton {
-  const ButtonSolid({
+class ButtonOutlined extends BaseButton {
+  const ButtonOutlined({
     super.key,
     super.text,
     super.leftIcon,
     super.rightIcon,
     super.size,
     required super.textColor,
-    required this.backgroundColor,
+    required this.borderColor,
     super.onPressed,
     super.shadow,
   });
 
-  final Color backgroundColor;
+  final Color borderColor;
 
   @override
   BoxDecoration getDecoration(BuildContext context) {
     return BoxDecoration(
       borderRadius: BorderRadius.circular(getBorderRadius()),
-      color: backgroundColor,
+      border: Border.all(color: borderColor),
       boxShadow: shadow,
     );
   }
