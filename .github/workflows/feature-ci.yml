@@ -29,15 +29,15 @@ jobs:
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: ${{ runner.os }}-pub-
 
-      - name: Cache FVM SDK
+      - name: Cache entire FVM directory
         uses: actions/cache@v3
         with:
-          path: .fvm/versions
-          key: ${{ runner.os }}-fvm-sdk-${{ hashFiles('.fvmrc') }}
-          restore-keys: ${{ runner.os }}-fvm-sdk-
+          path: .fvm
+          key: ${{ runner.os }}-fvm-${{ hashFiles('.fvmrc') }}
+          restore-keys: ${{ runner.os }}-fvm-
 
-      - name: Debug .fvm/versions contents
-        run: ls -Rlah .fvm/versions
+      - name: Debug .fvm contents
+        run: ls -Rlah .fvm
 
       - name: Install Flutter SDK via FVM
         run: fvm install
