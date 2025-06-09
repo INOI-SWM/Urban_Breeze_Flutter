@@ -69,9 +69,11 @@ class ModalPopup extends StatelessWidget {
                         ]
                         : null,
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-                child: content,
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: content,
+                ),
               ),
               if (primaryButtonText != null || secondaryButtonText != null)
                 Padding(
