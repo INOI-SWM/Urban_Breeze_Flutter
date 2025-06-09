@@ -36,9 +36,6 @@ jobs:
           key: ${{ runner.os }}-fvm-${{ hashFiles('.fvmrc') }}
           restore-keys: ${{ runner.os }}-fvm-
 
-      - name: Debug .fvm contents
-        run: ls -Rlah .fvm
-
       - name: Install Flutter SDK via FVM
         run: fvm install
 
