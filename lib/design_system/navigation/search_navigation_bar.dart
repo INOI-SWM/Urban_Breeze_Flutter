@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
 import 'package:ridingmate/design_system/input/search_field.dart';
+import 'package:ridingmate/design_system/input/search_field_size.dart';
 
 class SearchNavigationBar extends StatelessWidget
     implements PreferredSizeWidget {

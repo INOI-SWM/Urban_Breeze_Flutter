@@ -3,6 +3,7 @@ import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
 import 'package:ridingmate/design_system/effect/app_shadows.dart';
 import 'package:ridingmate/design_system/input/search_field_preview.dart';
+import 'package:ridingmate/design_system/input/search_field_size.dart';
 
 class FloatingSearchNavigationBar extends StatelessWidget
     implements PreferredSizeWidget {
@@ -61,7 +62,7 @@ class FloatingSearchNavigationBar extends StatelessWidget
                     onTap: onSearchTap,
                     child: SearchFieldPreview(
                       text: searchText,
-                      size: SearchFieldPreviewSize.small,
+                      size: SearchFieldSize.small,
                       backgroundColor: colors.backgroundNormalNormal,
                       boxShadow: AppShadows.instance.emphasize,
                       onClear: onCloseTap,
@@ -76,3 +77,5 @@ class FloatingSearchNavigationBar extends StatelessWidget
     );
   }
 }
+
+class SearchFieldPreviewSize {}
