@@ -39,3 +39,4 @@ flutter:
     - assets/icons/svg/
     - assets/images/png/
     - .env
+    - assets/icons/png/
