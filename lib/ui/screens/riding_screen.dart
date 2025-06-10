@@ -75,6 +75,14 @@ class _RidingScreenState extends State<RidingScreen> {
     }
   }
 
+  void _removeLastPin() {
+    if (_pins.isNotEmpty) {
+      setState(() {
+        _pins.removeLast();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final String baseUrl =
@@ -184,7 +192,7 @@ class _RidingScreenState extends State<RidingScreen> {
               const SizedBox(height: 12),
               IconButtonSolid(
                 icon: Icons.replay,
-                onPressed: _pins.isEmpty ? () {} : () {},
+                onPressed: _pins.isEmpty ? () {} : _removeLastPin,
                 iconSize: IconSize.medium,
                 backgroundColor:
                     _pins.isEmpty
