@@ -30,7 +30,7 @@ class _NavigationScaffoldState extends State<NavigationScaffold> {
 
     if (currentPage is PageWithAppBar) {
       // 현재 페이지가 PageWithAppBar를 구현했다면, 해당 페이지의 getAppBar 메서드를 호출
-      return currentPage.getAppBar(context);
+      return (currentPage as PageWithAppBar).getAppBar(context);
     }
 
     // PageWithAppBar를 구현하지 않은 페이지는 AppBar가 없거나 기본 AppBar를 반환

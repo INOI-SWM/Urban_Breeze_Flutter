@@ -77,5 +77,3 @@ class FloatingSearchNavigationBar extends StatelessWidget
     );
   }
 }
-
-class SearchFieldPreviewSize {}
