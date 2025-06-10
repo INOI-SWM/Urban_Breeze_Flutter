@@ -7,16 +7,18 @@ import 'package:ridingmate/design_system/typography/app_text_style.dart';
 class CardList extends StatelessWidget {
   const CardList({
     super.key,
-    required this.imageUrl,
+    required this.thumbnailPath,
+    required this.sourceType,
     required this.title,
-    required this.caption,
+    required this.createDate,
     required this.distance,
     required this.elevation,
   });
 
-  final String imageUrl;
+  final String thumbnailPath;
+  final ThumbnailSourceType sourceType;
   final String title;
-  final String caption;
+  final String createDate;
   final String distance;
   final String elevation;
 
@@ -29,9 +31,9 @@ class CardList extends StatelessWidget {
           SizedBox(
             height: 64,
             child: Thumbnail(
-              path: imageUrl,
+              path: thumbnailPath,
               ratio: ThumbnailRatio.r3_2,
-              sourceType: ThumbnailSourceType.network,
+              sourceType: sourceType,
               hasRadius: true,
             ),
           ),
@@ -51,7 +53,7 @@ class CardList extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      caption,
+                      createDate,
                       style: AppTextStyles.label2.medium.copyWith(
                         color: context.semanticColor.labelAlternative,
                       ),
