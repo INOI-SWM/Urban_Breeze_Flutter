@@ -204,6 +204,7 @@ class _RidingScreenState extends State<RidingScreen> {
                         : context.semanticColor.labelNormal,
                 buttonSize: IconButtonSize.medium,
                 shadow: AppShadows.instance.emphasize,
+                isDisabled: _pins.isEmpty,
               ),
               const SizedBox(height: 12),
               IconButtonSolid(
