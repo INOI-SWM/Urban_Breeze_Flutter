@@ -183,6 +183,22 @@ class _RidingScreenState extends State<RidingScreen> {
               ),
               const SizedBox(height: 12),
               IconButtonSolid(
+                icon: Icons.replay,
+                onPressed: _pins.isEmpty ? () {} : () {},
+                iconSize: IconSize.medium,
+                backgroundColor:
+                    _pins.isEmpty
+                        ? context.semanticColor.interactionInactive
+                        : context.semanticColor.backgroundNormalNormal,
+                iconColor:
+                    _pins.isEmpty
+                        ? context.semanticColor.labelDisable
+                        : context.semanticColor.labelNormal,
+                buttonSize: IconButtonSize.medium,
+                shadow: AppShadows.instance.emphasize,
+              ),
+              const SizedBox(height: 12),
+              IconButtonSolid(
                 icon: Icons.my_location,
                 onPressed: _moveToCurrentLocation,
                 iconSize: IconSize.medium,
