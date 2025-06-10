@@ -2,25 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
 import 'package:ridingmate/design_system/effect/app_shadows.dart';
-import 'package:ridingmate/design_system/input/search_field.dart';
-import 'package:ridingmate/design_system/typography/app_text_style.dart';
+import 'package:ridingmate/design_system/input/search_field_preview.dart';
 
 class FloatingSearchNavigationBar extends StatelessWidget
     implements PreferredSizeWidget {
   const FloatingSearchNavigationBar({
     super.key,
-    required this.onSearchTap,
-    this.onCloseTap,
     this.searchText,
-    this.onSearchTextChanged,
-    this.onSearchTextSubmitted,
+    this.searchController,
+    required this.onSearchTap,
+    required this.onCloseTap,
+    required this.onSearchTextChanged,
+    required this.onSearchTextSubmitted,
   });
 
-  final VoidCallback onSearchTap;
-  final VoidCallback? onCloseTap;
   final String? searchText;
-  final ValueChanged<String>? onSearchTextChanged;
-  final ValueChanged<String>? onSearchTextSubmitted;
+  final TextEditingController? searchController;
+  final VoidCallback onSearchTap;
+  final VoidCallback onCloseTap;
+  final ValueChanged<String> onSearchTextChanged;
+  final ValueChanged<String> onSearchTextSubmitted;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -56,51 +57,15 @@ class FloatingSearchNavigationBar extends StatelessWidget
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: colors.backgroundNormalNormal,
-                      borderRadius: BorderRadius.circular(12),
+                  child: GestureDetector(
+                    onTap: onSearchTap,
+                    child: SearchFieldPreview(
+                      text: searchText,
+                      size: SearchFieldPreviewSize.small,
+                      backgroundColor: colors.backgroundNormalNormal,
                       boxShadow: AppShadows.instance.emphasize,
+                      onClear: onCloseTap,
                     ),
-                    child:
-                        searchText != null
-                            ? SearchField(
-                              controller: TextEditingController(
-                                text: searchText,
-                              ),
-                              onChanged: onSearchTextChanged,
-                              onSubmitted: onSearchTextSubmitted,
-                              size: SearchFieldSize.small,
-                              backgroundColor: colors.backgroundNormalNormal,
-                            )
-                            : GestureDetector(
-                              onTap: onSearchTap,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8),
-                                child: Row(
-                                  children: <Widget>[
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 2,
-                                      ),
-                                      child: Icon(
-                                        Icons.search,
-                                        size: 20,
-                                        color: colors.labelAlternative,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      '검색어를 입력해주세요',
-                                      style: AppTextStyles.body1.normalRegular
-                                          .copyWith(
-                                            color: colors.labelAssistive,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
                   ),
                 ),
               ),
