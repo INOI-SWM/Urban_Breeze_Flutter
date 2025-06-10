@@ -6,14 +6,18 @@ import 'package:ridingmate/design_system/typography/app_text_style.dart';
 class CustomTextField extends StatefulWidget {
   const CustomTextField({
     super.key,
-    required this.headingText,
+    this.headingText,
     this.description,
     this.disabled = false,
+    this.requiredBadge = false,
+    this.showDescription = false,
   });
 
-  final String headingText;
+  final String? headingText;
   final String? description;
   final bool disabled;
+  final bool requiredBadge;
+  final bool showDescription;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -48,24 +52,26 @@ class _CustomTextFieldState extends State<CustomTextField> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         // ── headingText ──────────────────────────────────────────────
-        Row(
-          children: <Widget>[
-            Text(
-              widget.headingText,
-              style: AppTextStyles.label1.normalBold.copyWith(
-                color: colors.labelNeutral,
+        if (widget.headingText != null)
+          Row(
+            children: <Widget>[
+              Text(
+                widget.headingText!,
+                style: AppTextStyles.label1.normalBold.copyWith(
+                  color: colors.labelNeutral,
+                ),
               ),
-            ),
-            const SizedBox(width: 4),
-            Text(
-              '*',
-              style: AppTextStyles.label1.normalMedium.copyWith(
-                color: colors.statusNegative,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
+              const SizedBox(width: 4),
+              if (widget.requiredBadge)
+                Text(
+                  '*',
+                  style: AppTextStyles.label1.normalMedium.copyWith(
+                    color: colors.statusNegative,
+                  ),
+                ),
+            ],
+          ),
+        if (widget.headingText != null) const SizedBox(height: 8),
         // ── 텍스트 입력 ────────────────────────────────────────────────
         Container(
           padding: const EdgeInsets.all(12),
