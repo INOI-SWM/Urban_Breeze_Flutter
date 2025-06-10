@@ -5,6 +5,7 @@ import 'package:ridingmate/core/theme/app_theme.dart';
 import 'package:ridingmate/ui/navigation/navigation_scaffold.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
   runApp(const MyApp());
 }
