@@ -25,6 +25,12 @@ jobs:
           cache: true
           cache-key: ${{ runner.os }}-flutter-${{ steps.fvm-config.outputs.FLUTTER_VERSION }}-${{ hashFiles('**/pubspec.lock') }}
 
+      - name: Create .env file from secrets
+        run: |
+          echo "${{ toJson(secrets) }}" | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' > .env
+        env:
+          SECRETS_CONTEXT: ${{ toJson(secrets) }}
+
       - name: Install dependencies
         run: flutter pub get
 
