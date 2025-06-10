@@ -42,7 +42,7 @@ class _CardNormalState extends State<CardNormal> {
     final SemanticColors semanticColors = context.semanticColor;
 
     return SizedBox(
-      width: MediaQuery.of(context).size.width,
+      width: double.infinity,
       child: Column(
         children: <Widget>[
           Stack(
