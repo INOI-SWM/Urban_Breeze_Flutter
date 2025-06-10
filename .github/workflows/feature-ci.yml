@@ -13,33 +13,23 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Set up Dart
-        uses: dart-lang/setup-dart@v1
+      - name: Determine Flutter version from .fvmrc
+        uses: kuhnroyal/flutter-fvm-config-action/config@v3
+        id: fvm-config
 
-      - name: Install FVM
-        run: dart pub global activate fvm
-
-      - name: Cache pub & FVM SDK
-        uses: actions/cache@v3
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
         with:
-          path: |
-            ~/.pub-cache
-            .fvm/versions
-          key: ${{ runner.os }}-fvm-${{ hashFiles('.fvmrc') }}-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-fvm-
-
-      - name: Install Flutter SDK via FVM
-        run: fvm install
+          flutter-version: ${{ steps.fvm-config.outputs.FLUTTER_VERSION }}
+          channel: ${{ steps.fvm-config.outputs.FLUTTER_CHANNEL }}
+          cache: true
+          cache-key: ${{ runner.os }}-flutter-${{ steps.fvm-config.outputs.FLUTTER_VERSION }}-${{ hashFiles('**/pubspec.lock') }}
 
       - name: Install dependencies
-        run: fvm flutter pub get
+        run: flutter pub get
 
       - name: Format check
-        run: fvm dart format --set-exit-if-changed .
+        run: dart format --set-exit-if-changed .
 
       - name: Analyze code
-        run: fvm flutter analyze
-
-      # - name: Run tests
-      #   run: fvm flutter test
+        run: flutter analyze
