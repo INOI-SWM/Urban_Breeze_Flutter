@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
+import 'package:ridingmate/design_system/Icon/icon_size.dart';
+import 'package:ridingmate/design_system/button/icon_button_solid.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
 
 class CustomTextField extends StatefulWidget {
@@ -116,13 +118,14 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 ),
               ),
               if (_isActive)
-                IconButton(
-                  icon: const Icon(Icons.cancel),
-                  color: context.semanticColor.labelAssistive,
-                  iconSize: 24,
-                  onPressed: () {
-                    _controller.clear();
-                  },
+                IconButtonSolid(
+                  icon: Icons.cancel,
+                  onPressed: _controller.clear,
+                  iconSize: IconSize.medium,
+                  customButtonSize: 24,
+                  backgroundColor: Colors.transparent,
+                  iconColor: colors.labelAssistive,
+                  shadow: null,
                 ),
             ],
           ),
