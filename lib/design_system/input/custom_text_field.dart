@@ -115,7 +115,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   ),
                 ),
               ),
-              const Icon(Icons.star),
+              if (_isActive)
+                IconButton(
+                  icon: const Icon(Icons.cancel),
+                  color: context.semanticColor.labelAssistive,
+                  iconSize: 24,
+                  onPressed: () {
+                    _controller.clear();
+                  },
+                ),
             ],
           ),
         ),
