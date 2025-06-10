@@ -8,10 +8,12 @@ class CustomTextField extends StatefulWidget {
     super.key,
     required this.headingText,
     this.description,
+    this.disabled = false,
   });
 
   final String headingText;
   final String? description;
+  final bool disabled;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -21,13 +23,13 @@ class _CustomTextFieldState extends State<CustomTextField> {
   late final TextEditingController _controller = TextEditingController();
   late final FocusNode _focusNode = FocusNode();
 
-  bool get _isActive => _controller.text.isNotEmpty; // active = true 조건
-  bool get _hasFocus => _focusNode.hasFocus; // 포커스 상태
+  bool get _isActive => _controller.text.isNotEmpty;
+  bool get _hasFocus => _focusNode.hasFocus;
 
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() => setState(() {})); // 값 변경 시 active 갱신
+    _controller.addListener(() => setState(() {}));
     _focusNode.addListener(() => setState(() {}));
   }
 
@@ -68,13 +70,18 @@ class _CustomTextFieldState extends State<CustomTextField> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
+            color:
+                widget.disabled
+                    ? colors.interactionDisable
+                    : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color:
-                  _hasFocus
-                      ? colors
-                          .primaryNormal // focus = true
-                      : colors.lineNormalNeutral, // focus = false
+                  widget.disabled
+                      ? colors.lineNormalAlternative
+                      : (_hasFocus
+                          ? colors.primaryNormal
+                          : colors.lineNormalNeutral),
             ),
           ),
           child: Row(
@@ -83,19 +90,20 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 child: TextField(
                   controller: _controller,
                   focusNode: _focusNode,
+                  enabled: !widget.disabled,
                   style: AppTextStyles.body1.normalRegular.copyWith(
                     color:
-                        _isActive
-                            ? colors
-                                .labelNormal // active = true
-                            : colors.labelAssistive, // active = false
+                        _isActive ? colors.labelNormal : colors.labelAssistive,
                   ),
                   cursorColor: colors.primaryNormal,
                   decoration: InputDecoration(
-                    isCollapsed: true, // 내부 패딩 제거
+                    isCollapsed: true,
                     hintText: '텍스트를 입력해 주세요.',
                     hintStyle: AppTextStyles.body1.normalRegular.copyWith(
-                      color: colors.labelAssistive,
+                      color:
+                          widget.disabled
+                              ? colors.labelDisable
+                              : colors.labelAssistive,
                     ),
                     border: InputBorder.none,
                   ),
