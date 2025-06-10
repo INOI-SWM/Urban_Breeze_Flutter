@@ -70,6 +70,7 @@ class _RidingScreenState extends State<RidingScreen> {
         TileLayer(
           urlTemplate: fullUrlTemplate,
           userAgentPackageName: 'com.example.ridingmate',
+          subdomains: const <String>['a', 'b', 'c'],
         ),
         RichAttributionWidget(
           alignment: AttributionAlignment.bottomLeft,
