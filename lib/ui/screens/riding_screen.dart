@@ -24,7 +24,7 @@ class _RidingScreenState extends State<RidingScreen> {
   final MapController _mapController = MapController();
   bool _isButtonPressed = false;
   final List<LatLng> _pins = <LatLng>[];
-  LatLng? _lastTapPosition;
+  // LatLng? _lastTapPosition;
 
   @override
   void initState() {
@@ -97,7 +97,8 @@ class _RidingScreenState extends State<RidingScreen> {
               flags: InteractiveFlag.all,
             ),
             onTap: (_, LatLng position) {
-              _lastTapPosition = position;
+              // _lastTapPosition = position;
+
               _addPin(position);
             },
           ),
