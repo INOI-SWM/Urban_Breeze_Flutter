@@ -19,18 +19,22 @@ class CustomTextField extends StatefulWidget {
 
 class _CustomTextFieldState extends State<CustomTextField> {
   late final TextEditingController _controller = TextEditingController();
+  late final FocusNode _focusNode = FocusNode();
 
   bool get _isActive => _controller.text.isNotEmpty; // active = true 조건
+  bool get _hasFocus => _focusNode.hasFocus; // 포커스 상태
 
   @override
   void initState() {
     super.initState();
     _controller.addListener(() => setState(() {})); // 값 변경 시 active 갱신
+    _focusNode.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -65,13 +69,20 @@ class _CustomTextFieldState extends State<CustomTextField> {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: colors.lineNormalNeutral),
+            border: Border.all(
+              color:
+                  _hasFocus
+                      ? colors
+                          .primaryNormal // focus = true
+                      : colors.lineNormalNeutral, // focus = false
+            ),
           ),
           child: Row(
             children: <Widget>[
               Expanded(
                 child: TextField(
                   controller: _controller,
+                  focusNode: _focusNode,
                   style: AppTextStyles.body1.normalRegular.copyWith(
                     color:
                         _isActive
