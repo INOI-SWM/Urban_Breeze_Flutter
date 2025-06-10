@@ -49,6 +49,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
+    final double innerBorderWidth = _hasFocus ? 2.0 : 1.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,58 +77,71 @@ class _CustomTextFieldState extends State<CustomTextField> {
         if (widget.headingText != null) const SizedBox(height: 8),
         // ── 텍스트 입력 ────────────────────────────────────────────────
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(innerBorderWidth),
           decoration: BoxDecoration(
             color:
                 widget.disabled
                     ? colors.interactionDisable
                     : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
+          ),
+          child: Container(
+            padding: EdgeInsets.all(12 - innerBorderWidth),
+            decoration: BoxDecoration(
               color:
                   widget.disabled
-                      ? colors.lineNormalAlternative
-                      : (_hasFocus
-                          ? colors.primaryNormal
-                          : colors.lineNormalNeutral),
+                      ? colors.interactionDisable
+                      : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                width: innerBorderWidth,
+                color:
+                    widget.disabled
+                        ? colors.lineNormalAlternative
+                        : (_hasFocus
+                            ? colors.primaryNormal
+                            : colors.lineNormalNeutral),
+              ),
             ),
-          ),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: TextField(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  enabled: !widget.disabled,
-                  style: AppTextStyles.body1.normalRegular.copyWith(
-                    color:
-                        _isActive ? colors.labelNormal : colors.labelAssistive,
-                  ),
-                  cursorColor: colors.primaryNormal,
-                  decoration: InputDecoration(
-                    isCollapsed: true,
-                    hintText: '텍스트를 입력해 주세요.',
-                    hintStyle: AppTextStyles.body1.normalRegular.copyWith(
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    enabled: !widget.disabled,
+                    style: AppTextStyles.body1.normalRegular.copyWith(
                       color:
-                          widget.disabled
-                              ? colors.labelDisable
+                          _isActive
+                              ? colors.labelNormal
                               : colors.labelAssistive,
                     ),
-                    border: InputBorder.none,
+                    cursorColor: colors.primaryNormal,
+                    decoration: InputDecoration(
+                      isCollapsed: true,
+                      hintText: '텍스트를 입력해 주세요.',
+                      hintStyle: AppTextStyles.body1.normalRegular.copyWith(
+                        color:
+                            widget.disabled
+                                ? colors.labelDisable
+                                : colors.labelAssistive,
+                      ),
+                      border: InputBorder.none,
+                    ),
                   ),
                 ),
-              ),
-              if (_hasFocus && _isActive)
-                IconButtonSolid(
-                  icon: Icons.cancel,
-                  onPressed: _controller.clear,
-                  iconSize: IconSize.medium,
-                  customButtonSize: 24,
-                  backgroundColor: Colors.transparent,
-                  iconColor: colors.labelAssistive,
-                  shadow: null,
-                ),
-            ],
+                if (_hasFocus && _isActive)
+                  IconButtonSolid(
+                    icon: Icons.cancel,
+                    onPressed: _controller.clear,
+                    iconSize: IconSize.medium,
+                    customButtonSize: 24,
+                    backgroundColor: Colors.transparent,
+                    iconColor: colors.labelAssistive,
+                    shadow: null,
+                  ),
+              ],
+            ),
           ),
         ),
         // ── Description ────────────────────────────────────────────────
