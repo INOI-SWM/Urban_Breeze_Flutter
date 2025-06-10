@@ -117,7 +117,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   ),
                 ),
               ),
-              if (_isActive)
+              if (_hasFocus && _isActive)
                 IconButtonSolid(
                   icon: Icons.cancel,
                   onPressed: _controller.clear,
