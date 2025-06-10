@@ -4,9 +4,13 @@ import 'package:ridingmate/core/theme/semantic_colors.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
 
 class CustomTextField extends StatefulWidget {
-  const CustomTextField({super.key, required this.title, this.description});
+  const CustomTextField({
+    super.key,
+    required this.headingText,
+    this.description,
+  });
 
-  final String title;
+  final String headingText;
   final String? description;
 
   @override
@@ -14,6 +18,22 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
+  late final TextEditingController _controller = TextEditingController();
+
+  bool get _isActive => _controller.text.isNotEmpty; // active = true 조건
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(() => setState(() {})); // 값 변경 시 active 갱신
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
@@ -21,10 +41,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
+        // ── headingText ──────────────────────────────────────────────
         Row(
           children: <Widget>[
             Text(
-              widget.title,
+              widget.headingText,
               style: AppTextStyles.label1.normalBold.copyWith(
                 color: colors.labelNeutral,
               ),
@@ -39,6 +60,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
           ],
         ),
         const SizedBox(height: 8),
+        // ── 텍스트 입력 ────────────────────────────────────────────────
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -48,10 +70,23 @@ class _CustomTextFieldState extends State<CustomTextField> {
           child: Row(
             children: <Widget>[
               Expanded(
-                child: Text(
-                  '텍스트를 입력해 주세요.',
+                child: TextField(
+                  controller: _controller,
                   style: AppTextStyles.body1.normalRegular.copyWith(
-                    color: colors.labelAssistive,
+                    color:
+                        _isActive
+                            ? colors
+                                .labelNormal // active = true
+                            : colors.labelAssistive, // active = false
+                  ),
+                  cursorColor: colors.primaryNormal,
+                  decoration: InputDecoration(
+                    isCollapsed: true, // 내부 패딩 제거
+                    hintText: '텍스트를 입력해 주세요.',
+                    hintStyle: AppTextStyles.body1.normalRegular.copyWith(
+                      color: colors.labelAssistive,
+                    ),
+                    border: InputBorder.none,
                   ),
                 ),
               ),
@@ -59,6 +94,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             ],
           ),
         ),
+        // ── Description ────────────────────────────────────────────────
         if (widget.description != null) ...<Widget>[
           const SizedBox(height: 8),
           Text(
