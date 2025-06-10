@@ -1,7 +1,7 @@
 enum IconSize {
-  xlarge(24),
-  large(32),
-  medium(28),
+  xlarge(32),
+  large(28),
+  medium(24),
   small(20),
   xsmall(16);
 
