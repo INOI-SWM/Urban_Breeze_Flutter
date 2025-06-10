@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:ridingmate/design_system/typography/app_text_style.dart';
 
 class RidingScreen extends StatefulWidget {
   const RidingScreen({super.key});
@@ -69,6 +70,16 @@ class _RidingScreenState extends State<RidingScreen> {
         TileLayer(
           urlTemplate: fullUrlTemplate,
           userAgentPackageName: 'com.example.ridingmate',
+        ),
+        RichAttributionWidget(
+          alignment: AttributionAlignment.bottomLeft,
+          showFlutterMapAttribution: false,
+          attributions: <SourceAttribution>[
+            TextSourceAttribution(
+              'Maps: © Thunderforest | Data: © OpenStreetMap contributors',
+              textStyle: AppTextStyles.caption2.regular,
+            ),
+          ],
         ),
         if (_currentPosition != null)
           MarkerLayer(
