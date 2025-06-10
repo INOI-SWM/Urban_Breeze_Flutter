@@ -114,7 +114,26 @@ class _RidingScreenState extends State<RidingScreen> {
         Positioned(
           right: 16,
           bottom: 16,
-          child: IconButtonSolid(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              IconButtonSolid(
+                icon: Icons.push_pin,
+                onPressed: _toggleButtonState,
+                iconSize: IconSize.medium,
+                backgroundColor:
+                    _isButtonPressed
+                        ? context.semanticColor.primaryNormal
+                        : context.semanticColor.backgroundNormalNormal,
+                iconColor:
+                    _isButtonPressed
+                        ? context.semanticColor.staticWhite
+                        : context.semanticColor.labelNormal,
+                buttonSize: IconButtonSize.medium,
+                shadow: AppShadows.instance.emphasize,
+              ),
+              const SizedBox(height: 12),
+IconButtonSolid(
             icon: Icons.my_location,
             onPressed: _moveToCurrentLocation,
             iconSize: IconSize.medium,
@@ -122,6 +141,8 @@ class _RidingScreenState extends State<RidingScreen> {
             iconColor: context.semanticColor.labelNormal,
             buttonSize: IconButtonSize.medium,
             shadow: AppShadows.instance.emphasize,
+),
+            ],
           ),
         ),
       ],
