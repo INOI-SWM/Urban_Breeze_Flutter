@@ -55,7 +55,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        // ── headingText ──────────────────────────────────────────────
         if (widget.headingText != null)
           Row(
             children: <Widget>[
@@ -76,7 +75,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
             ],
           ),
         if (widget.headingText != null) const SizedBox(height: 8),
-        // ── 텍스트 입력 ────────────────────────────────────────────────
         InsetBorder(
           color:
               widget.disabled
@@ -131,7 +129,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
             ),
           ),
         ),
-        // ── Description ────────────────────────────────────────────────
         if (widget.description != null) ...<Widget>[
           const SizedBox(height: 8),
           Text(
