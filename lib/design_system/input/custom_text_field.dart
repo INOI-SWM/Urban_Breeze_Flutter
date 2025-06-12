@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
 import 'package:ridingmate/design_system/Icon/icon_size.dart';
+import 'package:ridingmate/design_system/border/inset_border.dart';
 import 'package:ridingmate/design_system/button/icon_button_solid.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
 
@@ -49,7 +50,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-    final double innerBorderWidth = _hasFocus ? 2.0 : 1.0;
+
+    final double innerBorderWidth = _hasFocus ? 2 : 1;
+    final double containerPadding = 12 - innerBorderWidth;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,33 +79,19 @@ class _CustomTextFieldState extends State<CustomTextField> {
           ),
         if (widget.headingText != null) const SizedBox(height: 8),
         // ── 텍스트 입력 ────────────────────────────────────────────────
-        Container(
-          padding: EdgeInsets.all(innerBorderWidth),
-          decoration: BoxDecoration(
-            color:
-                widget.disabled
-                    ? colors.interactionDisable
-                    : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
+        InsetBorder(
+          color:
+              widget.disabled
+                  ? colors.lineNormalAlternative
+                  : (_hasFocus
+                      ? colors.primaryNormal
+                      : colors.lineNormalNeutral),
+          width: innerBorderWidth,
+          radius: 12,
+          backgroundColor:
+              widget.disabled ? colors.interactionDisable : Colors.transparent,
           child: Container(
-            padding: EdgeInsets.all(12 - innerBorderWidth),
-            decoration: BoxDecoration(
-              color:
-                  widget.disabled
-                      ? colors.interactionDisable
-                      : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                width: innerBorderWidth,
-                color:
-                    widget.disabled
-                        ? colors.lineNormalAlternative
-                        : (_hasFocus
-                            ? colors.primaryNormal
-                            : colors.lineNormalNeutral),
-              ),
-            ),
+            padding: EdgeInsets.all(containerPadding),
             child: Row(
               children: <Widget>[
                 Expanded(
