@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/core/theme/app_theme.dart';
-import 'package:ridingmate/core/theme/extensions.dart';
-import 'package:ridingmate/core/theme/semantic_colors.dart';
 import 'package:ridingmate/ui/navigation/bottom_navigation.dart';
 import 'package:ridingmate/ui/screens/history_screen.dart';
 import 'package:ridingmate/ui/screens/home_screen.dart';
@@ -35,33 +32,11 @@ class _NavigationScaffoldState extends State<NavigationScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final Brightness currentBrightness = Theme.of(context).brightness;
-    final SemanticColors semanticColors =
-        currentBrightness == Brightness.light
-            ? const LightSemanticColors()
-            : const DarkSemanticColors();
-
-    return SemanticTheme(
-      data: semanticColors,
-      child: Builder(
-        builder:
-            (BuildContext semanticContext) => Scaffold(
-              appBar: AppBar(
-                title: Text(
-                  'Riding Mate App',
-                  style: TextStyle(
-                    color: semanticContext.semanticColor.labelNormal,
-                  ),
-                ),
-                backgroundColor:
-                    semanticContext.semanticColor.backgroundNormalNormal,
-              ),
-              body: _pages[_currentIndex],
-              bottomNavigationBar: BottomNavigation(
-                currentIndex: _currentIndex,
-                onDestinationSelected: _onDestinationSelected,
-              ),
-            ),
+    return Scaffold(
+      body: _pages[_currentIndex],
+      bottomNavigationBar: BottomNavigation(
+        currentIndex: _currentIndex,
+        onDestinationSelected: _onDestinationSelected,
       ),
     );
   }
