@@ -38,9 +38,9 @@ class _InsetBorderPainter extends CustomPainter {
   final double radius;
 
   @override
-  void paint(Canvas c, Size s) {
+  void paint(Canvas canvas, Size size) {
     final RRect rrect = RRect.fromRectAndRadius(
-      Offset.zero & s,
+      Offset.zero & size,
       Radius.circular(radius),
     ).deflate(strokeWidth); // ← 안쪽으로만 굵기 만큼 축소
     final Paint paint =
@@ -48,7 +48,7 @@ class _InsetBorderPainter extends CustomPainter {
           ..color = color
           ..style = PaintingStyle.stroke
           ..strokeWidth = strokeWidth;
-    c.drawRRect(rrect, paint);
+    canvas.drawRRect(rrect, paint);
   }
 
   @override
