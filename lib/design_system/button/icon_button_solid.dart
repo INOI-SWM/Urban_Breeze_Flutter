@@ -20,6 +20,7 @@ class IconButtonSolid extends StatelessWidget {
     this.buttonSize,
     this.customButtonSize,
     this.shadow,
+    this.isDisabled = false,
   }) : assert(
          buttonSize != null || customButtonSize != null,
          'Either buttonSize or customButtonSize must be provided',
@@ -33,6 +34,7 @@ class IconButtonSolid extends StatelessWidget {
   final IconButtonSize? buttonSize;
   final double? customButtonSize;
   final List<BoxShadow>? shadow;
+  final bool isDisabled;
 
   double get _buttonSize => customButtonSize ?? buttonSize!.size;
 
@@ -49,8 +51,10 @@ class IconButtonSolid extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: onPressed,
+          onTap: isDisabled ? null : onPressed,
           customBorder: const CircleBorder(),
+          splashColor: isDisabled ? Colors.transparent : null,
+          highlightColor: isDisabled ? Colors.transparent : null,
           child: Center(
             child: Icon(icon, size: iconSize.size, color: iconColor),
           ),
