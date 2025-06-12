@@ -26,7 +26,6 @@ class _RidingScreenState extends State<RidingScreen> {
   final List<LatLng> _pins = <LatLng>[];
   // LatLng? _lastTapPosition;
 
-
   @override
   void initState() {
     super.initState();
@@ -159,36 +158,6 @@ class _RidingScreenState extends State<RidingScreen> {
                     );
                   }).toList(),
             ),
-          ),
-          children: <Widget>[
-            TileLayer(
-              urlTemplate: fullUrlTemplate,
-              userAgentPackageName: 'com.example.ridingmate',
-              subdomains: const <String>['a', 'b', 'c'],
-            ),
-            RichAttributionWidget(
-              alignment: AttributionAlignment.bottomLeft,
-              showFlutterMapAttribution: false,
-              attributions: <SourceAttribution>[
-                TextSourceAttribution(
-                  'Maps: © Thunderforest | Data: © OpenStreetMap contributors',
-                  textStyle: AppTextStyles.caption2.regular,
-                ),
-              ],
-            ),
-            if (_currentPosition != null)
-              MarkerLayer(
-                markers: <Marker>[
-                  Marker(
-                    point: _currentPosition!,
-                    width: 32,
-                    height: 32,
-                    child: Image.asset(
-                      'assets/icons/png/current_location_pin.png',
-                    ),
-                  ),
-                ],
-              ),
           ],
         ),
         Positioned(
