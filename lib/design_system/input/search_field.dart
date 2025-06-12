@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
+import 'package:ridingmate/design_system/input/base_search_field.dart';
+import 'package:ridingmate/design_system/input/search_field_size.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
-
-enum SearchFieldSize { small, medium }
 
 class SearchField extends StatefulWidget {
   const SearchField({
@@ -14,6 +13,8 @@ class SearchField extends StatefulWidget {
     this.onSubmitted,
     this.focusNode,
     this.size = SearchFieldSize.medium,
+    this.backgroundColor,
+    this.boxShadow,
   });
 
   static const String _hintText = '검색어를 입력해주세요';
@@ -23,6 +24,8 @@ class SearchField extends StatefulWidget {
   final ValueChanged<String>? onSubmitted;
   final FocusNode? focusNode;
   final SearchFieldSize size;
+  final Color? backgroundColor;
+  final List<BoxShadow>? boxShadow;
 
   @override
   State<SearchField> createState() => _SearchFieldState();
@@ -64,8 +67,6 @@ class _SearchFieldState extends State<SearchField> {
     }
   }
 
-  double get _padding => widget.size == SearchFieldSize.small ? 8 : 12;
-
   void _updateHasText() {
     final bool newHasText = _controller.text.isNotEmpty;
     if (_hasText != newHasText) {
@@ -84,60 +85,30 @@ class _SearchFieldState extends State<SearchField> {
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
 
-    return Container(
-      padding: EdgeInsets.all(_padding),
-      decoration: BoxDecoration(
-        color: colors.fillNormal,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: Icon(Icons.search, size: 20, color: colors.labelAlternative),
+    return BaseSearchField(
+      text: _controller.text,
+      size: widget.size,
+      backgroundColor: widget.backgroundColor ?? colors.fillNormal,
+      boxShadow: widget.boxShadow,
+      onClear: _clearText,
+      hintText: SearchField._hintText,
+      child: TextField(
+        controller: _controller,
+        focusNode: widget.focusNode,
+        onChanged: widget.onChanged,
+        onSubmitted: widget.onSubmitted,
+        style: AppTextStyles.body1.normalRegular.copyWith(
+          color: colors.labelNormal,
+        ),
+        decoration: InputDecoration(
+          hintText: SearchField._hintText,
+          hintStyle: AppTextStyles.body1.normalRegular.copyWith(
+            color: colors.labelAssistive,
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: TextField(
-              controller: _controller,
-              focusNode: widget.focusNode,
-              onChanged: (String value) {
-                widget.onChanged?.call(value);
-              },
-              onSubmitted: widget.onSubmitted,
-              style: AppTextStyles.body1.normalRegular.copyWith(
-                color: colors.labelNormal,
-              ),
-              decoration: InputDecoration(
-                hintText: SearchField._hintText,
-                hintStyle: AppTextStyles.body1.normalRegular.copyWith(
-                  color: colors.labelAssistive,
-                ),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.zero,
-                isDense: true,
-              ),
-            ),
-          ),
-          if (_hasText) ...<Widget>[
-            const SizedBox(width: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: GestureDetector(
-                onTap: _clearText,
-                child: SvgPicture.asset(
-                  'assets/icons/svg/circle_close_fill.svg',
-                  width: 22,
-                  height: 22,
-                  colorFilter: ColorFilter.mode(
-                    colors.labelAssistive,
-                    BlendMode.srcIn,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ],
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.zero,
+          isDense: true,
+        ),
       ),
     );
   }

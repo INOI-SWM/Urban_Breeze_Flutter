@@ -42,7 +42,7 @@ class _CardNormalState extends State<CardNormal> {
     final SemanticColors semanticColors = context.semanticColor;
 
     return SizedBox(
-      width: 353,
+      width: double.infinity,
       child: Column(
         children: <Widget>[
           Stack(

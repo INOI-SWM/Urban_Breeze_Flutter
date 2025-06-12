@@ -1,9 +1,12 @@
-// lib/main.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:ridingmate/core/theme/app_theme.dart';
+import 'package:ridingmate/core/theme/semantic_colors.dart';
 import 'package:ridingmate/ui/navigation/navigation_scaffold.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');
   runApp(const MyApp());
 }
 
@@ -19,6 +22,13 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
       home: const NavigationScaffold(),
+      builder: (BuildContext context, Widget? child) {
+        final SemanticColors semanticColors = AppTheme.getSemanticColors(
+          Theme.of(context).brightness,
+        );
+
+        return SemanticTheme(data: semanticColors, child: child!);
+      },
     );
   }
 }
