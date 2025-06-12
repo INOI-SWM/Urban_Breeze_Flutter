@@ -11,6 +11,10 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.0.9
+  flutter_map: ^8.1.1
+  geolocator: ^14.0.1
+  flutter_dotenv: ^5.2.1
+  latlong2: ^0.9.1
 
 dev_dependencies:
   flutter_test:
@@ -34,3 +38,5 @@ flutter:
   assets:
     - assets/icons/svg/
     - assets/images/png/
+    - .env
+    - assets/icons/png/
