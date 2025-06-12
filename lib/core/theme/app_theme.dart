@@ -3,17 +3,23 @@ import 'package:ridingmate/core/theme/semantic_colors.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart'; // For AppTextStyles
 
 class AppTheme {
+  static SemanticColors getSemanticColors(Brightness brightness) {
+    return brightness == Brightness.light
+        ? const LightSemanticColors()
+        : const DarkSemanticColors();
+  }
+
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
     navigationBarTheme: _buildNavigationBarThemeData(
-      const LightSemanticColors(),
+      getSemanticColors(Brightness.light),
     ),
   );
 
   static final ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
     navigationBarTheme: _buildNavigationBarThemeData(
-      const DarkSemanticColors(),
+      getSemanticColors(Brightness.dark),
     ),
   );
 
