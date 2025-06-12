@@ -75,6 +75,14 @@ class _RidingScreenState extends State<RidingScreen> {
     }
   }
 
+  void _removeLastPin() {
+    if (_pins.isNotEmpty) {
+      setState(() {
+        _pins.removeLast();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final String baseUrl =
@@ -180,6 +188,23 @@ class _RidingScreenState extends State<RidingScreen> {
                         : context.semanticColor.labelNormal,
                 buttonSize: IconButtonSize.medium,
                 shadow: AppShadows.instance.emphasize,
+              ),
+              const SizedBox(height: 12),
+              IconButtonSolid(
+                icon: Icons.replay,
+                onPressed: _pins.isEmpty ? () {} : _removeLastPin,
+                iconSize: IconSize.medium,
+                backgroundColor:
+                    _pins.isEmpty
+                        ? context.semanticColor.interactionInactive
+                        : context.semanticColor.backgroundNormalNormal,
+                iconColor:
+                    _pins.isEmpty
+                        ? context.semanticColor.labelDisable
+                        : context.semanticColor.labelNormal,
+                buttonSize: IconButtonSize.medium,
+                shadow: AppShadows.instance.emphasize,
+                isDisabled: _pins.isEmpty,
               ),
               const SizedBox(height: 12),
               IconButtonSolid(
