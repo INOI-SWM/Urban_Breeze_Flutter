@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/design_system/Icon/icon_size.dart';
@@ -24,7 +27,8 @@ class _RidingScreenState extends State<RidingScreen> {
   final MapController _mapController = MapController();
   bool _isButtonPressed = false;
   final List<LatLng> _pins = <LatLng>[];
-  // LatLng? _lastTapPosition;
+  final List<List<LatLng>> _routeSegments = <List<LatLng>>[];
+  bool _isRouteLoading = false;
 
   @override
   void initState() {
@@ -67,10 +71,63 @@ class _RidingScreenState extends State<RidingScreen> {
     });
   }
 
+  Future<void> _getRoute() async {
+    if (_pins.length < 2) return;
+
+    setState(() {
+      _isRouteLoading = true;
+    });
+
+    try {
+      final String apiKey = dotenv.env['OPENROUTE_API_KEY'] ?? '';
+      final String start =
+          '${_pins[_pins.length - 2].longitude},${_pins[_pins.length - 2].latitude}';
+      final String end =
+          '${_pins[_pins.length - 1].longitude},${_pins[_pins.length - 1].latitude}';
+
+      final http.Response response = await http.get(
+        Uri.parse(
+          'https://api.openrouteservice.org/v2/directions/driving-car?api_key=$apiKey&start=$start&end=$end',
+        ),
+        headers: <String, String>{
+          'Accept':
+              'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        final List<List<dynamic>> coordinates =
+            (data['features'][0]['geometry']['coordinates'] as List<dynamic>)
+                .cast<List<dynamic>>();
+
+        setState(() {
+          _routeSegments.add(
+            coordinates
+                .map(
+                  (List<dynamic> coord) =>
+                      LatLng(coord[1].toDouble(), coord[0].toDouble()),
+                )
+                .toList(),
+          );
+        });
+      }
+    } catch (e) {
+      debugPrint('Error getting route: $e');
+    } finally {
+      setState(() {
+        _isRouteLoading = false;
+      });
+    }
+  }
+
   void _addPin(LatLng position) {
     if (_isButtonPressed && _pins.length < 50) {
       setState(() {
         _pins.add(position);
+        if (_pins.length >= 2) {
+          _getRoute();
+        }
       });
     }
   }
@@ -79,6 +136,11 @@ class _RidingScreenState extends State<RidingScreen> {
     if (_pins.isNotEmpty) {
       setState(() {
         _pins.removeLast();
+        if (_pins.length >= 2) {
+          _routeSegments.removeLast();
+        } else {
+          _routeSegments.clear();
+        }
       });
     }
   }
@@ -105,8 +167,6 @@ class _RidingScreenState extends State<RidingScreen> {
               flags: InteractiveFlag.all,
             ),
             onTap: (_, LatLng position) {
-              // _lastTapPosition = position;
-
               _addPin(position);
             },
           ),
@@ -139,6 +199,17 @@ class _RidingScreenState extends State<RidingScreen> {
                   ),
                 ],
               ),
+            if (_routeSegments.isNotEmpty)
+              PolylineLayer<Object>(
+                polylines:
+                    _routeSegments.map((List<LatLng> segment) {
+                      return Polyline<Object>(
+                        points: segment,
+                        color: context.semanticColor.primaryNormal,
+                        strokeWidth: 4.0,
+                      );
+                    }).toList(),
+              ),
             MarkerLayer(
               markers:
                   _pins.asMap().entries.map((MapEntry<int, LatLng> entry) {
@@ -168,6 +239,7 @@ class _RidingScreenState extends State<RidingScreen> {
             ),
           ],
         ),
+        if (_isRouteLoading) const Center(child: CircularProgressIndicator()),
         Positioned(
           right: 16,
           bottom: 16,
