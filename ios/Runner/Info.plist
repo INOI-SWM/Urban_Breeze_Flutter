@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>이 앱은 귀하의 현재 위치를 지도에 표시하기 위해 위치 정보에 접근합니다.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>이 앱은 백그라운드에서도 위치 서비스를 사용하여 지도에 현재 위치를 표시합니다.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>이 앱은 지도에 현재 위치를 표시하고, 백그라운드에서도 위치 서비스를 사용합니다.</string>
 </dict>
 </plist>

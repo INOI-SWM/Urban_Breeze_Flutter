@@ -49,3 +49,6 @@ app.*.map.json
 
 # FVM 관련
 /.fvm
+
+# Curosr 관련
+/.cursor
