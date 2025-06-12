@@ -40,3 +40,4 @@ flutter:
     - assets/images/png/
     - .env
     - assets/icons/png/
+    - assets/sample_data/
