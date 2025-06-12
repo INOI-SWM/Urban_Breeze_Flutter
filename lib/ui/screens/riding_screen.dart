@@ -22,6 +22,9 @@ class _RidingScreenState extends State<RidingScreen> {
   LatLng? _currentPosition;
   bool _isLoading = true;
   final MapController _mapController = MapController();
+  bool _isButtonPressed = false;
+  final List<LatLng> _pins = <LatLng>[];
+  // LatLng? _lastTapPosition;
 
   @override
   void initState() {
@@ -58,6 +61,20 @@ class _RidingScreenState extends State<RidingScreen> {
     }
   }
 
+  void _toggleButtonState() {
+    setState(() {
+      _isButtonPressed = !_isButtonPressed;
+    });
+  }
+
+  void _addPin(LatLng position) {
+    if (_isButtonPressed && _pins.length < 50) {
+      setState(() {
+        _pins.add(position);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final String baseUrl =
@@ -79,6 +96,11 @@ class _RidingScreenState extends State<RidingScreen> {
             interactionOptions: const InteractionOptions(
               flags: InteractiveFlag.all,
             ),
+            onTap: (_, LatLng position) {
+              // _lastTapPosition = position;
+
+              _addPin(position);
+            },
           ),
           children: <Widget>[
             TileLayer(
@@ -109,19 +131,67 @@ class _RidingScreenState extends State<RidingScreen> {
                   ),
                 ],
               ),
+            MarkerLayer(
+              markers:
+                  _pins.asMap().entries.map((MapEntry<int, LatLng> entry) {
+                    final int index = entry.key;
+                    final LatLng position = entry.value;
+                    return Marker(
+                      point: position,
+                      width: 24,
+                      height: 24,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color:
+                              context.semanticColor.accentBackgroundRedOrange,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${index + 1}',
+                            style: AppTextStyles.caption2.regular.copyWith(
+                              color: context.semanticColor.staticWhite,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+            ),
           ],
         ),
         Positioned(
           right: 16,
           bottom: 16,
-          child: IconButtonSolid(
-            icon: Icons.my_location,
-            onPressed: _moveToCurrentLocation,
-            iconSize: IconSize.medium,
-            backgroundColor: context.semanticColor.backgroundNormalNormal,
-            iconColor: context.semanticColor.labelNormal,
-            buttonSize: IconButtonSize.medium,
-            shadow: AppShadows.instance.emphasize,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              IconButtonSolid(
+                icon: Icons.push_pin,
+                onPressed: _toggleButtonState,
+                iconSize: IconSize.medium,
+                backgroundColor:
+                    _isButtonPressed
+                        ? context.semanticColor.primaryNormal
+                        : context.semanticColor.backgroundNormalNormal,
+                iconColor:
+                    _isButtonPressed
+                        ? context.semanticColor.staticWhite
+                        : context.semanticColor.labelNormal,
+                buttonSize: IconButtonSize.medium,
+                shadow: AppShadows.instance.emphasize,
+              ),
+              const SizedBox(height: 12),
+              IconButtonSolid(
+                icon: Icons.my_location,
+                onPressed: _moveToCurrentLocation,
+                iconSize: IconSize.medium,
+                backgroundColor: context.semanticColor.backgroundNormalNormal,
+                iconColor: context.semanticColor.labelNormal,
+                buttonSize: IconButtonSize.medium,
+                shadow: AppShadows.instance.emphasize,
+              ),
+            ],
           ),
         ),
       ],
