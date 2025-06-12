@@ -24,69 +24,66 @@ class CardList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Row(
-        children: <Widget>[
-          SizedBox(
-            height: 64,
-            child: Thumbnail(
-              path: thumbnailPath,
-              ratio: ThumbnailRatio.r3_2,
-              sourceType: sourceType,
-              hasRadius: true,
-            ),
+    return Row(
+      children: <Widget>[
+        SizedBox(
+          height: 64,
+          child: Thumbnail(
+            path: thumbnailPath,
+            ratio: ThumbnailRatio.r3_2,
+            sourceType: sourceType,
+            hasRadius: true,
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      title,
-                      style: AppTextStyles.body2.normalBold.copyWith(
-                        color: context.semanticColor.labelNormal,
-                      ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    title,
+                    style: AppTextStyles.body2.normalBold.copyWith(
+                      color: context.semanticColor.labelNormal,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      createDate,
-                      style: AppTextStyles.label2.medium.copyWith(
-                        color: context.semanticColor.labelAlternative,
-                      ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    createDate,
+                    style: AppTextStyles.label2.medium.copyWith(
+                      color: context.semanticColor.labelAlternative,
                     ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 6,
-                  children: <Widget>[
-                    ContentBadge(
-                      text: distance,
-                      type: ContentBadgeType.solid,
-                      backgroundColor: context.semanticColor.fillNormal,
-                      textColor: context.semanticColor.labelAlternative,
-                      leftIcon: Icons.route,
-                      size: ContentBadgeSize.xsmall,
-                    ),
-                    ContentBadge(
-                      text: elevation,
-                      type: ContentBadgeType.solid,
-                      backgroundColor: context.semanticColor.fillNormal,
-                      textColor: context.semanticColor.labelAlternative,
-                      leftIcon: Icons.terrain,
-                      size: ContentBadgeSize.xsmall,
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 6,
+                children: <Widget>[
+                  ContentBadge(
+                    text: distance,
+                    type: ContentBadgeType.solid,
+                    backgroundColor: context.semanticColor.fillNormal,
+                    textColor: context.semanticColor.labelAlternative,
+                    leftIcon: Icons.route,
+                    size: ContentBadgeSize.xsmall,
+                  ),
+                  ContentBadge(
+                    text: elevation,
+                    type: ContentBadgeType.solid,
+                    backgroundColor: context.semanticColor.fillNormal,
+                    textColor: context.semanticColor.labelAlternative,
+                    leftIcon: Icons.terrain,
+                    size: ContentBadgeSize.xsmall,
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
