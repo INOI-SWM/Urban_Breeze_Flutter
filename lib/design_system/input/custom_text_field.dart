@@ -13,14 +13,12 @@ class CustomTextField extends StatefulWidget {
     this.description,
     this.disabled = false,
     this.requiredBadge = false,
-    this.showDescription = false,
   });
 
   final String? headingText;
   final String? description;
   final bool disabled;
   final bool requiredBadge;
-  final bool showDescription;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
