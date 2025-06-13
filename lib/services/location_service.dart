@@ -2,20 +2,27 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
 class LocationService {
+  static Future<bool> checkAndRequestPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return false;
+      }
+    }
+    return permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse;
+  }
+
   static Future<LatLng?> getCurrentLocation() async {
     try {
-      final LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        final LocationPermission requestPermission =
-            await Geolocator.requestPermission();
-        if (requestPermission == LocationPermission.denied) {
-          return null;
-        }
-      }
+      final bool hasPermission = await checkAndRequestPermission();
+      if (!hasPermission) return null;
 
       final Position position = await Geolocator.getCurrentPosition();
       return LatLng(position.latitude, position.longitude);
     } catch (e) {
+      //todo : 위치정보 가져오는 중, 정말 의도치 않은 에러가 생겼을 때, 띄울 에러메시지 및 디자인 추가
       return null;
     }
   }
