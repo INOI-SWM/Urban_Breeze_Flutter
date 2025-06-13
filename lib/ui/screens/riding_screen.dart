@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
+import 'package:ridingmate/design_system/map/route_pin_marker.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
 import 'package:ridingmate/models/route_result.dart';
 import 'package:ridingmate/services/location_service.dart';
@@ -19,9 +20,12 @@ class RidingScreen extends StatefulWidget {
 class _RidingScreenState extends State<RidingScreen> {
   final LatLng initialCenter = const LatLng(37.5665, 126.9780); //서울시청
   final double initialZoom = 16.0;
+
   LatLng? _currentPosition;
-  bool _isLoading = true;
+  bool _isLocationLoading = true;
+
   final MapController _mapController = MapController();
+
   bool _isButtonPressed = false;
   final List<LatLng> _pins = <LatLng>[];
   final List<List<LatLng>> _routeSegments = <List<LatLng>>[];
@@ -37,7 +41,7 @@ class _RidingScreenState extends State<RidingScreen> {
     final LatLng? position = await LocationService.getCurrentLocation();
     setState(() {
       _currentPosition = position;
-      _isLoading = false;
+      _isLocationLoading = false;
     });
   }
 
@@ -108,7 +112,7 @@ class _RidingScreenState extends State<RidingScreen> {
     final String apiKey = dotenv.env['THUNDERFOREST_API_KEY'] ?? 'fallback_key';
     final String fullUrlTemplate = '$baseUrl?apikey=$apiKey';
 
-    if (_isLoading) {
+    if (_isLocationLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -156,15 +160,17 @@ class _RidingScreenState extends State<RidingScreen> {
                 ],
               ),
             if (_routeSegments.isNotEmpty)
-              PolylineLayer(
+              PolylineLayer<Object>(
                 polylines:
-                    _routeSegments.map<Polyline>((List<LatLng> segment) {
-                      return Polyline(
-                        points: segment,
-                        color: context.semanticColor.primaryNormal,
-                        strokeWidth: 4.0,
-                      );
-                    }).toList(),
+                    _routeSegments
+                        .map(
+                          (List<LatLng> segment) => Polyline<Object>(
+                            points: segment,
+                            color: context.semanticColor.primaryNormal,
+                            strokeWidth: 4.0,
+                          ),
+                        )
+                        .toList(),
               ),
             MarkerLayer(
               markers:
@@ -175,21 +181,7 @@ class _RidingScreenState extends State<RidingScreen> {
                       point: position,
                       width: 24,
                       height: 24,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color:
-                              context.semanticColor.accentBackgroundRedOrange,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            '${index + 1}',
-                            style: AppTextStyles.caption2.regular.copyWith(
-                              color: context.semanticColor.staticWhite,
-                            ),
-                          ),
-                        ),
-                      ),
+                      child: RoutePinMarker(index: index),
                     );
                   }).toList(),
             ),
