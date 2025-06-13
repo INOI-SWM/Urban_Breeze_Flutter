@@ -33,6 +33,7 @@ extension RouteModeExtension on RouteMode {
 
 class RouteService {
   static final String _apiKey = dotenv.env['OPENROUTE_API_KEY'] ?? '';
+  static final String _baseUrl = dotenv.env['ORS_BASE_URL'] ?? '';
 
   static String _buildRouteUrl(
     LatLng start,
@@ -41,7 +42,7 @@ class RouteService {
   }) {
     final String startStr = '${start.longitude},${start.latitude}';
     final String endStr = '${end.longitude},${end.latitude}';
-    return 'https://api.openrouteservice.org/v2/directions/${mode.apiValue}?api_key=$_apiKey&start=$startStr&end=$endStr';
+    return '$_baseUrl${mode.apiValue}?api_key=$_apiKey&start=$startStr&end=$endStr';
   }
 
   static RouteResult _parseRouteResponse(Map<String, dynamic> data) {
