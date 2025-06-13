@@ -4,6 +4,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 
+import '../models/route_result.dart';
+
 enum RouteMode {
   drivingCar,
   cyclingRegular,
@@ -42,19 +44,21 @@ class RouteService {
     return 'https://api.openrouteservice.org/v2/directions/${mode.apiValue}?api_key=$_apiKey&start=$startStr&end=$endStr';
   }
 
-  static List<LatLng> _parseRouteResponse(Map<String, dynamic> data) {
+  static RouteResult _parseRouteResponse(Map<String, dynamic> data) {
     final List<List<dynamic>> coordinates =
         (data['features'][0]['geometry']['coordinates'] as List<dynamic>)
             .cast<List<dynamic>>();
-    return coordinates
-        .map(
-          (List<dynamic> coord) =>
-              LatLng(coord[1].toDouble(), coord[0].toDouble()),
-        )
-        .toList();
+    final List<LatLng> points =
+        coordinates
+            .map(
+              (List<dynamic> coord) =>
+                  LatLng(coord[1].toDouble(), coord[0].toDouble()),
+            )
+            .toList();
+    return RouteResult(points: points);
   }
 
-  static Future<List<LatLng>> getRoute(
+  static Future<RouteResult?> getRoute(
     LatLng start,
     LatLng end, {
     RouteMode mode = RouteMode.cyclingRoad,
@@ -73,9 +77,11 @@ class RouteService {
         final Map<String, dynamic> data = json.decode(response.body);
         return _parseRouteResponse(data);
       }
-      return <LatLng>[];
+      //todo: 200이 아닌 경우 띄울 에러메시지, 동작 및 디자인 추가
+      return null;
     } catch (e) {
-      return <LatLng>[];
+      //파싱, 네트워크 에러 등 예외처리 필요
+      return null;
     }
   }
 }

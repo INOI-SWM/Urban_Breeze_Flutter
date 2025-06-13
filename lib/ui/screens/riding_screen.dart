@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
+import 'package:ridingmate/models/route_result.dart';
 import 'package:ridingmate/services/location_service.dart';
 import 'package:ridingmate/services/route_service.dart';
 import 'package:ridingmate/ui/widgets/route_creation_actions.dart';
@@ -60,14 +61,15 @@ class _RidingScreenState extends State<RidingScreen> {
     });
 
     try {
-      final List<LatLng> routePoints = await RouteService.getRoute(
+      final RouteResult? result = await RouteService.getRoute(
         _pins[_pins.length - 2],
         _pins[_pins.length - 1],
       );
-
-      setState(() {
-        _routeSegments.add(routePoints);
-      });
+      if (result != null) {
+        setState(() {
+          _routeSegments.add(result.points);
+        });
+      }
     } finally {
       setState(() {
         _isRouteLoading = false;
