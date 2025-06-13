@@ -35,16 +35,6 @@ class RouteService {
   static final String _apiKey = dotenv.env['OPENROUTE_API_KEY'] ?? '';
   static final String _baseUrl = dotenv.env['ORS_BASE_URL'] ?? '';
 
-  static String _buildRouteUrl(
-    LatLng start,
-    LatLng end, {
-    RouteMode mode = RouteMode.cyclingRoad,
-  }) {
-    final String startStr = '${start.longitude},${start.latitude}';
-    final String endStr = '${end.longitude},${end.latitude}';
-    return '$_baseUrl${mode.apiValue}?api_key=$_apiKey&start=$startStr&end=$endStr';
-  }
-
   static RouteResult _parseRouteResponse(Map<String, dynamic> data) {
     final List<List<dynamic>> coordinates =
         (data['features'][0]['geometry']['coordinates'] as List<dynamic>)
@@ -64,6 +54,7 @@ class RouteService {
     final double duration = (summary['duration'] as num).toDouble();
     final double ascent = (properties['ascent'] as num?)?.toDouble() ?? 0.0;
     final double descent = (properties['descent'] as num?)?.toDouble() ?? 0.0;
+
     return RouteResult(
       points: points,
       distance: distance,
