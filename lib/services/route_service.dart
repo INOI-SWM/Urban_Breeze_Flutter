@@ -30,15 +30,16 @@ extension RouteModeExtension on RouteMode {
 }
 
 class RouteService {
+  static final String _apiKey = dotenv.env['OPENROUTE_API_KEY'] ?? '';
+
   static String _buildRouteUrl(
     LatLng start,
     LatLng end, {
     RouteMode mode = RouteMode.cyclingRoad,
   }) {
-    final String apiKey = dotenv.env['OPENROUTE_API_KEY'] ?? '';
     final String startStr = '${start.longitude},${start.latitude}';
     final String endStr = '${end.longitude},${end.latitude}';
-    return 'https://api.openrouteservice.org/v2/directions/${mode.apiValue}?api_key=$apiKey&start=$startStr&end=$endStr';
+    return 'https://api.openrouteservice.org/v2/directions/${mode.apiValue}?api_key=$_apiKey&start=$startStr&end=$endStr';
   }
 
   static List<LatLng> _parseRouteResponse(Map<String, dynamic> data) {
