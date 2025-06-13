@@ -1,16 +1,12 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
-import 'package:ridingmate/design_system/Icon/icon_size.dart';
-import 'package:ridingmate/design_system/button/icon_button_solid.dart';
-import 'package:ridingmate/design_system/effect/app_shadows.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
+import 'package:ridingmate/services/location_service.dart';
+import 'package:ridingmate/services/route_service.dart';
+import 'package:ridingmate/ui/widgets/map_controls.dart';
 
 class RidingScreen extends StatefulWidget {
   const RidingScreen({super.key});
@@ -37,26 +33,11 @@ class _RidingScreenState extends State<RidingScreen> {
   }
 
   Future<void> _getCurrentLocation() async {
-    try {
-      final LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        final LocationPermission requestPermission =
-            await Geolocator.requestPermission();
-        if (requestPermission == LocationPermission.denied) {
-          return;
-        }
-      }
-
-      final Position position = await Geolocator.getCurrentPosition();
-      setState(() {
-        _currentPosition = LatLng(position.latitude, position.longitude);
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    final LatLng? position = await LocationService.getCurrentLocation();
+    setState(() {
+      _currentPosition = position;
+      _isLoading = false;
+    });
   }
 
   void _moveToCurrentLocation() {
@@ -79,41 +60,14 @@ class _RidingScreenState extends State<RidingScreen> {
     });
 
     try {
-      final String apiKey = dotenv.env['OPENROUTE_API_KEY'] ?? '';
-      final String start =
-          '${_pins[_pins.length - 2].longitude},${_pins[_pins.length - 2].latitude}';
-      final String end =
-          '${_pins[_pins.length - 1].longitude},${_pins[_pins.length - 1].latitude}';
-
-      final http.Response response = await http.get(
-        Uri.parse(
-          'https://api.openrouteservice.org/v2/directions/driving-car?api_key=$apiKey&start=$start&end=$end',
-        ),
-        headers: <String, String>{
-          'Accept':
-              'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
-        },
+      final List<LatLng> routePoints = await RouteService.getRoute(
+        _pins[_pins.length - 2],
+        _pins[_pins.length - 1],
       );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        final List<List<dynamic>> coordinates =
-            (data['features'][0]['geometry']['coordinates'] as List<dynamic>)
-                .cast<List<dynamic>>();
-
-        setState(() {
-          _routeSegments.add(
-            coordinates
-                .map(
-                  (List<dynamic> coord) =>
-                      LatLng(coord[1].toDouble(), coord[0].toDouble()),
-                )
-                .toList(),
-          );
-        });
-      }
-    } catch (e) {
-      debugPrint('Error getting route: $e');
+      setState(() {
+        _routeSegments.add(routePoints);
+      });
     } finally {
       setState(() {
         _isRouteLoading = false;
@@ -200,10 +154,10 @@ class _RidingScreenState extends State<RidingScreen> {
                 ],
               ),
             if (_routeSegments.isNotEmpty)
-              PolylineLayer<Object>(
+              PolylineLayer(
                 polylines:
-                    _routeSegments.map((List<LatLng> segment) {
-                      return Polyline<Object>(
+                    _routeSegments.map<Polyline>((List<LatLng> segment) {
+                      return Polyline(
                         points: segment,
                         color: context.semanticColor.primaryNormal,
                         strokeWidth: 4.0,
@@ -243,52 +197,12 @@ class _RidingScreenState extends State<RidingScreen> {
         Positioned(
           right: 16,
           bottom: 16,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              IconButtonSolid(
-                icon: Icons.push_pin,
-                onPressed: _toggleButtonState,
-                iconSize: IconSize.medium,
-                backgroundColor:
-                    _isButtonPressed
-                        ? context.semanticColor.primaryNormal
-                        : context.semanticColor.backgroundNormalNormal,
-                iconColor:
-                    _isButtonPressed
-                        ? context.semanticColor.staticWhite
-                        : context.semanticColor.labelNormal,
-                buttonSize: IconButtonSize.medium,
-                shadow: AppShadows.instance.emphasize,
-              ),
-              const SizedBox(height: 12),
-              IconButtonSolid(
-                icon: Icons.replay,
-                onPressed: _pins.isEmpty ? () {} : _removeLastPin,
-                iconSize: IconSize.medium,
-                backgroundColor:
-                    _pins.isEmpty
-                        ? context.semanticColor.interactionInactive
-                        : context.semanticColor.backgroundNormalNormal,
-                iconColor:
-                    _pins.isEmpty
-                        ? context.semanticColor.labelDisable
-                        : context.semanticColor.labelNormal,
-                buttonSize: IconButtonSize.medium,
-                shadow: AppShadows.instance.emphasize,
-                isDisabled: _pins.isEmpty,
-              ),
-              const SizedBox(height: 12),
-              IconButtonSolid(
-                icon: Icons.my_location,
-                onPressed: _moveToCurrentLocation,
-                iconSize: IconSize.medium,
-                backgroundColor: context.semanticColor.backgroundNormalNormal,
-                iconColor: context.semanticColor.labelNormal,
-                buttonSize: IconButtonSize.medium,
-                shadow: AppShadows.instance.emphasize,
-              ),
-            ],
+          child: MapControls(
+            isButtonPressed: _isButtonPressed,
+            onToggleButton: _toggleButtonState,
+            onRemoveLastPin: _removeLastPin,
+            onMoveToCurrentLocation: _moveToCurrentLocation,
+            hasPins: _pins.isNotEmpty,
           ),
         ),
       ],
