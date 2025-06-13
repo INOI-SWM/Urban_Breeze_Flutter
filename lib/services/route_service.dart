@@ -56,7 +56,13 @@ class RouteService {
                   LatLng(coord[1].toDouble(), coord[0].toDouble()),
             )
             .toList();
-    return RouteResult(points: points);
+    final Map<String, dynamic> properties =
+        data['features'][0]['properties'] as Map<String, dynamic>;
+    final Map<String, dynamic> summary =
+        properties['summary'] as Map<String, dynamic>;
+    final double distance = (summary['distance'] as num).toDouble();
+    final double duration = (summary['duration'] as num).toDouble();
+    return RouteResult(points: points, distance: distance, duration: duration);
   }
 
   static Future<RouteResult?> getRoute(

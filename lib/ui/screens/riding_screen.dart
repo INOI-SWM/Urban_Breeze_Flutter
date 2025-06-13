@@ -28,7 +28,7 @@ class _RidingScreenState extends State<RidingScreen> {
 
   bool _isButtonPressed = false;
   final List<LatLng> _pins = <LatLng>[];
-  final List<List<LatLng>> _routeSegments = <List<LatLng>>[];
+  final List<RouteResult> _routeSegments = <RouteResult>[];
   bool _isRouteLoading = false;
 
   @override
@@ -71,8 +71,7 @@ class _RidingScreenState extends State<RidingScreen> {
       );
       if (result != null && result.points.isNotEmpty) {
         setState(() {
-          _routeSegments.add(result.points);
-
+          _routeSegments.add(result);
           _pins[_pins.length - 2] = result.points.first;
           _pins[_pins.length - 1] = result.points.last;
         });
@@ -109,6 +108,15 @@ class _RidingScreenState extends State<RidingScreen> {
       });
     }
   }
+
+  double get totalDistance => _routeSegments.fold(
+    0,
+    (double sum, RouteResult seg) => sum + seg.distance,
+  );
+  double get totalDuration => _routeSegments.fold(
+    0,
+    (double sum, RouteResult seg) => sum + seg.duration,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -169,8 +177,8 @@ class _RidingScreenState extends State<RidingScreen> {
                 polylines:
                     _routeSegments
                         .map(
-                          (List<LatLng> segment) => Polyline<Object>(
-                            points: segment,
+                          (RouteResult segment) => Polyline<Object>(
+                            points: segment.points,
                             color: context.semanticColor.primaryNormal,
                             strokeWidth: 4.0,
                           ),
