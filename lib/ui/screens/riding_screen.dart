@@ -6,7 +6,7 @@ import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
 import 'package:ridingmate/services/location_service.dart';
 import 'package:ridingmate/services/route_service.dart';
-import 'package:ridingmate/ui/widgets/map_controls.dart';
+import 'package:ridingmate/ui/widgets/route_creation_actions.dart';
 
 class RidingScreen extends StatefulWidget {
   const RidingScreen({super.key});
@@ -197,7 +197,7 @@ class _RidingScreenState extends State<RidingScreen> {
         Positioned(
           right: 16,
           bottom: 16,
-          child: MapControls(
+          child: RouteCreationActions(
             isButtonPressed: _isButtonPressed,
             onToggleButton: _toggleButtonState,
             onRemoveLastPin: _removeLastPin,
