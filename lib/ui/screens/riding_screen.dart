@@ -69,9 +69,12 @@ class _RidingScreenState extends State<RidingScreen> {
         _pins[_pins.length - 2],
         _pins[_pins.length - 1],
       );
-      if (result != null) {
+      if (result != null && result.points.isNotEmpty) {
         setState(() {
           _routeSegments.add(result.points);
+
+          _pins[_pins.length - 2] = result.points.first;
+          _pins[_pins.length - 1] = result.points.last;
         });
       }
     } finally {
