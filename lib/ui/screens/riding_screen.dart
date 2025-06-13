@@ -3,7 +3,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
+import 'package:ridingmate/core/theme/semantic_colors.dart';
 import 'package:ridingmate/design_system/map/route_pin_marker.dart';
+import 'package:ridingmate/design_system/navigation/top_navigation_bar.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
 import 'package:ridingmate/models/route_result.dart';
 import 'package:ridingmate/services/location_service.dart';
@@ -259,16 +261,30 @@ class RouteInfoBar extends StatelessWidget {
     return Material(
       elevation: 8,
       color: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            _InfoItem(label: '예상 소요시간', value: totalDuration),
-            _InfoItem(label: '총 거리', value: '$totalDistance km'),
-            _InfoItem(label: '평균 경사도', value: avgSlope),
-          ],
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          const TopNavigationBar(
+            title: '경로 생성',
+            centerTitle: false,
+            titleTextSize: NavBarTitleSize.large,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Expanded(
+                  child: _InfoItem(label: '예상 소요시간', value: totalDuration),
+                ),
+                Expanded(
+                  child: _InfoItem(label: '총 거리', value: '$totalDistance km'),
+                ),
+                Expanded(child: _InfoItem(label: '평균 경사도', value: avgSlope)),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -281,16 +297,22 @@ class _InfoItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final SemanticColors colors = context.semanticColor;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        Text(label, style: Theme.of(context).textTheme.bodySmall),
-        const SizedBox(height: 4),
+        Text(
+          label,
+          style: AppTextStyles.label1.readingBold.copyWith(
+            color: colors.labelAlternative,
+          ),
+        ),
+        // const SizedBox(height: 4),
         Text(
           value,
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          style: AppTextStyles.body1.readingBold.copyWith(
+            color: colors.labelNormal,
+          ),
         ),
       ],
     );
