@@ -86,12 +86,14 @@ class _RidingScreenState extends State<RidingScreen> {
 
   void _addPin(LatLng position) {
     if (_isButtonPressed && _pins.length < 50) {
+      bool shouldGetRoute = false;
       setState(() {
         _pins.add(position);
-        if (_pins.length >= 2) {
-          _getRoute();
-        }
+        shouldGetRoute = _pins.length >= 2;
       });
+      if (shouldGetRoute) {
+        _getRoute();
+      }
     }
   }
 
@@ -190,7 +192,10 @@ class _RidingScreenState extends State<RidingScreen> {
             ),
           ],
         ),
-        if (_isRouteLoading) const Center(child: CircularProgressIndicator()),
+        if (_isRouteLoading)
+          const Positioned.fill(
+            child: Center(child: CircularProgressIndicator()),
+          ),
         Positioned(
           right: 16,
           bottom: 16,
