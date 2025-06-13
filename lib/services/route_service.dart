@@ -62,7 +62,15 @@ class RouteService {
         properties['summary'] as Map<String, dynamic>;
     final double distance = (summary['distance'] as num).toDouble();
     final double duration = (summary['duration'] as num).toDouble();
-    return RouteResult(points: points, distance: distance, duration: duration);
+    final double ascent = (properties['ascent'] as num?)?.toDouble() ?? 0.0;
+    final double descent = (properties['descent'] as num?)?.toDouble() ?? 0.0;
+    return RouteResult(
+      points: points,
+      distance: distance,
+      duration: duration,
+      ascent: ascent,
+      descent: descent,
+    );
   }
 
   static Future<RouteResult?> getRoute(
@@ -71,13 +79,23 @@ class RouteService {
     RouteMode mode = RouteMode.cyclingRoad,
   }) async {
     try {
-      final String url = _buildRouteUrl(start, end, mode: mode);
-      final http.Response response = await http.get(
+      final String url = '$_baseUrl${mode.apiValue}/geojson';
+      final Map<String, dynamic> body = <String, dynamic>{
+        'coordinates': <List<double>>[
+          <double>[start.longitude, start.latitude],
+          <double>[end.longitude, end.latitude],
+        ],
+        'elevation': true,
+      };
+      final http.Response response = await http.post(
         Uri.parse(url),
         headers: <String, String>{
           'Accept':
               'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+          'Authorization': _apiKey.isNotEmpty ? _apiKey : '',
+          'Content-Type': 'application/json; charset=utf-8',
         },
+        body: json.encode(body),
       );
 
       if (response.statusCode == 200) {

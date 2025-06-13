@@ -119,6 +119,8 @@ class _RidingScreenState extends State<RidingScreen> {
     0,
     (double sum, RouteResult seg) => sum + seg.duration,
   );
+  double get totalElevationGain =>
+      _routeSegments.fold(0, (double sum, RouteResult seg) => sum + seg.ascent);
 
   String get formattedTotalDistance =>
       (totalDistance / 1000).toStringAsFixed(2);
@@ -128,7 +130,7 @@ class _RidingScreenState extends State<RidingScreen> {
     return '$minutes분 $seconds초';
   }
 
-  String get formattedAvgSlope => '0%'; // 평균 경사도 계산 로직 필요시 추가
+  String get formattedElevationGain => '${totalElevationGain.round()} m';
 
   @override
   Widget build(BuildContext context) {
@@ -238,7 +240,7 @@ class _RidingScreenState extends State<RidingScreen> {
         RouteInfoBar(
           totalDistance: formattedTotalDistance,
           totalDuration: formattedTotalDuration,
-          avgSlope: formattedAvgSlope,
+          elevationGain: formattedElevationGain,
         ),
       ],
     );
@@ -250,11 +252,11 @@ class RouteInfoBar extends StatelessWidget {
     super.key,
     required this.totalDistance,
     required this.totalDuration,
-    required this.avgSlope,
+    required this.elevationGain,
   });
   final String totalDistance;
   final String totalDuration;
-  final String avgSlope;
+  final String elevationGain;
 
   @override
   Widget build(BuildContext context) {
@@ -280,7 +282,9 @@ class RouteInfoBar extends StatelessWidget {
                 Expanded(
                   child: _InfoItem(label: '총 거리', value: '$totalDistance km'),
                 ),
-                Expanded(child: _InfoItem(label: '평균 경사도', value: avgSlope)),
+                Expanded(
+                  child: _InfoItem(label: '총 상승고도', value: elevationGain),
+                ),
               ],
             ),
           ),
