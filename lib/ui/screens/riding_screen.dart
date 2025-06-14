@@ -119,8 +119,10 @@ class _RidingScreenState extends State<RidingScreen> {
     0,
     (double sum, RouteResult seg) => sum + seg.duration,
   );
-  double get totalElevationGain =>
-      _routeSegments.fold(0, (double sum, RouteResult seg) => sum + seg.ascent);
+  double get totalElevationGain => _routeSegments.fold(
+    0,
+    (double sum, RouteResult seg) => sum + seg.elevationGain,
+  );
 
   String get formattedTotalDistance =>
       (totalDistance / 1000).toStringAsFixed(2);
