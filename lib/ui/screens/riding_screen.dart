@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
-import 'package:ridingmate/design_system/Icon/icon_size.dart';
-import 'package:ridingmate/design_system/button/icon_button_solid.dart';
-import 'package:ridingmate/design_system/effect/app_shadows.dart';
+import 'package:ridingmate/design_system/map/route_pin_marker.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
+import 'package:ridingmate/models/route_result.dart';
+import 'package:ridingmate/services/location_service.dart';
+import 'package:ridingmate/services/route_service.dart';
+import 'package:ridingmate/ui/widgets/route_creation_actions.dart';
 
 class RidingScreen extends StatefulWidget {
   const RidingScreen({super.key});
@@ -19,12 +20,16 @@ class RidingScreen extends StatefulWidget {
 class _RidingScreenState extends State<RidingScreen> {
   final LatLng initialCenter = const LatLng(37.5665, 126.9780); //서울시청
   final double initialZoom = 16.0;
+
   LatLng? _currentPosition;
-  bool _isLoading = true;
+  bool _isLocationLoading = true;
+
   final MapController _mapController = MapController();
+
   bool _isButtonPressed = false;
   final List<LatLng> _pins = <LatLng>[];
-  // LatLng? _lastTapPosition;
+  final List<List<LatLng>> _routeSegments = <List<LatLng>>[];
+  bool _isRouteLoading = false;
 
   @override
   void initState() {
@@ -33,26 +38,11 @@ class _RidingScreenState extends State<RidingScreen> {
   }
 
   Future<void> _getCurrentLocation() async {
-    try {
-      final LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        final LocationPermission requestPermission =
-            await Geolocator.requestPermission();
-        if (requestPermission == LocationPermission.denied) {
-          return;
-        }
-      }
-
-      final Position position = await Geolocator.getCurrentPosition();
-      setState(() {
-        _currentPosition = LatLng(position.latitude, position.longitude);
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    final LatLng? position = await LocationService.getCurrentLocation();
+    setState(() {
+      _currentPosition = position;
+      _isLocationLoading = false;
+    });
   }
 
   void _moveToCurrentLocation() {
@@ -67,10 +57,40 @@ class _RidingScreenState extends State<RidingScreen> {
     });
   }
 
+  Future<void> _getRoute() async {
+    if (_pins.length < 2) return;
+
+    setState(() {
+      _isRouteLoading = true;
+    });
+
+    try {
+      final RouteResult? result = await RouteService.getRoute(
+        _pins[_pins.length - 2],
+        _pins[_pins.length - 1],
+      );
+      if (result != null && result.points.isNotEmpty) {
+        setState(() {
+          _routeSegments.add(result.points);
+
+          _pins[_pins.length - 2] = result.points.first;
+          _pins[_pins.length - 1] = result.points.last;
+        });
+      }
+    } finally {
+      setState(() {
+        _isRouteLoading = false;
+      });
+    }
+  }
+
   void _addPin(LatLng position) {
     if (_isButtonPressed && _pins.length < 50) {
       setState(() {
         _pins.add(position);
+        if (_pins.length >= 2) {
+          _getRoute();
+        }
       });
     }
   }
@@ -79,6 +99,11 @@ class _RidingScreenState extends State<RidingScreen> {
     if (_pins.isNotEmpty) {
       setState(() {
         _pins.removeLast();
+        if (_pins.length >= 2) {
+          _routeSegments.removeLast();
+        } else {
+          _routeSegments.clear();
+        }
       });
     }
   }
@@ -90,7 +115,7 @@ class _RidingScreenState extends State<RidingScreen> {
     final String apiKey = dotenv.env['THUNDERFOREST_API_KEY'] ?? 'fallback_key';
     final String fullUrlTemplate = '$baseUrl?apikey=$apiKey';
 
-    if (_isLoading) {
+    if (_isLocationLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -105,8 +130,6 @@ class _RidingScreenState extends State<RidingScreen> {
               flags: InteractiveFlag.all,
             ),
             onTap: (_, LatLng position) {
-              // _lastTapPosition = position;
-
               _addPin(position);
             },
           ),
@@ -139,6 +162,19 @@ class _RidingScreenState extends State<RidingScreen> {
                   ),
                 ],
               ),
+            if (_routeSegments.isNotEmpty)
+              PolylineLayer<Object>(
+                polylines:
+                    _routeSegments
+                        .map(
+                          (List<LatLng> segment) => Polyline<Object>(
+                            points: segment,
+                            color: context.semanticColor.primaryNormal,
+                            strokeWidth: 4.0,
+                          ),
+                        )
+                        .toList(),
+              ),
             MarkerLayer(
               markers:
                   _pins.asMap().entries.map((MapEntry<int, LatLng> entry) {
@@ -148,75 +184,22 @@ class _RidingScreenState extends State<RidingScreen> {
                       point: position,
                       width: 24,
                       height: 24,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color:
-                              context.semanticColor.accentBackgroundRedOrange,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            '${index + 1}',
-                            style: AppTextStyles.caption2.regular.copyWith(
-                              color: context.semanticColor.staticWhite,
-                            ),
-                          ),
-                        ),
-                      ),
+                      child: RoutePinMarker(index: index),
                     );
                   }).toList(),
             ),
           ],
         ),
+        if (_isRouteLoading) const Center(child: CircularProgressIndicator()),
         Positioned(
           right: 16,
           bottom: 16,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              IconButtonSolid(
-                icon: Icons.push_pin,
-                onPressed: _toggleButtonState,
-                iconSize: IconSize.medium,
-                backgroundColor:
-                    _isButtonPressed
-                        ? context.semanticColor.primaryNormal
-                        : context.semanticColor.backgroundNormalNormal,
-                iconColor:
-                    _isButtonPressed
-                        ? context.semanticColor.staticWhite
-                        : context.semanticColor.labelNormal,
-                buttonSize: IconButtonSize.medium,
-                shadow: AppShadows.instance.emphasize,
-              ),
-              const SizedBox(height: 12),
-              IconButtonSolid(
-                icon: Icons.replay,
-                onPressed: _pins.isEmpty ? () {} : _removeLastPin,
-                iconSize: IconSize.medium,
-                backgroundColor:
-                    _pins.isEmpty
-                        ? context.semanticColor.interactionInactive
-                        : context.semanticColor.backgroundNormalNormal,
-                iconColor:
-                    _pins.isEmpty
-                        ? context.semanticColor.labelDisable
-                        : context.semanticColor.labelNormal,
-                buttonSize: IconButtonSize.medium,
-                shadow: AppShadows.instance.emphasize,
-                isDisabled: _pins.isEmpty,
-              ),
-              const SizedBox(height: 12),
-              IconButtonSolid(
-                icon: Icons.my_location,
-                onPressed: _moveToCurrentLocation,
-                iconSize: IconSize.medium,
-                backgroundColor: context.semanticColor.backgroundNormalNormal,
-                iconColor: context.semanticColor.labelNormal,
-                buttonSize: IconButtonSize.medium,
-                shadow: AppShadows.instance.emphasize,
-              ),
-            ],
+          child: RouteCreationActions(
+            isButtonPressed: _isButtonPressed,
+            onToggleButton: _toggleButtonState,
+            onRemoveLastPin: _removeLastPin,
+            onMoveToCurrentLocation: _moveToCurrentLocation,
+            hasPins: _pins.isNotEmpty,
           ),
         ),
       ],
