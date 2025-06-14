@@ -4,11 +4,11 @@ import 'package:ridingmate/design_system/Icon/icon_size.dart';
 import 'package:ridingmate/design_system/button/icon_button_solid.dart';
 import 'package:ridingmate/design_system/effect/app_shadows.dart';
 
-class RouteCreationActions extends StatelessWidget {
-  const RouteCreationActions({
+class RouteCreationActionButtons extends StatelessWidget {
+  const RouteCreationActionButtons({
     super.key,
-    required this.isButtonPressed,
-    required this.onToggleButton,
+    required this.isPinButtonPressed,
+    required this.onTogglePinButton,
     required this.onRemoveLastPin,
     required this.onMoveToCurrentLocation,
     required this.hasPins,
@@ -16,8 +16,8 @@ class RouteCreationActions extends StatelessWidget {
   static const IconSize _iconSize = IconSize.medium;
   static const IconButtonSize _buttonSize = IconButtonSize.medium;
 
-  final bool isButtonPressed;
-  final VoidCallback onToggleButton;
+  final bool isPinButtonPressed;
+  final VoidCallback onTogglePinButton;
   final VoidCallback onRemoveLastPin;
   final VoidCallback onMoveToCurrentLocation;
   final bool hasPins;
@@ -25,11 +25,11 @@ class RouteCreationActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color pinButtonBg =
-        isButtonPressed
+        isPinButtonPressed
             ? context.semanticColor.primaryNormal
             : context.semanticColor.backgroundNormalNormal;
     final Color pinButtonIcon =
-        isButtonPressed
+        isPinButtonPressed
             ? context.semanticColor.staticWhite
             : context.semanticColor.labelNormal;
 
@@ -50,7 +50,7 @@ class RouteCreationActions extends StatelessWidget {
       children: <Widget>[
         IconButtonSolid(
           icon: Icons.push_pin,
-          onPressed: onToggleButton,
+          onPressed: onTogglePinButton,
           iconSize: _iconSize,
           backgroundColor: pinButtonBg,
           iconColor: pinButtonIcon,

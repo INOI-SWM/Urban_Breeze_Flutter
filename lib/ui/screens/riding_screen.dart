@@ -226,9 +226,9 @@ class _RidingScreenState extends State<RidingScreen> {
               Positioned(
                 right: 16,
                 bottom: 16,
-                child: RouteCreationActions(
-                  isButtonPressed: _isButtonPressed,
-                  onToggleButton: _toggleButtonState,
+                child: RouteCreationActionButtons(
+                  isPinButtonPressed: _isButtonPressed,
+                  onTogglePinButton: _toggleButtonState,
                   onRemoveLastPin: _removeLastPin,
                   onMoveToCurrentLocation: _moveToCurrentLocation,
                   hasPins: _pins.isNotEmpty,
