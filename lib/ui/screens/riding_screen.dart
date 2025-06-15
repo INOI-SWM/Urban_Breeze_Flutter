@@ -125,7 +125,6 @@ class _RidingScreenState extends State<RidingScreen> {
 
   void _completeRouteSave(String title) {
     // TODO: 실제 경로 저장 로직 구현
-    print('경로 저장: $title');
     _exitSaveMode();
   }
 

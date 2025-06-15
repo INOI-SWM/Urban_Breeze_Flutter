@@ -54,9 +54,13 @@ class _RouteSaveBarState extends State<RouteSaveBar> {
             title: '경로 저장',
             centerTitle: true,
             titleTextSize: NavBarTitleSize.large,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: widget.onBack,
+            leading: GestureDetector(
+              onTap: widget.onBack,
+              child: const SizedBox(
+                width: 24,
+                height: 24,
+                child: Icon(Icons.arrow_back_ios_new, size: 24),
+              ),
             ),
             actions: <Widget>[
               ButtonSolid(
@@ -75,7 +79,7 @@ class _RouteSaveBarState extends State<RouteSaveBar> {
               children: <Widget>[
                 CustomTextField(
                   controller: _titleController,
-                  hintText: '경로 제목을 입력하세요',
+                  hintText: '경로 명을 입력하세요',
                 ),
                 const SizedBox(height: 12),
                 RouteStatsRow(
