@@ -236,6 +236,10 @@ class _RidingScreenState extends State<RidingScreen> {
           totalDistance: formattedTotalDistance,
           totalDuration: formattedTotalDuration,
           elevationGain: formattedElevationGain,
+          hasRoute: _routeSegments.isNotEmpty,
+          onSave: () {
+            // TODO: 경로 저장 로직 구현
+          },
         ),
       ],
     );
