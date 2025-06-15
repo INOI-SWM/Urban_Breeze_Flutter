@@ -3,14 +3,13 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
-import 'package:ridingmate/core/theme/semantic_colors.dart';
 import 'package:ridingmate/design_system/map/route_pin_marker.dart';
-import 'package:ridingmate/design_system/navigation/top_navigation_bar.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
 import 'package:ridingmate/models/route_data.dart';
 import 'package:ridingmate/services/location_service.dart';
 import 'package:ridingmate/services/route_service.dart';
 import 'package:ridingmate/ui/widgets/route_creation_actions.dart';
+import 'package:ridingmate/ui/widgets/route_info_bar.dart';
 
 class RidingScreen extends StatefulWidget {
   const RidingScreen({super.key});
@@ -238,82 +237,6 @@ class _RidingScreenState extends State<RidingScreen> {
           totalDistance: formattedTotalDistance,
           totalDuration: formattedTotalDuration,
           elevationGain: formattedElevationGain,
-        ),
-      ],
-    );
-  }
-}
-
-class RouteInfoBar extends StatelessWidget {
-  const RouteInfoBar({
-    super.key,
-    required this.totalDistance,
-    required this.totalDuration,
-    required this.elevationGain,
-  });
-  final String totalDistance;
-  final String totalDuration;
-  final String elevationGain;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      elevation: 8,
-      color: Colors.white,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          const TopNavigationBar(
-            title: '경로 생성',
-            centerTitle: false,
-            titleTextSize: NavBarTitleSize.large,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Expanded(
-                  child: _InfoItem(label: '예상 소요시간', value: totalDuration),
-                ),
-                Expanded(
-                  child: _InfoItem(label: '총 거리', value: '$totalDistance km'),
-                ),
-                Expanded(
-                  child: _InfoItem(label: '총 상승고도', value: elevationGain),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoItem extends StatelessWidget {
-  const _InfoItem({required this.label, required this.value});
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final SemanticColors colors = context.semanticColor;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Text(
-          label,
-          style: AppTextStyles.label1.readingBold.copyWith(
-            color: colors.labelAlternative,
-          ),
-        ),
-        // const SizedBox(height: 4),
-        Text(
-          value,
-          style: AppTextStyles.body1.readingBold.copyWith(
-            color: colors.labelNormal,
-          ),
         ),
       ],
     );
