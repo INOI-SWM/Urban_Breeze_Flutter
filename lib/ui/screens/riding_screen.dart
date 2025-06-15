@@ -10,6 +10,7 @@ import 'package:ridingmate/services/location_service.dart';
 import 'package:ridingmate/services/route_service.dart';
 import 'package:ridingmate/ui/widgets/route_creation_actions.dart';
 import 'package:ridingmate/ui/widgets/route_info_bar.dart';
+import 'package:ridingmate/ui/widgets/route_save_bar.dart';
 
 class RidingScreen extends StatefulWidget {
   const RidingScreen({super.key});
@@ -31,6 +32,7 @@ class _RidingScreenState extends State<RidingScreen> {
   final List<LatLng> _pins = <LatLng>[];
   final List<RouteData> _routeSegments = <RouteData>[];
   bool _isRouteLoading = false;
+  bool _isSaveMode = false;
 
   @override
   void initState() {
@@ -109,6 +111,24 @@ class _RidingScreenState extends State<RidingScreen> {
     }
   }
 
+  void _enterSaveMode() {
+    setState(() {
+      _isSaveMode = true;
+    });
+  }
+
+  void _exitSaveMode() {
+    setState(() {
+      _isSaveMode = false;
+    });
+  }
+
+  void _completeRouteSave(String title) {
+    // TODO: 실제 경로 저장 로직 구현
+    print('경로 저장: $title');
+    _exitSaveMode();
+  }
+
   double get totalDistance =>
       _routeSegments.fold(0, (double sum, RouteData seg) => sum + seg.distance);
   double get totalDuration =>
@@ -127,6 +147,26 @@ class _RidingScreenState extends State<RidingScreen> {
   }
 
   String get formattedElevationGain => '${totalElevationGain.round()} m';
+
+  Widget _buildBottomBar() {
+    if (_isSaveMode) {
+      return RouteSaveBar(
+        totalDistance: formattedTotalDistance,
+        totalDuration: formattedTotalDuration,
+        elevationGain: formattedElevationGain,
+        onBack: _exitSaveMode,
+        onComplete: _completeRouteSave,
+      );
+    }
+
+    return RouteInfoBar(
+      totalDistance: formattedTotalDistance,
+      totalDuration: formattedTotalDuration,
+      elevationGain: formattedElevationGain,
+      hasRoute: _routeSegments.isNotEmpty,
+      onSave: _enterSaveMode,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -232,15 +272,7 @@ class _RidingScreenState extends State<RidingScreen> {
             ],
           ),
         ),
-        RouteInfoBar(
-          totalDistance: formattedTotalDistance,
-          totalDuration: formattedTotalDuration,
-          elevationGain: formattedElevationGain,
-          hasRoute: _routeSegments.isNotEmpty,
-          onSave: () {
-            // TODO: 경로 저장 로직 구현
-          },
-        ),
+        _buildBottomBar(),
       ],
     );
   }

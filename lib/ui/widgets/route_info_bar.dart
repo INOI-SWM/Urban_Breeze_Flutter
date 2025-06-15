@@ -3,8 +3,8 @@ import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
 import 'package:ridingmate/design_system/button/button_size.dart';
 import 'package:ridingmate/design_system/button/button_solid.dart';
-import 'package:ridingmate/design_system/info/info_item.dart';
 import 'package:ridingmate/design_system/navigation/top_navigation_bar.dart';
+import 'package:ridingmate/ui/widgets/route_stats_row.dart';
 
 class RouteInfoBar extends StatelessWidget {
   const RouteInfoBar({
@@ -50,19 +50,10 @@ class RouteInfoBar extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Expanded(
-                  child: InfoItem(label: '예상 소요시간', value: totalDuration),
-                ),
-                Expanded(
-                  child: InfoItem(label: '총 거리', value: '$totalDistance km'),
-                ),
-                Expanded(
-                  child: InfoItem(label: '총 상승고도', value: elevationGain),
-                ),
-              ],
+            child: RouteStatsRow(
+              totalDistance: totalDistance,
+              totalDuration: totalDuration,
+              elevationGain: elevationGain,
             ),
           ),
         ],
