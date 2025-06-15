@@ -7,7 +7,7 @@ import 'package:ridingmate/core/theme/semantic_colors.dart';
 import 'package:ridingmate/design_system/map/route_pin_marker.dart';
 import 'package:ridingmate/design_system/navigation/top_navigation_bar.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
-import 'package:ridingmate/models/route_result.dart';
+import 'package:ridingmate/models/route_data.dart';
 import 'package:ridingmate/services/location_service.dart';
 import 'package:ridingmate/services/route_service.dart';
 import 'package:ridingmate/ui/widgets/route_creation_actions.dart';
@@ -30,7 +30,7 @@ class _RidingScreenState extends State<RidingScreen> {
 
   bool _isButtonPressed = false;
   final List<LatLng> _pins = <LatLng>[];
-  final List<RouteResult> _routeSegments = <RouteResult>[];
+  final List<RouteData> _routeSegments = <RouteData>[];
   bool _isRouteLoading = false;
 
   @override
@@ -67,7 +67,7 @@ class _RidingScreenState extends State<RidingScreen> {
     });
 
     try {
-      final RouteResult? result = await RouteService.getRoute(
+      final RouteData? result = await RouteService.getRoute(
         _pins[_pins.length - 2],
         _pins[_pins.length - 1],
       );
@@ -111,17 +111,13 @@ class _RidingScreenState extends State<RidingScreen> {
     }
   }
 
-  double get totalDistance => _routeSegments.fold(
-    0,
-    (double sum, RouteResult seg) => sum + seg.distance,
-  );
-  double get totalDuration => _routeSegments.fold(
-    0,
-    (double sum, RouteResult seg) => sum + seg.duration,
-  );
+  double get totalDistance =>
+      _routeSegments.fold(0, (double sum, RouteData seg) => sum + seg.distance);
+  double get totalDuration =>
+      _routeSegments.fold(0, (double sum, RouteData seg) => sum + seg.duration);
   double get totalElevationGain => _routeSegments.fold(
     0,
-    (double sum, RouteResult seg) => sum + seg.elevationGain,
+    (double sum, RouteData seg) => sum + seg.elevationGain,
   );
 
   String get formattedTotalDistance =>
@@ -191,19 +187,18 @@ class _RidingScreenState extends State<RidingScreen> {
                         ),
                       ],
                     ),
-                  if (_routeSegments.isNotEmpty)
-                    PolylineLayer<Object>(
-                      polylines:
-                          _routeSegments
-                              .map(
-                                (RouteResult segment) => Polyline<Object>(
-                                  points: segment.points,
-                                  color: context.semanticColor.primaryNormal,
-                                  strokeWidth: 4.0,
-                                ),
-                              )
-                              .toList(),
-                    ),
+                  PolylineLayer<Object>(
+                    polylines:
+                        _routeSegments
+                            .map(
+                              (RouteData segment) => Polyline<Object>(
+                                points: segment.points,
+                                color: context.semanticColor.primaryNormal,
+                                strokeWidth: 4.0,
+                              ),
+                            )
+                            .toList(),
+                  ),
                   MarkerLayer(
                     markers:
                         _pins.asMap().entries.map((

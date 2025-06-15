@@ -1,7 +1,7 @@
 import 'package:latlong2/latlong.dart';
 
-class Route {
-  Route({
+class RouteData {
+  RouteData({
     required this.points,
     required this.distance,
     required this.duration,
