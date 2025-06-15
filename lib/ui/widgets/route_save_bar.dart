@@ -29,10 +29,20 @@ class RouteSaveBar extends StatefulWidget {
 
 class _RouteSaveBarState extends State<RouteSaveBar> {
   final TextEditingController _titleController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _focusNode.requestFocus();
+    });
+  }
 
   @override
   void dispose() {
     _titleController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -79,7 +89,9 @@ class _RouteSaveBarState extends State<RouteSaveBar> {
               children: <Widget>[
                 CustomTextField(
                   controller: _titleController,
+                  focusNode: _focusNode,
                   hintText: '경로 명을 입력하세요',
+                  autofocus: true,
                 ),
                 const SizedBox(height: 12),
                 RouteStatsRow(
