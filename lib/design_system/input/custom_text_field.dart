@@ -9,14 +9,18 @@ import 'package:ridingmate/design_system/typography/app_text_style.dart';
 class CustomTextField extends StatefulWidget {
   const CustomTextField({
     super.key,
+    this.controller,
     this.headingText,
     this.description,
+    this.hintText,
     this.disabled = false,
     this.requiredBadge = false,
   });
 
+  final TextEditingController? controller;
   final String? headingText;
   final String? description;
+  final String? hintText;
   final bool disabled;
   final bool requiredBadge;
 
@@ -25,8 +29,9 @@ class CustomTextField extends StatefulWidget {
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
-  late final TextEditingController _controller = TextEditingController();
+  late final TextEditingController _controller;
   late final FocusNode _focusNode = FocusNode();
+  late final bool _isExternalController;
 
   bool get _isActive => _controller.text.isNotEmpty;
   bool get _hasFocus => _focusNode.hasFocus;
@@ -34,14 +39,18 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   void initState() {
     super.initState();
+    _isExternalController = widget.controller != null;
+    _controller = widget.controller ?? TextEditingController();
     _controller.addListener(() => setState(() {}));
     _focusNode.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     _focusNode.dispose();
+    if (!_isExternalController) {
+      _controller.dispose();
+    }
     super.dispose();
   }
 
@@ -104,7 +113,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                     cursorColor: colors.primaryNormal,
                     decoration: InputDecoration(
                       isCollapsed: true,
-                      hintText: '텍스트를 입력해 주세요.',
+                      hintText: widget.hintText ?? '텍스트를 입력해 주세요.',
                       hintStyle: AppTextStyles.body1.normalRegular.copyWith(
                         color:
                             widget.disabled
