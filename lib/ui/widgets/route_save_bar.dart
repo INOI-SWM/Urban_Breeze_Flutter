@@ -5,6 +5,7 @@ import 'package:ridingmate/design_system/button/button_size.dart';
 import 'package:ridingmate/design_system/button/button_solid.dart';
 import 'package:ridingmate/design_system/input/custom_text_field.dart';
 import 'package:ridingmate/design_system/navigation/top_navigation_bar.dart';
+import 'package:ridingmate/ui/widgets/route_bar_layout.dart';
 import 'package:ridingmate/ui/widgets/route_stats_row.dart';
 
 class RouteSaveBar extends StatefulWidget {
@@ -54,55 +55,48 @@ class _RouteSaveBarState extends State<RouteSaveBar> {
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
 
-    return Material(
-      elevation: 8,
-      color: Colors.white,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          TopNavigationBar(
-            title: '경로 저장',
-            centerTitle: true,
-            titleTextSize: NavBarTitleSize.large,
-            leading: GestureDetector(
-              onTap: widget.onBack,
-              child: const SizedBox(
-                width: 24,
-                height: 24,
-                child: Icon(Icons.arrow_back_ios_new, size: 24),
-              ),
-            ),
-            actions: <Widget>[
-              ButtonSolid(
-                text: '완료',
-                size: ButtonSize.small,
-                backgroundColor: colors.primaryNormal,
-                textColor: colors.staticWhite,
-                onPressed: _handleComplete,
-              ),
-            ],
+    return RouteBarLayout(
+      topNavigationBar: TopNavigationBar(
+        title: '경로 저장',
+        centerTitle: true,
+        titleTextSize: NavBarTitleSize.large,
+        leading: GestureDetector(
+          onTap: widget.onBack,
+          child: const SizedBox(
+            width: 24,
+            height: 24,
+            child: Icon(Icons.arrow_back_ios_new, size: 24),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                CustomTextField(
-                  controller: _titleController,
-                  focusNode: _focusNode,
-                  hintText: '경로 명을 입력하세요',
-                  autofocus: true,
-                ),
-                const SizedBox(height: 12),
-                RouteStatsRow(
-                  totalDistance: widget.totalDistance,
-                  totalDuration: widget.totalDuration,
-                  elevationGain: widget.elevationGain,
-                ),
-              ],
-            ),
+        ),
+        actions: <Widget>[
+          ButtonSolid(
+            text: '완료',
+            size: ButtonSize.small,
+            backgroundColor: colors.primaryNormal,
+            textColor: colors.staticWhite,
+            onPressed: _handleComplete,
           ),
         ],
+      ),
+      content: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            CustomTextField(
+              controller: _titleController,
+              focusNode: _focusNode,
+              hintText: '경로 명을 입력하세요',
+              autofocus: true,
+            ),
+            const SizedBox(height: 12),
+            RouteStatsRow(
+              totalDistance: widget.totalDistance,
+              totalDuration: widget.totalDuration,
+              elevationGain: widget.elevationGain,
+            ),
+          ],
+        ),
       ),
     );
   }
