@@ -7,9 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 Future<void> shareGpxFile(BuildContext context, String assetPath) async {
-  // iPad에서의 공유 시트 위치 지정을 위한 버튼 위치 계산
-  final RenderBox box = context.findRenderObject() as RenderBox;
-  final Rect origin = box.localToGlobal(Offset.zero) & box.size;
+  final Rect origin = _getSharePositionOrigin(context);
 
   final ByteData data = await rootBundle.load(assetPath);
   final Directory tempDir = await getTemporaryDirectory();
@@ -24,4 +22,29 @@ Future<void> shareGpxFile(BuildContext context, String assetPath) async {
       sharePositionOrigin: origin,
     ),
   );
+}
+
+Future<void> shareRouteLink(
+  BuildContext context,
+  String userId,
+  String routeId,
+) async {
+  final Rect origin = _getSharePositionOrigin(context);
+
+  final String shareLink = await _getShareLink(userId, routeId);
+
+  await SharePlus.instance.share(
+    ShareParams(text: shareLink, sharePositionOrigin: origin),
+  );
+}
+
+/// iPad에서 공유 시트가 버튼 근처에 나타나도록 위치 계산
+Rect _getSharePositionOrigin(BuildContext context) {
+  final RenderBox box = context.findRenderObject() as RenderBox;
+  return box.localToGlobal(Offset.zero) & box.size;
+}
+
+Future<String> _getShareLink(String userId, String routeId) async {
+  // TODO: 추후 실제 API 요청 로직으로 변경
+  return 'https://ridingmate.app/share/route/$routeId?user=$userId&ref=mobile_share'; // 테스트용 URL (공유 시트 동작 확인용)
 }
