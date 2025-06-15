@@ -86,10 +86,9 @@ class _RidingScreenState extends State<RidingScreen> {
 
   void _addPin(LatLng position) {
     if (_isButtonPressed && _pins.length < 50) {
-      bool shouldGetRoute = false;
+      final bool shouldGetRoute = _pins.length + 1 >= 2;
       setState(() {
         _pins.add(position);
-        shouldGetRoute = _pins.length >= 2;
       });
       if (shouldGetRoute) {
         _getRoute();
