@@ -41,6 +41,18 @@ class _CustomTextFieldState extends State<CustomTextField> {
   bool get _isActive => _controller.text.isNotEmpty;
   bool get _hasFocus => _focusNode.hasFocus;
 
+  void _onTextChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _onFocusChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -48,12 +60,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
     _isExternalFocusNode = widget.focusNode != null;
     _controller = widget.controller ?? TextEditingController();
     _focusNode = widget.focusNode ?? FocusNode();
-    _controller.addListener(() => setState(() {}));
-    _focusNode.addListener(() => setState(() {}));
+    _controller.addListener(_onTextChanged);
+    _focusNode.addListener(_onFocusChanged);
   }
 
   @override
   void dispose() {
+    _controller.removeListener(_onTextChanged);
+    _focusNode.removeListener(_onFocusChanged);
+
     if (!_isExternalFocusNode) {
       _focusNode.dispose();
     }
