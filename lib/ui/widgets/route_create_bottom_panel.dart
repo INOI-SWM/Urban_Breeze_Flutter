@@ -64,13 +64,7 @@ class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
   void _handleComplete() {
     final String title = _titleController.text.trim();
     if (title.isEmpty) {
-      // 사용자에게 제목 입력 필요 알림 표시
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('경로 명을 입력해주세요'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      // todo : 사용자에게 제목 입력 필요 알림 표시
       return;
     }
 

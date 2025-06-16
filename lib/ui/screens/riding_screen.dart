@@ -19,7 +19,6 @@ class RidingScreen extends StatefulWidget {
 }
 
 class _RidingScreenState extends State<RidingScreen> {
-  // 지도 관련 상수들
   static const LatLng _seoulCityHall = LatLng(37.5665, 126.9780);
   static const double _defaultZoom = 16.0;
   static const int _maxPinCount = 50;
