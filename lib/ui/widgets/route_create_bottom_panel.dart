@@ -57,6 +57,16 @@ class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
   }
 
   @override
+  void didUpdateWidget(RouteCreateBottomPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.mode != widget.mode && widget.mode == RouteCreateMode.save) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _focusNode.requestFocus();
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _titleController.removeListener(_onTextChanged);
     _titleController.dispose();
@@ -155,7 +165,6 @@ class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
                 controller: _titleController,
                 focusNode: _focusNode,
                 hintText: '경로 명을 입력하세요',
-                autofocus: true,
               ),
               const SizedBox(height: 12),
               RouteStatsRow(
