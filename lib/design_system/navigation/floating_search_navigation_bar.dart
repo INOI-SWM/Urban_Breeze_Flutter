@@ -46,12 +46,9 @@ class FloatingSearchNavigationBar extends StatelessWidget
                   borderRadius: BorderRadius.circular(50),
                   boxShadow: AppShadows.instance.emphasize,
                 ),
-                child: IconButton(
-                  iconSize: 24,
-                  onPressed: onCloseTap,
-                  icon: Icon(Icons.close, color: colors.labelStrong),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
+                child: GestureDetector(
+                  onTap: onCloseTap,
+                  child: const Icon(Icons.close, size: 24),
                 ),
               ),
               const SizedBox(width: 16),

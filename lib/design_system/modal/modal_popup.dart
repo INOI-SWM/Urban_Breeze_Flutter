@@ -50,20 +50,19 @@ class ModalPopup extends StatelessWidget {
               actions:
                   showCloseButton
                       ? <Widget>[
-                        SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            icon: Icon(
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            onClose?.call();
+                          },
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: Icon(
                               Icons.close,
                               size: 24,
                               color: colors.labelNeutral,
                             ),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              onClose?.call();
-                            },
                           ),
                         ),
                       ]
