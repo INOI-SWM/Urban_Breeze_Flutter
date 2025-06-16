@@ -35,18 +35,16 @@ class SearchNavigationBar extends StatelessWidget
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: <Widget>[
-              SizedBox(
-                width: 40,
-                height: 40,
-                child: IconButton(
-                  iconSize: 24,
-                  onPressed: onBackPressed ?? () => Navigator.of(context).pop(),
-                  icon: Icon(
+              GestureDetector(
+                onTap: onBackPressed ?? () => Navigator.of(context).pop(),
+                child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Icon(
                     Icons.arrow_back_ios_new,
+                    size: 24,
                     color: colors.labelStrong,
                   ),
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
                 ),
               ),
               const SizedBox(width: 16),
