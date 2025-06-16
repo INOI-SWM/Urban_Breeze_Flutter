@@ -5,8 +5,6 @@ import '../models/route_data.dart';
 
 class PolylineUtils {
   static String encodeRouteSegments(List<RouteData> routeSegments) {
-    if (routeSegments.isEmpty) return '';
-
     final List<List<num>> coordinates = <List<num>>[];
     for (final RouteData segment in routeSegments) {
       for (final LatLng point in segment.points) {
