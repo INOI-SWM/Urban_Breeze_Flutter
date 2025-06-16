@@ -19,7 +19,7 @@ class _NavigationScaffoldState extends State<NavigationScaffold> {
 
   static final List<Widget> _pages = <Widget>[
     const HomeScreen(),
-    const RouteScreen(),
+    const RoutePlanningScreen(),
     const RidingScreen(),
     const HistoryScreen(),
     const MyScreen(),

@@ -11,14 +11,14 @@ import 'package:ridingmate/features/route_planning/widgets/route_create_bottom_p
 import 'package:ridingmate/features/route_planning/widgets/route_creation_actions.dart';
 import 'package:ridingmate/widgets/map/route_pin_marker.dart';
 
-class RidingScreen extends StatefulWidget {
-  const RidingScreen({super.key});
+class RoutePlanningScreen extends StatefulWidget {
+  const RoutePlanningScreen({super.key});
 
   @override
-  State<RidingScreen> createState() => _RidingScreenState();
+  State<RoutePlanningScreen> createState() => _RoutePlanningScreenState();
 }
 
-class _RidingScreenState extends State<RidingScreen> {
+class _RoutePlanningScreenState extends State<RoutePlanningScreen> {
   static const LatLng _seoulCityHall = LatLng(37.5665, 126.9780);
   static const double _defaultZoom = 16.0;
   static const int _maxPinCount = 50;
