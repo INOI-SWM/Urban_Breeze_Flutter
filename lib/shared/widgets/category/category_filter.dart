@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
-import 'package:ridingmate/widgets/chip/chip_action.dart';
+import 'package:ridingmate/shared/widgets/chip/chip_action.dart';
 
 enum CategoryFilterSize { small, medium, large, xlarge }
 

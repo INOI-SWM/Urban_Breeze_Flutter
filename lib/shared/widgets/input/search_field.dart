@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/core/design/typography/app_text_style.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
-import 'package:ridingmate/widgets/input/base_search_field.dart';
-import 'package:ridingmate/widgets/input/search_field_size.dart';
+import 'package:ridingmate/shared/widgets/input/base_search_field.dart';
+import 'package:ridingmate/shared/widgets/input/search_field_size.dart';
 
 class SearchField extends StatefulWidget {
   const SearchField({

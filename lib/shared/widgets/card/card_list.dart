@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/design/typography/app_text_style.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
-import 'package:ridingmate/widgets/badge/content_badge.dart';
-import 'package:ridingmate/widgets/thumbnail/thumbnail.dart';
+import 'package:ridingmate/shared/widgets/badge/content_badge.dart';
+import 'package:ridingmate/shared/widgets/thumbnail/thumbnail.dart';
 
 class CardList extends StatelessWidget {
   const CardList({

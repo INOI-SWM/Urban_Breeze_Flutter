@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:ridingmate/core/design/typography/app_text_style.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
-import 'package:ridingmate/widgets/input/search_field_size.dart';
+import 'package:ridingmate/shared/widgets/input/search_field_size.dart';
 
 class BaseSearchField extends StatelessWidget {
   const BaseSearchField({

@@ -3,10 +3,10 @@ import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
 import 'package:ridingmate/features/route_planning/widgets/route_bar_layout.dart';
 import 'package:ridingmate/features/route_planning/widgets/route_stats_row.dart';
-import 'package:ridingmate/widgets/button/button_size.dart';
-import 'package:ridingmate/widgets/button/button_solid.dart';
-import 'package:ridingmate/widgets/input/custom_text_field.dart';
-import 'package:ridingmate/widgets/navigation/top_navigation_bar.dart';
+import 'package:ridingmate/shared/widgets/button/button_size.dart';
+import 'package:ridingmate/shared/widgets/button/button_solid.dart';
+import 'package:ridingmate/shared/widgets/input/custom_text_field.dart';
+import 'package:ridingmate/shared/widgets/navigation/top_navigation_bar.dart';
 
 enum RouteCreateMode { create, save }
 

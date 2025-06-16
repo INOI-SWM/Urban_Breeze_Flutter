@@ -3,8 +3,8 @@ import 'package:ridingmate/core/design/decorations/inset_border.dart';
 import 'package:ridingmate/core/design/typography/app_text_style.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
-import 'package:ridingmate/widgets/button/icon_button_solid.dart';
-import 'package:ridingmate/widgets/icon/icon_size.dart';
+import 'package:ridingmate/shared/widgets/button/icon_button_solid.dart';
+import 'package:ridingmate/shared/widgets/icon/icon_size.dart';
 
 class CustomTextField extends StatefulWidget {
   const CustomTextField({

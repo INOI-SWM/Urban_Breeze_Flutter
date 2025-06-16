@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/core/design/decorations/app_shadows.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
-import 'package:ridingmate/widgets/input/search_field_preview.dart';
-import 'package:ridingmate/widgets/input/search_field_size.dart';
+import 'package:ridingmate/shared/widgets/input/search_field_preview.dart';
+import 'package:ridingmate/shared/widgets/input/search_field_size.dart';
 
 class FloatingSearchNavigationBar extends StatelessWidget
     implements PreferredSizeWidget {

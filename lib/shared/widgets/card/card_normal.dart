@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/core/design/typography/app_text_style.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
-import 'package:ridingmate/widgets/badge/content_badge.dart';
-import 'package:ridingmate/widgets/button/favorite_toggle.dart';
-import 'package:ridingmate/widgets/thumbnail/thumbnail.dart';
+import 'package:ridingmate/shared/widgets/badge/content_badge.dart';
+import 'package:ridingmate/shared/widgets/button/favorite_toggle.dart';
+import 'package:ridingmate/shared/widgets/thumbnail/thumbnail.dart';
 
 class CardNormal extends StatefulWidget {
   const CardNormal({

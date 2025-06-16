@@ -9,7 +9,7 @@ import 'package:ridingmate/features/route_planning/services/location_service.dar
 import 'package:ridingmate/features/route_planning/services/route_service.dart';
 import 'package:ridingmate/features/route_planning/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/widgets/route_creation_actions.dart';
-import 'package:ridingmate/widgets/map/route_pin_marker.dart';
+import 'package:ridingmate/shared/widgets/map/route_pin_marker.dart';
 
 class RoutePlanningScreen extends StatefulWidget {
   const RoutePlanningScreen({super.key});

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/widgets/info/info_item.dart';
+import 'package:ridingmate/shared/widgets/info/info_item.dart';
 
 class RouteStatsRow extends StatelessWidget {
   const RouteStatsRow({

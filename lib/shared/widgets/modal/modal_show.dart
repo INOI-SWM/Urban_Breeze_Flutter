@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/widgets/modal/modal_popup.dart';
+import 'package:ridingmate/shared/widgets/modal/modal_popup.dart';
 
 class ModalShow {
   static Future<T?> show<T>({

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/design/decorations/app_shadows.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
-import 'package:ridingmate/widgets/button/icon_button_solid.dart';
-import 'package:ridingmate/widgets/icon/icon_size.dart';
+import 'package:ridingmate/shared/widgets/button/icon_button_solid.dart';
+import 'package:ridingmate/shared/widgets/icon/icon_size.dart';
 
 class RouteCreationActionButtons extends StatelessWidget {
   const RouteCreationActionButtons({

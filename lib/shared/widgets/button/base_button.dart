@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/design/typography/app_text_style.dart';
-import 'package:ridingmate/widgets/button/button_size.dart';
-import 'package:ridingmate/widgets/icon/icon_size.dart';
+import 'package:ridingmate/shared/widgets/button/button_size.dart';
+import 'package:ridingmate/shared/widgets/icon/icon_size.dart';
 
 abstract class BaseButton extends StatelessWidget {
   const BaseButton({

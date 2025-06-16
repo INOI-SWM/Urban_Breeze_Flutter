@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
-import 'package:ridingmate/widgets/button/button_outlined.dart';
-import 'package:ridingmate/widgets/button/button_size.dart';
-import 'package:ridingmate/widgets/button/button_solid.dart';
-import 'package:ridingmate/widgets/navigation/top_navigation_bar.dart';
+import 'package:ridingmate/shared/widgets/button/button_outlined.dart';
+import 'package:ridingmate/shared/widgets/button/button_size.dart';
+import 'package:ridingmate/shared/widgets/button/button_solid.dart';
+import 'package:ridingmate/shared/widgets/navigation/top_navigation_bar.dart';
 
 class ModalPopup extends StatelessWidget {
   const ModalPopup({
