@@ -10,6 +10,7 @@ import 'package:ridingmate/services/location_service.dart';
 import 'package:ridingmate/services/route_service.dart';
 import 'package:ridingmate/ui/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/ui/widgets/route_creation_actions.dart';
+import 'package:ridingmate/utils/polyline_utils.dart';
 
 class RidingScreen extends StatefulWidget {
   const RidingScreen({super.key});
@@ -129,7 +130,13 @@ class _RidingScreenState extends State<RidingScreen> {
   }
 
   void _completeRouteSave(String title) {
-    // TODO: 실제 경로 저장 로직 구현
+    final String encodedPolyline = PolylineUtils.encodeRouteSegments(
+      _routeSegments,
+    );
+
+    // todo : 인코딩된 Polyline을 서버에 전송하여 저장
+    debugPrint('인코딩된 Polyline: $encodedPolyline');
+
     _exitSaveMode();
   }
 
