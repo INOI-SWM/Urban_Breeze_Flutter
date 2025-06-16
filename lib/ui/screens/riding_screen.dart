@@ -5,10 +5,11 @@ import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/design_system/map/route_pin_marker.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
-import 'package:ridingmate/models/route_result.dart';
+import 'package:ridingmate/models/route_data.dart';
 import 'package:ridingmate/services/location_service.dart';
 import 'package:ridingmate/services/route_service.dart';
 import 'package:ridingmate/ui/widgets/route_creation_actions.dart';
+import 'package:ridingmate/ui/widgets/route_info_bar.dart';
 
 class RidingScreen extends StatefulWidget {
   const RidingScreen({super.key});
@@ -28,7 +29,7 @@ class _RidingScreenState extends State<RidingScreen> {
 
   bool _isButtonPressed = false;
   final List<LatLng> _pins = <LatLng>[];
-  final List<List<LatLng>> _routeSegments = <List<LatLng>>[];
+  final List<RouteData> _routeSegments = <RouteData>[];
   bool _isRouteLoading = false;
 
   @override
@@ -65,14 +66,13 @@ class _RidingScreenState extends State<RidingScreen> {
     });
 
     try {
-      final RouteResult? result = await RouteService.getRoute(
+      final RouteData? result = await RouteService.getRoute(
         _pins[_pins.length - 2],
         _pins[_pins.length - 1],
       );
       if (result != null && result.points.isNotEmpty) {
         setState(() {
-          _routeSegments.add(result.points);
-
+          _routeSegments.add(result);
           _pins[_pins.length - 2] = result.points.first;
           _pins[_pins.length - 1] = result.points.last;
         });
@@ -86,12 +86,13 @@ class _RidingScreenState extends State<RidingScreen> {
 
   void _addPin(LatLng position) {
     if (_isButtonPressed && _pins.length < 50) {
+      final bool shouldGetRoute = _pins.length + 1 >= 2;
       setState(() {
         _pins.add(position);
-        if (_pins.length >= 2) {
-          _getRoute();
-        }
       });
+      if (shouldGetRoute) {
+        _getRoute();
+      }
     }
   }
 
@@ -108,6 +109,25 @@ class _RidingScreenState extends State<RidingScreen> {
     }
   }
 
+  double get totalDistance =>
+      _routeSegments.fold(0, (double sum, RouteData seg) => sum + seg.distance);
+  double get totalDuration =>
+      _routeSegments.fold(0, (double sum, RouteData seg) => sum + seg.duration);
+  double get totalElevationGain => _routeSegments.fold(
+    0,
+    (double sum, RouteData seg) => sum + seg.elevationGain,
+  );
+
+  String get formattedTotalDistance =>
+      (totalDistance / 1000).toStringAsFixed(2);
+  String get formattedTotalDuration {
+    final int minutes = (totalDuration / 60).floor();
+    final int seconds = (totalDuration % 60).round();
+    return '$minutes분 $seconds초';
+  }
+
+  String get formattedElevationGain => '${totalElevationGain.round()} m';
+
   @override
   Widget build(BuildContext context) {
     final String baseUrl =
@@ -119,88 +139,103 @@ class _RidingScreenState extends State<RidingScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return Stack(
+    return Column(
       children: <Widget>[
-        FlutterMap(
-          mapController: _mapController,
-          options: MapOptions(
-            initialCenter: _currentPosition ?? initialCenter,
-            initialZoom: initialZoom,
-            interactionOptions: const InteractionOptions(
-              flags: InteractiveFlag.all,
-            ),
-            onTap: (_, LatLng position) {
-              _addPin(position);
-            },
-          ),
-          children: <Widget>[
-            TileLayer(
-              urlTemplate: fullUrlTemplate,
-              userAgentPackageName: 'com.example.ridingmate',
-              subdomains: const <String>['a', 'b', 'c'],
-            ),
-            RichAttributionWidget(
-              alignment: AttributionAlignment.bottomLeft,
-              showFlutterMapAttribution: false,
-              attributions: <SourceAttribution>[
-                TextSourceAttribution(
-                  'Maps: © Thunderforest | Data: © OpenStreetMap contributors',
-                  textStyle: AppTextStyles.caption2.regular,
+        Expanded(
+          child: Stack(
+            children: <Widget>[
+              FlutterMap(
+                mapController: _mapController,
+                options: MapOptions(
+                  initialCenter: _currentPosition ?? initialCenter,
+                  initialZoom: initialZoom,
+                  interactionOptions: const InteractionOptions(
+                    flags: InteractiveFlag.all,
+                  ),
+                  onTap: (_, LatLng position) {
+                    _addPin(position);
+                  },
                 ),
-              ],
-            ),
-            if (_currentPosition != null)
-              MarkerLayer(
-                markers: <Marker>[
-                  Marker(
-                    point: _currentPosition!,
-                    width: 32,
-                    height: 32,
-                    child: Image.asset(
-                      'assets/icons/png/current_location_pin.png',
+                children: <Widget>[
+                  TileLayer(
+                    urlTemplate: fullUrlTemplate,
+                    userAgentPackageName: 'com.example.ridingmate',
+                    subdomains: const <String>['a', 'b', 'c'],
+                  ),
+                  RichAttributionWidget(
+                    alignment: AttributionAlignment.bottomLeft,
+                    showFlutterMapAttribution: false,
+                    attributions: <SourceAttribution>[
+                      TextSourceAttribution(
+                        'Maps: © Thunderforest | Data: © OpenStreetMap contributors',
+                        textStyle: AppTextStyles.caption2.regular,
+                      ),
+                    ],
+                  ),
+                  if (_currentPosition != null)
+                    MarkerLayer(
+                      markers: <Marker>[
+                        Marker(
+                          point: _currentPosition!,
+                          width: 32,
+                          height: 32,
+                          child: Image.asset(
+                            'assets/icons/png/current_location_pin.png',
+                          ),
+                        ),
+                      ],
                     ),
+                  PolylineLayer<Object>(
+                    polylines:
+                        _routeSegments
+                            .map(
+                              (RouteData segment) => Polyline<Object>(
+                                points: segment.points,
+                                color: context.semanticColor.primaryNormal,
+                                strokeWidth: 4.0,
+                              ),
+                            )
+                            .toList(),
+                  ),
+                  MarkerLayer(
+                    markers:
+                        _pins.asMap().entries.map((
+                          MapEntry<int, LatLng> entry,
+                        ) {
+                          final int index = entry.key;
+                          final LatLng position = entry.value;
+                          return Marker(
+                            point: position,
+                            width: 24,
+                            height: 24,
+                            child: RoutePinMarker(index: index),
+                          );
+                        }).toList(),
                   ),
                 ],
               ),
-            if (_routeSegments.isNotEmpty)
-              PolylineLayer<Object>(
-                polylines:
-                    _routeSegments
-                        .map(
-                          (List<LatLng> segment) => Polyline<Object>(
-                            points: segment,
-                            color: context.semanticColor.primaryNormal,
-                            strokeWidth: 4.0,
-                          ),
-                        )
-                        .toList(),
+              if (_isRouteLoading)
+                const Positioned.fill(
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              Positioned(
+                right: 16,
+                bottom: 16,
+                child: RouteCreationActionButtons(
+                  isPinButtonPressed: _isButtonPressed,
+                  onTogglePinButton: _toggleButtonState,
+                  onRemoveLastPin: _removeLastPin,
+                  onMoveToCurrentLocation: _moveToCurrentLocation,
+                  hasPins: _pins.isNotEmpty,
+                ),
               ),
-            MarkerLayer(
-              markers:
-                  _pins.asMap().entries.map((MapEntry<int, LatLng> entry) {
-                    final int index = entry.key;
-                    final LatLng position = entry.value;
-                    return Marker(
-                      point: position,
-                      width: 24,
-                      height: 24,
-                      child: RoutePinMarker(index: index),
-                    );
-                  }).toList(),
-            ),
-          ],
-        ),
-        if (_isRouteLoading) const Center(child: CircularProgressIndicator()),
-        Positioned(
-          right: 16,
-          bottom: 16,
-          child: RouteCreationActions(
-            isButtonPressed: _isButtonPressed,
-            onToggleButton: _toggleButtonState,
-            onRemoveLastPin: _removeLastPin,
-            onMoveToCurrentLocation: _moveToCurrentLocation,
-            hasPins: _pins.isNotEmpty,
+            ],
           ),
+        ),
+        RouteInfoBar(
+          totalDistance: formattedTotalDistance,
+          totalDuration: formattedTotalDuration,
+          elevationGain: formattedElevationGain,
         ),
       ],
     );

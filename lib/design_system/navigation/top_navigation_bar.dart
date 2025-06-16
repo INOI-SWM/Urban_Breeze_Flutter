@@ -3,6 +3,8 @@ import 'package:ridingmate/core/theme/extensions.dart';
 import 'package:ridingmate/core/theme/semantic_colors.dart';
 import 'package:ridingmate/design_system/typography/app_text_style.dart';
 
+enum NavBarTitleSize { medium, large }
+
 class TopNavigationBar extends StatelessWidget implements PreferredSizeWidget {
   const TopNavigationBar({
     super.key,
@@ -10,12 +12,14 @@ class TopNavigationBar extends StatelessWidget implements PreferredSizeWidget {
     this.title,
     this.actions,
     this.centerTitle = true,
+    this.titleTextSize = NavBarTitleSize.medium,
   });
 
   final Widget? leading;
   final String? title;
   final List<Widget>? actions;
   final bool centerTitle;
+  final NavBarTitleSize titleTextSize;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -23,6 +27,19 @@ class TopNavigationBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
+
+    TextStyle getTitleStyle() {
+      switch (titleTextSize) {
+        case NavBarTitleSize.large:
+          return AppTextStyles.heading2.bold.copyWith(
+            color: colors.labelStrong,
+          );
+        case NavBarTitleSize.medium:
+          return AppTextStyles.headline2.bold.copyWith(
+            color: colors.labelStrong,
+          );
+      }
+    }
 
     return SafeArea(
       child: SizedBox(
@@ -35,7 +52,7 @@ class TopNavigationBar extends StatelessWidget implements PreferredSizeWidget {
                     centerTitle ? Alignment.center : Alignment.centerLeft,
                 child: Padding(
                   padding: EdgeInsets.only(
-                    left: centerTitle ? 0 : (leading != null ? 56 : 16),
+                    left: centerTitle ? 0 : (leading != null ? 56 : 20),
                     right:
                         centerTitle
                             ? 0
@@ -45,9 +62,7 @@ class TopNavigationBar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                   child: Text(
                     title!,
-                    style: AppTextStyles.headline2.bold.copyWith(
-                      color: colors.labelStrong,
-                    ),
+                    style: getTitleStyle(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
