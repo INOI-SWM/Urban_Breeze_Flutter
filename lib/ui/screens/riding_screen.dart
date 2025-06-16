@@ -76,12 +76,14 @@ class _RidingScreenState extends State<RidingScreen> {
         _pins[_pins.length - 2],
         _pins[_pins.length - 1],
       );
-      if (result != null && result.points.isNotEmpty) {
+      if (result != null) {
         setState(() {
           _routeSegments.add(result);
           _pins[_pins.length - 2] = result.points.first;
           _pins[_pins.length - 1] = result.points.last;
         });
+      } else {
+        // todo : 경로생성 실패 시  안내
       }
     } finally {
       if (mounted) {
@@ -105,16 +107,14 @@ class _RidingScreenState extends State<RidingScreen> {
   }
 
   void _removeLastPin() {
-    if (_pins.isNotEmpty) {
-      setState(() {
-        _pins.removeLast();
-        if (_pins.length >= 2) {
-          _routeSegments.removeLast();
-        } else {
-          _routeSegments.clear();
-        }
-      });
-    }
+    setState(() {
+      _pins.removeLast();
+      if (_pins.length >= 2) {
+        _routeSegments.removeLast();
+      } else {
+        _routeSegments.clear();
+      }
+    });
   }
 
   void _enterSaveMode() {
