@@ -8,9 +8,8 @@ import 'package:ridingmate/design_system/typography/app_text_style.dart';
 import 'package:ridingmate/models/route_data.dart';
 import 'package:ridingmate/services/location_service.dart';
 import 'package:ridingmate/services/route_service.dart';
+import 'package:ridingmate/ui/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/ui/widgets/route_creation_actions.dart';
-import 'package:ridingmate/ui/widgets/route_info_bar.dart';
-import 'package:ridingmate/ui/widgets/route_save_bar.dart';
 
 class RidingScreen extends StatefulWidget {
   const RidingScreen({super.key});
@@ -20,8 +19,13 @@ class RidingScreen extends StatefulWidget {
 }
 
 class _RidingScreenState extends State<RidingScreen> {
-  final LatLng initialCenter = const LatLng(37.5665, 126.9780); //서울시청
-  final double initialZoom = 16.0;
+  // 지도 관련 상수들
+  static const LatLng _seoulCityHall = LatLng(37.5665, 126.9780);
+  static const double _defaultZoom = 16.0;
+  static const int _maxPinCount = 50;
+
+  final LatLng initialCenter = _seoulCityHall;
+  final double initialZoom = _defaultZoom;
 
   LatLng? _currentPosition;
   bool _isLocationLoading = true;
@@ -80,14 +84,16 @@ class _RidingScreenState extends State<RidingScreen> {
         });
       }
     } finally {
-      setState(() {
-        _isRouteLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isRouteLoading = false;
+        });
+      }
     }
   }
 
   void _addPin(LatLng position) {
-    if (_isButtonPressed && _pins.length < 50) {
+    if (_isButtonPressed && _pins.length < _maxPinCount) {
       final bool shouldGetRoute = _pins.length + 1 >= 2;
       setState(() {
         _pins.add(position);
@@ -148,22 +154,15 @@ class _RidingScreenState extends State<RidingScreen> {
   String get formattedElevationGain => '${totalElevationGain.round()} m';
 
   Widget _buildBottomBar() {
-    if (_isSaveMode) {
-      return RouteSaveBar(
-        totalDistance: formattedTotalDistance,
-        totalDuration: formattedTotalDuration,
-        elevationGain: formattedElevationGain,
-        onBack: _exitSaveMode,
-        onComplete: _completeRouteSave,
-      );
-    }
-
-    return RouteInfoBar(
+    return RouteCreateBottomPanel(
+      mode: _isSaveMode ? RouteCreateMode.save : RouteCreateMode.create,
       totalDistance: formattedTotalDistance,
       totalDuration: formattedTotalDuration,
       elevationGain: formattedElevationGain,
       hasRoute: _routeSegments.isNotEmpty,
       onSave: _enterSaveMode,
+      onBack: _exitSaveMode,
+      onComplete: _completeRouteSave,
     );
   }
 
