@@ -40,12 +40,14 @@ class RouteCreateBottomPanel extends StatefulWidget {
 class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
   late final TextEditingController _titleController;
   late final FocusNode _focusNode;
+  bool _isCompleteButtonEnabled = false;
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController();
     _focusNode = FocusNode();
+    _titleController.addListener(_onTextChanged);
 
     if (widget.mode == RouteCreateMode.save) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -56,18 +58,23 @@ class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
 
   @override
   void dispose() {
+    _titleController.removeListener(_onTextChanged);
     _titleController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
 
+  void _onTextChanged() {
+    final bool isEnabled = _titleController.text.trim().isNotEmpty;
+    if (_isCompleteButtonEnabled != isEnabled) {
+      setState(() {
+        _isCompleteButtonEnabled = isEnabled;
+      });
+    }
+  }
+
   void _handleComplete() {
     final String title = _titleController.text.trim();
-    if (title.isEmpty) {
-      // todo : 사용자에게 제목 입력 필요 알림 표시
-      return;
-    }
-
     _titleController.clear();
     widget.onComplete?.call(title);
   }
@@ -111,9 +118,15 @@ class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
             ButtonSolid(
               text: '완료',
               size: ButtonSize.small,
-              backgroundColor: colors.primaryNormal,
-              textColor: colors.staticWhite,
-              onPressed: _handleComplete,
+              backgroundColor:
+                  _isCompleteButtonEnabled
+                      ? colors.primaryNormal
+                      : colors.interactionDisable,
+              textColor:
+                  _isCompleteButtonEnabled
+                      ? colors.staticWhite
+                      : colors.labelAssistive,
+              onPressed: _isCompleteButtonEnabled ? _handleComplete : null,
             ),
           ],
         );
