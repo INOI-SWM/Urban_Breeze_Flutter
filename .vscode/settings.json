@@ -15,5 +15,6 @@
       "source.fixAll": "explicit"
     }
   },
-  "dart.flutterSdkPath": ".fvm/versions/3.32.2",
+	"dart.flutterSdkPath": ".fvm/versions/3.32.2",
+	"java.configuration.updateBuildConfiguration": "automatic",
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:ridingmate/core/theme/app_theme.dart';
-import 'package:ridingmate/core/theme/semantic_colors.dart';
-import 'package:ridingmate/ui/navigation/navigation_scaffold.dart';
+import 'package:ridingmate/navigation/navigation_scaffold.dart';
+import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
