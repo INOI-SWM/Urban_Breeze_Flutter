@@ -12,8 +12,8 @@ class RouteListScreen extends StatefulWidget {
 }
 
 class _RouteListScreenState extends State<RouteListScreen> {
-  final List<String> categories = <String>['내가 만든 경로', '공유 받은 경로'];
-  final Set<String> selectedCategories = <String>{'내가 만든 경로'};
+  final List<String> categories = <String>['전체', '내가 만든 경로', '공유 받은 경로'];
+  String selectedCategory = '전체';
 
   List<Map<String, dynamic>> routeList = <Map<String, dynamic>>[];
   bool isLoading = true;
@@ -26,11 +26,7 @@ class _RouteListScreenState extends State<RouteListScreen> {
 
   void onCategorySelected(String category) {
     setState(() {
-      if (selectedCategories.contains(category)) {
-        selectedCategories.remove(category);
-      } else {
-        selectedCategories.add(category);
-      }
+      selectedCategory = category;
     });
     _loadRouteList();
   }
@@ -40,10 +36,11 @@ class _RouteListScreenState extends State<RouteListScreen> {
       isLoading = true;
     });
 
+    final Set<String>? categoryFilter =
+        selectedCategory == '전체' ? null : <String>{selectedCategory};
+
     final List<Map<String, dynamic>> routes =
-        await RouteListService.fetchRouteList(
-          categoryFilter: selectedCategories,
-        );
+        await RouteListService.fetchRouteList(categoryFilter: categoryFilter);
     setState(() {
       routeList = routes;
       isLoading = false;
@@ -70,7 +67,7 @@ class _RouteListScreenState extends State<RouteListScreen> {
             children: <Widget>[
               CategoryFilter(
                 categories: categories,
-                selectedCategories: selectedCategories,
+                selectedCategories: <String>{selectedCategory},
                 onCategorySelected: onCategorySelected,
               ),
             ],
