@@ -10,6 +10,7 @@ import 'package:ridingmate/services/location_service.dart';
 import 'package:ridingmate/services/route_service.dart';
 import 'package:ridingmate/ui/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/ui/widgets/route_creation_actions.dart';
+import 'package:ridingmate/utils/polyline_utils.dart';
 
 class RidingScreen extends StatefulWidget {
   const RidingScreen({super.key});
@@ -75,12 +76,14 @@ class _RidingScreenState extends State<RidingScreen> {
         _pins[_pins.length - 2],
         _pins[_pins.length - 1],
       );
-      if (result != null && result.points.isNotEmpty) {
+      if (result != null) {
         setState(() {
           _routeSegments.add(result);
           _pins[_pins.length - 2] = result.points.first;
           _pins[_pins.length - 1] = result.points.last;
         });
+      } else {
+        // todo : 경로생성 실패 시  안내
       }
     } finally {
       if (mounted) {
@@ -104,16 +107,14 @@ class _RidingScreenState extends State<RidingScreen> {
   }
 
   void _removeLastPin() {
-    if (_pins.isNotEmpty) {
-      setState(() {
-        _pins.removeLast();
-        if (_pins.length >= 2) {
-          _routeSegments.removeLast();
-        } else {
-          _routeSegments.clear();
-        }
-      });
-    }
+    setState(() {
+      _pins.removeLast();
+      if (_pins.length >= 2) {
+        _routeSegments.removeLast();
+      } else {
+        _routeSegments.clear();
+      }
+    });
   }
 
   void _enterSaveMode() {
@@ -129,7 +130,13 @@ class _RidingScreenState extends State<RidingScreen> {
   }
 
   void _completeRouteSave(String title) {
-    // TODO: 실제 경로 저장 로직 구현
+    final String encodedPolyline = PolylineUtils.encodeRouteSegments(
+      _routeSegments,
+    );
+
+    // todo : 인코딩된 Polyline을 서버에 전송하여 저장
+    debugPrint('인코딩된 Polyline: $encodedPolyline');
+
     _exitSaveMode();
   }
 
