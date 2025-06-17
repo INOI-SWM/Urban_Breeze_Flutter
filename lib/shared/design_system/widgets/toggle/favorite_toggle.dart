@@ -14,7 +14,7 @@ class FavoriteToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final SemanticColors color = context.semanticColor;
+    final SemanticColors colors = context.semanticColor;
     return InkWell(
       borderRadius: BorderRadius.circular(4),
       onTap: () => onChanged(!isFavorite),
@@ -24,7 +24,7 @@ class FavoriteToggle extends StatelessWidget {
         child: Icon(
           isFavorite ? Icons.star_rounded : Icons.star_outline_rounded,
           size: 24,
-          color: isFavorite ? color.primaryNormal : color.staticWhite,
+          color: isFavorite ? colors.primaryNormal : colors.staticWhite,
         ),
       ),
     );

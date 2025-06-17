@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/widgets/chip/chip_action.dart';
 
 enum CategoryFilterSize { small, medium, large, xlarge }
@@ -57,35 +58,37 @@ class CategoryFilter extends StatelessWidget {
     return ChipActionType.outlined;
   }
 
-  Color _getChipActionTextColor(BuildContext context, bool isSelected) {
-    if (isSelected) {
-      return mode == CategoryFilterMode.normal
-          ? context.semanticColor.inverseLabel
-          : context.semanticColor.primaryNormal;
-    }
-    return context.semanticColor.labelAlternative;
-  }
-
-  Color? _getChipActionBorderColor(BuildContext context, bool isSelected) {
-    if (isSelected) {
-      return mode == CategoryFilterMode.normal
-          ? null
-          : context.semanticColor.primaryNormal.withValues(alpha: 0.43);
-    }
-    return context.semanticColor.lineNormalNeutral;
-  }
-
-  Color? _getChipActionBackgroundColor(BuildContext context, bool isSelected) {
-    if (isSelected) {
-      return mode == CategoryFilterMode.normal
-          ? context.semanticColor.labelStrong
-          : context.semanticColor.primaryNormal.withValues(alpha: 0.05);
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
+    final SemanticColors colors = context.semanticColor;
+
+    Color getChipActionTextColor(bool isSelected) {
+      if (isSelected) {
+        return mode == CategoryFilterMode.normal
+            ? colors.inverseLabel
+            : colors.primaryNormal;
+      }
+      return colors.labelAlternative;
+    }
+
+    Color? getChipActionBorderColor(bool isSelected) {
+      if (isSelected) {
+        return mode == CategoryFilterMode.normal
+            ? null
+            : colors.primaryNormal.withValues(alpha: 0.43);
+      }
+      return colors.lineNormalNeutral;
+    }
+
+    Color? getChipActionBackgroundColor(bool isSelected) {
+      if (isSelected) {
+        return mode == CategoryFilterMode.normal
+            ? colors.labelStrong
+            : colors.primaryNormal.withValues(alpha: 0.05);
+      }
+      return null;
+    }
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -101,12 +104,9 @@ class CategoryFilter extends StatelessWidget {
                   text: category,
                   size: _chipSize,
                   type: _getChipActionType(isSelected),
-                  textColor: _getChipActionTextColor(context, isSelected),
-                  borderColor: _getChipActionBorderColor(context, isSelected),
-                  backgroundColor: _getChipActionBackgroundColor(
-                    context,
-                    isSelected,
-                  ),
+                  textColor: getChipActionTextColor(isSelected),
+                  borderColor: getChipActionBorderColor(isSelected),
+                  backgroundColor: getChipActionBackgroundColor(isSelected),
                   onPressed: () => onCategorySelected(category),
                 ),
               );

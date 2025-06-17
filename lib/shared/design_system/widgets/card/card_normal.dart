@@ -39,7 +39,7 @@ class _CardNormalState extends State<CardNormal> {
 
   @override
   Widget build(BuildContext context) {
-    final SemanticColors semanticColors = context.semanticColor;
+    final SemanticColors colors = context.semanticColor;
 
     return SizedBox(
       width: double.infinity,
@@ -67,8 +67,8 @@ class _CardNormalState extends State<CardNormal> {
                         text: widget.badgeText,
                         size: ContentBadgeSize.medium,
                         type: ContentBadgeType.solid,
-                        backgroundColor: semanticColors.fillNormal,
-                        textColor: semanticColors.labelAlternative,
+                        backgroundColor: colors.fillNormal,
+                        textColor: colors.labelAlternative,
                         leftIcon: Icons.person,
                       ),
                       Row(
@@ -81,7 +81,7 @@ class _CardNormalState extends State<CardNormal> {
                           Icon(
                             Icons.more_horiz,
                             size: 24,
-                            color: semanticColors.staticWhite,
+                            color: colors.staticWhite,
                           ),
                         ],
                       ),
@@ -100,14 +100,14 @@ class _CardNormalState extends State<CardNormal> {
                 Text(
                   widget.title,
                   style: AppTextStyles.body2.normalBold.copyWith(
-                    color: semanticColors.labelNormal,
+                    color: colors.labelNormal,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   widget.createDate,
                   style: AppTextStyles.label2.medium.copyWith(
-                    color: semanticColors.labelAlternative,
+                    color: colors.labelAlternative,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -118,8 +118,8 @@ class _CardNormalState extends State<CardNormal> {
                       leftIcon: Icons.route,
                       size: ContentBadgeSize.xsmall,
                       type: ContentBadgeType.solid,
-                      backgroundColor: semanticColors.fillNormal,
-                      textColor: semanticColors.labelNeutral,
+                      backgroundColor: colors.fillNormal,
+                      textColor: colors.labelNeutral,
                     ),
                     const SizedBox(width: 4),
                     ContentBadge(
@@ -127,8 +127,8 @@ class _CardNormalState extends State<CardNormal> {
                       leftIcon: Icons.terrain,
                       size: ContentBadgeSize.xsmall,
                       type: ContentBadgeType.solid,
-                      backgroundColor: semanticColors.fillNormal,
-                      textColor: semanticColors.labelNeutral,
+                      backgroundColor: colors.fillNormal,
+                      textColor: colors.labelNeutral,
                     ),
                   ],
                 ),

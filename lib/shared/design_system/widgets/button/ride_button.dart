@@ -16,11 +16,11 @@ class RideButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final SemanticColors semanticColors = context.semanticColor;
+    final SemanticColors colors = context.semanticColor;
 
     return Container(
       decoration: BoxDecoration(
-        color: semanticColors.primaryNormal,
+        color: colors.primaryNormal,
         borderRadius: BorderRadius.circular(_radius),
         boxShadow: AppShadows.instance.emphasize,
       ),
@@ -42,7 +42,7 @@ class RideButton extends StatelessWidget {
                     'assets/icons/svg/play.svg',
                     fit: BoxFit.contain,
                     colorFilter: ColorFilter.mode(
-                      semanticColors.backgroundElevatedNormal,
+                      colors.backgroundElevatedNormal,
                       BlendMode.srcIn,
                     ),
                   ),
@@ -51,7 +51,7 @@ class RideButton extends StatelessWidget {
                 Text(
                   '주행하기',
                   style: AppTextStyles.body1.normalBold.copyWith(
-                    color: semanticColors.backgroundNormalNormal,
+                    color: colors.backgroundNormalNormal,
                   ),
                 ),
               ],

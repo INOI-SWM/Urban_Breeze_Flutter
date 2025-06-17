@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/badge/content_badge.dart';
 import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
@@ -24,6 +25,8 @@ class CardList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final SemanticColors colors = context.semanticColor;
+
     return Row(
       children: <Widget>[
         SizedBox(
@@ -46,14 +49,14 @@ class CardList extends StatelessWidget {
                   Text(
                     title,
                     style: AppTextStyles.body2.normalBold.copyWith(
-                      color: context.semanticColor.labelNormal,
+                      color: colors.labelNormal,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     createDate,
                     style: AppTextStyles.label2.medium.copyWith(
-                      color: context.semanticColor.labelAlternative,
+                      color: colors.labelAlternative,
                     ),
                   ),
                 ],
@@ -65,16 +68,16 @@ class CardList extends StatelessWidget {
                   ContentBadge(
                     text: distance,
                     type: ContentBadgeType.solid,
-                    backgroundColor: context.semanticColor.fillNormal,
-                    textColor: context.semanticColor.labelAlternative,
+                    backgroundColor: colors.fillNormal,
+                    textColor: colors.labelAlternative,
                     leftIcon: Icons.route,
                     size: ContentBadgeSize.xsmall,
                   ),
                   ContentBadge(
                     text: elevation,
                     type: ContentBadgeType.solid,
-                    backgroundColor: context.semanticColor.fillNormal,
-                    textColor: context.semanticColor.labelAlternative,
+                    backgroundColor: colors.fillNormal,
+                    textColor: colors.labelAlternative,
                     leftIcon: Icons.terrain,
                     size: ContentBadgeSize.xsmall,
                   ),
