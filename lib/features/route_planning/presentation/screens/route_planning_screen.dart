@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/route_planning/application/services/location_service.dart';
+import 'package:ridingmate/features/route_planning/application/services/polyline_utils.dart';
 import 'package:ridingmate/features/route_planning/application/services/route_service.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_data.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
@@ -75,12 +76,14 @@ class _RoutePlanningScreenState extends State<RoutePlanningScreen> {
         _pins[_pins.length - 2],
         _pins[_pins.length - 1],
       );
-      if (result != null && result.points.isNotEmpty) {
+      if (result != null) {
         setState(() {
           _routeSegments.add(result);
           _pins[_pins.length - 2] = result.points.first;
           _pins[_pins.length - 1] = result.points.last;
         });
+      } else {
+        // todo : 경로생성 실패 시  안내
       }
     } finally {
       if (mounted) {
@@ -104,16 +107,14 @@ class _RoutePlanningScreenState extends State<RoutePlanningScreen> {
   }
 
   void _removeLastPin() {
-    if (_pins.isNotEmpty) {
-      setState(() {
-        _pins.removeLast();
-        if (_pins.length >= 2) {
-          _routeSegments.removeLast();
-        } else {
-          _routeSegments.clear();
-        }
-      });
-    }
+    setState(() {
+      _pins.removeLast();
+      if (_pins.length >= 2) {
+        _routeSegments.removeLast();
+      } else {
+        _routeSegments.clear();
+      }
+    });
   }
 
   void _enterSaveMode() {
@@ -129,7 +130,13 @@ class _RoutePlanningScreenState extends State<RoutePlanningScreen> {
   }
 
   void _completeRouteSave(String title) {
-    // TODO: 실제 경로 저장 로직 구현
+    final String encodedPolyline = PolylineUtils.encodeRouteSegments(
+      _routeSegments,
+    );
+
+    // todo : 인코딩된 Polyline을 서버에 전송하여 저장
+    debugPrint('인코딩된 Polyline: $encodedPolyline');
+
     _exitSaveMode();
   }
 

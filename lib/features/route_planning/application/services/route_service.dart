@@ -42,7 +42,9 @@ class RouteService {
       mode.apiValue,
     );
 
-    if (apiResponse == null) return null;
+    if (apiResponse == null || !_isValidRouteData(apiResponse)) {
+      return null;
+    }
 
     final double elevationGain =
         ElevationCalculator.calculateSmoothedElevationGain(
@@ -58,5 +60,12 @@ class RouteService {
       descent: apiResponse.rawDescent,
       elevationGain: elevationGain,
     );
+  }
+
+  static bool _isValidRouteData(RouteApiResponse response) {
+    if (response.points.length < 2) return false;
+    if (response.distance < 0 || response.duration < 0) return false;
+    if (response.points.length != response.elevations.length) return false;
+    return true;
   }
 }

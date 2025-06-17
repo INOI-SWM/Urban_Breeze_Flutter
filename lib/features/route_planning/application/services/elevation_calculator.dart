@@ -8,17 +8,8 @@ class ElevationCalculator {
     List<LatLng> points,
     List<double> elevations,
   ) {
-    if (!_isValidElevationData(points, elevations)) return 0.0;
-
     final List<double> smoothedElevations = _smoothElevations(elevations);
     return _calculateElevationGain(smoothedElevations);
-  }
-
-  static bool _isValidElevationData(
-    List<LatLng> points,
-    List<double> elevations,
-  ) {
-    return points.length == elevations.length && elevations.length >= 2;
   }
 
   static List<double> _smoothElevations(List<double> elevations) {
