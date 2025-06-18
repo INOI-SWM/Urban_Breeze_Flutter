@@ -5,8 +5,9 @@ import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/route_planning/application/services/location_service.dart';
 import 'package:ridingmate/features/route_planning/application/services/polyline_utils.dart';
-import 'package:ridingmate/features/route_planning/application/services/route_service.dart';
-import 'package:ridingmate/features/route_planning/data/models/route_data.dart';
+import 'package:ridingmate/features/route_planning/data/datasources/route_remote_datasource.dart';
+import 'package:ridingmate/features/route_planning/data/repositories/route_repository_impl.dart';
+import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
@@ -38,9 +39,16 @@ class _RoutePlanningScreenState extends State<RoutePlanningScreen> {
   bool _isRouteLoading = false;
   bool _isSaveMode = false;
 
+  // Repository 인스턴스 생성
+  late final RouteRepository _routeRepository;
+
   @override
   void initState() {
     super.initState();
+    // Repository 초기화
+    _routeRepository = RouteRepositoryImpl(
+      remoteDataSource: RouteRemoteDataSourceImpl(),
+    );
     _getCurrentLocation();
   }
 
@@ -72,7 +80,7 @@ class _RoutePlanningScreenState extends State<RoutePlanningScreen> {
     });
 
     try {
-      final RouteData? result = await RouteService.getRoute(
+      final RouteData? result = await _routeRepository.getRoute(
         _pins[_pins.length - 2],
         _pins[_pins.length - 1],
       );

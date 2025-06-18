@@ -16,5 +16,4 @@ linter:
     combinators_ordering: true
     comment_references: true
     invalid_case_patterns: true
-    one_member_abstracts: true
     only_throw_errors: true
