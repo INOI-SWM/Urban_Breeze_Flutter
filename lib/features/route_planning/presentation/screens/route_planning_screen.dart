@@ -4,10 +4,11 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/route_planning/application/services/location_service.dart';
-import 'package:ridingmate/features/route_planning/application/services/polyline_utils.dart';
 import 'package:ridingmate/features/route_planning/data/datasources/route_remote_datasource.dart';
 import 'package:ridingmate/features/route_planning/data/repositories/route_repository_impl.dart';
 import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
+import 'package:ridingmate/features/route_planning/domain/repositories/route_repository.dart';
+import 'package:ridingmate/features/route_planning/domain/services/polyline_convert_service.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
@@ -138,7 +139,7 @@ class _RoutePlanningScreenState extends State<RoutePlanningScreen> {
   }
 
   void _completeRouteSave(String title) {
-    final String encodedPolyline = PolylineUtils.encodeRouteSegments(
+    final String encodedPolyline = PolylineConvertService.encodeRouteSegments(
       _routeSegments,
     );
 
