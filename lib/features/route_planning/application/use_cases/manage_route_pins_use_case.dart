@@ -1,7 +1,7 @@
 import 'package:latlong2/latlong.dart';
 
 class ManageRoutePinsUseCase {
-  ManageRoutePinsUseCase({int maxPinCount = 10}) : _maxPinCount = maxPinCount;
+  ManageRoutePinsUseCase({int maxPinCount = 50}) : _maxPinCount = maxPinCount;
 
   final int _maxPinCount;
 

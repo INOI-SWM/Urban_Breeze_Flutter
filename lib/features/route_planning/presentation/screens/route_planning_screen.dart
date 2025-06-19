@@ -1,28 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/route_planning_facade.dart';
-import 'package:ridingmate/features/route_planning/data/datasources/route_remote_datasource.dart';
-import 'package:ridingmate/features/route_planning/data/repositories/route_repository_impl.dart';
+import 'package:ridingmate/features/route_planning/di/route_providers.dart';
 import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/marker/route_pin_marker.dart';
 
-class RoutePlanningScreen extends StatefulWidget {
+class RoutePlanningScreen extends ConsumerStatefulWidget {
   const RoutePlanningScreen({super.key});
 
   @override
-  State<RoutePlanningScreen> createState() => _RoutePlanningScreenState();
+  ConsumerState<RoutePlanningScreen> createState() =>
+      _RoutePlanningScreenState();
 }
 
-class _RoutePlanningScreenState extends State<RoutePlanningScreen> {
+class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   static const LatLng _seoulCityHall = LatLng(37.5665, 126.9780);
   static const double _defaultZoom = 16.0;
-  static const int _maxPinCount = 50;
 
   final LatLng initialCenter = _seoulCityHall;
   final double initialZoom = _defaultZoom;
@@ -43,12 +43,7 @@ class _RoutePlanningScreenState extends State<RoutePlanningScreen> {
   @override
   void initState() {
     super.initState();
-    _facade = RoutePlanningFacade(
-      routeRepository: RouteRepositoryImpl(
-        remoteDataSource: RouteRemoteDataSourceImpl(),
-      ),
-      maxPinCount: _maxPinCount,
-    );
+    _facade = ref.read(routePlanningFacadeProvider);
     _getCurrentLocation();
   }
 
