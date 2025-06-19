@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/login/application/providers/auth_providers.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_in_with_google_use_case.dart';
+import 'package:ridingmate/features/login/di/auth_providers.dart';
 import 'package:ridingmate/features/login/domain/entities/user.dart';
 import 'package:ridingmate/features/login/presentation/widgets/login_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
