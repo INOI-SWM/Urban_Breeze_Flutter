@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
               content: Text('환영합니다, ${user.displayName ?? user.email}님!'),
             ),
           );
-          Navigator.pop(context); // 로그인 화면 닫기
+          Navigator.pop(context);
         }
       }
     } finally {
