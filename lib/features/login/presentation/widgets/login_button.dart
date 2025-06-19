@@ -45,7 +45,6 @@ class LoginButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                // Google 로고는 색상 변경 없이 원본 사용
                 SvgPicture.asset(iconPath, width: _iconSize, height: _iconSize),
                 const SizedBox(width: _spaceBetweenIconAndText),
                 Text(
