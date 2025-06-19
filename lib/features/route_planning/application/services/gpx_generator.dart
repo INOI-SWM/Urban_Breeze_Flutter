@@ -1,11 +1,10 @@
 import 'package:gpx/gpx.dart';
 import 'package:latlong2/latlong.dart';
-
-import 'polyline_utils.dart';
+import 'package:ridingmate/features/route_planning/domain/services/polyline_convert_service.dart';
 
 class GpxGenerator {
   static String generateGPX(String encodedPolyline, String title) {
-    final List<LatLng> coordinates = PolylineUtils.decodeToPoints(
+    final List<LatLng> coordinates = PolylineConvertService.decodeToPoints(
       encodedPolyline,
     );
 

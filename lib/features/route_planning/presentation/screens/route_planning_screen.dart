@@ -3,10 +3,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/route_planning/application/services/location_service.dart';
-import 'package:ridingmate/features/route_planning/application/services/polyline_utils.dart';
-import 'package:ridingmate/features/route_planning/application/services/route_service.dart';
-import 'package:ridingmate/features/route_planning/data/models/route_data.dart';
+import 'package:ridingmate/features/route_planning/application/use_cases/route_planning_facade.dart';
+import 'package:ridingmate/features/route_planning/data/datasources/route_remote_datasource.dart';
+import 'package:ridingmate/features/route_planning/data/repositories/route_repository_impl.dart';
+import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
@@ -38,14 +38,22 @@ class _RoutePlanningScreenState extends State<RoutePlanningScreen> {
   bool _isRouteLoading = false;
   bool _isSaveMode = false;
 
+  late final RoutePlanningFacade _facade;
+
   @override
   void initState() {
     super.initState();
+    _facade = RoutePlanningFacade(
+      routeRepository: RouteRepositoryImpl(
+        remoteDataSource: RouteRemoteDataSourceImpl(),
+      ),
+      maxPinCount: _maxPinCount,
+    );
     _getCurrentLocation();
   }
 
   Future<void> _getCurrentLocation() async {
-    final LatLng? position = await LocationService.getCurrentLocation();
+    final LatLng? position = await _facade.getCurrentLocation.execute();
     setState(() {
       _currentPosition = position;
       _isLocationLoading = false;
@@ -72,7 +80,7 @@ class _RoutePlanningScreenState extends State<RoutePlanningScreen> {
     });
 
     try {
-      final RouteData? result = await RouteService.getRoute(
+      final RouteData? result = await _facade.createRoute.execute(
         _pins[_pins.length - 2],
         _pins[_pins.length - 1],
       );
@@ -95,12 +103,11 @@ class _RoutePlanningScreenState extends State<RoutePlanningScreen> {
   }
 
   void _addPin(LatLng position) {
-    if (_isButtonPressed && _pins.length < _maxPinCount) {
-      final bool shouldGetRoute = _pins.length + 1 >= 2;
+    if (_facade.managePins.shouldAddPin(_isButtonPressed, _pins)) {
       setState(() {
         _pins.add(position);
       });
-      if (shouldGetRoute) {
+      if (_facade.managePins.shouldGetRoute(_pins)) {
         _getRoute();
       }
     }
@@ -130,34 +137,16 @@ class _RoutePlanningScreenState extends State<RoutePlanningScreen> {
   }
 
   void _completeRouteSave(String title) {
-    final String encodedPolyline = PolylineUtils.encodeRouteSegments(
-      _routeSegments,
-    );
-
-    // todo : 인코딩된 Polyline을 서버에 전송하여 저장
-    debugPrint('인코딩된 Polyline: $encodedPolyline');
-
+    _facade.saveRoute.execute(_routeSegments, title);
     _exitSaveMode();
   }
 
-  double get totalDistance =>
-      _routeSegments.fold(0, (double sum, RouteData seg) => sum + seg.distance);
-  double get totalDuration =>
-      _routeSegments.fold(0, (double sum, RouteData seg) => sum + seg.duration);
-  double get totalElevationGain => _routeSegments.fold(
-    0,
-    (double sum, RouteData seg) => sum + seg.elevationGain,
-  );
-
   String get formattedTotalDistance =>
-      (totalDistance / 1000).toStringAsFixed(2);
-  String get formattedTotalDuration {
-    final int minutes = (totalDuration / 60).floor();
-    final int seconds = (totalDuration % 60).round();
-    return '$minutes분 $seconds초';
-  }
-
-  String get formattedElevationGain => '${totalElevationGain.round()} m';
+      _facade.routeStats.getFormattedTotalDistance(_routeSegments);
+  String get formattedTotalDuration =>
+      _facade.routeStats.getFormattedTotalDuration(_routeSegments);
+  String get formattedElevationGain =>
+      _facade.routeStats.getFormattedElevationGain(_routeSegments);
 
   Widget _buildBottomBar() {
     return RouteCreateBottomPanel(

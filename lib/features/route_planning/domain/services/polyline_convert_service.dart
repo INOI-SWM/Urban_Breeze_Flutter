@@ -1,8 +1,8 @@
 import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:ridingmate/features/route_planning/data/models/route_data.dart';
+import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
 
-class PolylineUtils {
+class PolylineConvertService {
   static String encodeRouteSegments(List<RouteData> routeSegments) {
     final List<List<num>> coordinates = <List<num>>[];
     for (final RouteData segment in routeSegments) {

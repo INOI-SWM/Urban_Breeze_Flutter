@@ -1,6 +1,6 @@
 import 'package:latlong2/latlong.dart';
 
-class ElevationCalculator {
+class ElevationCalculateService {
   static const double _minElevationThreshold = 3.0;
   static const int _smoothingWindow = 5;
 
