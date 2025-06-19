@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:ridingmate/core/theme/app_theme.dart';
+import 'package:ridingmate/features/login/application/di/login_di.dart';
 import 'package:ridingmate/navigation/navigation_scaffold.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
+  LoginDI.instance.init();
   runApp(const MyApp());
 }
 
