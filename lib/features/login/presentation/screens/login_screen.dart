@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
@@ -141,12 +143,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   iconPath: 'assets/icons/svg/google_logo.svg',
                   provider: LoginProvider.google,
                 ),
-                const SizedBox(height: 12),
-                _buildLoginButton(
-                  text: 'Apple로 계속하기',
-                  iconPath: 'assets/icons/svg/apple_logo.svg',
-                  provider: LoginProvider.apple,
-                ),
+                if (Platform.isIOS) ...<Widget>[
+                  const SizedBox(height: 12),
+                  _buildLoginButton(
+                    text: 'Apple로 계속하기',
+                    iconPath: 'assets/icons/svg/apple_logo.svg',
+                    provider: LoginProvider.apple,
+                  ),
+                ],
               ],
             ),
           ),
