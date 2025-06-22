@@ -51,5 +51,16 @@
 	<string>이 앱은 백그라운드에서도 위치 서비스를 사용하여 지도에 현재 위치를 표시합니다.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>이 앱은 지도에 현재 위치를 표시하고, 백그라운드에서도 위치 서비스를 사용합니다.</string>
+	<key>GIDClientID</key>
+	<string>494451214414-b4vjma0f944dgmk74eabfe1df6akuvua.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.494451214414-b4vjma0f944dgmk74eabfe1df6akuvua</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
