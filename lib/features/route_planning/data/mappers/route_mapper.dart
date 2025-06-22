@@ -25,6 +25,7 @@ class RouteMapper {
       ascent: dto.rawAscent,
       descent: dto.rawDescent,
       elevationGain: elevationGain,
+      bbox: dto.bbox,
     );
   }
 
