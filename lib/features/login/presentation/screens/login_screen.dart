@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/login/application/di/login_di.dart';
+import 'package:ridingmate/features/login/application/use_cases/sign_in_with_google_use_case.dart';
+import 'package:ridingmate/features/login/di/auth_providers.dart';
 import 'package:ridingmate/features/login/domain/entities/user.dart';
 import 'package:ridingmate/features/login/presentation/widgets/login_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _isGoogleLoading = false;
 
   Future<void> _handleGoogleSignIn() async {
@@ -21,8 +23,10 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final User? user =
-          await LoginDI.instance.signInWithGoogleUseCase.execute();
+      final SignInWithGoogleUseCase signInUseCase = ref.read(
+        signInWithGoogleUseCaseProvider,
+      );
+      final User? user = await signInUseCase.execute();
 
       if (mounted && user != null) {
         // TODO: 로그인 성공 후 처리 (예: 홈 화면으로 이동)

@@ -22,6 +22,7 @@ dependencies:
   google_polyline_algorithm: ^3.1.0
   gpx: ^2.3.0
   google_sign_in: ^6.3.0
+  flutter_riverpod: ^2.6.1
 
 dev_dependencies:
   flutter_test:
