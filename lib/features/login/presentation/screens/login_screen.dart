@@ -5,12 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_in_with_apple_use_case.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_in_with_google_use_case.dart';
+import 'package:ridingmate/features/login/application/use_cases/sign_in_with_kakao_use_case.dart';
 import 'package:ridingmate/features/login/di/auth_providers.dart';
 import 'package:ridingmate/features/login/domain/entities/user.dart';
 import 'package:ridingmate/features/login/presentation/widgets/login_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 
-enum LoginProvider { google, apple }
+enum LoginProvider { google, apple, kakao }
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -62,6 +63,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           signInWithAppleUseCaseProvider,
         );
         return await useCase.execute();
+      case LoginProvider.kakao:
+        final SignInWithKakaoUseCase useCase = ref.read(
+          signInWithKakaoUseCaseProvider,
+        );
+        return await useCase.execute();
     }
   }
 
@@ -72,8 +78,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _showErrorMessage(LoginProvider provider) {
-    final String providerName =
-        provider == LoginProvider.google ? 'Google' : 'Apple';
+    final String providerName = switch (provider) {
+      LoginProvider.google => 'Google',
+      LoginProvider.apple => 'Apple',
+      LoginProvider.kakao => 'Kakao',
+    };
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('$providerName 로그인에 실패했습니다.')));
@@ -138,6 +147,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
+                _buildLoginButton(
+                  text: 'Kakao로 계속하기',
+                  iconPath: 'assets/icons/svg/kakao_logo.svg',
+                  provider: LoginProvider.kakao,
+                ),
+                const SizedBox(height: 12),
                 _buildLoginButton(
                   text: 'Google로 계속하기',
                   iconPath: 'assets/icons/svg/google_logo.svg',
