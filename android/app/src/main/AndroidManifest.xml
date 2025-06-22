@@ -37,6 +37,15 @@
         <meta-data
             android:name="com.google.android.gms.client_id"
             android:value="494451214414-csc7uhtvqiunv6su3qienqalj1abgm9l.apps.googleusercontent.com" />
+            <activity android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW"/>
+            <category android:name="android.intent.category.DEFAULT"/>
+            <category android:name="android.intent.category.BROWSABLE"/>
+            <data android:scheme="kakao92a46589034ed2af1f0a6d12578996cd"/>
+        </intent-filter>
+    </activity>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
