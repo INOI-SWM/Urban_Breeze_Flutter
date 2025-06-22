@@ -20,10 +20,16 @@ class RouteApiResponseModel {
 
     List<double>? bbox;
     if (json['bbox'] != null) {
-      bbox =
+      final List<double> rawBbox =
           (json['bbox'] as List<dynamic>)
               .map<double>((dynamic value) => (value as num).toDouble())
               .toList();
+
+      if (rawBbox.length == 6) {
+        bbox = <double>[rawBbox[0], rawBbox[1], rawBbox[3], rawBbox[4]];
+      } else if (rawBbox.length == 4) {
+        bbox = rawBbox;
+      }
     }
 
     return RouteApiResponseModel(
