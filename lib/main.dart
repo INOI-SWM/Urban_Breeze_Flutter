@@ -9,7 +9,7 @@ import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
-  KakaoSdk.init(nativeAppKey: '92a46589034ed2af1f0a6d12578996cd');
+  KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']!);
   runApp(const ProviderScope(child: MyApp()));
 }
 
