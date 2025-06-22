@@ -121,7 +121,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     });
   }
 
-  void _enterSaveMode() {
+  void _fitMapToAllRoutes() {
     final List<List<double>?> allBboxes =
         _routeSegments.map((RouteData segment) => segment.bbox).toList();
 
@@ -130,7 +130,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     if (mergedBbox != null) {
       final List<double> expandedBbox = BboxService.expandBbox(
         mergedBbox,
-        paddingRatio: 0.1,
+        paddingRatio: 0.3,
       );
 
       final LatLngBounds bounds = LatLngBounds(
@@ -142,6 +142,10 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
         CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(20)),
       );
     }
+  }
+
+  void _enterSaveMode() {
+    _fitMapToAllRoutes();
     setState(() {
       _isSaveMode = true;
     });
