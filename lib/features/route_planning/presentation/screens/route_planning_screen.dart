@@ -202,11 +202,8 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
                 options: MapOptions(
                   initialCenter: _currentPosition ?? initialCenter,
                   initialZoom: initialZoom,
-                  interactionOptions: InteractionOptions(
-                    flags:
-                        _isSaveMode
-                            ? InteractiveFlag.none
-                            : InteractiveFlag.all,
+                  interactionOptions: const InteractionOptions(
+                    flags: InteractiveFlag.all,
                   ),
                   onTap:
                       _isSaveMode
