@@ -7,6 +7,7 @@ import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/route_planning_facade.dart';
 import 'package:ridingmate/features/route_planning/di/route_providers.dart';
 import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
+import 'package:ridingmate/features/route_planning/domain/services/bbox_service.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
@@ -119,7 +120,31 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     });
   }
 
+  void _fitMapToAllRoutes() {
+    final List<List<double>?> allBboxes =
+        _routeSegments.map((RouteData segment) => segment.bbox).toList();
+
+    final List<double>? mergedBbox = BboxService.mergeBboxes(allBboxes);
+
+    if (mergedBbox != null) {
+      final List<double> expandedBbox = BboxService.expandBbox(
+        mergedBbox,
+        paddingRatio: 0.3,
+      );
+
+      final LatLngBounds bounds = LatLngBounds(
+        LatLng(expandedBbox[1], expandedBbox[0]),
+        LatLng(expandedBbox[3], expandedBbox[2]),
+      );
+
+      _mapController.fitCamera(
+        CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(20)),
+      );
+    }
+  }
+
   void _enterSaveMode() {
+    _fitMapToAllRoutes();
     setState(() {
       _isSaveMode = true;
     });
@@ -131,8 +156,8 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     });
   }
 
-  void _completeRouteSave(String title) {
-    _facade.saveRoute.execute(_routeSegments, title);
+  Future<void> _completeRouteSave(String title) async {
+    await _facade.saveRoute.execute(_routeSegments, title);
     _exitSaveMode();
   }
 
@@ -179,9 +204,10 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
                   interactionOptions: const InteractionOptions(
                     flags: InteractiveFlag.all,
                   ),
-                  onTap: (_, LatLng position) {
-                    _addPin(position);
-                  },
+                  onTap:
+                      _isSaveMode
+                          ? null
+                          : (_, LatLng position) => _addPin(position),
                 ),
                 children: <Widget>[
                   TileLayer(
