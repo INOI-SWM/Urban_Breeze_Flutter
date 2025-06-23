@@ -1,0 +1,61 @@
+import 'package:ridingmate/features/login/data/datasources/apple_auth_datasource.dart';
+import 'package:ridingmate/features/login/domain/entities/user.dart';
+import 'package:ridingmate/features/login/domain/repositories/apple_auth_repository.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+
+class AppleAuthRepositoryImpl implements AppleAuthRepository {
+  AppleAuthRepositoryImpl({required AppleAuthDataSource appleAuthDataSource})
+    : _appleAuthDataSource = appleAuthDataSource;
+
+  final AppleAuthDataSource _appleAuthDataSource;
+
+  @override
+  Future<User?> signIn() async {
+    final AuthorizationCredentialAppleID? account =
+        await _appleAuthDataSource.signIn();
+    if (account == null) return null;
+
+    String? displayName;
+    if (account.givenName != null || account.familyName != null) {
+      displayName =
+          '${account.givenName ?? ''} ${account.familyName ?? ''}'.trim();
+      if (displayName.isEmpty) displayName = null;
+    }
+
+    return User(
+      id: account.userIdentifier!,
+      email: account.email ?? '',
+      displayName: displayName,
+      photoUrl: null, // Apple은 프로필 사진을 제공하지 않음
+    );
+  }
+
+  @override
+  Future<void> signOut() async {
+    await _appleAuthDataSource.signOut();
+  }
+
+  @override
+  Future<User?> getCurrentUser() async {
+    final AuthorizationCredentialAppleID? account =
+        _appleAuthDataSource.currentUser;
+    if (account == null) return null;
+
+    String? displayName;
+    if (account.givenName != null || account.familyName != null) {
+      displayName =
+          '${account.givenName ?? ''} ${account.familyName ?? ''}'.trim();
+      if (displayName.isEmpty) displayName = null;
+    }
+
+    return User(
+      id: account.userIdentifier!,
+      email: account.email ?? '',
+      displayName: displayName,
+      photoUrl: null,
+    );
+  }
+
+  @override
+  bool get isSignedIn => _appleAuthDataSource.isSignedIn;
+}
