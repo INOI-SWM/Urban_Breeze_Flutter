@@ -208,9 +208,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
                   onTap:
                       _isSaveMode
                           ? null
-                          : (_, LatLng position) {
-                            _addPin(position);
-                          },
+                          : (_, LatLng position) => _addPin(position),
                 ),
                 children: <Widget>[
                   TileLayer(
