@@ -183,10 +183,9 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final String baseUrl =
-        dotenv.env['THUNDERFOREST_BASE_URL'] ?? 'fallback_url';
-    final String apiKey = dotenv.env['THUNDERFOREST_API_KEY'] ?? 'fallback_key';
-    final String fullUrlTemplate = '$baseUrl?apikey=$apiKey';
+    final String baseUrl = dotenv.env['GEOAPIFY_BASE_URL'] ?? 'fallback_url';
+    final String apiKey = dotenv.env['GEOAPIFY_API_KEY'] ?? 'fallback_key';
+    final String fullUrlTemplate = '$baseUrl?&apiKey=$apiKey';
 
     if (_isLocationLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -221,7 +220,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
                     showFlutterMapAttribution: false,
                     attributions: <SourceAttribution>[
                       TextSourceAttribution(
-                        'Maps: © Thunderforest | Data: © OpenStreetMap contributors',
+                        'Powered by Geoapify | © OpenStreetMap contributors',
                         textStyle: AppTextStyles.caption2.regular,
                       ),
                     ],
