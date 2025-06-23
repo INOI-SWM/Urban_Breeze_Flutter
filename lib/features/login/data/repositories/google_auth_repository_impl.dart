@@ -1,16 +1,16 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ridingmate/features/login/data/datasources/google_auth_datasource.dart';
 import 'package:ridingmate/features/login/domain/entities/user.dart';
-import 'package:ridingmate/features/login/domain/repositories/auth_repository.dart';
+import 'package:ridingmate/features/login/domain/repositories/google_auth_repository.dart';
 
-class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl({required GoogleAuthDataSource googleAuthDataSource})
+class GoogleAuthRepositoryImpl implements GoogleAuthRepository {
+  GoogleAuthRepositoryImpl({required GoogleAuthDataSource googleAuthDataSource})
     : _googleAuthDataSource = googleAuthDataSource;
 
   final GoogleAuthDataSource _googleAuthDataSource;
 
   @override
-  Future<User?> signInWithGoogle() async {
+  Future<User?> signIn() async {
     final GoogleSignInAccount? account = await _googleAuthDataSource.signIn();
     if (account == null) return null;
 
