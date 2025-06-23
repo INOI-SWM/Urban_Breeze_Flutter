@@ -32,7 +32,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   bool _isLocationLoading = true;
 
   final MapController _mapController = MapController();
-  final GlobalKey _mapScreenshotKey = GlobalKey();
 
   bool _isButtonPressed = false;
   final List<LatLng> _pins = <LatLng>[];
@@ -158,11 +157,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   }
 
   Future<void> _completeRouteSave(String title) async {
-    await _facade.saveRoute.execute(
-      _routeSegments,
-      title,
-      mapKey: _mapScreenshotKey,
-    );
+    await _facade.saveRoute.execute(_routeSegments, title);
     _exitSaveMode();
   }
 
@@ -202,84 +197,81 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
         Expanded(
           child: Stack(
             children: <Widget>[
-              RepaintBoundary(
-                key: _mapScreenshotKey,
-                child: FlutterMap(
-                  mapController: _mapController,
-                  options: MapOptions(
-                    initialCenter: _currentPosition ?? initialCenter,
-                    initialZoom: initialZoom,
-                    interactionOptions: InteractionOptions(
-                      flags:
-                          _isSaveMode
-                              ? InteractiveFlag.none
-                              : InteractiveFlag.all,
-                    ),
-                    onTap:
+              FlutterMap(
+                mapController: _mapController,
+                options: MapOptions(
+                  initialCenter: _currentPosition ?? initialCenter,
+                  initialZoom: initialZoom,
+                  interactionOptions: InteractionOptions(
+                    flags:
                         _isSaveMode
-                            ? null
-                            : (_, LatLng position) {
-                              _addPin(position);
-                            },
+                            ? InteractiveFlag.none
+                            : InteractiveFlag.all,
                   ),
-                  children: <Widget>[
-                    TileLayer(
-                      urlTemplate: fullUrlTemplate,
-                      userAgentPackageName: 'com.example.ridingmate',
-                      subdomains: const <String>['a', 'b', 'c'],
-                    ),
-                    RichAttributionWidget(
-                      alignment: AttributionAlignment.bottomLeft,
-                      showFlutterMapAttribution: false,
-                      attributions: <SourceAttribution>[
-                        TextSourceAttribution(
-                          'Maps: © Thunderforest | Data: © OpenStreetMap contributors',
-                          textStyle: AppTextStyles.caption2.regular,
+                  onTap:
+                      _isSaveMode
+                          ? null
+                          : (_, LatLng position) {
+                            _addPin(position);
+                          },
+                ),
+                children: <Widget>[
+                  TileLayer(
+                    urlTemplate: fullUrlTemplate,
+                    userAgentPackageName: 'com.example.ridingmate',
+                    subdomains: const <String>['a', 'b', 'c'],
+                  ),
+                  RichAttributionWidget(
+                    alignment: AttributionAlignment.bottomLeft,
+                    showFlutterMapAttribution: false,
+                    attributions: <SourceAttribution>[
+                      TextSourceAttribution(
+                        'Maps: © Thunderforest | Data: © OpenStreetMap contributors',
+                        textStyle: AppTextStyles.caption2.regular,
+                      ),
+                    ],
+                  ),
+                  if (_currentPosition != null)
+                    MarkerLayer(
+                      markers: <Marker>[
+                        Marker(
+                          point: _currentPosition!,
+                          width: 32,
+                          height: 32,
+                          child: Image.asset(
+                            'assets/icons/png/current_location_pin.png',
+                          ),
                         ),
                       ],
                     ),
-                    if (_currentPosition != null)
-                      MarkerLayer(
-                        markers: <Marker>[
-                          Marker(
-                            point: _currentPosition!,
-                            width: 32,
-                            height: 32,
-                            child: Image.asset(
-                              'assets/icons/png/current_location_pin.png',
-                            ),
-                          ),
-                        ],
-                      ),
-                    PolylineLayer<Object>(
-                      polylines:
-                          _routeSegments
-                              .map(
-                                (RouteData segment) => Polyline<Object>(
-                                  points: segment.points,
-                                  color: context.semanticColor.primaryNormal,
-                                  strokeWidth: 4.0,
-                                ),
-                              )
-                              .toList(),
-                    ),
-                    MarkerLayer(
-                      markers:
-                          _pins.asMap().entries.map((
-                            MapEntry<int, LatLng> entry,
-                          ) {
-                            final int index = entry.key;
-                            final LatLng position = entry.value;
-                            return Marker(
-                              point: position,
-                              width: 24,
-                              height: 24,
-                              child: RoutePinMarker(index: index),
-                            );
-                          }).toList(),
-                    ),
-                  ],
-                ),
+                  PolylineLayer<Object>(
+                    polylines:
+                        _routeSegments
+                            .map(
+                              (RouteData segment) => Polyline<Object>(
+                                points: segment.points,
+                                color: context.semanticColor.primaryNormal,
+                                strokeWidth: 4.0,
+                              ),
+                            )
+                            .toList(),
+                  ),
+                  MarkerLayer(
+                    markers:
+                        _pins.asMap().entries.map((
+                          MapEntry<int, LatLng> entry,
+                        ) {
+                          final int index = entry.key;
+                          final LatLng position = entry.value;
+                          return Marker(
+                            point: position,
+                            width: 24,
+                            height: 24,
+                            child: RoutePinMarker(index: index),
+                          );
+                        }).toList(),
+                  ),
+                ],
               ),
               if (_isRouteLoading)
                 const Positioned.fill(
