@@ -36,7 +36,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       if (mounted && user != null) {
         // TODO: 로그인 성공 후 처리 (예: 홈 화면으로 이동)
-        ref.read(userSessionProvider.notifier).setUserSession(user);
+        await ref.read(userSessionProvider.notifier).setUserSession(user);
         _showSuccessMessage(user);
         Navigator.pop(context);
       }
