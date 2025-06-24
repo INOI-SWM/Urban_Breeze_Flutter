@@ -2,8 +2,7 @@ import 'package:ridingmate/features/login/application/use_cases/sign_in_with_app
 import 'package:ridingmate/features/login/application/use_cases/sign_in_with_google_use_case.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_in_with_kakao_use_case.dart';
 import 'package:ridingmate/features/login/domain/entities/user.dart';
-
-enum LoginProvider { google, apple, kakao }
+import 'package:ridingmate/features/login/domain/enums/login_provider.dart';
 
 class AuthSignInFacade {
   const AuthSignInFacade({

@@ -2,6 +2,7 @@ import 'package:ridingmate/features/login/application/use_cases/sign_out_with_ap
 import 'package:ridingmate/features/login/application/use_cases/sign_out_with_google_use_case.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_out_with_kakao_use_case.dart';
 import 'package:ridingmate/features/login/domain/entities/user.dart';
+import 'package:ridingmate/features/login/domain/enums/login_provider.dart';
 
 class AuthSignOutFacade {
   const AuthSignOutFacade({
@@ -18,19 +19,15 @@ class AuthSignOutFacade {
 
   Future<void> execute(User user) async {
     switch (user.loginProvider) {
-      case 'google':
+      case LoginProvider.google:
         await _signOutWithGoogleUseCase.execute();
         break;
-      case 'apple':
+      case LoginProvider.apple:
         await _signOutWithAppleUseCase.execute();
         break;
-      case 'kakao':
+      case LoginProvider.kakao:
         await _signOutWithKakaoUseCase.execute();
         break;
-      default:
-        throw UnsupportedError(
-          'Unsupported login provider: ${user.loginProvider}',
-        );
     }
   }
 }

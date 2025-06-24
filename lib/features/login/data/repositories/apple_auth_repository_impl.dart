@@ -1,5 +1,6 @@
 import 'package:ridingmate/features/login/data/datasources/apple_auth_datasource.dart';
 import 'package:ridingmate/features/login/domain/entities/user.dart';
+import 'package:ridingmate/features/login/domain/enums/login_provider.dart';
 import 'package:ridingmate/features/login/domain/repositories/apple_auth_repository.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
@@ -27,7 +28,7 @@ class AppleAuthRepositoryImpl implements AppleAuthRepository {
       email: account.email ?? '',
       displayName: displayName,
       photoUrl: null, // Apple은 프로필 사진을 제공하지 않음
-      loginProvider: 'apple',
+      loginProvider: LoginProvider.apple,
     );
   }
 
@@ -54,7 +55,7 @@ class AppleAuthRepositoryImpl implements AppleAuthRepository {
       email: account.email ?? '',
       displayName: displayName,
       photoUrl: null,
-      loginProvider: 'apple',
+      loginProvider: LoginProvider.apple,
     );
   }
 

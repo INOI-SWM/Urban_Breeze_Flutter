@@ -1,3 +1,5 @@
+import 'package:ridingmate/features/login/domain/enums/login_provider.dart';
+
 class User {
   const User({
     required this.id,
@@ -11,5 +13,5 @@ class User {
   final String email;
   final String? displayName;
   final String? photoUrl;
-  final String loginProvider;
+  final LoginProvider loginProvider;
 }
