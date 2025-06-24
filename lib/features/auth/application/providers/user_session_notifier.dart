@@ -42,6 +42,7 @@ class UserSessionNotifier extends StateNotifier<User?> {
         'email': user.email,
         'displayName': user.displayName,
         'photoUrl': user.photoUrl,
+        'loginProvider': user.loginProvider,
       };
       await prefs.setString(_userSessionKey, jsonEncode(userMap));
       state = user;
