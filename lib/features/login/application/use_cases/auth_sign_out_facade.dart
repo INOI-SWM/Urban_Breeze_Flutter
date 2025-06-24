@@ -1,7 +1,6 @@
 import 'package:ridingmate/features/login/application/use_cases/sign_out_with_apple_use_case.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_out_with_google_use_case.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_out_with_kakao_use_case.dart';
-import 'package:ridingmate/features/login/domain/entities/user.dart';
 import 'package:ridingmate/features/login/domain/enums/login_provider.dart';
 
 class AuthSignOutFacade {
@@ -17,8 +16,8 @@ class AuthSignOutFacade {
   final SignOutWithAppleUseCase _signOutWithAppleUseCase;
   final SignOutWithKakaoUseCase _signOutWithKakaoUseCase;
 
-  Future<void> execute(User user) async {
-    switch (user.loginProvider) {
+  Future<void> execute(LoginProvider loginProvider) async {
+    switch (loginProvider) {
       case LoginProvider.google:
         await _signOutWithGoogleUseCase.execute();
         break;
