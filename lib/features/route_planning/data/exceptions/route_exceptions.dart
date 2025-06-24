@@ -13,6 +13,13 @@ class RouteNetworkException extends RouteException {
   String toString() => 'RouteNetworkException: $message';
 }
 
+class RouteServerException extends RouteException {
+  const RouteServerException(super.message);
+
+  @override
+  String toString() => 'RouteServerException: $message';
+}
+
 class RouteParsingException extends RouteException {
   const RouteParsingException(super.message);
 

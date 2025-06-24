@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
@@ -41,15 +42,17 @@ class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
         return RouteApiResponseModel.fromJson(data);
       }
 
-      throw RouteNetworkException(
-        'Failed to fetch route. Status code: ${response.statusCode}',
-      );
-    } on FormatException catch (e) {
-      throw RouteParsingException(
-        'Failed to parse route response: ${e.message}',
-      );
+      throw RouteServerException('서버 오류 (${response.statusCode})');
+    } on SocketException {
+      throw const RouteNetworkException('인터넷 연결을 확인해주세요');
+    } on FormatException {
+      throw const RouteParsingException('서버 응답 데이터 형식이 잘못되었습니다');
+    } on RouteServerException {
+      rethrow;
+    } on RouteParsingException {
+      rethrow;
     } catch (e) {
-      throw RouteNetworkException('Network error: ${e.toString()}');
+      throw RouteNetworkException('네트워크 오류: ${e.toString()}');
     }
   }
 
@@ -65,6 +68,7 @@ class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
         <double>[end.longitude, end.latitude],
       ],
       'elevation': true,
+      'avoid_ferries': true,
     };
 
     return _client.post(
