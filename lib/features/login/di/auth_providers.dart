@@ -1,7 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ridingmate/features/login/application/use_cases/auth_sign_out_facade.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_in_with_apple_use_case.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_in_with_google_use_case.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_in_with_kakao_use_case.dart';
+import 'package:ridingmate/features/login/application/use_cases/sign_out_with_apple_use_case.dart';
+import 'package:ridingmate/features/login/application/use_cases/sign_out_with_google_use_case.dart';
+import 'package:ridingmate/features/login/application/use_cases/sign_out_with_kakao_use_case.dart';
 import 'package:ridingmate/features/login/data/datasources/apple_auth_datasource.dart';
 import 'package:ridingmate/features/login/data/datasources/google_auth_datasource.dart';
 import 'package:ridingmate/features/login/data/datasources/kakao_auth_datasource.dart';
@@ -55,7 +59,7 @@ final Provider<KakaoAuthRepository> kakaoAuthRepositoryProvider =
       return KakaoAuthRepositoryImpl(kakaoAuthDataSource: kakaoAuthDataSource);
     });
 
-//  Use Case Providers
+//  Sign In Use Case Providers
 final Provider<SignInWithGoogleUseCase> signInWithGoogleUseCaseProvider =
     Provider<SignInWithGoogleUseCase>((Ref<SignInWithGoogleUseCase> ref) {
       final GoogleAuthRepository googleAuthRepository = ref.watch(
@@ -78,4 +82,48 @@ final Provider<SignInWithKakaoUseCase> signInWithKakaoUseCaseProvider =
         kakaoAuthRepositoryProvider,
       );
       return SignInWithKakaoUseCase(repository: kakaoAuthRepository);
+    });
+
+//  Sign Out Use Case Providers
+final Provider<SignOutWithGoogleUseCase> signOutWithGoogleUseCaseProvider =
+    Provider<SignOutWithGoogleUseCase>((Ref<SignOutWithGoogleUseCase> ref) {
+      final GoogleAuthRepository googleAuthRepository = ref.watch(
+        googleAuthRepositoryProvider,
+      );
+      return SignOutWithGoogleUseCase(repository: googleAuthRepository);
+    });
+
+final Provider<SignOutWithAppleUseCase> signOutWithAppleUseCaseProvider =
+    Provider<SignOutWithAppleUseCase>((Ref<SignOutWithAppleUseCase> ref) {
+      final AppleAuthRepository appleAuthRepository = ref.watch(
+        appleAuthRepositoryProvider,
+      );
+      return SignOutWithAppleUseCase(repository: appleAuthRepository);
+    });
+
+final Provider<SignOutWithKakaoUseCase> signOutWithKakaoUseCaseProvider =
+    Provider<SignOutWithKakaoUseCase>((Ref<SignOutWithKakaoUseCase> ref) {
+      final KakaoAuthRepository kakaoAuthRepository = ref.watch(
+        kakaoAuthRepositoryProvider,
+      );
+      return SignOutWithKakaoUseCase(repository: kakaoAuthRepository);
+    });
+
+final Provider<AuthSignOutFacade> authSignOutFacadeProvider =
+    Provider<AuthSignOutFacade>((Ref<AuthSignOutFacade> ref) {
+      final SignOutWithGoogleUseCase signOutWithGoogleUseCase = ref.watch(
+        signOutWithGoogleUseCaseProvider,
+      );
+      final SignOutWithAppleUseCase signOutWithAppleUseCase = ref.watch(
+        signOutWithAppleUseCaseProvider,
+      );
+      final SignOutWithKakaoUseCase signOutWithKakaoUseCase = ref.watch(
+        signOutWithKakaoUseCaseProvider,
+      );
+
+      return AuthSignOutFacade(
+        signOutWithGoogleUseCase: signOutWithGoogleUseCase,
+        signOutWithAppleUseCase: signOutWithAppleUseCase,
+        signOutWithKakaoUseCase: signOutWithKakaoUseCase,
+      );
     });
