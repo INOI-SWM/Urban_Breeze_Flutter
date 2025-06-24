@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ridingmate/features/login/application/use_cases/auth_sign_in_facade.dart';
 import 'package:ridingmate/features/login/application/use_cases/auth_sign_out_facade.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_in_with_apple_use_case.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_in_with_google_use_case.dart';
@@ -107,6 +108,25 @@ final Provider<SignOutWithKakaoUseCase> signOutWithKakaoUseCaseProvider =
         kakaoAuthRepositoryProvider,
       );
       return SignOutWithKakaoUseCase(repository: kakaoAuthRepository);
+    });
+
+final Provider<AuthSignInFacade> authSignInFacadeProvider =
+    Provider<AuthSignInFacade>((Ref<AuthSignInFacade> ref) {
+      final SignInWithGoogleUseCase signInWithGoogleUseCase = ref.watch(
+        signInWithGoogleUseCaseProvider,
+      );
+      final SignInWithAppleUseCase signInWithAppleUseCase = ref.watch(
+        signInWithAppleUseCaseProvider,
+      );
+      final SignInWithKakaoUseCase signInWithKakaoUseCase = ref.watch(
+        signInWithKakaoUseCaseProvider,
+      );
+
+      return AuthSignInFacade(
+        signInWithGoogleUseCase: signInWithGoogleUseCase,
+        signInWithAppleUseCase: signInWithAppleUseCase,
+        signInWithKakaoUseCase: signInWithKakaoUseCase,
+      );
     });
 
 final Provider<AuthSignOutFacade> authSignOutFacadeProvider =
