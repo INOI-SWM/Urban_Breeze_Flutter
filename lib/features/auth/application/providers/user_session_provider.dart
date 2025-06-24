@@ -25,6 +25,7 @@ class UserSessionNotifier extends StateNotifier<User?> {
           email: userMap['email'],
           displayName: userMap['displayName'],
           photoUrl: userMap['photoUrl'],
+          loginProvider: userMap['loginProvider'],
         );
         state = user;
       }
