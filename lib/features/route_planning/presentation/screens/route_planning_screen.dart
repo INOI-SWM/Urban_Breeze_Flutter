@@ -105,6 +105,8 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   }
 
   void _addPin(LatLng position) {
+    if (_isRouteLoading) return;
+
     if (_facade.managePins.shouldAddPin(_isButtonPressed, _pins)) {
       setState(() {
         _pins.add(position);

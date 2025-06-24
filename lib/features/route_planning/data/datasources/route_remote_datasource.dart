@@ -68,7 +68,6 @@ class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
         <double>[end.longitude, end.latitude],
       ],
       'elevation': true,
-      'avoid_ferries': true,
     };
 
     return _client.post(
