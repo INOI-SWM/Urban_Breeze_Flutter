@@ -1,15 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:ridingmate/features/route_planning/domain/services/location_service.dart';
 
-abstract class LocationDataSource {
-  Future<bool> checkAndRequestPermission();
-  Future<LatLng?> getCurrentLocation();
-}
-
-class GeolocatorLocationDataSource
-    implements LocationDataSource, LocationService {
-  @override
+class GeolocatorLocationDataSource {
   Future<bool> checkAndRequestPermission() async {
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
@@ -22,7 +14,6 @@ class GeolocatorLocationDataSource
         permission == LocationPermission.whileInUse;
   }
 
-  @override
   Future<LatLng?> getCurrentLocation() async {
     try {
       final bool hasPermission = await checkAndRequestPermission();

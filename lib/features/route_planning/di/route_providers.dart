@@ -8,6 +8,7 @@ import 'package:ridingmate/features/route_planning/application/use_cases/route_s
 import 'package:ridingmate/features/route_planning/application/use_cases/save_route_use_case.dart';
 import 'package:ridingmate/features/route_planning/data/datasources/location_datasource.dart';
 import 'package:ridingmate/features/route_planning/data/datasources/route_remote_datasource.dart';
+import 'package:ridingmate/features/route_planning/data/repositories/location_repository_impl.dart';
 import 'package:ridingmate/features/route_planning/data/repositories/route_repository_impl.dart';
 import 'package:ridingmate/features/route_planning/domain/repositories/route_repository.dart';
 import 'package:ridingmate/features/route_planning/domain/services/location_service.dart';
@@ -19,12 +20,14 @@ final Provider<http.Client> httpClientProvider = Provider<http.Client>((
   return http.Client();
 });
 
-final Provider<LocationService> locationServiceProvider =
-    Provider<LocationService>((Ref<LocationService> ref) {
+// Data Source Providers
+final Provider<GeolocatorLocationDataSource> locationDataSourceProvider =
+    Provider<GeolocatorLocationDataSource>((
+      Ref<GeolocatorLocationDataSource> ref,
+    ) {
       return GeolocatorLocationDataSource();
     });
 
-// Data Source Providers
 final Provider<RouteRemoteDataSource> routeRemoteDataSourceProvider =
     Provider<RouteRemoteDataSource>((Ref<RouteRemoteDataSource> ref) {
       final http.Client client = ref.watch(httpClientProvider);
@@ -32,6 +35,14 @@ final Provider<RouteRemoteDataSource> routeRemoteDataSourceProvider =
     });
 
 // Repository Providers
+final Provider<LocationService> locationServiceProvider =
+    Provider<LocationService>((Ref<LocationService> ref) {
+      final GeolocatorLocationDataSource dataSource = ref.watch(
+        locationDataSourceProvider,
+      );
+      return LocationRepositoryImpl(dataSource: dataSource);
+    });
+
 final Provider<RouteRepository> routeRepositoryProvider =
     Provider<RouteRepository>((Ref<RouteRepository> ref) {
       final RouteRemoteDataSource remoteDataSource = ref.watch(
