@@ -12,6 +12,7 @@ import 'package:ridingmate/features/route_planning/data/datasources/route_remote
 import 'package:ridingmate/features/route_planning/data/repositories/location_repository_impl.dart';
 import 'package:ridingmate/features/route_planning/data/repositories/route_repository_impl.dart';
 import 'package:ridingmate/features/route_planning/domain/repositories/route_repository.dart';
+import 'package:ridingmate/features/route_planning/domain/services/bbox_service.dart';
 import 'package:ridingmate/features/route_planning/domain/services/location_service.dart';
 
 // Infrastructure Providers
@@ -19,6 +20,13 @@ final Provider<http.Client> httpClientProvider = Provider<http.Client>((
   Ref<http.Client> ref,
 ) {
   return http.Client();
+});
+
+// Domain Service Providers
+final Provider<BboxService> bboxServiceProvider = Provider<BboxService>((
+  Ref<BboxService> ref,
+) {
+  return const BboxService();
 });
 
 // Data Source Providers
@@ -63,7 +71,8 @@ final Provider<CreateRouteUseCase> createRouteUseCaseProvider =
 
 final Provider<SaveRouteUseCase> saveRouteUseCaseProvider =
     Provider<SaveRouteUseCase>((Ref<SaveRouteUseCase> ref) {
-      return const SaveRouteUseCase();
+      final BboxService bboxService = ref.watch(bboxServiceProvider);
+      return SaveRouteUseCase(bboxService: bboxService);
     });
 
 final Provider<GetCurrentLocationUseCase> getCurrentLocationUseCaseProvider =
@@ -86,7 +95,8 @@ final Provider<RouteStatsUseCase> routeStatsUseCaseProvider =
 
 final Provider<FitMapToRoutesUseCase> fitMapToRoutesUseCaseProvider =
     Provider<FitMapToRoutesUseCase>((Ref<FitMapToRoutesUseCase> ref) {
-      return const FitMapToRoutesUseCase();
+      final BboxService bboxService = ref.watch(bboxServiceProvider);
+      return FitMapToRoutesUseCase(bboxService: bboxService);
     });
 
 // Facade Provider

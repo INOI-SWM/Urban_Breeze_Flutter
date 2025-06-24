@@ -4,7 +4,10 @@ import 'package:ridingmate/features/route_planning/domain/services/bbox_service.
 import 'package:ridingmate/features/route_planning/domain/services/polyline_convert_service.dart';
 
 class SaveRouteUseCase {
-  const SaveRouteUseCase();
+  const SaveRouteUseCase({required BboxService bboxService})
+    : _bboxService = bboxService;
+
+  final BboxService _bboxService;
 
   Future<void> execute(List<RouteData> routeSegments, String title) async {
     try {
@@ -15,11 +18,11 @@ class SaveRouteUseCase {
       final List<List<double>?> allBboxes =
           routeSegments.map((RouteData segment) => segment.bbox).toList();
 
-      final List<double>? mergedBbox = BboxService.mergeBboxes(allBboxes);
+      final List<double>? mergedBbox = _bboxService.mergeBboxes(allBboxes);
 
       List<double>? thumbnailBbox;
       if (mergedBbox != null) {
-        thumbnailBbox = BboxService.expandBbox(
+        thumbnailBbox = _bboxService.expandBbox(
           mergedBbox,
           paddingRatio: 0.2, // 20% 패딩 추가
         );
@@ -29,7 +32,7 @@ class SaveRouteUseCase {
       debugPrint('저장할 경로 제목: $title');
       debugPrint('인코딩된 Polyline: $encodedPolyline');
       if (thumbnailBbox != null) {
-        debugPrint('썸네일 바운딩 박스: ${BboxService.bboxToString(thumbnailBbox)}');
+        debugPrint('썸네일 바운딩 박스: ${_bboxService.bboxToString(thumbnailBbox)}');
         debugPrint(
           'Geoapify 형식: rect:${thumbnailBbox[0]},${thumbnailBbox[1]},${thumbnailBbox[2]},${thumbnailBbox[3]}',
         );

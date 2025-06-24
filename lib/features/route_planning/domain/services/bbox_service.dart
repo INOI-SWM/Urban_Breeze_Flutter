@@ -1,7 +1,9 @@
 import 'dart:math' as math;
 
 class BboxService {
-  static List<double>? mergeBboxes(List<List<double>?> bboxes) {
+  const BboxService();
+
+  List<double>? mergeBboxes(List<List<double>?> bboxes) {
     final List<List<double>> validBboxes =
         bboxes
             .where((List<double>? bbox) => isValidBbox(bbox))
@@ -31,10 +33,7 @@ class BboxService {
     return <double>[minLng, minLat, maxLng, maxLat];
   }
 
-  static List<double> expandBbox(
-    List<double> bbox, {
-    double paddingRatio = 0.1,
-  }) {
+  List<double> expandBbox(List<double> bbox, {double paddingRatio = 0.1}) {
     if (!isValidBbox(bbox)) {
       throw ArgumentError('Invalid bbox provided');
     }
@@ -53,7 +52,7 @@ class BboxService {
     ];
   }
 
-  static bool isValidBbox(List<double>? bbox) {
+  bool isValidBbox(List<double>? bbox) {
     if (bbox == null || bbox.length != 4) {
       return false;
     }
@@ -74,7 +73,7 @@ class BboxService {
     return true;
   }
 
-  static String bboxToString(List<double>? bbox) {
+  String bboxToString(List<double>? bbox) {
     if (!isValidBbox(bbox)) {
       return 'Invalid bbox';
     }
