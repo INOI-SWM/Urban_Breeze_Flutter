@@ -195,6 +195,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
 
   void _showErrorSnackBar(String message) {
     if (mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
       );
