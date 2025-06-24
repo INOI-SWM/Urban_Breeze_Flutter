@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:ridingmate/core/theme/app_theme.dart';
-import 'package:ridingmate/features/auth/application/providers/user_session_provider.dart';
+import 'package:ridingmate/features/auth/application/providers/user_session_notifier.dart';
 import 'package:ridingmate/navigation/navigation_scaffold.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 

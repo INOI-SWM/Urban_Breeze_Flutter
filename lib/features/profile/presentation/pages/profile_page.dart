@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ridingmate/features/auth/application/providers/user_session_provider.dart';
+import 'package:ridingmate/features/auth/application/providers/user_session_notifier.dart';
 import 'package:ridingmate/features/login/domain/entities/user.dart';
 import 'package:ridingmate/features/profile/presentation/screens/login_required_screen.dart';
 import 'package:ridingmate/features/profile/presentation/screens/profile_screen.dart';

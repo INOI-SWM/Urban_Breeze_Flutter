@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/auth/application/providers/user_session_provider.dart';
+import 'package:ridingmate/features/auth/application/providers/user_session_notifier.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_in_with_apple_use_case.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_in_with_google_use_case.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_in_with_kakao_use_case.dart';
