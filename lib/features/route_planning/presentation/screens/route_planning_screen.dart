@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/route_planning_facade.dart';
+import 'package:ridingmate/features/route_planning/data/exceptions/route_exceptions.dart';
 import 'package:ridingmate/features/route_planning/di/route_providers.dart';
 import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
 import 'package:ridingmate/features/route_planning/domain/services/bbox_service.dart';
@@ -80,6 +81,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
         _pins[_pins.length - 2],
         _pins[_pins.length - 1],
       );
+
       if (result != null) {
         setState(() {
           _routeSegments.add(result);
@@ -87,8 +89,12 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
           _pins[_pins.length - 1] = result.points.last;
         });
       } else {
-        // todo : 경로생성 실패 시  안내
+        _removeLastPin();
+        _showErrorSnackBar('경로 생성에 실패했습니다.');
       }
+    } on RouteNetworkException {
+      _removeLastPin();
+      _showErrorSnackBar('인터넷 연결을 확인해주세요.');
     } finally {
       if (mounted) {
         setState(() {
@@ -179,6 +185,14 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
       onBack: _exitSaveMode,
       onComplete: _completeRouteSave,
     );
+  }
+
+  void _showErrorSnackBar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
+      );
+    }
   }
 
   @override
