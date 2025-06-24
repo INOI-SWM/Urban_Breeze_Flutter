@@ -26,17 +26,11 @@ class RouteRepositoryImpl implements RouteRepository {
       );
 
       return RouteMapper.fromDto(dto);
-    } on RouteValidationException {
-      return null;
     } on RouteNetworkException {
       rethrow;
-    } on RouteServerException {
-      rethrow;
-    } on RouteParsingException {
-      rethrow;
     } catch (e) {
-      // todo : 예상치 못한 오류 처리
-      throw RouteNetworkException('예상치 못한 오류: ${e.toString()}');
+      // 서버/파싱 오류 등은 UseCase에서 null로 처리될 예정
+      return null;
     }
   }
 }
