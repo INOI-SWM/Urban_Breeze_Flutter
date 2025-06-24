@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:ridingmate/features/route_planning/application/use_cases/create_route_use_case.dart';
+import 'package:ridingmate/features/route_planning/application/use_cases/fit_map_to_routes_use_case.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/get_current_location_use_case.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/manage_route_pins_use_case.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/route_planning_facade.dart';
@@ -83,6 +84,11 @@ final Provider<RouteStatsUseCase> routeStatsUseCaseProvider =
       return const RouteStatsUseCase();
     });
 
+final Provider<FitMapToRoutesUseCase> fitMapToRoutesUseCaseProvider =
+    Provider<FitMapToRoutesUseCase>((Ref<FitMapToRoutesUseCase> ref) {
+      return const FitMapToRoutesUseCase();
+    });
+
 // Facade Provider
 final Provider<RoutePlanningFacade> routePlanningFacadeProvider =
     Provider<RoutePlanningFacade>((Ref<RoutePlanningFacade> ref) {
@@ -101,6 +107,9 @@ final Provider<RoutePlanningFacade> routePlanningFacadeProvider =
       final RouteStatsUseCase routeStatsUseCase = ref.watch(
         routeStatsUseCaseProvider,
       );
+      final FitMapToRoutesUseCase fitMapToRoutesUseCase = ref.watch(
+        fitMapToRoutesUseCaseProvider,
+      );
 
       return RoutePlanningFacade(
         createRouteUseCase: createRouteUseCase,
@@ -108,5 +117,6 @@ final Provider<RoutePlanningFacade> routePlanningFacadeProvider =
         getCurrentLocationUseCase: getCurrentLocationUseCase,
         manageRoutePinsUseCase: manageRoutePinsUseCase,
         routeStatsUseCase: routeStatsUseCase,
+        fitMapToRoutesUseCase: fitMapToRoutesUseCase,
       );
     });
