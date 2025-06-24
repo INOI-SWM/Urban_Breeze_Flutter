@@ -1,14 +1,15 @@
 import 'package:latlong2/latlong.dart';
-import 'package:ridingmate/features/route_planning/domain/services/location_service.dart';
+import 'package:ridingmate/features/route_planning/domain/repositories/location_repository.dart';
 
 class GetCurrentLocationUseCase {
-  const GetCurrentLocationUseCase({required LocationService locationService})
-    : _locationService = locationService;
+  const GetCurrentLocationUseCase({
+    required LocationRepository locationRepository,
+  }) : _locationRepository = locationRepository;
 
-  final LocationService _locationService;
+  final LocationRepository _locationRepository;
 
   Future<LatLng?> execute() async {
-    final LatLng? position = await _locationService.getCurrentLocation();
+    final LatLng? position = await _locationRepository.getCurrentLocation();
     return position;
   }
 }

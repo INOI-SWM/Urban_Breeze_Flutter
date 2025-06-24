@@ -1,8 +1,8 @@
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/features/route_planning/data/datasources/location_datasource.dart';
-import 'package:ridingmate/features/route_planning/domain/services/location_service.dart';
+import 'package:ridingmate/features/route_planning/domain/repositories/location_repository.dart';
 
-class LocationRepositoryImpl implements LocationService {
+class LocationRepositoryImpl implements LocationRepository {
   const LocationRepositoryImpl({
     required GeolocatorLocationDataSource dataSource,
   }) : _dataSource = dataSource;

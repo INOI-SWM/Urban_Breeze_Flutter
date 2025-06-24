@@ -11,9 +11,9 @@ import 'package:ridingmate/features/route_planning/data/datasources/location_dat
 import 'package:ridingmate/features/route_planning/data/datasources/route_remote_datasource.dart';
 import 'package:ridingmate/features/route_planning/data/repositories/location_repository_impl.dart';
 import 'package:ridingmate/features/route_planning/data/repositories/route_repository_impl.dart';
+import 'package:ridingmate/features/route_planning/domain/repositories/location_repository.dart';
 import 'package:ridingmate/features/route_planning/domain/repositories/route_repository.dart';
 import 'package:ridingmate/features/route_planning/domain/services/bbox_service.dart';
-import 'package:ridingmate/features/route_planning/domain/services/location_service.dart';
 
 // Infrastructure Providers
 final Provider<http.Client> httpClientProvider = Provider<http.Client>((
@@ -44,8 +44,8 @@ final Provider<RouteRemoteDataSource> routeRemoteDataSourceProvider =
     });
 
 // Repository Providers
-final Provider<LocationService> locationServiceProvider =
-    Provider<LocationService>((Ref<LocationService> ref) {
+final Provider<LocationRepository> locationRepositoryProvider =
+    Provider<LocationRepository>((Ref<LocationRepository> ref) {
       final GeolocatorLocationDataSource dataSource = ref.watch(
         locationDataSourceProvider,
       );
@@ -77,10 +77,10 @@ final Provider<SaveRouteUseCase> saveRouteUseCaseProvider =
 
 final Provider<GetCurrentLocationUseCase> getCurrentLocationUseCaseProvider =
     Provider<GetCurrentLocationUseCase>((Ref<GetCurrentLocationUseCase> ref) {
-      final LocationService locationService = ref.watch(
-        locationServiceProvider,
+      final LocationRepository locationRepository = ref.watch(
+        locationRepositoryProvider,
       );
-      return GetCurrentLocationUseCase(locationService: locationService);
+      return GetCurrentLocationUseCase(locationRepository: locationRepository);
     });
 
 final Provider<ManageRoutePinsUseCase> manageRoutePinsUseCaseProvider =
