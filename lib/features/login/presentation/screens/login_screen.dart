@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/auth/application/providers/user_session_provider.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_in_with_apple_use_case.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_in_with_google_use_case.dart';
 import 'package:ridingmate/features/login/application/use_cases/sign_in_with_kakao_use_case.dart';
@@ -35,6 +36,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       if (mounted && user != null) {
         // TODO: 로그인 성공 후 처리 (예: 홈 화면으로 이동)
+        ref.read(userSessionProvider.notifier).setUserSession(user);
         _showSuccessMessage(user);
         Navigator.pop(context);
       }

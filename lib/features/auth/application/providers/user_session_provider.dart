@@ -4,11 +4,11 @@ import 'package:ridingmate/features/login/domain/entities/user.dart';
 class UserSessionNotifier extends StateNotifier<User?> {
   UserSessionNotifier() : super(null);
 
-  void signIn(User user) {
+  void setUserSession(User user) {
     state = user;
   }
 
-  void signOut() {
+  void clearUserSession() {
     state = null;
   }
 
