@@ -3,21 +3,19 @@ import 'package:ridingmate/features/route_planning/application/use_cases/get_cur
 import 'package:ridingmate/features/route_planning/application/use_cases/manage_route_pins_use_case.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/route_stats_use_case.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/save_route_use_case.dart';
-import 'package:ridingmate/features/route_planning/domain/repositories/route_repository.dart';
 
 class RoutePlanningFacade {
-  RoutePlanningFacade({
-    required RouteRepository routeRepository,
-    int maxPinCount = 50,
-  }) : _createRouteUseCase = CreateRouteUseCase(
-         routeRepository: routeRepository,
-       ),
-       _saveRouteUseCase = SaveRouteUseCase(),
-       _getCurrentLocationUseCase = GetCurrentLocationUseCase(),
-       _manageRoutePinsUseCase = ManageRoutePinsUseCase(
-         maxPinCount: maxPinCount,
-       ),
-       _routeStatsUseCase = RouteStatsUseCase();
+  const RoutePlanningFacade({
+    required CreateRouteUseCase createRouteUseCase,
+    required SaveRouteUseCase saveRouteUseCase,
+    required GetCurrentLocationUseCase getCurrentLocationUseCase,
+    required ManageRoutePinsUseCase manageRoutePinsUseCase,
+    required RouteStatsUseCase routeStatsUseCase,
+  }) : _createRouteUseCase = createRouteUseCase,
+       _saveRouteUseCase = saveRouteUseCase,
+       _getCurrentLocationUseCase = getCurrentLocationUseCase,
+       _manageRoutePinsUseCase = manageRoutePinsUseCase,
+       _routeStatsUseCase = routeStatsUseCase;
 
   final CreateRouteUseCase _createRouteUseCase;
   final SaveRouteUseCase _saveRouteUseCase;

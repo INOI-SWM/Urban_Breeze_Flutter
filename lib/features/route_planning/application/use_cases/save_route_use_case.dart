@@ -4,6 +4,8 @@ import 'package:ridingmate/features/route_planning/domain/services/bbox_service.
 import 'package:ridingmate/features/route_planning/domain/services/polyline_convert_service.dart';
 
 class SaveRouteUseCase {
+  const SaveRouteUseCase();
+
   Future<void> execute(List<RouteData> routeSegments, String title) async {
     try {
       final String encodedPolyline = PolylineConvertService.encodeRouteSegments(
