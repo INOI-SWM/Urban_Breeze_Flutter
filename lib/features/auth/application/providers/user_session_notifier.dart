@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
+import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/features/auth/domain/repositories/user_session_repository.dart';
-import 'package:ridingmate/features/login/domain/entities/user.dart';
 
 class UserSessionNotifier extends StateNotifier<User?> {
   UserSessionNotifier({required UserSessionRepository repository})

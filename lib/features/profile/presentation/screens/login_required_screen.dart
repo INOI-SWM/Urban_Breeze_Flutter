@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/login/presentation/screens/login_screen.dart';
+import 'package:ridingmate/features/auth/presentation/screens/login_screen.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/button_solid.dart';
 
 class LoginRequiredScreen extends StatelessWidget {

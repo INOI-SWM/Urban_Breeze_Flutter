@@ -1,4 +1,4 @@
-import 'package:ridingmate/features/login/domain/repositories/kakao_auth_repository.dart';
+import 'package:ridingmate/features/auth/domain/repositories/kakao_auth_repository.dart';
 
 class SignOutWithKakaoUseCase {
   const SignOutWithKakaoUseCase({required KakaoAuthRepository repository})

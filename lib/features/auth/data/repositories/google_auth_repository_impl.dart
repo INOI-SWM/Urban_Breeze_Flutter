@@ -1,8 +1,8 @@
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:ridingmate/features/login/data/datasources/google_auth_datasource.dart';
-import 'package:ridingmate/features/login/domain/entities/user.dart';
-import 'package:ridingmate/features/login/domain/enums/login_provider.dart';
-import 'package:ridingmate/features/login/domain/repositories/google_auth_repository.dart';
+import 'package:ridingmate/features/auth/data/datasources/google_auth_datasource.dart';
+import 'package:ridingmate/features/auth/domain/entities/user.dart';
+import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
+import 'package:ridingmate/features/auth/domain/repositories/google_auth_repository.dart';
 
 class GoogleAuthRepositoryImpl implements GoogleAuthRepository {
   GoogleAuthRepositoryImpl({required GoogleAuthDataSource googleAuthDataSource})

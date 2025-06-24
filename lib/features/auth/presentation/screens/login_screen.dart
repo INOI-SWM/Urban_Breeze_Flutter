@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/auth/application/providers/user_session_notifier.dart';
-import 'package:ridingmate/features/login/application/use_cases/auth_sign_in_facade.dart';
-import 'package:ridingmate/features/login/di/auth_providers.dart';
-import 'package:ridingmate/features/login/domain/entities/user.dart';
-import 'package:ridingmate/features/login/domain/enums/login_provider.dart';
-import 'package:ridingmate/features/login/presentation/widgets/login_button.dart';
+import 'package:ridingmate/features/auth/application/use_cases/auth_sign_in_facade.dart';
+import 'package:ridingmate/features/auth/di/auth_providers.dart';
+import 'package:ridingmate/features/auth/domain/entities/user.dart';
+import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
+import 'package:ridingmate/features/auth/presentation/widgets/login_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
