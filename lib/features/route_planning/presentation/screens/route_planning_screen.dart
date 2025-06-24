@@ -89,11 +89,11 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
           _pins[_pins.length - 1] = result.points.last;
         });
       } else {
-        _removeLastPin();
+        _removeLastPin(shouldRemoveRouteSegment: false);
         _showErrorSnackBar('경로 생성에 실패했습니다.');
       }
     } on RouteNetworkException {
-      _removeLastPin();
+      _removeLastPin(shouldRemoveRouteSegment: false);
       _showErrorSnackBar('인터넷 연결을 확인해주세요.');
     } finally {
       if (mounted) {
@@ -117,13 +117,17 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     }
   }
 
-  void _removeLastPin() {
+  void _removeLastPin({bool shouldRemoveRouteSegment = true}) {
     setState(() {
       _pins.removeLast();
-      if (_pins.length >= 2) {
-        _routeSegments.removeLast();
-      } else {
-        _routeSegments.clear();
+
+      if (shouldRemoveRouteSegment) {
+        // 사용자가 직접 핀을 제거하는 경우
+        if (_pins.length >= 2) {
+          _routeSegments.removeLast();
+        } else {
+          _routeSegments.clear();
+        }
       }
     });
   }
