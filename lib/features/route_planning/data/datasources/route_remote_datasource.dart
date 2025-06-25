@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
-import 'package:ridingmate/features/route_planning/data/exceptions/route_exceptions.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_api_response_model.dart';
+import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 
 abstract class RouteRemoteDataSource {
   Future<RouteApiResponseModel> fetchRoute(
