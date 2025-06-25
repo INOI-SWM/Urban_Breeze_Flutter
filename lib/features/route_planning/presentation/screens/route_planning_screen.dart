@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/route_planning_facade.dart';
-import 'package:ridingmate/features/route_planning/data/exceptions/route_exceptions.dart';
 import 'package:ridingmate/features/route_planning/di/route_providers.dart';
 import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
+import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 import 'package:ridingmate/features/route_planning/domain/services/bbox_service.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
@@ -77,29 +77,33 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     });
 
     try {
-      final RouteData? result = await _facade.createRoute.execute(
+      final RouteData routeData = await _facade.createRoute.execute(
         _pins[_pins.length - 2],
         _pins[_pins.length - 1],
       );
 
-      if (result != null) {
-        setState(() {
-          _routeSegments.add(result);
-          _pins[_pins.length - 2] = result.points.first;
-          _pins[_pins.length - 1] = result.points.last;
-        });
-      } else {
-        _removeLastPin(shouldRemoveRouteSegment: false);
-        _showErrorSnackBar('경로 생성에 실패했습니다.');
-      }
-    } on RouteNetworkException {
-      _removeLastPin(shouldRemoveRouteSegment: false);
-      _showErrorSnackBar('인터넷 연결을 확인해주세요.');
-    } finally {
       if (mounted) {
+        setState(() {
+          _routeSegments.add(routeData);
+          _pins[_pins.length - 2] = routeData.points.first;
+          _pins[_pins.length - 1] = routeData.points.last;
+          _isRouteLoading = false;
+        });
+      }
+    } catch (exception) {
+      if (mounted) {
+        _removeLastPin(shouldRemoveRouteSegment: false);
         setState(() {
           _isRouteLoading = false;
         });
+
+        final String errorMessage = switch (exception) {
+          RouteNetworkException() => '인터넷 연결을 확인해주세요.',
+          RouteValidationException() => '유효하지 않은 경로입니다. 다른 위치를 시도해보세요.',
+          _ => '경로 생성에 실패했습니다. 다시 시도해주세요.',
+        };
+
+        _showErrorSnackBar(errorMessage);
       }
     }
   }
