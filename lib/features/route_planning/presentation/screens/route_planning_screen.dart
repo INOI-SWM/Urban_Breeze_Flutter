@@ -155,6 +155,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     _fitMapToAllRoutes();
     setState(() {
       _isSaveMode = true;
+      _isButtonPressed = false;
     });
   }
 
@@ -221,10 +222,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
                   interactionOptions: const InteractionOptions(
                     flags: InteractiveFlag.all,
                   ),
-                  onTap:
-                      _isSaveMode
-                          ? null
-                          : (_, LatLng position) => _addPin(position),
+                  onTap: (_, LatLng position) => _addPin(position),
                 ),
                 children: <Widget>[
                   TileLayer(
@@ -288,17 +286,18 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
                 const Positioned.fill(
                   child: Center(child: CircularProgressIndicator()),
                 ),
-              Positioned(
-                right: 16,
-                bottom: 16,
-                child: RouteCreationActionButtons(
-                  isPinButtonPressed: _isButtonPressed,
-                  onTogglePinButton: _toggleButtonState,
-                  onRemoveLastPin: _removeLastPin,
-                  onMoveToCurrentLocation: _moveToCurrentLocation,
-                  hasPins: _pins.isNotEmpty,
+              if (!_isSaveMode)
+                Positioned(
+                  right: 16,
+                  bottom: 16,
+                  child: RouteCreationActionButtons(
+                    isPinButtonPressed: _isButtonPressed,
+                    onTogglePinButton: _toggleButtonState,
+                    onRemoveLastPin: _removeLastPin,
+                    onMoveToCurrentLocation: _moveToCurrentLocation,
+                    hasPins: _pins.isNotEmpty,
+                  ),
                 ),
-              ),
             ],
           ),
         ),
