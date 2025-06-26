@@ -27,7 +27,7 @@ extension RouteModeExtension on RouteMode {
 }
 
 abstract class RouteRepository {
-  Future<RouteData?> getRoute(
+  Future<RouteData> getRoute(
     LatLng start,
     LatLng end, {
     RouteMode mode = RouteMode.cyclingRoad,
