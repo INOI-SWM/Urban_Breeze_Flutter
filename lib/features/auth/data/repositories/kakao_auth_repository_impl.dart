@@ -1,7 +1,8 @@
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart' as kakao;
-import 'package:ridingmate/features/login/data/datasources/kakao_auth_datasource.dart';
-import 'package:ridingmate/features/login/domain/entities/user.dart';
-import 'package:ridingmate/features/login/domain/repositories/kakao_auth_repository.dart';
+import 'package:ridingmate/features/auth/data/datasources/kakao_auth_datasource.dart';
+import 'package:ridingmate/features/auth/domain/entities/user.dart';
+import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
+import 'package:ridingmate/features/auth/domain/repositories/kakao_auth_repository.dart';
 
 class KakaoAuthRepositoryImpl implements KakaoAuthRepository {
   KakaoAuthRepositoryImpl({required KakaoAuthDataSource kakaoAuthDataSource})
@@ -39,7 +40,7 @@ class KakaoAuthRepositoryImpl implements KakaoAuthRepository {
       email: kakaoUser.kakaoAccount?.email ?? '',
       displayName: kakaoUser.kakaoAccount?.profile?.nickname,
       photoUrl: kakaoUser.kakaoAccount?.profile?.profileImageUrl,
-      loginProvider: 'kakao',
+      loginProvider: LoginProvider.kakao,
     );
   }
 }

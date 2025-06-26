@@ -1,6 +1,6 @@
-import 'package:ridingmate/features/login/domain/entities/user.dart';
+import 'package:ridingmate/features/auth/domain/entities/user.dart';
 
-abstract class KakaoAuthRepository {
+abstract class AppleAuthRepository {
   Future<User?> signIn();
   Future<void> signOut();
   Future<User?> getCurrentUser();
