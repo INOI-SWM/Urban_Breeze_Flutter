@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ridingmate/features/auth/application/providers/user_session_notifier.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
@@ -159,7 +158,7 @@ class ProfileScreen extends ConsumerWidget {
       );
       await authSignOutFacade.execute(user.loginProvider);
 
-      await ref.read(userSessionProvider.notifier).clearUserSession();
+      await ref.read(userSessionNotifierProvider.notifier).clearUserSession();
 
       if (!context.mounted) return;
 

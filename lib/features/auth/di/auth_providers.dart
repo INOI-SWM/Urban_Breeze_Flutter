@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ridingmate/features/auth/application/providers/user_session_notifier.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_in_facade.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_apple_use_case.dart';
@@ -14,6 +15,7 @@ import 'package:ridingmate/features/auth/data/repositories/apple_auth_repository
 import 'package:ridingmate/features/auth/data/repositories/google_auth_repository_impl.dart';
 import 'package:ridingmate/features/auth/data/repositories/kakao_auth_repository_impl.dart';
 import 'package:ridingmate/features/auth/data/repositories/user_session_repository_impl.dart';
+import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/features/auth/domain/repositories/apple_auth_repository.dart';
 import 'package:ridingmate/features/auth/domain/repositories/google_auth_repository.dart';
 import 'package:ridingmate/features/auth/domain/repositories/kakao_auth_repository.dart';
@@ -156,3 +158,14 @@ final Provider<AuthSignOutFacade> authSignOutFacadeProvider =
         signOutWithKakaoUseCase: signOutWithKakaoUseCase,
       );
     });
+
+// User Session Notifier Providers
+final StateNotifierProvider<UserSessionNotifier, User?>
+userSessionNotifierProvider = StateNotifierProvider<UserSessionNotifier, User?>(
+  (Ref ref) =>
+      UserSessionNotifier(repository: ref.read(userSessionRepositoryProvider)),
+);
+
+final Provider<bool> isLoggedInProvider = Provider<bool>(
+  (Ref<bool> ref) => ref.watch(userSessionNotifierProvider) != null,
+);
