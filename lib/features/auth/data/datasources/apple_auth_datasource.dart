@@ -38,8 +38,7 @@ class AppleAuthDataSourceImpl implements AppleAuthDataSource {
   @override
   Future<void> signOut() async {
     try {
-      // Apple Sign In은 직접적인 sign out이 없으므로
-      // 로컬 상태만 클리어
+      // Apple Sign In은 직접적인 sign out 없음
       _currentUser = null;
     } catch (error) {
       return;

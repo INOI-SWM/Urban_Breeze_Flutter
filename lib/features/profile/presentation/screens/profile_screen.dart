@@ -158,8 +158,6 @@ class ProfileScreen extends ConsumerWidget {
       );
       await authSignOutFacade.execute(user.loginProvider);
 
-      await ref.read(userSessionNotifierProvider.notifier).clearUserSession();
-
       if (!context.mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(

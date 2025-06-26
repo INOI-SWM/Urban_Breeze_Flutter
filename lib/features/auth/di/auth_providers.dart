@@ -151,11 +151,15 @@ final Provider<AuthSignOutFacade> authSignOutFacadeProvider =
       final SignOutWithKakaoUseCase signOutWithKakaoUseCase = ref.watch(
         signOutWithKakaoUseCaseProvider,
       );
+      final UserSessionNotifier userSessionNotifier = ref.watch(
+        userSessionNotifierProvider.notifier,
+      );
 
       return AuthSignOutFacade(
         signOutWithGoogleUseCase: signOutWithGoogleUseCase,
         signOutWithAppleUseCase: signOutWithAppleUseCase,
         signOutWithKakaoUseCase: signOutWithKakaoUseCase,
+        userSessionNotifier: userSessionNotifier,
       );
     });
 
