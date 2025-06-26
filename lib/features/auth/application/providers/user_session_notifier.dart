@@ -1,64 +1,30 @@
-import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ridingmate/features/login/domain/entities/user.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ridingmate/features/auth/di/auth_providers.dart';
+import 'package:ridingmate/features/auth/domain/entities/user.dart';
+import 'package:ridingmate/features/auth/domain/repositories/user_session_repository.dart';
 
 class UserSessionNotifier extends StateNotifier<User?> {
-  UserSessionNotifier() : super(null) {
-    _loadUserSession();
+  UserSessionNotifier({required UserSessionRepository repository})
+    : _repository = repository,
+      super(null) {
+    loadUserSession();
   }
 
-  static const String _userSessionKey = 'user_session';
-
-  Future<void> _loadUserSession() async {
-    try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String? userJson = prefs.getString(_userSessionKey);
-
-      if (userJson != null) {
-        final Map<String, dynamic> userMap =
-            jsonDecode(userJson) as Map<String, dynamic>;
-        final User user = User(
-          id: userMap['id'],
-          email: userMap['email'],
-          displayName: userMap['displayName'],
-          photoUrl: userMap['photoUrl'],
-          loginProvider: userMap['loginProvider'],
-        );
-        state = user;
-      }
-    } catch (e) {
-      state = null;
-    }
-  }
+  final UserSessionRepository _repository;
 
   Future<void> setUserSession(User user) async {
-    try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      final Map<String, String?> userMap = <String, String?>{
-        'id': user.id,
-        'email': user.email,
-        'displayName': user.displayName,
-        'photoUrl': user.photoUrl,
-        'loginProvider': user.loginProvider,
-      };
-      await prefs.setString(_userSessionKey, jsonEncode(userMap));
-      state = user;
-    } catch (e) {
-      state = user;
-    }
+    state = user;
+    await _repository.saveUser(user);
   }
 
   Future<void> clearUserSession() async {
-    try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_userSessionKey);
-    } catch (e) {
-      debugPrint('Failed to clear user session: $e');
-    }
     state = null;
+    await _repository.clearUser();
+  }
+
+  Future<void> loadUserSession() async {
+    final User? user = await _repository.loadUser();
+    state = user;
   }
 
   bool get isLoggedIn => state != null;
@@ -66,9 +32,11 @@ class UserSessionNotifier extends StateNotifier<User?> {
 
 final StateNotifierProvider<UserSessionNotifier, User?> userSessionProvider =
     StateNotifierProvider<UserSessionNotifier, User?>(
-      (Ref ref) => UserSessionNotifier(),
+      (Ref ref) => UserSessionNotifier(
+        repository: ref.read(userSessionRepositoryProvider),
+      ),
     );
 
 final Provider<bool> isLoggedInProvider = Provider<bool>(
-  (Ref ref) => ref.watch(userSessionProvider) != null,
+  (Ref<bool> ref) => ref.watch(userSessionProvider) != null,
 );

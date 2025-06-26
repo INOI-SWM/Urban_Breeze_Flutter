@@ -4,15 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/auth/application/providers/user_session_notifier.dart';
-import 'package:ridingmate/features/login/application/use_cases/sign_in_with_apple_use_case.dart';
-import 'package:ridingmate/features/login/application/use_cases/sign_in_with_google_use_case.dart';
-import 'package:ridingmate/features/login/application/use_cases/sign_in_with_kakao_use_case.dart';
-import 'package:ridingmate/features/login/di/auth_providers.dart';
-import 'package:ridingmate/features/login/domain/entities/user.dart';
-import 'package:ridingmate/features/login/presentation/widgets/login_button.dart';
+import 'package:ridingmate/features/auth/application/use_cases/auth_sign_in_facade.dart';
+import 'package:ridingmate/features/auth/di/auth_providers.dart';
+import 'package:ridingmate/features/auth/domain/entities/user.dart';
+import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
+import 'package:ridingmate/features/auth/presentation/widgets/login_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
-
-enum LoginProvider { google, apple, kakao }
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -32,10 +29,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
 
     try {
-      final User? user = await _executeSignIn(provider);
+      final AuthSignInFacade authSignInFacade = ref.read(
+        authSignInFacadeProvider,
+      );
+      final User? user = await authSignInFacade.signIn(provider);
 
       if (mounted && user != null) {
-        // TODO: 로그인 성공 후 처리 (예: 홈 화면으로 이동)
         await ref.read(userSessionProvider.notifier).setUserSession(user);
         if (!mounted) return;
         _showSuccessMessage(user);
@@ -51,26 +50,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _loadingProvider = null;
         });
       }
-    }
-  }
-
-  Future<User?> _executeSignIn(LoginProvider provider) async {
-    switch (provider) {
-      case LoginProvider.google:
-        final SignInWithGoogleUseCase useCase = ref.read(
-          signInWithGoogleUseCaseProvider,
-        );
-        return await useCase.execute();
-      case LoginProvider.apple:
-        final SignInWithAppleUseCase useCase = ref.read(
-          signInWithAppleUseCaseProvider,
-        );
-        return await useCase.execute();
-      case LoginProvider.kakao:
-        final SignInWithKakaoUseCase useCase = ref.read(
-          signInWithKakaoUseCaseProvider,
-        );
-        return await useCase.execute();
     }
   }
 
