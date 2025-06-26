@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
-import 'package:ridingmate/features/route_planning/data/exceptions/route_exceptions.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_api_response_model.dart';
+import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 
 abstract class RouteRemoteDataSource {
   Future<RouteApiResponseModel> fetchRoute(
@@ -41,15 +42,17 @@ class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
         return RouteApiResponseModel.fromJson(data);
       }
 
-      throw RouteNetworkException(
-        'Failed to fetch route. Status code: ${response.statusCode}',
-      );
-    } on FormatException catch (e) {
-      throw RouteParsingException(
-        'Failed to parse route response: ${e.message}',
-      );
+      throw RouteServerException('서버 오류 (${response.statusCode})');
+    } on SocketException {
+      throw const RouteNetworkException('인터넷 연결을 확인해주세요');
+    } on FormatException {
+      throw const RouteParsingException('서버 응답 데이터 형식이 잘못되었습니다');
+    } on RouteServerException {
+      rethrow;
+    } on RouteParsingException {
+      rethrow;
     } catch (e) {
-      throw RouteNetworkException('Network error: ${e.toString()}');
+      throw RouteNetworkException('네트워크 오류: ${e.toString()}');
     }
   }
 
