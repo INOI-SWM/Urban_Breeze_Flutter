@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/route_planning/application/use_cases/create_route_use_case.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/route_planning_facade.dart';
 import 'package:ridingmate/features/route_planning/di/route_providers.dart';
 import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
@@ -75,30 +76,33 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
       _isRouteLoading = true;
     });
 
-    try {
-      final RouteData? result = await _facade.createRoute.execute(
-        _pins[_pins.length - 2],
-        _pins[_pins.length - 1],
-      );
-      if (result != null) {
-        setState(() {
-          _routeSegments.add(result);
-          _pins[_pins.length - 2] = result.points.first;
-          _pins[_pins.length - 1] = result.points.last;
-        });
-      } else {
-        // todo : 경로생성 실패 시  안내
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isRouteLoading = false;
-        });
+    final RouteResult<RouteData> result = await _facade.createRoute.execute(
+      _pins[_pins.length - 2],
+      _pins[_pins.length - 1],
+    );
+
+    if (mounted) {
+      setState(() {
+        _isRouteLoading = false;
+      });
+
+      switch (result) {
+        case final RouteSuccess<RouteData> success:
+          setState(() {
+            _routeSegments.add(success.data);
+            _pins[_pins.length - 2] = success.data.points.first;
+            _pins[_pins.length - 1] = success.data.points.last;
+          });
+        case final RouteFailure<RouteData> failure:
+          _removeLastPin(shouldRemoveRouteSegment: false);
+          _showErrorSnackBar(failure.message);
       }
     }
   }
 
   void _addPin(LatLng position) {
+    if (_isRouteLoading) return;
+
     if (_facade.managePins.shouldAddPin(_isButtonPressed, _pins)) {
       setState(() {
         _pins.add(position);
@@ -109,13 +113,17 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     }
   }
 
-  void _removeLastPin() {
+  void _removeLastPin({bool shouldRemoveRouteSegment = true}) {
     setState(() {
       _pins.removeLast();
-      if (_pins.length >= 2) {
-        _routeSegments.removeLast();
-      } else {
-        _routeSegments.clear();
+
+      if (shouldRemoveRouteSegment) {
+        // 사용자가 직접 핀을 제거하는 경우
+        if (_pins.length >= 2) {
+          _routeSegments.removeLast();
+        } else {
+          _routeSegments.clear();
+        }
       }
     });
   }
@@ -180,6 +188,15 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
       onBack: _exitSaveMode,
       onComplete: _completeRouteSave,
     );
+  }
+
+  void _showErrorSnackBar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
+      );
+    }
   }
 
   @override
