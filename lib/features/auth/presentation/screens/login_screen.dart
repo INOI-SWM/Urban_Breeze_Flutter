@@ -32,7 +32,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         authSignInFacadeProvider,
       );
       final User? user = await authSignInFacade.signIn(provider);
-
+      //TODO : 로그인 null 반환하는거 처리 후 logout처럼 facade에서 상태관리하게 처리
       if (mounted && user != null) {
         await ref
             .read(userSessionNotifierProvider.notifier)
