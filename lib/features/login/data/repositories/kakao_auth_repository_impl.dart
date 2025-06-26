@@ -39,6 +39,7 @@ class KakaoAuthRepositoryImpl implements KakaoAuthRepository {
       email: kakaoUser.kakaoAccount?.email ?? '',
       displayName: kakaoUser.kakaoAccount?.profile?.nickname,
       photoUrl: kakaoUser.kakaoAccount?.profile?.profileImageUrl,
+      loginProvider: 'kakao',
     );
   }
 }

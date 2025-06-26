@@ -27,6 +27,7 @@ class AppleAuthRepositoryImpl implements AppleAuthRepository {
       email: account.email ?? '',
       displayName: displayName,
       photoUrl: null, // Apple은 프로필 사진을 제공하지 않음
+      loginProvider: 'apple',
     );
   }
 
@@ -53,6 +54,7 @@ class AppleAuthRepositoryImpl implements AppleAuthRepository {
       email: account.email ?? '',
       displayName: displayName,
       photoUrl: null,
+      loginProvider: 'apple',
     );
   }
 

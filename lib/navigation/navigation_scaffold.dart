@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/features/history/presentation/screens/history_screen.dart';
 import 'package:ridingmate/features/home/presentation/screens/home_screen.dart';
-import 'package:ridingmate/features/profile/presentation/screens/my_screen.dart';
+import 'package:ridingmate/features/profile/presentation/pages/profile_page.dart';
 import 'package:ridingmate/features/riding/presentation/screens/riding_screen.dart';
 import 'package:ridingmate/features/route_planning/presentation/screens/route_planning_screen.dart';
 import 'package:ridingmate/navigation/bottom_navigation.dart';
@@ -22,7 +22,7 @@ class _NavigationScaffoldState extends State<NavigationScaffold> {
     const RoutePlanningScreen(),
     const RidingScreen(),
     const HistoryScreen(),
-    const MyScreen(),
+    const ProfilePage(),
   ];
 
   PreferredSizeWidget? _getAppBar() {

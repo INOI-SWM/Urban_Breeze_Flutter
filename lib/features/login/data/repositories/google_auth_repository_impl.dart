@@ -19,6 +19,7 @@ class GoogleAuthRepositoryImpl implements GoogleAuthRepository {
       email: account.email,
       displayName: account.displayName,
       photoUrl: account.photoUrl,
+      loginProvider: 'google',
     );
   }
 
@@ -37,6 +38,7 @@ class GoogleAuthRepositoryImpl implements GoogleAuthRepository {
       email: account.email,
       displayName: account.displayName,
       photoUrl: account.photoUrl,
+      loginProvider: 'google',
     );
   }
 
