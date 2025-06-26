@@ -1,12 +1,12 @@
 import 'package:latlong2/latlong.dart';
 
 class ManageRoutePinsUseCase {
-  ManageRoutePinsUseCase({int maxPinCount = 50}) : _maxPinCount = maxPinCount;
+  const ManageRoutePinsUseCase({this.maxPinCount = 50});
 
-  final int _maxPinCount;
+  final int maxPinCount;
 
   bool shouldAddPin(bool isButtonPressed, List<LatLng> pins) {
-    return isButtonPressed && pins.length < _maxPinCount;
+    return isButtonPressed && pins.length < maxPinCount;
   }
 
   bool shouldGetRoute(List<LatLng> pins) {
