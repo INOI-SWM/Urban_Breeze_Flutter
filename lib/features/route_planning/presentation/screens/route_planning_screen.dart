@@ -8,6 +8,7 @@ import 'package:ridingmate/features/route_planning/application/use_cases/create_
 import 'package:ridingmate/features/route_planning/application/use_cases/route_planning_facade.dart';
 import 'package:ridingmate/features/route_planning/di/route_providers.dart';
 import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
+import 'package:ridingmate/features/route_planning/presentation/screens/route_create_complete_screen.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
@@ -157,6 +158,20 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   Future<void> _completeRouteSave(String title) async {
     await _facade.saveRoute.execute(_routeSegments, title);
     _exitSaveMode();
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder:
+              (BuildContext context) => RouteCreateCompleteScreen(
+                routeTitle: title,
+                totalDistance: formattedTotalDistance,
+                totalDuration: formattedTotalDuration,
+                elevationGain: formattedElevationGain,
+              ),
+        ),
+      );
+    }
   }
 
   String get formattedTotalDistance =>
