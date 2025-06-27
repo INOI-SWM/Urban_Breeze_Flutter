@@ -3,6 +3,7 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 abstract class KakaoAuthDataSource {
   Future<User?> signIn();
   Future<void> signOut();
+  Future<void> unlink();
   Future<User?> getCurrentUser();
   bool get isSignedIn;
 }
@@ -40,6 +41,18 @@ class KakaoAuthDataSourceImpl implements KakaoAuthDataSource {
       _currentUser = null;
     } catch (error) {
       return;
+    }
+  }
+
+  @override
+  Future<void> unlink() async {
+    try {
+      await UserApi.instance.unlink();
+      _currentUser = null;
+    } catch (error) {
+      // 연결끊기 실패 시에도 로컬 상태는 초기화
+      _currentUser = null;
+      rethrow;
     }
   }
 
