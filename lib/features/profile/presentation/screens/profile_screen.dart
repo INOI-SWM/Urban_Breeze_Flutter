@@ -131,19 +131,26 @@ class ProfileScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('로그아웃'),
-          content: const Text('정말 로그아웃하시겠습니까?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('취소'),
-            ),
-            TextButton(
-              onPressed: () => _handleLogout(context, ref),
-              child: const Text('로그아웃', style: TextStyle(color: Colors.red)),
-            ),
-          ],
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text('로그아웃'),
+              content: const Text('정말 로그아웃하시겠습니까?'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('취소'),
+                ),
+                TextButton(
+                  onPressed: () => _handleLogout(context, ref),
+                  child: const Text(
+                    '로그아웃',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -151,8 +158,7 @@ class ProfileScreen extends ConsumerWidget {
 
   Future<void> _handleLogout(BuildContext context, WidgetRef ref) async {
     try {
-      Navigator.of(context).pop();
-
+      // 로그아웃 처리 (다이얼로그는 아직 열어둠)
       final AuthSignOutFacade authSignOutFacade = ref.read(
         authSignOutFacadeProvider,
       );
@@ -164,8 +170,10 @@ class ProfileScreen extends ConsumerWidget {
         const SnackBar(
           content: Text('로그아웃되었습니다.'),
           backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
         ),
       );
+      Navigator.of(context).pop();
     } catch (e) {
       if (!context.mounted) return;
 
@@ -173,8 +181,11 @@ class ProfileScreen extends ConsumerWidget {
         SnackBar(
           content: Text('로그아웃 실패: ${e.toString()}'),
           backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
         ),
       );
+
+      Navigator.of(context).pop();
     }
   }
 
