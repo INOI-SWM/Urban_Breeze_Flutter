@@ -1,8 +1,8 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
-class LocationService {
-  static Future<bool> checkAndRequestPermission() async {
+class GeolocatorLocationDataSource {
+  Future<bool> checkAndRequestPermission() async {
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -14,7 +14,7 @@ class LocationService {
         permission == LocationPermission.whileInUse;
   }
 
-  static Future<LatLng?> getCurrentLocation() async {
+  Future<LatLng?> getCurrentLocation() async {
     try {
       final bool hasPermission = await checkAndRequestPermission();
       if (!hasPermission) return null;
