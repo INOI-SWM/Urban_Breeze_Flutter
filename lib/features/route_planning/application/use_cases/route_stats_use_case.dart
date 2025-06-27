@@ -1,6 +1,8 @@
 import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
 
 class RouteStatsUseCase {
+  const RouteStatsUseCase();
+
   double getTotalDistance(List<RouteData> routeSegments) {
     return routeSegments.fold(
       0,
