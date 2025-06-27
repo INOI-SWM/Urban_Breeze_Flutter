@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
+import 'package:ridingmate/features/auth/application/use_cases/auth_withdrawal_facade.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/button_solid.dart';
@@ -243,7 +244,10 @@ class ProfileScreen extends ConsumerWidget {
 
   Future<void> _handleWithdrawal(BuildContext context, WidgetRef ref) async {
     try {
-      // TODO: 탈퇴 처리 구현 (다이얼로그는 아직 열어둠)
+      final AuthWithdrawalFacade authWithdrawalFacade = ref.read(
+        authWithdrawalFacadeProvider,
+      );
+      await authWithdrawalFacade.execute(user.loginProvider);
 
       if (!context.mounted) return;
 

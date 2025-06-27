@@ -2,12 +2,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/features/auth/application/providers/user_session_notifier.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_in_facade.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
+import 'package:ridingmate/features/auth/application/use_cases/auth_withdrawal_facade.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_apple_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_google_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_kakao_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_out_with_apple_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_out_with_google_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_out_with_kakao_use_case.dart';
+import 'package:ridingmate/features/auth/application/use_cases/withdraw_with_apple_use_case.dart';
+import 'package:ridingmate/features/auth/application/use_cases/withdraw_with_google_use_case.dart';
+import 'package:ridingmate/features/auth/application/use_cases/withdraw_with_kakao_use_case.dart';
 import 'package:ridingmate/features/auth/data/datasources/apple_auth_datasource.dart';
 import 'package:ridingmate/features/auth/data/datasources/google_auth_datasource.dart';
 import 'package:ridingmate/features/auth/data/datasources/kakao_auth_datasource.dart';
@@ -120,6 +124,31 @@ final Provider<SignOutWithKakaoUseCase> signOutWithKakaoUseCaseProvider =
       return SignOutWithKakaoUseCase(repository: kakaoAuthRepository);
     });
 
+// Withdraw Use Case Providers
+final Provider<WithdrawWithGoogleUseCase> withdrawWithGoogleUseCaseProvider =
+    Provider<WithdrawWithGoogleUseCase>((Ref<WithdrawWithGoogleUseCase> ref) {
+      final GoogleAuthRepository googleAuthRepository = ref.watch(
+        googleAuthRepositoryProvider,
+      );
+      return WithdrawWithGoogleUseCase(repository: googleAuthRepository);
+    });
+
+final Provider<WithdrawWithAppleUseCase> withdrawWithAppleUseCaseProvider =
+    Provider<WithdrawWithAppleUseCase>((Ref<WithdrawWithAppleUseCase> ref) {
+      final AppleAuthRepository appleAuthRepository = ref.watch(
+        appleAuthRepositoryProvider,
+      );
+      return WithdrawWithAppleUseCase(repository: appleAuthRepository);
+    });
+
+final Provider<WithdrawWithKakaoUseCase> withdrawWithKakaoUseCaseProvider =
+    Provider<WithdrawWithKakaoUseCase>((Ref<WithdrawWithKakaoUseCase> ref) {
+      final KakaoAuthRepository kakaoAuthRepository = ref.watch(
+        kakaoAuthRepositoryProvider,
+      );
+      return WithdrawWithKakaoUseCase(repository: kakaoAuthRepository);
+    });
+
 // Facade Providers
 final Provider<AuthSignInFacade> authSignInFacadeProvider =
     Provider<AuthSignInFacade>((Ref<AuthSignInFacade> ref) {
@@ -159,6 +188,29 @@ final Provider<AuthSignOutFacade> authSignOutFacadeProvider =
         signOutWithGoogleUseCase: signOutWithGoogleUseCase,
         signOutWithAppleUseCase: signOutWithAppleUseCase,
         signOutWithKakaoUseCase: signOutWithKakaoUseCase,
+        userSessionNotifier: userSessionNotifier,
+      );
+    });
+
+final Provider<AuthWithdrawalFacade> authWithdrawalFacadeProvider =
+    Provider<AuthWithdrawalFacade>((Ref<AuthWithdrawalFacade> ref) {
+      final WithdrawWithGoogleUseCase withdrawWithGoogleUseCase = ref.watch(
+        withdrawWithGoogleUseCaseProvider,
+      );
+      final WithdrawWithAppleUseCase withdrawWithAppleUseCase = ref.watch(
+        withdrawWithAppleUseCaseProvider,
+      );
+      final WithdrawWithKakaoUseCase withdrawWithKakaoUseCase = ref.watch(
+        withdrawWithKakaoUseCaseProvider,
+      );
+      final UserSessionNotifier userSessionNotifier = ref.watch(
+        userSessionNotifierProvider.notifier,
+      );
+
+      return AuthWithdrawalFacade(
+        withdrawWithGoogleUseCase: withdrawWithGoogleUseCase,
+        withdrawWithAppleUseCase: withdrawWithAppleUseCase,
+        withdrawWithKakaoUseCase: withdrawWithKakaoUseCase,
         userSessionNotifier: userSessionNotifier,
       );
     });
