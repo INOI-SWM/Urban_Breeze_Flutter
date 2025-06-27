@@ -7,6 +7,6 @@ class WithdrawWithGoogleUseCase {
   final GoogleAuthRepository _repository;
 
   Future<void> execute() async {
-    await _repository.disconnect();
+    await _repository.withdraw();
   }
 }

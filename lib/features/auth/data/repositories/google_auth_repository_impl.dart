@@ -30,7 +30,7 @@ class GoogleAuthRepositoryImpl implements GoogleAuthRepository {
   }
 
   @override
-  Future<void> disconnect() async {
+  Future<void> withdraw() async {
     await _googleAuthDataSource.disconnect();
   }
 

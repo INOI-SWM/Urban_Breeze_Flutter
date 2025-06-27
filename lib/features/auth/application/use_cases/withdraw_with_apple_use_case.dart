@@ -7,6 +7,6 @@ class WithdrawWithAppleUseCase {
   final AppleAuthRepository _repository;
 
   Future<void> execute() async {
-    await _repository.revokeTokens();
+    await _repository.withdraw();
   }
 }

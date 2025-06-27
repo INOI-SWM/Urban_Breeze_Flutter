@@ -38,7 +38,7 @@ class AppleAuthRepositoryImpl implements AppleAuthRepository {
   }
 
   @override
-  Future<void> revokeTokens() async {
+  Future<void> withdraw() async {
     await _appleAuthDataSource.revokeTokens();
   }
 

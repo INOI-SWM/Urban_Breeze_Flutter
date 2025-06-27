@@ -7,6 +7,6 @@ class WithdrawWithKakaoUseCase {
   final KakaoAuthRepository _repository;
 
   Future<void> execute() async {
-    await _repository.unlink();
+    await _repository.withdraw();
   }
 }

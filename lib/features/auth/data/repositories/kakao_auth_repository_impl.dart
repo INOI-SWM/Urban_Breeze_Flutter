@@ -24,7 +24,7 @@ class KakaoAuthRepositoryImpl implements KakaoAuthRepository {
   }
 
   @override
-  Future<void> unlink() async {
+  Future<void> withdraw() async {
     await _kakaoAuthDataSource.unlink();
   }
 
