@@ -38,6 +38,11 @@ class AppleAuthRepositoryImpl implements AppleAuthRepository {
   }
 
   @override
+  Future<void> withdraw() async {
+    await _appleAuthDataSource.revokeTokens();
+  }
+
+  @override
   Future<User?> getCurrentUser() async {
     final AuthorizationCredentialAppleID? account =
         _appleAuthDataSource.currentUser;

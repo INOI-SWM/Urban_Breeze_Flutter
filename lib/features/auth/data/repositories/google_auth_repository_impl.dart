@@ -30,6 +30,11 @@ class GoogleAuthRepositoryImpl implements GoogleAuthRepository {
   }
 
   @override
+  Future<void> withdraw() async {
+    await _googleAuthDataSource.disconnect();
+  }
+
+  @override
   Future<User?> getCurrentUser() async {
     final GoogleSignInAccount? account = _googleAuthDataSource.currentUser;
     if (account == null) return null;

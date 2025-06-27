@@ -3,6 +3,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 abstract class AppleAuthDataSource {
   Future<AuthorizationCredentialAppleID?> signIn();
   Future<void> signOut();
+  Future<void> revokeTokens();
   AuthorizationCredentialAppleID? get currentUser;
   bool get isSignedIn;
 }
@@ -42,6 +43,20 @@ class AppleAuthDataSourceImpl implements AppleAuthDataSource {
       _currentUser = null;
     } catch (error) {
       return;
+    }
+  }
+
+  @override
+  Future<void> revokeTokens() async {
+    try {
+      // TODO: Apple은 탈퇴 로직 서버 측 구현필요 (현재는 로컬 상태만 초기화)
+      _currentUser = null;
+
+      // Apple의 경우 서버 측에서 토큰을 철회하려면 별도의 백엔드 API가 필요함
+      // https://developer.apple.com/documentation/sign_in_with_apple/revoke_tokens
+    } catch (error) {
+      _currentUser = null;
+      rethrow;
     }
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
+import 'package:ridingmate/features/auth/application/use_cases/auth_withdrawal_facade.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/button_solid.dart';
@@ -105,6 +106,18 @@ class ProfileScreen extends ConsumerWidget {
               onPressed: () => _showLogoutDialog(context, ref),
             ),
           ),
+
+          const SizedBox(height: 12),
+
+          SizedBox(
+            width: double.infinity,
+            child: ButtonSolid(
+              text: '탈퇴하기',
+              backgroundColor: Colors.grey[300]!,
+              textColor: Colors.black87,
+              onPressed: () => _showWithdrawalDialog(context, ref),
+            ),
+          ),
         ],
       ),
     );
@@ -156,6 +169,46 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
+  void _showWithdrawalDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text('탈퇴하기'),
+              content: const Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text('정말 탈퇴하시겠습니까?'),
+                  SizedBox(height: 8),
+                  Text(
+                    '• 계정과 모든 데이터가 삭제됩니다\n• 삭제된 데이터는 복구할 수 없습니다',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('취소'),
+                ),
+                TextButton(
+                  onPressed: () => _handleWithdrawal(context, ref),
+                  child: const Text(
+                    '탈퇴하기',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   Future<void> _handleLogout(BuildContext context, WidgetRef ref) async {
     try {
       // 로그아웃 처리 (다이얼로그는 아직 열어둠)
@@ -180,6 +233,38 @@ class ProfileScreen extends ConsumerWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('로그아웃 실패: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+
+      Navigator.of(context).pop();
+    }
+  }
+
+  Future<void> _handleWithdrawal(BuildContext context, WidgetRef ref) async {
+    try {
+      final AuthWithdrawalFacade authWithdrawalFacade = ref.read(
+        authWithdrawalFacadeProvider,
+      );
+      await authWithdrawalFacade.execute(user.loginProvider);
+
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('탈퇴가 완료되었습니다.'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      Navigator.of(context).pop();
+    } catch (e) {
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('탈퇴 실패: ${e.toString()}'),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),
