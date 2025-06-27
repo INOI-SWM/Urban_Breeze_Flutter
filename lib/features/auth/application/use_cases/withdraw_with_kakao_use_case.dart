@@ -7,7 +7,6 @@ class WithdrawWithKakaoUseCase {
   final KakaoAuthRepository _repository;
 
   Future<void> execute() async {
-    // TODO: 카카오 연결끊기(탈퇴) 구현
-    // await _repository.withdraw();
+    await _repository.unlink();
   }
 }

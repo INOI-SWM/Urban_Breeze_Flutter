@@ -7,7 +7,6 @@ class WithdrawWithGoogleUseCase {
   final GoogleAuthRepository _repository;
 
   Future<void> execute() async {
-    // TODO: 구글 계정 연결 해제(탈퇴) 구현
-    // await _repository.disconnect();
+    await _repository.disconnect();
   }
 }
