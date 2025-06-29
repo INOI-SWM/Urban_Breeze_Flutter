@@ -158,17 +158,23 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   Future<void> _completeRouteSave(String title) async {
     await _facade.saveRoute.execute(_routeSegments, title);
     _exitSaveMode();
+    //TODO : 로딩 창 띄운 뒤 api 요청 후 완료 시 화면 전환
     if (mounted) {
       Navigator.push(
         context,
-        MaterialPageRoute<void>(
-          builder:
-              (BuildContext context) => RouteCreateCompleteScreen(
+        PageRouteBuilder<void>(
+          pageBuilder:
+              (
+                BuildContext context,
+                Animation<double> animation,
+                Animation<double> secondaryAnimation,
+              ) => RouteCreateCompleteScreen(
                 routeTitle: title,
                 totalDistance: formattedTotalDistance,
                 totalDuration: formattedTotalDuration,
                 elevationGain: formattedElevationGain,
               ),
+          transitionDuration: Duration.zero,
         ),
       );
     }
