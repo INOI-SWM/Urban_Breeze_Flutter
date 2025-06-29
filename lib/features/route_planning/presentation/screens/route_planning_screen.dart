@@ -8,6 +8,7 @@ import 'package:ridingmate/features/route_planning/application/use_cases/create_
 import 'package:ridingmate/features/route_planning/application/use_cases/route_planning_facade.dart';
 import 'package:ridingmate/features/route_planning/di/route_providers.dart';
 import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
+import 'package:ridingmate/features/route_planning/presentation/screens/route_create_complete_screen.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
@@ -128,10 +129,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   }
 
   void _fitMapToAllRoutes() {
-    final LatLngBounds? bounds = _facade.fitMapToRoutes.execute(
-      _routeSegments,
-      paddingRatio: 0.3,
-    );
+    final LatLngBounds? bounds = _facade.fitMapToRoutes.execute(_routeSegments);
 
     if (bounds != null) {
       _mapController.fitCamera(
@@ -157,6 +155,26 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   Future<void> _completeRouteSave(String title) async {
     await _facade.saveRoute.execute(_routeSegments, title);
     _exitSaveMode();
+    //TODO : 로딩 창 띄운 뒤 api 요청 후 완료 시 화면 전환
+    if (mounted) {
+      Navigator.push(
+        context,
+        PageRouteBuilder<void>(
+          pageBuilder:
+              (
+                BuildContext context,
+                Animation<double> animation,
+                Animation<double> secondaryAnimation,
+              ) => RouteCreateCompleteScreen(
+                routeTitle: title,
+                totalDistance: formattedTotalDistance,
+                totalDuration: formattedTotalDuration,
+                elevationGain: formattedElevationGain,
+              ),
+          transitionDuration: Duration.zero,
+        ),
+      );
+    }
   }
 
   String get formattedTotalDistance =>
