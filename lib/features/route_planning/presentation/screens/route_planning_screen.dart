@@ -129,10 +129,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   }
 
   void _fitMapToAllRoutes() {
-    final LatLngBounds? bounds = _facade.fitMapToRoutes.execute(
-      _routeSegments,
-      paddingRatio: 0.3,
-    );
+    final LatLngBounds? bounds = _facade.fitMapToRoutes.execute(_routeSegments);
 
     if (bounds != null) {
       _mapController.fitCamera(
