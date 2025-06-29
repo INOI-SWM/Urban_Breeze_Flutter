@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_stats_row.dart';
+import 'package:ridingmate/navigation/navigation_scaffold.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/button_size.dart';
@@ -20,8 +21,26 @@ class RouteCreateCompleteScreen extends StatelessWidget {
   final String totalDuration;
   final String elevationGain;
 
-  void _goToHome(BuildContext context) {
-    Navigator.of(context).popUntil((Route<dynamic> route) => route.isFirst);
+  void _popToRoot(BuildContext context) {
+    Navigator.of(context).pushAndRemoveUntil(
+      PageRouteBuilder<void>(
+        pageBuilder:
+            (
+              BuildContext context,
+              Animation<double> animation,
+              Animation<double> secondaryAnimation,
+            ) => const NavigationScaffold(initialIndex: 1),
+        transitionsBuilder: (
+          BuildContext context,
+          Animation<double> animation,
+          Animation<double> secondaryAnimation,
+          Widget child,
+        ) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
+      (Route<dynamic> route) => false,
+    );
   }
 
   @override
@@ -100,11 +119,11 @@ class RouteCreateCompleteScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ButtonSolid(
-                  text: '홈으로 가기',
+                  text: '확인',
                   size: ButtonSize.large,
                   backgroundColor: colors.primaryNormal,
                   textColor: colors.staticWhite,
-                  onPressed: () => _goToHome(context),
+                  onPressed: () => _popToRoot(context),
                 ),
               ),
             ],

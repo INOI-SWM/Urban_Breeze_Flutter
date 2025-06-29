@@ -8,14 +8,22 @@ import 'package:ridingmate/navigation/bottom_navigation.dart';
 import 'package:ridingmate/navigation/page_with_app_bar.dart';
 
 class NavigationScaffold extends StatefulWidget {
-  const NavigationScaffold({super.key});
+  const NavigationScaffold({super.key, this.initialIndex = 0});
+
+  final int initialIndex;
 
   @override
   State<NavigationScaffold> createState() => _NavigationScaffoldState();
 }
 
 class _NavigationScaffoldState extends State<NavigationScaffold> {
-  int _currentIndex = 0;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
 
   static final List<Widget> _pages = <Widget>[
     const HomeScreen(),
