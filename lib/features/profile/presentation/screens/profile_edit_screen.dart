@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_item.dart';
+import 'package:ridingmate/features/profile/presentation/widgets/profile_image_edit_button.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 
@@ -33,7 +34,12 @@ class ProfileEditScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              const SizedBox(height: 36),
+              ProfileImageEditButton(
+                imageUrl: user.photoUrl!,
+                onPressed: () {
+                  // TODO: 프로필 사진 저장소, 또는 카메라로 수정 기능 추가
+                },
+              ),
 
               ProfileEditItem(
                 title: '닉네임',
