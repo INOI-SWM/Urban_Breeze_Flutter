@@ -11,7 +11,7 @@ class FitMapToRoutesUseCase {
 
   LatLngBounds? execute(
     List<RouteData> routeSegments, {
-    double paddingRatio = 0.3,
+    double paddingRatio = 0.5,
   }) {
     final List<List<double>?> allBboxes =
         routeSegments.map((RouteData segment) => segment.bbox).toList();
