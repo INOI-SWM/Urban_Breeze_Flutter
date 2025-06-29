@@ -1,3 +1,4 @@
+import 'package:ridingmate/features/auth/application/providers/user_session_notifier.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_out_with_apple_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_out_with_google_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_out_with_kakao_use_case.dart';
@@ -8,13 +9,16 @@ class AuthSignOutFacade {
     required SignOutWithGoogleUseCase signOutWithGoogleUseCase,
     required SignOutWithAppleUseCase signOutWithAppleUseCase,
     required SignOutWithKakaoUseCase signOutWithKakaoUseCase,
+    required UserSessionNotifier userSessionNotifier,
   }) : _signOutWithGoogleUseCase = signOutWithGoogleUseCase,
        _signOutWithAppleUseCase = signOutWithAppleUseCase,
-       _signOutWithKakaoUseCase = signOutWithKakaoUseCase;
+       _signOutWithKakaoUseCase = signOutWithKakaoUseCase,
+       _userSessionNotifier = userSessionNotifier;
 
   final SignOutWithGoogleUseCase _signOutWithGoogleUseCase;
   final SignOutWithAppleUseCase _signOutWithAppleUseCase;
   final SignOutWithKakaoUseCase _signOutWithKakaoUseCase;
+  final UserSessionNotifier _userSessionNotifier;
 
   Future<void> execute(LoginProvider loginProvider) async {
     switch (loginProvider) {
@@ -28,5 +32,6 @@ class AuthSignOutFacade {
         await _signOutWithKakaoUseCase.execute();
         break;
     }
+    await _userSessionNotifier.clearUserSession();
   }
 }

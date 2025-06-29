@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/features/auth/domain/repositories/user_session_repository.dart';
 
@@ -29,14 +28,3 @@ class UserSessionNotifier extends StateNotifier<User?> {
 
   bool get isLoggedIn => state != null;
 }
-
-final StateNotifierProvider<UserSessionNotifier, User?> userSessionProvider =
-    StateNotifierProvider<UserSessionNotifier, User?>(
-      (Ref ref) => UserSessionNotifier(
-        repository: ref.read(userSessionRepositoryProvider),
-      ),
-    );
-
-final Provider<bool> isLoggedInProvider = Provider<bool>(
-  (Ref<bool> ref) => ref.watch(userSessionProvider) != null,
-);

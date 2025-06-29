@@ -24,6 +24,11 @@ class KakaoAuthRepositoryImpl implements KakaoAuthRepository {
   }
 
   @override
+  Future<void> withdraw() async {
+    await _kakaoAuthDataSource.unlink();
+  }
+
+  @override
   Future<User?> getCurrentUser() async {
     final kakao.User? kakaoUser = await _kakaoAuthDataSource.getCurrentUser();
     if (kakaoUser == null) return null;
