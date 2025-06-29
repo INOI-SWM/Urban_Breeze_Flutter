@@ -19,6 +19,7 @@ class ProfileBirthYearEditScreen extends StatefulWidget {
 class _ProfileBirthYearEditScreenState extends State<ProfileBirthYearEditScreen>
     with ProfileEditButtonMixin<ProfileBirthYearEditScreen> {
   String? _selectedValue;
+  late final List<String> _yearOptions;
 
   @override
   String get currentValue => widget.currentValue;
@@ -39,7 +40,21 @@ class _ProfileBirthYearEditScreenState extends State<ProfileBirthYearEditScreen>
     super.initState();
     _selectedValue =
         widget.currentValue.isNotEmpty ? widget.currentValue : null;
+
+    _yearOptions = _generateYearOptions();
+
     checkButtonState();
+  }
+
+  List<String> _generateYearOptions() {
+    final int currentYear = DateTime.now().year;
+    final List<String> yearOptions = <String>[];
+
+    for (int year = currentYear; year >= 1950; year--) {
+      yearOptions.add(year.toString());
+    }
+
+    return yearOptions;
   }
 
   void _onSelectionChanged(String year) {
@@ -52,12 +67,6 @@ class _ProfileBirthYearEditScreenState extends State<ProfileBirthYearEditScreen>
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-    final int currentYear = DateTime.now().year;
-    final List<String> yearOptions = <String>[];
-
-    for (int year = currentYear; year >= 1950; year--) {
-      yearOptions.add(year.toString());
-    }
 
     return Scaffold(
       backgroundColor: colors.backgroundNormalNormal,
@@ -77,9 +86,9 @@ class _ProfileBirthYearEditScreenState extends State<ProfileBirthYearEditScreen>
               border: Border.all(color: colors.lineNormalAlternative),
             ),
             child: ListView.builder(
-              itemCount: yearOptions.length,
+              itemCount: _yearOptions.length,
               itemBuilder: (BuildContext context, int index) {
-                final String year = yearOptions[index];
+                final String year = _yearOptions[index];
                 final bool isSelected = _selectedValue == year;
 
                 return GestureDetector(
