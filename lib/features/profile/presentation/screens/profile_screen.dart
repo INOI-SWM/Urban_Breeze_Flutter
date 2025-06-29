@@ -4,6 +4,7 @@ import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_fac
 import 'package:ridingmate/features/auth/application/use_cases/auth_withdrawal_facade.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
+import 'package:ridingmate/features/profile/presentation/screens/profile_edit_screen.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/button_solid.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -22,43 +23,64 @@ class ProfileScreen extends ConsumerWidget {
             elevation: 2,
             child: Padding(
               padding: const EdgeInsets.all(20.0),
-              child: Row(
+              child: Column(
                 children: <Widget>[
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundImage:
-                        user.photoUrl != null
-                            ? NetworkImage(user.photoUrl!)
-                            : null,
-                    child:
-                        user.photoUrl == null
-                            ? Text(
-                              _getInitials(user),
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                            : null,
-                  ),
-                  const SizedBox(width: 20),
+                  Row(
+                    children: <Widget>[
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundImage:
+                            user.photoUrl != null
+                                ? NetworkImage(user.photoUrl!)
+                                : null,
+                        child:
+                            user.photoUrl == null
+                                ? Text(
+                                  _getInitials(user),
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                                : null,
+                      ),
+                      const SizedBox(width: 20),
 
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          user.displayName ?? '이름 없음',
-                          style: Theme.of(context).textTheme.headlineSmall
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              user.displayName ?? '이름 없음',
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              user.email,
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: Colors.grey[600]),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          user.email,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // 프로필 수정 버튼
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton(
+                      onPressed: () => _onProfileEditPressed(context),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                      ],
+                      ),
+                      child: const Text('프로필 수정'),
                     ),
                   ),
                 ],
@@ -272,6 +294,14 @@ class ProfileScreen extends ConsumerWidget {
 
       Navigator.of(context).pop();
     }
+  }
+
+  void _onProfileEditPressed(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => ProfileEditScreen(user: user),
+      ),
+    );
   }
 
   String _getInitials(User user) {
