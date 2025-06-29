@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_app_bar.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
-import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/text_field/custom_text_field.dart';
 
 class ProfileNicknameEditScreen extends StatefulWidget {
@@ -56,39 +56,10 @@ class _ProfileNicknameEditScreenState extends State<ProfileNicknameEditScreen> {
 
     return Scaffold(
       backgroundColor: colors.backgroundNormalNormal,
-      appBar: CustomAppBar(
+      appBar: ProfileEditAppBar(
         title: '닉네임',
-        leading: GestureDetector(
-          child: const SizedBox(
-            width: 24,
-            height: 24,
-            child: Icon(Icons.arrow_back_ios_new, size: 24),
-          ),
-          onTap: () => Navigator.of(context).pop(),
-        ),
-        actions: <Widget>[
-          GestureDetector(
-            onTap: _isButtonEnabled ? _saveValue : null,
-            behavior: HitTestBehavior.opaque,
-            child: SizedBox(
-              height: 56,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: Center(
-                  child: Text(
-                    '완료',
-                    style: AppTextStyles.label1.normalBold.copyWith(
-                      color:
-                          _isButtonEnabled
-                              ? colors.primaryNormal
-                              : colors.labelDisable,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+        isButtonEnabled: _isButtonEnabled,
+        onSave: _saveValue,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
