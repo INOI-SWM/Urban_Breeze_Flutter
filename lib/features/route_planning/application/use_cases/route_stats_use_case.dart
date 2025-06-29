@@ -29,10 +29,16 @@ class RouteStatsUseCase {
   }
 
   String getFormattedTotalDuration(List<RouteData> routeSegments) {
+    //TODO : api 연결 시 분 단위 계산으로 변경
     final double totalDuration = getTotalDuration(routeSegments);
-    final int minutes = (totalDuration / 60).floor();
-    final int seconds = (totalDuration % 60).round();
-    return '$minutes분 $seconds초';
+    final int hours = (totalDuration / 3600).floor();
+    final int minutes = ((totalDuration % 3600) / 60).floor();
+
+    if (hours > 0) {
+      return '$hours시간 $minutes분';
+    } else {
+      return '$minutes분';
+    }
   }
 
   String getFormattedElevationGain(List<RouteData> routeSegments) {
