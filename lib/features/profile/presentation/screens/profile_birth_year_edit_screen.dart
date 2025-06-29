@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_app_bar.dart';
+import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_layout.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 
@@ -54,89 +55,66 @@ class _ProfileBirthYearEditScreenState
         isButtonEnabled: _isButtonEnabled,
         onSave: _saveValue,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              '출생년도',
-              style: AppTextStyles.headline1.bold.copyWith(
-                color: colors.labelStrong,
-              ),
+      body: ProfileEditLayout(
+        title: '출생년도',
+        description: '출생연도를 선택해주세요.',
+        child: Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              color: colors.backgroundElevatedNormal,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: colors.lineNormalAlternative),
             ),
+            child: ListView.builder(
+              itemCount: yearOptions.length,
+              itemBuilder: (BuildContext context, int index) {
+                final String year = yearOptions[index];
+                final bool isSelected = _selectedValue == year;
 
-            const SizedBox(height: 8),
-
-            Text(
-              '출생연도를 선택해주세요.',
-              style: AppTextStyles.body2.normalRegular.copyWith(
-                color: colors.labelNormal,
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: colors.backgroundElevatedNormal,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: colors.lineNormalAlternative),
-                ),
-                child: ListView.builder(
-                  itemCount: yearOptions.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final String year = yearOptions[index];
-                    final bool isSelected = _selectedValue == year;
-
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedValue = year;
-                        });
-                        _checkButtonState();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              isSelected
-                                  ? colors.primaryNormal.withValues(alpha: 0.1)
-                                  : null,
-                        ),
-                        child: Row(
-                          children: <Widget>[
-                            Expanded(
-                              child: Text(
-                                '$year년',
-                                style: AppTextStyles.body1.normalMedium
-                                    .copyWith(
-                                      color:
-                                          isSelected
-                                              ? colors.primaryNormal
-                                              : colors.labelStrong,
-                                    ),
-                              ),
-                            ),
-                            if (isSelected)
-                              Icon(
-                                Icons.check_circle,
-                                color: colors.primaryNormal,
-                                size: 20,
-                              ),
-                          ],
-                        ),
-                      ),
-                    );
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedValue = year;
+                    });
+                    _checkButtonState();
                   },
-                ),
-              ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color:
+                          isSelected
+                              ? colors.primaryNormal.withValues(alpha: 0.1)
+                              : null,
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            '$year년',
+                            style: AppTextStyles.body1.normalMedium.copyWith(
+                              color:
+                                  isSelected
+                                      ? colors.primaryNormal
+                                      : colors.labelStrong,
+                            ),
+                          ),
+                        ),
+                        if (isSelected)
+                          Icon(
+                            Icons.check_circle,
+                            color: colors.primaryNormal,
+                            size: 20,
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
-          ],
+          ),
         ),
       ),
     );

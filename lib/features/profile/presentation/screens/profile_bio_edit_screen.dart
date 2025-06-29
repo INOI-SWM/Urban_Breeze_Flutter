@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_app_bar.dart';
+import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_layout.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 
@@ -59,58 +60,36 @@ class _ProfileBioEditScreenState extends State<ProfileBioEditScreen> {
         isButtonEnabled: _isButtonEnabled,
         onSave: _saveValue,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              '한 줄 소개',
-              style: AppTextStyles.headline1.bold.copyWith(
-                color: colors.labelStrong,
+      body: ProfileEditLayout(
+        title: '한 줄 소개',
+        description: '나를 소개하는 한 줄을 작성해주세요.',
+        child: Container(
+          decoration: BoxDecoration(
+            color: colors.backgroundElevatedNormal,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: colors.lineNormalAlternative),
+          ),
+          padding: const EdgeInsets.all(12),
+          child: TextField(
+            controller: _textController,
+            autofocus: true,
+            maxLines: 3,
+            maxLength: 80,
+            style: AppTextStyles.body1.normalRegular.copyWith(
+              color: colors.labelStrong,
+            ),
+            decoration: InputDecoration(
+              hintText: '한 줄 소개를 입력해주세요',
+              hintStyle: AppTextStyles.body1.normalRegular.copyWith(
+                color: colors.labelAssistive,
+              ),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.only(bottom: 8),
+              counterStyle: AppTextStyles.label2.medium.copyWith(
+                color: colors.labelAlternative,
               ),
             ),
-
-            const SizedBox(height: 8),
-
-            Text(
-              '나를 소개하는 한 줄을 작성해주세요.',
-              style: AppTextStyles.body2.normalRegular.copyWith(
-                color: colors.labelNormal,
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            Container(
-              decoration: BoxDecoration(
-                color: colors.backgroundElevatedNormal,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: colors.lineNormalAlternative),
-              ),
-              padding: const EdgeInsets.all(12),
-              child: TextField(
-                controller: _textController,
-                autofocus: true,
-                maxLines: 3,
-                maxLength: 80,
-                style: AppTextStyles.body1.normalRegular.copyWith(
-                  color: colors.labelStrong,
-                ),
-                decoration: InputDecoration(
-                  hintText: '한 줄 소개를 입력해주세요',
-                  hintStyle: AppTextStyles.body1.normalRegular.copyWith(
-                    color: colors.labelAssistive,
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.only(bottom: 8),
-                  counterStyle: AppTextStyles.label2.medium.copyWith(
-                    color: colors.labelAlternative,
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

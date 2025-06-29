@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_app_bar.dart';
+import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_layout.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 
@@ -48,90 +49,69 @@ class _ProfileGenderEditScreenState extends State<ProfileGenderEditScreen> {
         isButtonEnabled: _isButtonEnabled,
         onSave: _saveValue,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
+      body: ProfileEditLayout(
+        title: '성별',
+        description: '성별을 선택해주세요.',
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              '성별',
-              style: AppTextStyles.headline1.bold.copyWith(
-                color: colors.labelStrong,
-              ),
-            ),
+          children:
+              genderOptions.map((String gender) {
+                final bool isSelected = _selectedValue == gender;
 
-            const SizedBox(height: 8),
-
-            Text(
-              '성별을 선택해주세요.',
-              style: AppTextStyles.body2.normalRegular.copyWith(
-                color: colors.labelNormal,
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            Column(
-              children:
-                  genderOptions.map((String gender) {
-                    final bool isSelected = _selectedValue == gender;
-
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedValue = gender;
-                          });
-                          _checkButtonState();
-                        },
-                        child: Row(
-                          children: <Widget>[
-                            Container(
-                              width: 20,
-                              height: 20,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color:
-                                      isSelected
-                                          ? colors.primaryNormal
-                                          : colors.lineNormalAlternative,
-                                  width: 2,
-                                ),
-                                color: colors.backgroundElevatedNormal,
-                              ),
-                              child:
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedValue = gender;
+                      });
+                      _checkButtonState();
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color:
                                   isSelected
-                                      ? Center(
-                                        child: Container(
-                                          width: 10,
-                                          height: 10,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: colors.primaryNormal,
-                                          ),
-                                        ),
-                                      )
-                                      : null,
+                                      ? colors.primaryNormal
+                                      : colors.lineNormalAlternative,
+                              width: 2,
                             ),
-
-                            const SizedBox(width: 8),
-
-                            Expanded(
-                              child: Text(
-                                gender,
-                                style: AppTextStyles.body2.normalRegular
-                                    .copyWith(color: colors.labelNormal),
-                              ),
-                            ),
-                          ],
+                            color: colors.backgroundElevatedNormal,
+                          ),
+                          child:
+                              isSelected
+                                  ? Center(
+                                    child: Container(
+                                      width: 10,
+                                      height: 10,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: colors.primaryNormal,
+                                      ),
+                                    ),
+                                  )
+                                  : null,
                         ),
-                      ),
-                    );
-                  }).toList(),
-            ),
-          ],
+
+                        const SizedBox(width: 8),
+
+                        Expanded(
+                          child: Text(
+                            gender,
+                            style: AppTextStyles.body2.normalRegular.copyWith(
+                              color: colors.labelNormal,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
         ),
       ),
     );

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_app_bar.dart';
+import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_layout.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
-import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/text_field/custom_text_field.dart';
 
 class ProfileNicknameEditScreen extends StatefulWidget {
@@ -61,35 +61,13 @@ class _ProfileNicknameEditScreenState extends State<ProfileNicknameEditScreen> {
         isButtonEnabled: _isButtonEnabled,
         onSave: _saveValue,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              '닉네임',
-              style: AppTextStyles.headline1.bold.copyWith(
-                color: colors.labelStrong,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
-            Text(
-              '다른 사용자들에게 보여질 닉네임을 입력해주세요.',
-              style: AppTextStyles.body2.normalRegular.copyWith(
-                color: colors.labelNormal,
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            CustomTextField(
-              controller: _textController,
-              hintText: '닉네임을 입력해주세요',
-              autofocus: true,
-            ),
-          ],
+      body: ProfileEditLayout(
+        title: '닉네임',
+        description: '다른 사용자들에게 보여질 닉네임을 입력해주세요.',
+        child: CustomTextField(
+          controller: _textController,
+          hintText: '닉네임을 입력해주세요',
+          autofocus: true,
         ),
       ),
     );
