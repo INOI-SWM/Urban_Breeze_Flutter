@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/profile/presentation/mixins/profile_edit_button_mixin.dart';
 import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_app_bar.dart';
 import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_layout.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
@@ -15,27 +16,37 @@ class ProfileBirthYearEditScreen extends StatefulWidget {
       _ProfileBirthYearEditScreenState();
 }
 
-class _ProfileBirthYearEditScreenState
-    extends State<ProfileBirthYearEditScreen> {
+class _ProfileBirthYearEditScreenState extends State<ProfileBirthYearEditScreen>
+    with ProfileEditButtonMixin<ProfileBirthYearEditScreen> {
   String? _selectedValue;
-  bool _isButtonEnabled = false;
+
+  @override
+  String get currentValue => widget.currentValue;
+
+  @override
+  String? getCurrentInputValue() => _selectedValue;
+
+  @override
+  bool isValidInput(String? inputValue) => inputValue != null;
+
+  @override
+  void onSave() {
+    Navigator.of(context).pop(_selectedValue);
+  }
 
   @override
   void initState() {
     super.initState();
     _selectedValue =
         widget.currentValue.isNotEmpty ? widget.currentValue : null;
-    _checkButtonState();
+    checkButtonState();
   }
 
-  void _checkButtonState() {
-    final bool shouldEnable = _selectedValue != widget.currentValue;
-
-    if (_isButtonEnabled != shouldEnable) {
-      setState(() {
-        _isButtonEnabled = shouldEnable;
-      });
-    }
+  void _onSelectionChanged(String year) {
+    setState(() {
+      _selectedValue = year;
+    });
+    checkButtonState();
   }
 
   @override
@@ -52,8 +63,8 @@ class _ProfileBirthYearEditScreenState
       backgroundColor: colors.backgroundNormalNormal,
       appBar: ProfileEditAppBar(
         title: '출생년도',
-        isButtonEnabled: _isButtonEnabled,
-        onSave: _saveValue,
+        isButtonEnabled: isButtonEnabled,
+        onSave: saveValue,
       ),
       body: ProfileEditLayout(
         title: '출생년도',
@@ -72,12 +83,7 @@ class _ProfileBirthYearEditScreenState
                 final bool isSelected = _selectedValue == year;
 
                 return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedValue = year;
-                    });
-                    _checkButtonState();
-                  },
+                  onTap: () => _onSelectionChanged(year),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -118,11 +124,5 @@ class _ProfileBirthYearEditScreenState
         ),
       ),
     );
-  }
-
-  void _saveValue() {
-    if (_selectedValue != widget.currentValue) {
-      Navigator.of(context).pop(_selectedValue);
-    }
   }
 }

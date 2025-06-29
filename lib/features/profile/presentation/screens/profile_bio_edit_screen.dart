@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/profile/presentation/mixins/profile_edit_button_mixin.dart';
 import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_app_bar.dart';
 import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_layout.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
@@ -14,16 +15,31 @@ class ProfileBioEditScreen extends StatefulWidget {
   State<ProfileBioEditScreen> createState() => _ProfileBioEditScreenState();
 }
 
-class _ProfileBioEditScreenState extends State<ProfileBioEditScreen> {
+class _ProfileBioEditScreenState extends State<ProfileBioEditScreen>
+    with ProfileEditButtonMixin<ProfileBioEditScreen> {
   late TextEditingController _textController;
-  bool _isButtonEnabled = false;
+
+  @override
+  String get currentValue => widget.currentValue;
+
+  @override
+  String? getCurrentInputValue() => _textController.text.trim();
+
+  @override
+  bool isValidInput(String? inputValue) =>
+      inputValue != null && inputValue.isNotEmpty;
+
+  @override
+  void onSave() {
+    Navigator.of(context).pop(getCurrentInputValue());
+  }
 
   @override
   void initState() {
     super.initState();
     _textController = TextEditingController(text: widget.currentValue);
     _textController.addListener(_onTextChanged);
-    _checkButtonState();
+    checkButtonState();
   }
 
   @override
@@ -34,19 +50,7 @@ class _ProfileBioEditScreenState extends State<ProfileBioEditScreen> {
   }
 
   void _onTextChanged() {
-    _checkButtonState();
-  }
-
-  void _checkButtonState() {
-    final String currentText = _textController.text.trim();
-    final bool shouldEnable =
-        currentText.isNotEmpty && currentText != widget.currentValue;
-
-    if (_isButtonEnabled != shouldEnable) {
-      setState(() {
-        _isButtonEnabled = shouldEnable;
-      });
-    }
+    checkButtonState();
   }
 
   @override
@@ -57,8 +61,8 @@ class _ProfileBioEditScreenState extends State<ProfileBioEditScreen> {
       backgroundColor: colors.backgroundNormalNormal,
       appBar: ProfileEditAppBar(
         title: '한 줄 소개',
-        isButtonEnabled: _isButtonEnabled,
-        onSave: _saveValue,
+        isButtonEnabled: isButtonEnabled,
+        onSave: saveValue,
       ),
       body: ProfileEditLayout(
         title: '한 줄 소개',
@@ -93,13 +97,5 @@ class _ProfileBioEditScreenState extends State<ProfileBioEditScreen> {
         ),
       ),
     );
-  }
-
-  void _saveValue() {
-    final String value = _textController.text.trim();
-
-    if (value.isNotEmpty && value != widget.currentValue) {
-      Navigator.of(context).pop(value);
-    }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/profile/presentation/mixins/profile_edit_button_mixin.dart';
 import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_app_bar.dart';
 import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_layout.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
@@ -15,26 +16,37 @@ class ProfileGenderEditScreen extends StatefulWidget {
       _ProfileGenderEditScreenState();
 }
 
-class _ProfileGenderEditScreenState extends State<ProfileGenderEditScreen> {
+class _ProfileGenderEditScreenState extends State<ProfileGenderEditScreen>
+    with ProfileEditButtonMixin<ProfileGenderEditScreen> {
   String? _selectedValue;
-  bool _isButtonEnabled = false;
+
+  @override
+  String get currentValue => widget.currentValue;
+
+  @override
+  String? getCurrentInputValue() => _selectedValue;
+
+  @override
+  bool isValidInput(String? inputValue) => inputValue != null;
+
+  @override
+  void onSave() {
+    Navigator.of(context).pop(_selectedValue);
+  }
 
   @override
   void initState() {
     super.initState();
     _selectedValue =
         widget.currentValue.isNotEmpty ? widget.currentValue : null;
-    _checkButtonState();
+    checkButtonState();
   }
 
-  void _checkButtonState() {
-    final bool shouldEnable = _selectedValue != widget.currentValue;
-
-    if (_isButtonEnabled != shouldEnable) {
-      setState(() {
-        _isButtonEnabled = shouldEnable;
-      });
-    }
+  void _onSelectionChanged(String gender) {
+    setState(() {
+      _selectedValue = gender;
+    });
+    checkButtonState();
   }
 
   @override
@@ -46,8 +58,8 @@ class _ProfileGenderEditScreenState extends State<ProfileGenderEditScreen> {
       backgroundColor: colors.backgroundNormalNormal,
       appBar: ProfileEditAppBar(
         title: '성별',
-        isButtonEnabled: _isButtonEnabled,
-        onSave: _saveValue,
+        isButtonEnabled: isButtonEnabled,
+        onSave: saveValue,
       ),
       body: ProfileEditLayout(
         title: '성별',
@@ -60,12 +72,7 @@ class _ProfileGenderEditScreenState extends State<ProfileGenderEditScreen> {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedValue = gender;
-                      });
-                      _checkButtonState();
-                    },
+                    onTap: () => _onSelectionChanged(gender),
                     child: Row(
                       children: <Widget>[
                         Container(
@@ -115,11 +122,5 @@ class _ProfileGenderEditScreenState extends State<ProfileGenderEditScreen> {
         ),
       ),
     );
-  }
-
-  void _saveValue() {
-    if (_selectedValue != widget.currentValue) {
-      Navigator.of(context).pop(_selectedValue);
-    }
   }
 }
