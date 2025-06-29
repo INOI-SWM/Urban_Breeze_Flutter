@@ -43,6 +43,7 @@ class ProfileEditItem extends StatelessWidget {
 
               GestureDetector(
                 onTap: onPressed,
+                behavior: HitTestBehavior.opaque,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
