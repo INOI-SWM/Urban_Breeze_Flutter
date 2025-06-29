@@ -36,6 +36,7 @@ class ProfileImageEditButton extends StatelessWidget {
                 ),
                 child: ClipOval(
                   child: Image.network(imageUrl, fit: BoxFit.cover),
+                  //TODO : 기본 이미지 설정, 로딩 시 로딩 표시
                 ),
               ),
 

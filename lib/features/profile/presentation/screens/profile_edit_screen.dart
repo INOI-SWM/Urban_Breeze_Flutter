@@ -59,6 +59,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               ProfileImageEditButton(
+                //TODO : 기본 이미지 설정
                 imageUrl: widget.user.photoUrl!,
                 onPressed: () {
                   // TODO: 프로필 사진 저장소, 또는 카메라로 수정 기능 추가
