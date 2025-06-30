@@ -83,7 +83,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
     final SemanticColors colors = context.semanticColor;
 
     final double innerBorderWidth = _hasFocus ? 2 : 1;
-    final double containerPadding = 12 - innerBorderWidth;
+    final double containerPadding = 12;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -153,8 +153,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   IconButtonSolid(
                     icon: Icons.cancel,
                     onPressed: _controller.clear,
-                    iconSize: IconSize.medium,
-                    customButtonSize: 24,
+                    iconSize: IconSize.small,
+                    customButtonSize: 22,
                     backgroundColor: Colors.transparent,
                     iconColor: colors.labelAssistive,
                     shadow: null,

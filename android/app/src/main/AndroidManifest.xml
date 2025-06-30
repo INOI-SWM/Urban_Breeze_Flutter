@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET" /> ```
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="ridingmate"
         android:name="${applicationName}"
@@ -37,15 +37,20 @@
         <meta-data
             android:name="com.google.android.gms.client_id"
             android:value="494451214414-csc7uhtvqiunv6su3qienqalj1abgm9l.apps.googleusercontent.com" />
-            <activity android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
-        android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW"/>
-            <category android:name="android.intent.category.DEFAULT"/>
-            <category android:name="android.intent.category.BROWSABLE"/>
-            <data android:scheme="kakao92a46589034ed2af1f0a6d12578996cd"/>
-        </intent-filter>
-    </activity>
+            
+        <!-- 카카오 로그인 커스텀 URL 스킴 설정 -->
+        <activity 
+            android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity"
+            android:exported="true">
+            <intent-filter android:label="flutter_web_auth">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                
+                <data android:scheme="kakao92a46589034ed2af1f0a6d12578996cd" android:host="oauth"/>
+            </intent-filter>
+        </activity>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
