@@ -23,17 +23,24 @@ class HealthKitDataSource {
 
   Future<bool> hasPermissions() async {
     try {
-      for (final HealthDataType dataType in _dataTypes) {
-        final bool? status = await _health.hasPermissions(<HealthDataType>[
-          dataType,
-        ]);
-        if (status != true) {
-          return false;
-        }
-      }
+      // iOS에서는 READ 권한 상태를 직접 확인할 수 없으므로
+      // 실제 데이터 조회를 시도해서 권한 상태를 간접적으로 확인
+      final DateTime now = DateTime.now();
+      final DateTime yesterday = now.subtract(const Duration(days: 1));
+
+      // 작은 범위의 워크아웃 데이터 조회를 시도
+      await _health.getHealthDataFromTypes(
+        types: <HealthDataType>[HealthDataType.WORKOUT],
+        startTime: yesterday,
+        endTime: now,
+      );
+
+      // 조회가 성공하면 권한이 있는 것으로 판단 (빈 결과여도 OK)
       return true;
     } catch (e) {
-      throw HealthKitDataException('권한 확인 실패: $e');
+      // 권한이 없으면 예외가 발생함
+
+      return false;
     }
   }
 
@@ -42,10 +49,6 @@ class HealthKitDataSource {
     DateTime? endDate,
   }) async {
     try {
-      if (!await hasPermissions()) {
-        throw HealthKitPermissionException('HealthKit 권한이 필요합니다');
-      }
-
       final DateTime end = endDate ?? DateTime.now();
       final DateTime start =
           startDate ?? end.subtract(const Duration(days: 365));
@@ -86,10 +89,6 @@ class HealthKitDataSource {
     required DateTime workoutEndTime,
   }) async {
     try {
-      if (!await hasPermissions()) {
-        throw HealthKitPermissionException('HealthKit 권한이 필요합니다');
-      }
-
       final List<HealthDataPoint> heartRateData = await _health
           .getHealthDataFromTypes(
             types: <HealthDataType>[HealthDataType.HEART_RATE],
@@ -114,10 +113,6 @@ class HealthKitDataSource {
     required DateTime workoutEndTime,
   }) async {
     try {
-      if (!await hasPermissions()) {
-        throw HealthKitPermissionException('HealthKit 권한이 필요합니다');
-      }
-
       final List<HealthDataPoint> distanceData = await _health
           .getHealthDataFromTypes(
             types: <HealthDataType>[HealthDataType.DISTANCE_CYCLING],
