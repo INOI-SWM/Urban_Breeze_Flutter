@@ -10,11 +10,17 @@ abstract class CyclingWorkoutRepository {
   Future<List<CyclingWorkoutRecord>> getCyclingWorkouts({
     DateTime? startDate,
     DateTime? endDate,
-    int? limit,
   });
 
   Future<CyclingWorkoutRecord> getCyclingWorkoutById(String id);
 
-  Future<List<HeartRateData>> getHeartRateData(String workoutId);
-  Future<List<DistanceData>> getDistanceData(String workoutId);
+  Future<List<HeartRateData>> getHeartRateDataForWorkout({
+    required DateTime workoutStartTime,
+    required DateTime workoutEndTime,
+  });
+
+  Future<List<DistanceData>> getDistanceDataForWorkout({
+    required DateTime workoutStartTime,
+    required DateTime workoutEndTime,
+  });
 }

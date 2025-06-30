@@ -80,9 +80,10 @@ class HealthKitDataSource {
     }
   }
 
-  Future<List<HealthDataPoint>> getHeartRateData({
-    required DateTime startDate,
-    required DateTime endDate,
+  /// 특정 운동의 심박수 데이터를 조회합니다.
+  Future<List<HealthDataPoint>> getHeartRateDataForWorkout({
+    required DateTime workoutStartTime,
+    required DateTime workoutEndTime,
   }) async {
     try {
       if (!await hasPermissions()) {
@@ -92,11 +93,10 @@ class HealthKitDataSource {
       final List<HealthDataPoint> heartRateData = await _health
           .getHealthDataFromTypes(
             types: <HealthDataType>[HealthDataType.HEART_RATE],
-            startTime: startDate,
-            endTime: endDate,
+            startTime: workoutStartTime,
+            endTime: workoutEndTime,
           );
 
-      // 시간순 정렬
       heartRateData.sort(
         (HealthDataPoint a, HealthDataPoint b) =>
             a.dateFrom.compareTo(b.dateFrom),
@@ -109,9 +109,9 @@ class HealthKitDataSource {
     }
   }
 
-  Future<List<HealthDataPoint>> getDistanceData({
-    required DateTime startDate,
-    required DateTime endDate,
+  Future<List<HealthDataPoint>> getDistanceDataForWorkout({
+    required DateTime workoutStartTime,
+    required DateTime workoutEndTime,
   }) async {
     try {
       if (!await hasPermissions()) {
@@ -121,8 +121,8 @@ class HealthKitDataSource {
       final List<HealthDataPoint> distanceData = await _health
           .getHealthDataFromTypes(
             types: <HealthDataType>[HealthDataType.DISTANCE_CYCLING],
-            startTime: startDate,
-            endTime: endDate,
+            startTime: workoutStartTime,
+            endTime: workoutEndTime,
           );
 
       distanceData.sort(

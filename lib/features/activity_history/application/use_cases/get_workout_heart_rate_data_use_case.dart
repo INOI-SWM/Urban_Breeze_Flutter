@@ -5,7 +5,13 @@ class GetWorkoutHeartRateDataUseCase {
   const GetWorkoutHeartRateDataUseCase(this._repository);
   final CyclingWorkoutRepository _repository;
 
-  Future<List<HeartRateData>> execute(String workoutId) async {
-    return await _repository.getHeartRateData(workoutId);
+  Future<List<HeartRateData>> execute({
+    required DateTime workoutStartTime,
+    required DateTime workoutEndTime,
+  }) async {
+    return await _repository.getHeartRateDataForWorkout(
+      workoutStartTime: workoutStartTime,
+      workoutEndTime: workoutEndTime,
+    );
   }
 }
