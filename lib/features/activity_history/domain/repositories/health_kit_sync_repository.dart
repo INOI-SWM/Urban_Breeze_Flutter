@@ -3,23 +3,24 @@ import 'package:ridingmate/features/activity_history/domain/entities/heart_rate_
 
 import '../entities/cycling_workout_record.dart';
 
-abstract class CyclingWorkoutRepository {
+abstract class HealthKitSyncRepository {
   Future<bool> requestPermissions();
   Future<bool> hasPermissions();
 
-  Future<List<CyclingWorkoutRecord>> getCyclingWorkouts({
+  /// HealthKit에서 자전거 운동 데이터를 가져옵니다 (동기화용)
+  Future<List<CyclingWorkoutRecord>> fetchCyclingWorkoutsFromHealthKit({
     DateTime? startDate,
     DateTime? endDate,
   });
 
-  Future<CyclingWorkoutRecord> getCyclingWorkoutById(String id);
-
-  Future<List<HeartRateData>> getHeartRateDataForWorkout({
+  /// 특정 운동의 심박수 데이터를 가져옵니다
+  Future<List<HeartRateData>> fetchHeartRateDataFromHealthKit({
     required DateTime workoutStartTime,
     required DateTime workoutEndTime,
   });
 
-  Future<List<DistanceData>> getDistanceDataForWorkout({
+  /// 특정 운동의 거리 데이터를 가져옵니다
+  Future<List<DistanceData>> fetchDistanceDataFromHealthKit({
     required DateTime workoutStartTime,
     required DateTime workoutEndTime,
   });
