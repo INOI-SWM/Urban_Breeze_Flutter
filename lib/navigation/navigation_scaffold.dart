@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/features/history/presentation/screens/history_screen.dart';
+import 'package:ridingmate/features/activity_history/presentation/screens/activity_history_screen.dart';
 import 'package:ridingmate/features/home/presentation/screens/home_screen.dart';
 import 'package:ridingmate/features/profile/presentation/pages/profile_page.dart';
 import 'package:ridingmate/features/riding/presentation/screens/riding_screen.dart';
@@ -29,7 +29,7 @@ class _NavigationScaffoldState extends State<NavigationScaffold> {
     const HomeScreen(),
     const RoutePlanningScreen(),
     const RidingScreen(),
-    const HistoryScreen(),
+    const ActivityHistoryScreen(),
     const ProfilePage(),
   ];
 
