@@ -1,5 +1,6 @@
 import 'distance_data.dart';
 import 'heart_rate_data.dart';
+import 'location_data.dart';
 
 class CyclingWorkoutRecord {
   const CyclingWorkoutRecord({
@@ -11,6 +12,7 @@ class CyclingWorkoutRecord {
     required this.calories,
     required this.heartRateData,
     required this.distanceData,
+    required this.locationData,
   });
 
   final String id;
@@ -21,6 +23,7 @@ class CyclingWorkoutRecord {
   final double calories; // kcal 단위
   final List<HeartRateData> heartRateData; // 원시 심박수 데이터
   final List<DistanceData> distanceData; // 원시 거리 데이터
+  final List<LocationData> locationData; // 원시 GPS 위치 데이터
 
   @override
   bool operator ==(Object other) {
@@ -39,7 +42,8 @@ class CyclingWorkoutRecord {
         'distance: ${distance}m, '
         'calories: ${calories}kcal, '
         'heartRateData: ${heartRateData.length}개, '
-        'distanceData: ${distanceData.length}개'
+        'distanceData: ${distanceData.length}개, '
+        'locationData: ${locationData.length}개 포인트'
         '}';
   }
 }

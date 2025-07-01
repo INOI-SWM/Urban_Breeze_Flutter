@@ -1,9 +1,11 @@
 import 'package:health_kit_reporter/model/payload/quantity.dart';
 import 'package:health_kit_reporter/model/payload/workout.dart';
+import 'package:health_kit_reporter/model/payload/workout_route.dart';
 
 import '../../domain/entities/cycling_workout_record.dart';
 import '../../domain/entities/distance_data.dart';
 import '../../domain/entities/heart_rate_data.dart';
+import '../../domain/entities/location_data.dart';
 import '../../domain/repositories/health_kit_sync_repository.dart';
 import '../datasources/health_kit_datasource.dart';
 import '../mappers/health_kit_mapper.dart';
@@ -64,6 +66,19 @@ class HealthKitSyncRepositoryImpl implements HealthKitSyncRepository {
       final List<DistanceData> distanceData =
           HealthKitMapper.toDistanceDataList(distanceQuantities);
       record = HealthKitMapper.addDistanceData(record, distanceData);
+
+      // GPS 경로 데이터 조회 시도
+      final List<WorkoutRoute> routes = await _dataSource
+          .getWorkoutRouteForWorkout(
+            workoutId: record.id,
+            workoutStartTime: record.startTime,
+            workoutEndTime: record.endTime,
+          );
+
+      final List<LocationData> locationData =
+          HealthKitMapper.toLocationDataList(routes);
+
+      record = HealthKitMapper.addLocationData(record, locationData);
 
       enrichedWorkouts.add(record);
     }

@@ -3,8 +3,10 @@ import 'package:health_kit_reporter/model/payload/preferred_unit.dart';
 import 'package:health_kit_reporter/model/payload/quantity.dart';
 import 'package:health_kit_reporter/model/payload/workout.dart';
 import 'package:health_kit_reporter/model/payload/workout_activity_type.dart';
+import 'package:health_kit_reporter/model/payload/workout_route.dart';
 import 'package:health_kit_reporter/model/predicate.dart';
 import 'package:health_kit_reporter/model/type/quantity_type.dart';
+import 'package:health_kit_reporter/model/type/series_type.dart';
 import 'package:health_kit_reporter/model/type/workout_type.dart';
 
 import '../../domain/exceptions/health_kit_exceptions.dart';
@@ -17,6 +19,7 @@ class HealthKitDataSource {
     QuantityType.heartRate.identifier,
     QuantityType.distanceCycling.identifier,
     QuantityType.activeEnergyBurned.identifier,
+    SeriesType.workoutRoute.identifier,
   ];
 
   Future<bool> requestPermissions() async {
@@ -155,6 +158,27 @@ class HealthKitDataSource {
       return distanceData;
     } catch (e) {
       throw HealthKitDataException('거리 데이터 조회 실패: $e');
+    }
+  }
+
+  /// 운동의 GPS 경로 데이터 조회
+  Future<List<WorkoutRoute>> getWorkoutRouteForWorkout({
+    required String workoutId,
+    required DateTime workoutStartTime,
+    required DateTime workoutEndTime,
+  }) async {
+    try {
+      final Predicate predicate = Predicate(
+        workoutStartTime.subtract(const Duration(seconds: 1)),
+        workoutEndTime.add(const Duration(seconds: 1)),
+      );
+
+      final List<WorkoutRoute> routes =
+          await HealthKitReporter.workoutRouteQuery(predicate);
+
+      return routes;
+    } catch (e) {
+      throw HealthKitDataException('GPS 경로 데이터 조회 실패: $e');
     }
   }
 }
