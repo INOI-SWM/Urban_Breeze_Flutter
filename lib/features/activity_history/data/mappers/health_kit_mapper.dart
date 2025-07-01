@@ -8,30 +8,71 @@ import '../../domain/entities/heart_rate_data.dart';
 import '../../domain/exceptions/health_kit_exceptions.dart';
 
 class HealthKitMapper {
-  static CyclingWorkoutRecord toCyclingWorkoutRecord(Workout workout) {
+  /// Workout을 기본 정보만 포함한 CyclingWorkoutRecord로 변환 (심박수/거리 데이터 없음)
+  static CyclingWorkoutRecord basicWorkoutRecord(Workout workout) {
     try {
-      final WorkoutHarmonized harmonized = workout.harmonized;
+      final double distanceKm =
+          workout.harmonized.totalDistance?.toDouble() ?? 0.0;
+      final double calories =
+          workout.harmonized.totalEnergyBurned?.toDouble() ?? 0.0;
+
+      // 킬로미터를 미터로 변환
+      final double distanceM = distanceKm * 1000;
 
       return CyclingWorkoutRecord(
         id: workout.uuid,
         startTime: DateTime.fromMillisecondsSinceEpoch(
-          workout.startTimestamp.toInt(),
+          (workout.startTimestamp * 1000).toInt(),
         ),
         endTime: DateTime.fromMillisecondsSinceEpoch(
-          workout.endTimestamp.toInt(),
+          (workout.endTimestamp * 1000).toInt(),
         ),
-        duration: Duration(seconds: (workout.duration).toInt()),
-        distance: harmonized.totalDistance?.toDouble() ?? 0.0,
-        calories: harmonized.totalEnergyBurned?.toDouble() ?? 0.0,
-        averageSpeed: null, // health_kit_reporter의 Workout에서 평균 속도는 직접 제공되지 않음
-        maxSpeed: null, // health_kit_reporter의 Workout에서 최대 속도는 직접 제공되지 않음
-        maxHeartRate: null, // 별도 심박수 데이터 조회 필요
+        duration: Duration(seconds: workout.duration.toInt()),
+        distance: distanceM, // 미터 단위로 저장
+        calories: calories,
+        heartRateData: <HeartRateData>[], // 빈 리스트로 시작
+        distanceData: <DistanceData>[], // 빈 리스트로 시작
       );
     } catch (e) {
       throw HealthKitDataException('워크아웃 데이터 변환 실패: $e');
     }
   }
 
+  /// 기존 CyclingWorkoutRecord에 심박수 데이터를 추가한 새로운 record 반환
+  static CyclingWorkoutRecord addHeartRateData(
+    CyclingWorkoutRecord record,
+    List<HeartRateData> heartRateData,
+  ) {
+    return CyclingWorkoutRecord(
+      id: record.id,
+      startTime: record.startTime,
+      endTime: record.endTime,
+      duration: record.duration,
+      distance: record.distance,
+      calories: record.calories,
+      heartRateData: heartRateData,
+      distanceData: record.distanceData,
+    );
+  }
+
+  /// 기존 CyclingWorkoutRecord에 거리 데이터를 추가한 새로운 record 반환
+  static CyclingWorkoutRecord addDistanceData(
+    CyclingWorkoutRecord record,
+    List<DistanceData> distanceData,
+  ) {
+    return CyclingWorkoutRecord(
+      id: record.id,
+      startTime: record.startTime,
+      endTime: record.endTime,
+      duration: record.duration,
+      distance: record.distance,
+      calories: record.calories,
+      heartRateData: record.heartRateData,
+      distanceData: distanceData,
+    );
+  }
+
+  /// Quantity를 HeartRateData로 변환
   static HeartRateData toHeartRateData(Quantity quantity) {
     try {
       if (quantity.identifier != QuantityType.heartRate.identifier) {
@@ -40,7 +81,7 @@ class HealthKitMapper {
 
       return HeartRateData(
         timestamp: DateTime.fromMillisecondsSinceEpoch(
-          quantity.startTimestamp.toInt(),
+          (quantity.startTimestamp * 1000).toInt(),
         ),
         heartRate: quantity.harmonized.value.round(),
       );
@@ -49,37 +90,35 @@ class HealthKitMapper {
     }
   }
 
+  /// Quantity를 DistanceData로 변환
   static DistanceData toDistanceData(Quantity quantity) {
     try {
       if (quantity.identifier != QuantityType.distanceCycling.identifier) {
         throw HealthKitDataException('DISTANCE_CYCLING 타입이 아닌 데이터입니다');
       }
 
+      final double distanceKm = quantity.harmonized.value.toDouble();
+      final double distanceM = distanceKm * 1000; // 킬로미터를 미터로 변환
+
       return DistanceData(
         timestamp: DateTime.fromMillisecondsSinceEpoch(
-          quantity.startTimestamp.toInt(),
+          (quantity.startTimestamp * 1000).toInt(),
         ),
-        distance: quantity.harmonized.value.toDouble(),
+        distance: distanceM, // 미터 단위로 저장
       );
     } catch (e) {
       throw HealthKitDataException('거리 데이터 변환 실패: $e');
     }
   }
 
-  static List<CyclingWorkoutRecord> toCyclingWorkoutRecordList(
-    List<Workout> workouts,
-  ) {
-    return workouts
-        .map((Workout workout) => toCyclingWorkoutRecord(workout))
-        .toList();
-  }
-
+  /// Quantity 리스트를 HeartRateData 리스트로 변환
   static List<HeartRateData> toHeartRateDataList(List<Quantity> quantities) {
     return quantities
         .map((Quantity quantity) => toHeartRateData(quantity))
         .toList();
   }
 
+  /// Quantity 리스트를 DistanceData 리스트로 변환
   static List<DistanceData> toDistanceDataList(List<Quantity> quantities) {
     return quantities
         .map((Quantity quantity) => toDistanceData(quantity))

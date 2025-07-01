@@ -81,7 +81,6 @@ class HealthKitDataSource {
 
       return cyclingWorkouts;
     } catch (e) {
-      if (e is HealthKitException) rethrow;
       throw HealthKitDataException('자전거 운동 데이터 조회 실패: $e');
     }
   }
@@ -119,7 +118,6 @@ class HealthKitDataSource {
 
       return heartRateData;
     } catch (e) {
-      if (e is HealthKitException) rethrow;
       throw HealthKitDataException('심박수 데이터 조회 실패: $e');
     }
   }
@@ -156,7 +154,6 @@ class HealthKitDataSource {
 
       return distanceData;
     } catch (e) {
-      if (e is HealthKitException) rethrow;
       throw HealthKitDataException('거리 데이터 조회 실패: $e');
     }
   }

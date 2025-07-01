@@ -1,3 +1,6 @@
+import 'distance_data.dart';
+import 'heart_rate_data.dart';
+
 class CyclingWorkoutRecord {
   const CyclingWorkoutRecord({
     required this.id,
@@ -6,19 +9,18 @@ class CyclingWorkoutRecord {
     required this.duration,
     required this.distance,
     required this.calories,
-    this.averageSpeed,
-    this.maxSpeed,
-    this.maxHeartRate,
+    required this.heartRateData,
+    required this.distanceData,
   });
+
   final String id;
   final DateTime startTime;
   final DateTime endTime;
   final Duration duration;
   final double distance; // 미터 단위
   final double calories; // kcal 단위
-  final double? averageSpeed; // km/h 단위
-  final double? maxSpeed; // km/h 단위
-  final int? maxHeartRate;
+  final List<HeartRateData> heartRateData; // 원시 심박수 데이터
+  final List<DistanceData> distanceData; // 원시 거리 데이터
 
   @override
   bool operator ==(Object other) {
@@ -36,9 +38,8 @@ class CyclingWorkoutRecord {
         'duration: $duration, '
         'distance: ${distance}m, '
         'calories: ${calories}kcal, '
-        'maxSpeed: ${maxSpeed}km/h, '
-        'averageSpeed: ${averageSpeed}km/h, '
-        'maxHeartRate: ${maxHeartRate}bpm'
+        'heartRateData: ${heartRateData.length}개, '
+        'distanceData: ${distanceData.length}개'
         '}';
   }
 }

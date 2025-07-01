@@ -33,34 +33,41 @@ class HealthKitSyncRepositoryImpl implements HealthKitSyncRepository {
       endDate: endDate,
     );
 
-    return HealthKitMapper.toCyclingWorkoutRecordList(workouts);
-  }
+    //각 운동에 대해 상세 데이터 조회 및 조합
+    final List<CyclingWorkoutRecord> enrichedWorkouts =
+        <CyclingWorkoutRecord>[];
 
-  @override
-  Future<List<HeartRateData>> fetchHeartRateDataFromHealthKit({
-    required DateTime workoutStartTime,
-    required DateTime workoutEndTime,
-  }) async {
-    final List<Quantity> quantities = await _dataSource
-        .getHeartRateDataForWorkout(
-          workoutStartTime: workoutStartTime,
-          workoutEndTime: workoutEndTime,
-        );
+    for (int i = 0; i < workouts.length; i++) {
+      final Workout workout = workouts[i];
 
-    return HealthKitMapper.toHeartRateDataList(quantities);
-  }
+      CyclingWorkoutRecord record = HealthKitMapper.basicWorkoutRecord(workout);
 
-  @override
-  Future<List<DistanceData>> fetchDistanceDataFromHealthKit({
-    required DateTime workoutStartTime,
-    required DateTime workoutEndTime,
-  }) async {
-    final List<Quantity> quantities = await _dataSource
-        .getDistanceDataForWorkout(
-          workoutStartTime: workoutStartTime,
-          workoutEndTime: workoutEndTime,
-        );
+      // 심박수 데이터 조회 시도
+      final List<Quantity> heartRateQuantities = await _dataSource
+          .getHeartRateDataForWorkout(
+            workoutStartTime: record.startTime,
+            workoutEndTime: record.endTime,
+          );
 
-    return HealthKitMapper.toDistanceDataList(quantities);
+      final List<HeartRateData> heartRateData =
+          HealthKitMapper.toHeartRateDataList(heartRateQuantities);
+
+      record = HealthKitMapper.addHeartRateData(record, heartRateData);
+
+      // 거리 데이터 조회 시도
+      final List<Quantity> distanceQuantities = await _dataSource
+          .getDistanceDataForWorkout(
+            workoutStartTime: record.startTime,
+            workoutEndTime: record.endTime,
+          );
+
+      final List<DistanceData> distanceData =
+          HealthKitMapper.toDistanceDataList(distanceQuantities);
+      record = HealthKitMapper.addDistanceData(record, distanceData);
+
+      enrichedWorkouts.add(record);
+    }
+
+    return enrichedWorkouts;
   }
 }
