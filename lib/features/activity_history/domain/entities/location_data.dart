@@ -5,15 +5,18 @@ class LocationData {
     required this.timestamp,
     this.altitude,
     this.speed,
-    this.accuracy,
+    this.horizontalAccuracy,
+    this.verticalAccuracy,
+    this.course,
   });
 
   final double latitude;
   final double longitude;
   final double? altitude;
   final double? speed;
-
-  final double? accuracy;
+  final double? horizontalAccuracy;
+  final double? verticalAccuracy;
+  final double? course;
   final DateTime timestamp;
 
   @override
@@ -30,7 +33,9 @@ class LocationData {
         other.longitude == longitude &&
         other.altitude == altitude &&
         other.speed == speed &&
-        other.accuracy == accuracy &&
+        other.horizontalAccuracy == horizontalAccuracy &&
+        other.verticalAccuracy == verticalAccuracy &&
+        other.course == course &&
         other.timestamp == timestamp;
   }
 
@@ -40,7 +45,9 @@ class LocationData {
         longitude.hashCode ^
         altitude.hashCode ^
         speed.hashCode ^
-        accuracy.hashCode ^
+        horizontalAccuracy.hashCode ^
+        verticalAccuracy.hashCode ^
+        course.hashCode ^
         timestamp.hashCode;
   }
 }

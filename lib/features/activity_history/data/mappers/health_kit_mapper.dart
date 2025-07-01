@@ -9,6 +9,14 @@ import '../../domain/entities/heart_rate_data.dart';
 import '../../domain/entities/location_data.dart';
 import '../../domain/exceptions/health_kit_exceptions.dart';
 
+/// HealthKit 타임스탬프 변환 유틸리티
+class HealthKitTimestampUtils {
+  /// HealthKit timestamp (초 단위)를 Flutter DateTime으로 변환
+  static DateTime fromHealthKitTimestamp(num timestamp) {
+    return DateTime.fromMillisecondsSinceEpoch((timestamp * 1000).toInt());
+  }
+}
+
 class HealthKitMapper {
   /// Workout을 기본 정보만 포함한 CyclingWorkoutRecord로 변환 (심박수/거리 데이터 없음)
   static CyclingWorkoutRecord basicWorkoutRecord(Workout workout) {
@@ -23,11 +31,11 @@ class HealthKitMapper {
 
       return CyclingWorkoutRecord(
         id: workout.uuid,
-        startTime: DateTime.fromMillisecondsSinceEpoch(
-          (workout.startTimestamp * 1000).toInt(),
+        startTime: HealthKitTimestampUtils.fromHealthKitTimestamp(
+          workout.startTimestamp,
         ),
-        endTime: DateTime.fromMillisecondsSinceEpoch(
-          (workout.endTimestamp * 1000).toInt(),
+        endTime: HealthKitTimestampUtils.fromHealthKitTimestamp(
+          workout.endTimestamp,
         ),
         duration: Duration(seconds: workout.duration.toInt()),
         distance: distanceM, // 미터 단위로 저장
@@ -46,17 +54,7 @@ class HealthKitMapper {
     CyclingWorkoutRecord record,
     List<HeartRateData> heartRateData,
   ) {
-    return CyclingWorkoutRecord(
-      id: record.id,
-      startTime: record.startTime,
-      endTime: record.endTime,
-      duration: record.duration,
-      distance: record.distance,
-      calories: record.calories,
-      heartRateData: heartRateData,
-      distanceData: record.distanceData,
-      locationData: record.locationData,
-    );
+    return record.copyWith(heartRateData: heartRateData);
   }
 
   /// 기존 CyclingWorkoutRecord에 거리 데이터를 추가한 새로운 record 반환
@@ -64,17 +62,7 @@ class HealthKitMapper {
     CyclingWorkoutRecord record,
     List<DistanceData> distanceData,
   ) {
-    return CyclingWorkoutRecord(
-      id: record.id,
-      startTime: record.startTime,
-      endTime: record.endTime,
-      duration: record.duration,
-      distance: record.distance,
-      calories: record.calories,
-      heartRateData: record.heartRateData,
-      distanceData: distanceData,
-      locationData: record.locationData,
-    );
+    return record.copyWith(distanceData: distanceData);
   }
 
   /// 기존 CyclingWorkoutRecord에 GPS 위치 데이터를 추가한 새로운 record 반환
@@ -82,17 +70,7 @@ class HealthKitMapper {
     CyclingWorkoutRecord record,
     List<LocationData> locationData,
   ) {
-    return CyclingWorkoutRecord(
-      id: record.id,
-      startTime: record.startTime,
-      endTime: record.endTime,
-      duration: record.duration,
-      distance: record.distance,
-      calories: record.calories,
-      heartRateData: record.heartRateData,
-      distanceData: record.distanceData,
-      locationData: locationData,
-    );
+    return record.copyWith(locationData: locationData);
   }
 
   /// Quantity를 HeartRateData로 변환
@@ -103,8 +81,8 @@ class HealthKitMapper {
       }
 
       return HeartRateData(
-        timestamp: DateTime.fromMillisecondsSinceEpoch(
-          (quantity.startTimestamp * 1000).toInt(),
+        timestamp: HealthKitTimestampUtils.fromHealthKitTimestamp(
+          quantity.startTimestamp,
         ),
         heartRate: quantity.harmonized.value.round(),
       );
@@ -124,8 +102,8 @@ class HealthKitMapper {
       final double distanceM = distanceKm * 1000; // 킬로미터를 미터로 변환
 
       return DistanceData(
-        timestamp: DateTime.fromMillisecondsSinceEpoch(
-          (quantity.startTimestamp * 1000).toInt(),
+        timestamp: HealthKitTimestampUtils.fromHealthKitTimestamp(
+          quantity.startTimestamp,
         ),
         distance: distanceM, // 미터 단위로 저장
       );
@@ -171,13 +149,18 @@ class HealthKitMapper {
           for (final dynamic location in batchLocations) {
             try {
               final LocationData locationData = LocationData(
-                timestamp: DateTime.fromMillisecondsSinceEpoch(
-                  ((location.timestamp as num) * 1000).toInt(),
+                timestamp: HealthKitTimestampUtils.fromHealthKitTimestamp(
+                  location.timestamp,
                 ),
                 latitude: (location.latitude as num).toDouble(),
                 longitude: (location.longitude as num).toDouble(),
                 altitude: (location.altitude as num?)?.toDouble(),
                 speed: (location.speed as num?)?.toDouble(),
+                horizontalAccuracy:
+                    (location.horizontalAccuracy as num?)?.toDouble(),
+                verticalAccuracy:
+                    (location.verticalAccuracy as num?)?.toDouble(),
+                course: (location.course as num?)?.toDouble(),
               );
 
               locations.add(locationData);

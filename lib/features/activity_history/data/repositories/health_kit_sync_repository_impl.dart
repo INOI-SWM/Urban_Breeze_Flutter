@@ -35,7 +35,6 @@ class HealthKitSyncRepositoryImpl implements HealthKitSyncRepository {
       endDate: endDate,
     );
 
-    //각 운동에 대해 상세 데이터 조회 및 조합
     final List<CyclingWorkoutRecord> enrichedWorkouts =
         <CyclingWorkoutRecord>[];
 
@@ -44,41 +43,40 @@ class HealthKitSyncRepositoryImpl implements HealthKitSyncRepository {
 
       CyclingWorkoutRecord record = HealthKitMapper.basicWorkoutRecord(workout);
 
-      // 심박수 데이터 조회 시도
-      final List<Quantity> heartRateQuantities = await _dataSource
-          .getHeartRateDataForWorkout(
-            workoutStartTime: record.startTime,
-            workoutEndTime: record.endTime,
-          );
+      final List<Future<dynamic>> futures = <Future<dynamic>>[
+        _dataSource.getHeartRateDataForWorkout(
+          workoutStartTime: record.startTime,
+          workoutEndTime: record.endTime,
+        ),
+        _dataSource.getDistanceDataForWorkout(
+          workoutStartTime: record.startTime,
+          workoutEndTime: record.endTime,
+        ),
+        _dataSource.getWorkoutRouteForWorkout(
+          workoutId: record.id,
+          workoutStartTime: record.startTime,
+          workoutEndTime: record.endTime,
+        ),
+      ];
+
+      final List<dynamic> results = await Future.wait(futures);
+
+      final List<Quantity> heartRateQuantities = results[0] as List<Quantity>;
+      final List<Quantity> distanceQuantities = results[1] as List<Quantity>;
+      final List<WorkoutRoute> routes = results[2] as List<WorkoutRoute>;
 
       final List<HeartRateData> heartRateData =
           HealthKitMapper.toHeartRateDataList(heartRateQuantities);
-
-      record = HealthKitMapper.addHeartRateData(record, heartRateData);
-
-      // 거리 데이터 조회 시도
-      final List<Quantity> distanceQuantities = await _dataSource
-          .getDistanceDataForWorkout(
-            workoutStartTime: record.startTime,
-            workoutEndTime: record.endTime,
-          );
-
       final List<DistanceData> distanceData =
           HealthKitMapper.toDistanceDataList(distanceQuantities);
-      record = HealthKitMapper.addDistanceData(record, distanceData);
-
-      // GPS 경로 데이터 조회 시도
-      final List<WorkoutRoute> routes = await _dataSource
-          .getWorkoutRouteForWorkout(
-            workoutId: record.id,
-            workoutStartTime: record.startTime,
-            workoutEndTime: record.endTime,
-          );
-
       final List<LocationData> locationData =
           HealthKitMapper.toLocationDataList(routes);
 
-      record = HealthKitMapper.addLocationData(record, locationData);
+      record = record.copyWith(
+        heartRateData: heartRateData,
+        distanceData: distanceData,
+        locationData: locationData,
+      );
 
       enrichedWorkouts.add(record);
     }

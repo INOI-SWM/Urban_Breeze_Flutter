@@ -25,6 +25,25 @@ class CyclingWorkoutRecord {
   final List<DistanceData> distanceData; // 원시 거리 데이터
   final List<LocationData> locationData; // 원시 GPS 위치 데이터
 
+  /// 기존 객체의 일부 필드만 변경한 새로운 객체를 생성
+  CyclingWorkoutRecord copyWith({
+    List<HeartRateData>? heartRateData,
+    List<DistanceData>? distanceData,
+    List<LocationData>? locationData,
+  }) {
+    return CyclingWorkoutRecord(
+      id: id,
+      startTime: startTime,
+      endTime: endTime,
+      duration: duration,
+      distance: distance,
+      calories: calories,
+      heartRateData: heartRateData ?? this.heartRateData,
+      distanceData: distanceData ?? this.distanceData,
+      locationData: locationData ?? this.locationData,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
