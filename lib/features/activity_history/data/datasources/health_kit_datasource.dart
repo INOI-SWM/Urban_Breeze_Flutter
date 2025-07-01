@@ -1,21 +1,30 @@
-import 'package:health/health.dart';
+import 'package:health_kit_reporter/health_kit_reporter.dart';
+import 'package:health_kit_reporter/model/payload/preferred_unit.dart';
+import 'package:health_kit_reporter/model/payload/quantity.dart';
+import 'package:health_kit_reporter/model/payload/workout.dart';
+import 'package:health_kit_reporter/model/payload/workout_activity_type.dart';
+import 'package:health_kit_reporter/model/predicate.dart';
+import 'package:health_kit_reporter/model/type/quantity_type.dart';
+import 'package:health_kit_reporter/model/type/workout_type.dart';
 
 import '../../domain/exceptions/health_kit_exceptions.dart';
 
 class HealthKitDataSource {
-  HealthKitDataSource({Health? health}) : _health = health ?? Health();
-  final Health _health;
+  HealthKitDataSource();
 
-  static const List<HealthDataType> _dataTypes = <HealthDataType>[
-    HealthDataType.WORKOUT,
-    HealthDataType.HEART_RATE,
-    HealthDataType.DISTANCE_CYCLING,
-    HealthDataType.ACTIVE_ENERGY_BURNED,
+  static final List<String> _readTypes = <String>[
+    WorkoutType.workoutType.identifier,
+    QuantityType.heartRate.identifier,
+    QuantityType.distanceCycling.identifier,
+    QuantityType.activeEnergyBurned.identifier,
   ];
 
   Future<bool> requestPermissions() async {
     try {
-      return await _health.requestAuthorization(_dataTypes);
+      return await HealthKitReporter.requestAuthorization(
+        _readTypes,
+        <String>[],
+      );
     } catch (e) {
       throw HealthKitDataException('권한 요청 실패: $e');
     }
@@ -23,28 +32,24 @@ class HealthKitDataSource {
 
   Future<bool> hasPermissions() async {
     try {
-      // iOS에서는 READ 권한 상태를 직접 확인할 수 없으므로
+      // health_kit_reporter에서는 권한 상태를 직접 확인할 수 없으므로
       // 실제 데이터 조회를 시도해서 권한 상태를 간접적으로 확인
       final DateTime now = DateTime.now();
       final DateTime yesterday = now.subtract(const Duration(days: 1));
+      final Predicate predicate = Predicate(yesterday, now);
 
       // 작은 범위의 워크아웃 데이터 조회를 시도
-      await _health.getHealthDataFromTypes(
-        types: <HealthDataType>[HealthDataType.WORKOUT],
-        startTime: yesterday,
-        endTime: now,
-      );
+      await HealthKitReporter.workoutQuery(predicate);
 
       // 조회가 성공하면 권한이 있는 것으로 판단 (빈 결과여도 OK)
       return true;
     } catch (e) {
       // 권한이 없으면 예외가 발생함
-
       return false;
     }
   }
 
-  Future<List<HealthDataPoint>> getCyclingWorkouts({
+  Future<List<Workout>> getCyclingWorkouts({
     DateTime? startDate,
     DateTime? endDate,
   }) async {
@@ -53,27 +58,25 @@ class HealthKitDataSource {
       final DateTime start =
           startDate ?? end.subtract(const Duration(days: 365));
 
-      final List<HealthDataPoint> workouts = await _health
-          .getHealthDataFromTypes(
-            types: <HealthDataType>[HealthDataType.WORKOUT],
-            startTime: start,
-            endTime: end,
-          );
+      final Predicate predicate = Predicate(start, end);
+      final List<Workout> workouts = await HealthKitReporter.workoutQuery(
+        predicate,
+      );
 
-      final List<HealthDataPoint> cyclingWorkouts =
-          workouts.where((HealthDataPoint workout) {
-            if (workout.value is WorkoutHealthValue) {
-              final WorkoutHealthValue workoutValue =
-                  workout.value as WorkoutHealthValue;
-              return workoutValue.workoutActivityType ==
-                  HealthWorkoutActivityType.BIKING;
-            }
-            return false;
+      final List<Workout> cyclingWorkouts =
+          workouts.where((Workout workout) {
+            final WorkoutHarmonized harmonized = workout.harmonized;
+            final WorkoutActivityType type = harmonized.type;
+            return type == WorkoutActivityType.cycling;
           }).toList();
 
+      // 최신순으로 정렬
       cyclingWorkouts.sort(
-        (HealthDataPoint a, HealthDataPoint b) =>
-            b.dateFrom.compareTo(a.dateFrom),
+        (Workout a, Workout b) => DateTime.fromMillisecondsSinceEpoch(
+          b.startTimestamp.toInt(),
+        ).compareTo(
+          DateTime.fromMillisecondsSinceEpoch(a.startTimestamp.toInt()),
+        ),
       );
 
       return cyclingWorkouts;
@@ -83,22 +86,35 @@ class HealthKitDataSource {
     }
   }
 
-  /// 특정 운동의 심박수 데이터를 조회합니다.
-  Future<List<HealthDataPoint>> getHeartRateDataForWorkout({
+  Future<List<Quantity>> getHeartRateDataForWorkout({
     required DateTime workoutStartTime,
     required DateTime workoutEndTime,
   }) async {
     try {
-      final List<HealthDataPoint> heartRateData = await _health
-          .getHealthDataFromTypes(
-            types: <HealthDataType>[HealthDataType.HEART_RATE],
-            startTime: workoutStartTime,
-            endTime: workoutEndTime,
+      final Predicate predicate = Predicate(workoutStartTime, workoutEndTime);
+      final List<PreferredUnit> preferredUnits =
+          await HealthKitReporter.preferredUnits(<QuantityType>[
+            QuantityType.heartRate,
+          ]);
+
+      if (preferredUnits.isEmpty) {
+        throw HealthKitDataException('심박수 단위를 가져올 수 없습니다');
+      }
+
+      final String unit = preferredUnits.first.unit;
+      final List<Quantity> heartRateData =
+          await HealthKitReporter.quantityQuery(
+            QuantityType.heartRate,
+            unit,
+            predicate,
           );
 
       heartRateData.sort(
-        (HealthDataPoint a, HealthDataPoint b) =>
-            a.dateFrom.compareTo(b.dateFrom),
+        (Quantity a, Quantity b) => DateTime.fromMillisecondsSinceEpoch(
+          a.startTimestamp.toInt(),
+        ).compareTo(
+          DateTime.fromMillisecondsSinceEpoch(b.startTimestamp.toInt()),
+        ),
       );
 
       return heartRateData;
@@ -108,21 +124,34 @@ class HealthKitDataSource {
     }
   }
 
-  Future<List<HealthDataPoint>> getDistanceDataForWorkout({
+  Future<List<Quantity>> getDistanceDataForWorkout({
     required DateTime workoutStartTime,
     required DateTime workoutEndTime,
   }) async {
     try {
-      final List<HealthDataPoint> distanceData = await _health
-          .getHealthDataFromTypes(
-            types: <HealthDataType>[HealthDataType.DISTANCE_CYCLING],
-            startTime: workoutStartTime,
-            endTime: workoutEndTime,
-          );
+      final Predicate predicate = Predicate(workoutStartTime, workoutEndTime);
+      final List<PreferredUnit> preferredUnits =
+          await HealthKitReporter.preferredUnits(<QuantityType>[
+            QuantityType.distanceCycling,
+          ]);
+
+      if (preferredUnits.isEmpty) {
+        throw HealthKitDataException('거리 단위를 가져올 수 없습니다');
+      }
+
+      final String unit = preferredUnits.first.unit;
+      final List<Quantity> distanceData = await HealthKitReporter.quantityQuery(
+        QuantityType.distanceCycling,
+        unit,
+        predicate,
+      );
 
       distanceData.sort(
-        (HealthDataPoint a, HealthDataPoint b) =>
-            a.dateFrom.compareTo(b.dateFrom),
+        (Quantity a, Quantity b) => DateTime.fromMillisecondsSinceEpoch(
+          a.startTimestamp.toInt(),
+        ).compareTo(
+          DateTime.fromMillisecondsSinceEpoch(b.startTimestamp.toInt()),
+        ),
       );
 
       return distanceData;

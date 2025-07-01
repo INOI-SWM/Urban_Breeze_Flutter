@@ -1,4 +1,5 @@
-import 'package:health/health.dart';
+import 'package:health_kit_reporter/model/payload/quantity.dart';
+import 'package:health_kit_reporter/model/payload/workout.dart';
 
 import '../../domain/entities/cycling_workout_record.dart';
 import '../../domain/entities/distance_data.dart';
@@ -27,10 +28,12 @@ class HealthKitSyncRepositoryImpl implements HealthKitSyncRepository {
     DateTime? startDate,
     DateTime? endDate,
   }) async {
-    final List<HealthDataPoint> healthDataPoints = await _dataSource
-        .getCyclingWorkouts(startDate: startDate, endDate: endDate);
+    final List<Workout> workouts = await _dataSource.getCyclingWorkouts(
+      startDate: startDate,
+      endDate: endDate,
+    );
 
-    return HealthKitMapper.toCyclingWorkoutRecordList(healthDataPoints);
+    return HealthKitMapper.toCyclingWorkoutRecordList(workouts);
   }
 
   @override
@@ -38,13 +41,13 @@ class HealthKitSyncRepositoryImpl implements HealthKitSyncRepository {
     required DateTime workoutStartTime,
     required DateTime workoutEndTime,
   }) async {
-    final List<HealthDataPoint> healthDataPoints = await _dataSource
+    final List<Quantity> quantities = await _dataSource
         .getHeartRateDataForWorkout(
           workoutStartTime: workoutStartTime,
           workoutEndTime: workoutEndTime,
         );
 
-    return HealthKitMapper.toHeartRateDataList(healthDataPoints);
+    return HealthKitMapper.toHeartRateDataList(quantities);
   }
 
   @override
@@ -52,12 +55,12 @@ class HealthKitSyncRepositoryImpl implements HealthKitSyncRepository {
     required DateTime workoutStartTime,
     required DateTime workoutEndTime,
   }) async {
-    final List<HealthDataPoint> healthDataPoints = await _dataSource
+    final List<Quantity> quantities = await _dataSource
         .getDistanceDataForWorkout(
           workoutStartTime: workoutStartTime,
           workoutEndTime: workoutEndTime,
         );
 
-    return HealthKitMapper.toDistanceDataList(healthDataPoints);
+    return HealthKitMapper.toDistanceDataList(quantities);
   }
 }
