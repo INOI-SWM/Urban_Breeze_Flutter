@@ -44,3 +44,10 @@ class InvalidBboxException extends RouteDomainException {
   @override
   String toString() => 'InvalidBboxException: $message';
 }
+
+class RouteSaveException extends RouteDomainException {
+  const RouteSaveException(super.message);
+
+  @override
+  String toString() => 'RouteSaveException: $message';
+}
