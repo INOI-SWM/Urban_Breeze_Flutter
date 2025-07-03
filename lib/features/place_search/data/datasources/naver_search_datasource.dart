@@ -27,11 +27,6 @@ class NaverSearchDataSource {
       throw const ApiException(401, '네이버 API 키가 설정되지 않았습니다');
     }
 
-    // 네이버 API가 1-5개만 허용
-    if (display < 1 || display > 5) {
-      display = 5;
-    }
-
     try {
       final Uri uri = Uri.parse(_baseUrl).replace(
         queryParameters: <String, dynamic>{

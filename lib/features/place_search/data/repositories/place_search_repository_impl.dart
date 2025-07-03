@@ -16,14 +16,9 @@ class PlaceSearchRepositoryImpl implements PlaceSearchRepository {
     required String query,
     int display = 5,
   }) async {
-    final String trimmedQuery = query.trim();
-    if (trimmedQuery.isEmpty) {
-      throw const NoResultsException('검색어를 입력해주세요');
-    }
-
     try {
       final NaverSearchResponse response = await _dataSource.searchPlaces(
-        query: trimmedQuery,
+        query: query,
         display: display,
       );
 
