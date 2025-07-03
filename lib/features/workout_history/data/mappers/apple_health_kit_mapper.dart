@@ -7,17 +7,17 @@ import '../../domain/entities/cycling_workout_record.dart';
 import '../../domain/entities/distance_data.dart';
 import '../../domain/entities/heart_rate_data.dart';
 import '../../domain/entities/location_data.dart';
-import '../../domain/exceptions/health_kit_exceptions.dart';
+import '../../domain/exceptions/apple_health_kit_exceptions.dart';
 
 /// HealthKit 타임스탬프 변환 유틸리티
-class HealthKitTimestampUtils {
+class AppleHealthKitTimestampUtils {
   /// HealthKit timestamp (초 단위)를 Flutter DateTime으로 변환
   static DateTime fromHealthKitTimestamp(num timestamp) {
     return DateTime.fromMillisecondsSinceEpoch((timestamp * 1000).toInt());
   }
 }
 
-class HealthKitMapper {
+class AppleHealthKitMapper {
   /// Workout을 기본 정보만 포함한 CyclingWorkoutRecord로 변환 (심박수/거리 데이터 없음)
   static CyclingWorkoutRecord basicWorkoutRecord(Workout workout) {
     try {
@@ -31,10 +31,10 @@ class HealthKitMapper {
 
       return CyclingWorkoutRecord(
         id: workout.uuid,
-        startTime: HealthKitTimestampUtils.fromHealthKitTimestamp(
+        startTime: AppleHealthKitTimestampUtils.fromHealthKitTimestamp(
           workout.startTimestamp,
         ),
-        endTime: HealthKitTimestampUtils.fromHealthKitTimestamp(
+        endTime: AppleHealthKitTimestampUtils.fromHealthKitTimestamp(
           workout.endTimestamp,
         ),
         duration: Duration(seconds: workout.duration.toInt()),
@@ -81,7 +81,7 @@ class HealthKitMapper {
       }
 
       return HeartRateData(
-        timestamp: HealthKitTimestampUtils.fromHealthKitTimestamp(
+        timestamp: AppleHealthKitTimestampUtils.fromHealthKitTimestamp(
           quantity.startTimestamp,
         ),
         heartRate: quantity.harmonized.value.round(),
@@ -102,7 +102,7 @@ class HealthKitMapper {
       final double distanceM = distanceKm * 1000; // 킬로미터를 미터로 변환
 
       return DistanceData(
-        timestamp: HealthKitTimestampUtils.fromHealthKitTimestamp(
+        timestamp: AppleHealthKitTimestampUtils.fromHealthKitTimestamp(
           quantity.startTimestamp,
         ),
         distance: distanceM, // 미터 단위로 저장
@@ -149,7 +149,7 @@ class HealthKitMapper {
           for (final dynamic location in batchLocations) {
             try {
               final LocationData locationData = LocationData(
-                timestamp: HealthKitTimestampUtils.fromHealthKitTimestamp(
+                timestamp: AppleHealthKitTimestampUtils.fromHealthKitTimestamp(
                   location.timestamp,
                 ),
                 latitude: (location.latitude as num).toDouble(),

@@ -7,13 +7,13 @@ import '../../domain/entities/distance_data.dart';
 import '../../domain/entities/heart_rate_data.dart';
 import '../../domain/entities/location_data.dart';
 import '../../domain/repositories/health_kit_sync_repository.dart';
-import '../datasources/health_kit_datasource.dart';
-import '../mappers/health_kit_mapper.dart';
+import '../datasources/apple_health_kit_datasource.dart';
+import '../mappers/apple_health_kit_mapper.dart';
 
-class HealthKitSyncRepositoryImpl implements HealthKitSyncRepository {
-  HealthKitSyncRepositoryImpl({HealthKitDataSource? dataSource})
-    : _dataSource = dataSource ?? HealthKitDataSource();
-  final HealthKitDataSource _dataSource;
+class AppleHealthKitSyncRepositoryImpl implements HealthKitSyncRepository {
+  AppleHealthKitSyncRepositoryImpl({AppleHealthKitDataSource? dataSource})
+    : _dataSource = dataSource ?? AppleHealthKitDataSource();
+  final AppleHealthKitDataSource _dataSource;
 
   @override
   Future<bool> requestPermissions() async {
@@ -41,7 +41,9 @@ class HealthKitSyncRepositoryImpl implements HealthKitSyncRepository {
     for (int i = 0; i < workouts.length; i++) {
       final Workout workout = workouts[i];
 
-      CyclingWorkoutRecord record = HealthKitMapper.basicWorkoutRecord(workout);
+      CyclingWorkoutRecord record = AppleHealthKitMapper.basicWorkoutRecord(
+        workout,
+      );
 
       final List<Future<dynamic>> futures = <Future<dynamic>>[
         _dataSource.getHeartRateDataForWorkout(
@@ -66,11 +68,11 @@ class HealthKitSyncRepositoryImpl implements HealthKitSyncRepository {
       final List<WorkoutRoute> routes = results[2] as List<WorkoutRoute>;
 
       final List<HeartRateData> heartRateData =
-          HealthKitMapper.toHeartRateDataList(heartRateQuantities);
+          AppleHealthKitMapper.toHeartRateDataList(heartRateQuantities);
       final List<DistanceData> distanceData =
-          HealthKitMapper.toDistanceDataList(distanceQuantities);
+          AppleHealthKitMapper.toDistanceDataList(distanceQuantities);
       final List<LocationData> locationData =
-          HealthKitMapper.toLocationDataList(routes);
+          AppleHealthKitMapper.toLocationDataList(routes);
 
       record = record.copyWith(
         heartRateData: heartRateData,

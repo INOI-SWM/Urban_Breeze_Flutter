@@ -1,8 +1,8 @@
 import '../../domain/entities/cycling_workout_record.dart';
 import '../../domain/repositories/health_kit_sync_repository.dart';
 
-class SyncHealthKitDataUseCase {
-  const SyncHealthKitDataUseCase(this._repository);
+class SyncAppleHealthKitDataUseCase {
+  const SyncAppleHealthKitDataUseCase(this._repository);
   final HealthKitSyncRepository _repository;
 
   Future<bool> requestPermissions() async {

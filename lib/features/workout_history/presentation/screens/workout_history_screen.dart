@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/features/activity_history/domain/entities/distance_data.dart';
-import 'package:ridingmate/features/activity_history/domain/entities/heart_rate_data.dart';
+import 'package:ridingmate/features/workout_history/domain/entities/distance_data.dart';
+import 'package:ridingmate/features/workout_history/domain/entities/heart_rate_data.dart';
 
-import '../../data/repositories/health_kit_sync_repository_impl.dart';
+import '../../data/repositories/apple_health_kit_sync_repository_impl.dart';
 import '../../domain/entities/cycling_workout_record.dart';
 
-class ActivityHistoryScreen extends StatefulWidget {
-  const ActivityHistoryScreen({super.key});
+class WorkoutHistoryScreen extends StatefulWidget {
+  const WorkoutHistoryScreen({super.key});
 
   @override
-  State<ActivityHistoryScreen> createState() => _ActivityHistoryScreenState();
+  State<WorkoutHistoryScreen> createState() => _WorkoutHistoryScreenState();
 }
 
-class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
+class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
   bool _isLoading = false;
   List<CyclingWorkoutRecord> _workouts = <CyclingWorkoutRecord>[];
   String? _errorMessage;
-  final HealthKitSyncRepositoryImpl _repository = HealthKitSyncRepositoryImpl();
+  final AppleHealthKitSyncRepositoryImpl _repository =
+      AppleHealthKitSyncRepositoryImpl();
 
   Future<void> _testGetCyclingWorkouts() async {
     setState(() {

@@ -9,10 +9,10 @@ import 'package:health_kit_reporter/model/type/quantity_type.dart';
 import 'package:health_kit_reporter/model/type/series_type.dart';
 import 'package:health_kit_reporter/model/type/workout_type.dart';
 
-import '../../domain/exceptions/health_kit_exceptions.dart';
+import '../../domain/exceptions/apple_health_kit_exceptions.dart';
 
-class HealthKitDataSource {
-  HealthKitDataSource();
+class AppleHealthKitDataSource {
+  AppleHealthKitDataSource();
 
   static final List<String> _readTypes = <String>[
     WorkoutType.workoutType.identifier,

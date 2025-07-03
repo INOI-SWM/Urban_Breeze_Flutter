@@ -1,26 +1,26 @@
-abstract class HealthKitException implements Exception {
-  HealthKitException(this.message);
+abstract class AppleHealthKitException implements Exception {
+  AppleHealthKitException(this.message);
   final String message;
 
   @override
   String toString() => 'HealthKitException: $message';
 }
 
-class HealthKitPermissionException extends HealthKitException {
+class HealthKitPermissionException extends AppleHealthKitException {
   HealthKitPermissionException(super.message);
 
   @override
   String toString() => 'HealthKitPermissionException: $message';
 }
 
-class HealthKitDataException extends HealthKitException {
+class HealthKitDataException extends AppleHealthKitException {
   HealthKitDataException(super.message);
 
   @override
   String toString() => 'HealthKitDataException: $message';
 }
 
-class HealthKitWorkoutNotFoundException extends HealthKitException {
+class HealthKitWorkoutNotFoundException extends AppleHealthKitException {
   HealthKitWorkoutNotFoundException(super.message);
 
   @override
