@@ -8,7 +8,8 @@ import 'package:ridingmate/features/route_planning/application/use_cases/route_p
 import 'package:ridingmate/features/route_planning/application/use_cases/route_stats_use_case.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/save_route_use_case.dart';
 import 'package:ridingmate/features/route_planning/data/datasources/location_datasource.dart';
-import 'package:ridingmate/features/route_planning/data/datasources/route_remote_datasource.dart';
+import 'package:ridingmate/features/route_planning/data/datasources/remote/route_remote_datasource.dart';
+import 'package:ridingmate/features/route_planning/data/datasources/remote/route_save_remote_datasource.dart';
 import 'package:ridingmate/features/route_planning/data/repositories/location_repository_impl.dart';
 import 'package:ridingmate/features/route_planning/data/repositories/route_repository_impl.dart';
 import 'package:ridingmate/features/route_planning/domain/repositories/location_repository.dart';
@@ -43,6 +44,12 @@ final Provider<RouteRemoteDataSource> routeRemoteDataSourceProvider =
       return RouteRemoteDataSourceImpl(client: client);
     });
 
+final Provider<RouteSaveRemoteDataSource> routeSaveRemoteDataSourceProvider =
+    Provider<RouteSaveRemoteDataSource>((Ref<RouteSaveRemoteDataSource> ref) {
+      final http.Client client = ref.watch(httpClientProvider);
+      return RouteSaveRemoteDataSourceImpl(client: client);
+    });
+
 // Repository Providers
 final Provider<LocationRepository> locationRepositoryProvider =
     Provider<LocationRepository>((Ref<LocationRepository> ref) {
@@ -57,7 +64,13 @@ final Provider<RouteRepository> routeRepositoryProvider =
       final RouteRemoteDataSource remoteDataSource = ref.watch(
         routeRemoteDataSourceProvider,
       );
-      return RouteRepositoryImpl(remoteDataSource: remoteDataSource);
+      final RouteSaveRemoteDataSource saveRemoteDataSource = ref.watch(
+        routeSaveRemoteDataSourceProvider,
+      );
+      return RouteRepositoryImpl(
+        remoteDataSource: remoteDataSource,
+        saveRemoteDataSource: saveRemoteDataSource,
+      );
     });
 
 // Use Case Providers

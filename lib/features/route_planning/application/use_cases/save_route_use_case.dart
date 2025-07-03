@@ -46,7 +46,7 @@ class SaveRouteUseCase {
         encodedPolyline: encodedPolyline,
         bbox: mergedBbox,
         distance: totalDistance,
-        duration: totalDuration,
+        duration: (totalDuration / 60).round(),
         elevationGain: elevationGain,
         elevations: elevations,
       );

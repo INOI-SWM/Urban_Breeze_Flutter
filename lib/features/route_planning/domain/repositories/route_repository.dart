@@ -38,7 +38,7 @@ abstract class RouteRepository {
     required String encodedPolyline,
     required List<double> bbox,
     required double distance,
-    required double duration,
+    required int duration,
     required double elevationGain,
     required List<double> elevations,
   });
