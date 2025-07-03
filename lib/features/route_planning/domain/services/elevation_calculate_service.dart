@@ -1,13 +1,8 @@
-import 'package:latlong2/latlong.dart';
-
 class ElevationCalculateService {
   static const double _minElevationThreshold = 3.0;
   static const int _smoothingWindow = 5;
 
-  static double calculateSmoothedElevationGain(
-    List<LatLng> points,
-    List<double> elevations,
-  ) {
+  static double calculateSmoothedElevationGain(List<double> elevations) {
     final List<double> smoothedElevations = _smoothElevations(elevations);
     return _calculateElevationGain(smoothedElevations);
   }

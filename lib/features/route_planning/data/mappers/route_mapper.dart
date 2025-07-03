@@ -14,12 +14,12 @@ class RouteMapper {
 
     final double elevationGain =
         ElevationCalculateService.calculateSmoothedElevationGain(
-          routeData.points,
           routeData.elevations,
         );
 
     return RouteData(
       points: routeData.points,
+      elevations: routeData.elevations,
       distance: dto.distance,
       duration: dto.duration,
       ascent: dto.rawAscent,
