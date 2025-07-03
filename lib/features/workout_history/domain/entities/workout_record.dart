@@ -2,8 +2,8 @@ import 'distance_data.dart';
 import 'heart_rate_data.dart';
 import 'location_data.dart';
 
-class CyclingWorkoutRecord {
-  const CyclingWorkoutRecord({
+class WorkoutRecord {
+  const WorkoutRecord({
     required this.id,
     required this.startTime,
     required this.endTime,
@@ -26,12 +26,12 @@ class CyclingWorkoutRecord {
   final List<LocationData> locationData; // 원시 GPS 위치 데이터
 
   /// 기존 객체의 일부 필드만 변경한 새로운 객체를 생성
-  CyclingWorkoutRecord copyWith({
+  WorkoutRecord copyWith({
     List<HeartRateData>? heartRateData,
     List<DistanceData>? distanceData,
     List<LocationData>? locationData,
   }) {
-    return CyclingWorkoutRecord(
+    return WorkoutRecord(
       id: id,
       startTime: startTime,
       endTime: endTime,
@@ -47,7 +47,7 @@ class CyclingWorkoutRecord {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is CyclingWorkoutRecord && other.id == id;
+    return other is WorkoutRecord && other.id == id;
   }
 
   @override

@@ -3,7 +3,7 @@ import 'package:ridingmate/features/workout_history/domain/entities/distance_dat
 import 'package:ridingmate/features/workout_history/domain/entities/heart_rate_data.dart';
 
 import '../../data/repositories/apple_health_kit_sync_repository_impl.dart';
-import '../../domain/entities/cycling_workout_record.dart';
+import '../../domain/entities/workout_record.dart';
 
 class WorkoutHistoryScreen extends StatefulWidget {
   const WorkoutHistoryScreen({super.key});
@@ -14,7 +14,7 @@ class WorkoutHistoryScreen extends StatefulWidget {
 
 class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
   bool _isLoading = false;
-  List<CyclingWorkoutRecord> _workouts = <CyclingWorkoutRecord>[];
+  List<WorkoutRecord> _workouts = <WorkoutRecord>[];
   String? _errorMessage;
   final AppleHealthKitSyncRepositoryImpl _repository =
       AppleHealthKitSyncRepositoryImpl();
@@ -27,7 +27,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
 
     try {
       // Repository를 통해 모든 데이터가 포함된 자전거 운동 데이터 가져오기
-      final List<CyclingWorkoutRecord> workouts = await _repository
+      final List<WorkoutRecord> workouts = await _repository
           .fetchCyclingWorkoutsFromHealthKit(
             startDate: DateTime.now().subtract(const Duration(days: 30)),
             endDate: DateTime.now(),
@@ -197,7 +197,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                 child: ListView.builder(
                   itemCount: _workouts.length,
                   itemBuilder: (BuildContext context, int index) {
-                    final CyclingWorkoutRecord workout = _workouts[index];
+                    final WorkoutRecord workout = _workouts[index];
 
                     return Card(
                       margin: const EdgeInsets.only(bottom: 8),

@@ -2,10 +2,10 @@ import 'package:health_kit_reporter/model/payload/quantity.dart';
 import 'package:health_kit_reporter/model/payload/workout.dart';
 import 'package:health_kit_reporter/model/payload/workout_route.dart';
 
-import '../../domain/entities/cycling_workout_record.dart';
 import '../../domain/entities/distance_data.dart';
 import '../../domain/entities/heart_rate_data.dart';
 import '../../domain/entities/location_data.dart';
+import '../../domain/entities/workout_record.dart';
 import '../../domain/repositories/health_kit_sync_repository.dart';
 import '../datasources/apple_health_kit_datasource.dart';
 import '../mappers/apple_health_kit_mapper.dart';
@@ -26,7 +26,7 @@ class AppleHealthKitSyncRepositoryImpl implements HealthKitSyncRepository {
   }
 
   @override
-  Future<List<CyclingWorkoutRecord>> fetchCyclingWorkoutsFromHealthKit({
+  Future<List<WorkoutRecord>> fetchCyclingWorkoutsFromHealthKit({
     DateTime? startDate,
     DateTime? endDate,
   }) async {
@@ -35,15 +35,12 @@ class AppleHealthKitSyncRepositoryImpl implements HealthKitSyncRepository {
       endDate: endDate,
     );
 
-    final List<CyclingWorkoutRecord> enrichedWorkouts =
-        <CyclingWorkoutRecord>[];
+    final List<WorkoutRecord> enrichedWorkouts = <WorkoutRecord>[];
 
     for (int i = 0; i < workouts.length; i++) {
       final Workout workout = workouts[i];
 
-      CyclingWorkoutRecord record = AppleHealthKitMapper.basicWorkoutRecord(
-        workout,
-      );
+      WorkoutRecord record = AppleHealthKitMapper.basicWorkoutRecord(workout);
 
       final List<Future<dynamic>> futures = <Future<dynamic>>[
         _dataSource.getHeartRateDataForWorkout(

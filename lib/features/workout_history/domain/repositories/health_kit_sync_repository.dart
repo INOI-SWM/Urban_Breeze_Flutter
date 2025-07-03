@@ -1,10 +1,10 @@
-import '../entities/cycling_workout_record.dart';
+import '../entities/workout_record.dart';
 
 abstract class HealthKitSyncRepository {
   Future<bool> requestPermissions();
   Future<bool> hasPermissions();
 
-  Future<List<CyclingWorkoutRecord>> fetchCyclingWorkoutsFromHealthKit({
+  Future<List<WorkoutRecord>> fetchCyclingWorkoutsFromHealthKit({
     DateTime? startDate,
     DateTime? endDate,
   });

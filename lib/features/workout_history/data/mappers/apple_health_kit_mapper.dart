@@ -3,10 +3,10 @@ import 'package:health_kit_reporter/model/payload/workout.dart';
 import 'package:health_kit_reporter/model/payload/workout_route.dart';
 import 'package:health_kit_reporter/model/type/quantity_type.dart';
 
-import '../../domain/entities/cycling_workout_record.dart';
 import '../../domain/entities/distance_data.dart';
 import '../../domain/entities/heart_rate_data.dart';
 import '../../domain/entities/location_data.dart';
+import '../../domain/entities/workout_record.dart';
 import '../../domain/exceptions/apple_health_kit_exceptions.dart';
 
 /// HealthKit 타임스탬프 변환 유틸리티
@@ -19,7 +19,7 @@ class AppleHealthKitTimestampUtils {
 
 class AppleHealthKitMapper {
   /// Workout을 기본 정보만 포함한 CyclingWorkoutRecord로 변환 (심박수/거리 데이터 없음)
-  static CyclingWorkoutRecord basicWorkoutRecord(Workout workout) {
+  static WorkoutRecord basicWorkoutRecord(Workout workout) {
     try {
       final double distanceKm =
           workout.harmonized.totalDistance?.toDouble() ?? 0.0;
@@ -29,7 +29,7 @@ class AppleHealthKitMapper {
       // 킬로미터를 미터로 변환
       final double distanceM = distanceKm * 1000;
 
-      return CyclingWorkoutRecord(
+      return WorkoutRecord(
         id: workout.uuid,
         startTime: AppleHealthKitTimestampUtils.fromHealthKitTimestamp(
           workout.startTimestamp,
@@ -50,24 +50,24 @@ class AppleHealthKitMapper {
   }
 
   /// 기존 CyclingWorkoutRecord에 심박수 데이터를 추가한 새로운 record 반환
-  static CyclingWorkoutRecord addHeartRateData(
-    CyclingWorkoutRecord record,
+  static WorkoutRecord addHeartRateData(
+    WorkoutRecord record,
     List<HeartRateData> heartRateData,
   ) {
     return record.copyWith(heartRateData: heartRateData);
   }
 
   /// 기존 CyclingWorkoutRecord에 거리 데이터를 추가한 새로운 record 반환
-  static CyclingWorkoutRecord addDistanceData(
-    CyclingWorkoutRecord record,
+  static WorkoutRecord addDistanceData(
+    WorkoutRecord record,
     List<DistanceData> distanceData,
   ) {
     return record.copyWith(distanceData: distanceData);
   }
 
   /// 기존 CyclingWorkoutRecord에 GPS 위치 데이터를 추가한 새로운 record 반환
-  static CyclingWorkoutRecord addLocationData(
-    CyclingWorkoutRecord record,
+  static WorkoutRecord addLocationData(
+    WorkoutRecord record,
     List<LocationData> locationData,
   ) {
     return record.copyWith(locationData: locationData);
