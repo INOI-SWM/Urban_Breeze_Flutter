@@ -32,4 +32,14 @@ abstract class RouteRepository {
     LatLng end, {
     RouteMode mode = RouteMode.cyclingRoad,
   });
+
+  Future<void> saveRoute({
+    required String title,
+    required String encodedPolyline,
+    required List<double> bbox,
+    required double distance,
+    required double duration,
+    required double elevationGain,
+    required List<double> elevations,
+  });
 }

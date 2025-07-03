@@ -72,7 +72,13 @@ final Provider<CreateRouteUseCase> createRouteUseCaseProvider =
 final Provider<SaveRouteUseCase> saveRouteUseCaseProvider =
     Provider<SaveRouteUseCase>((Ref<SaveRouteUseCase> ref) {
       final BboxService bboxService = ref.watch(bboxServiceProvider);
-      return SaveRouteUseCase(bboxService: bboxService);
+      final RouteRepository routeRepository = ref.watch(
+        routeRepositoryProvider,
+      );
+      return SaveRouteUseCase(
+        bboxService: bboxService,
+        routeRepository: routeRepository,
+      );
     });
 
 final Provider<GetCurrentLocationUseCase> getCurrentLocationUseCaseProvider =

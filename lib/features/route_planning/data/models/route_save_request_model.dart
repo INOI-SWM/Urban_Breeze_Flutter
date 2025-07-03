@@ -1,11 +1,3 @@
-/*
-name: 경로 이름
-polyline: Google Polyline 인코딩 형식
-distance: 총 거리 (단위: 미터)
-duration: 예상 소요 시간 (단위: 분)
-elevationGain: 총 상승 고도 (단위: 미터)
- */
-
 class RouteSaveRequestModel {
   const RouteSaveRequestModel({
     required this.name,
