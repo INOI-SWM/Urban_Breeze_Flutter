@@ -41,7 +41,7 @@ class SaveRouteUseCase {
       final List<double> elevations =
           routeSegments.expand((RouteSegment seg) => seg.elevations).toList();
 
-      _routeRepository.saveRoute(
+      await _routeRepository.saveRoute(
         title: title,
         encodedPolyline: encodedPolyline,
         bbox: mergedBbox,

@@ -150,10 +150,20 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   }
 
   Future<void> _completeRouteSave(String title) async {
-    await _facade.saveRoute.execute(_routeSegments, title);
-    _exitSaveMode();
-    //TODO : 로딩 창 띄운 뒤 api 요청 후 완료 시 화면 전환
-    if (mounted) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      await _facade.saveRoute.execute(_routeSegments, title);
+
+      if (!mounted) return;
+
+      Navigator.of(context).pop();
+      _exitSaveMode();
+
       Navigator.push(
         context,
         PageRouteBuilder<void>(
@@ -170,6 +180,11 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
               ),
           transitionDuration: Duration.zero,
         ),
+      );
+    } catch (e) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('경로 저장에 실패했습니다. 다시 시도해주세요.')),
       );
     }
   }
