@@ -9,7 +9,7 @@ import 'package:ridingmate/features/route_planning/application/use_cases/route_s
 import 'package:ridingmate/features/route_planning/application/use_cases/save_route_use_case.dart';
 import 'package:ridingmate/features/route_planning/data/datasources/location_datasource.dart';
 import 'package:ridingmate/features/route_planning/data/datasources/remote/route_remote_datasource.dart';
-import 'package:ridingmate/features/route_planning/data/datasources/remote/route_save_remote_datasource.dart';
+import 'package:ridingmate/features/route_planning/data/datasources/remote/route_segment_remote_datasource.dart';
 import 'package:ridingmate/features/route_planning/data/repositories/location_repository_impl.dart';
 import 'package:ridingmate/features/route_planning/data/repositories/route_repository_impl.dart';
 import 'package:ridingmate/features/route_planning/domain/repositories/location_repository.dart';
@@ -38,16 +38,18 @@ final Provider<GeolocatorLocationDataSource> locationDataSourceProvider =
       return GeolocatorLocationDataSource();
     });
 
-final Provider<RouteRemoteDataSource> routeRemoteDataSourceProvider =
-    Provider<RouteRemoteDataSource>((Ref<RouteRemoteDataSource> ref) {
+final Provider<RouteSegmentRemoteDatasource> routeRemoteDataSourceProvider =
+    Provider<RouteSegmentRemoteDatasource>((
+      Ref<RouteSegmentRemoteDatasource> ref,
+    ) {
       final http.Client client = ref.watch(httpClientProvider);
-      return RouteRemoteDataSourceImpl(client: client);
+      return RouteSegmentRemoteDatasource(client: client);
     });
 
-final Provider<RouteSaveRemoteDataSource> routeSaveRemoteDataSourceProvider =
-    Provider<RouteSaveRemoteDataSource>((Ref<RouteSaveRemoteDataSource> ref) {
+final Provider<RouteRemoteDatasource> routeSaveRemoteDataSourceProvider =
+    Provider<RouteRemoteDatasource>((Ref<RouteRemoteDatasource> ref) {
       final http.Client client = ref.watch(httpClientProvider);
-      return RouteSaveRemoteDataSourceImpl(client: client);
+      return RouteRemoteDatasource(client: client);
     });
 
 // Repository Providers
@@ -61,15 +63,15 @@ final Provider<LocationRepository> locationRepositoryProvider =
 
 final Provider<RouteRepository> routeRepositoryProvider =
     Provider<RouteRepository>((Ref<RouteRepository> ref) {
-      final RouteRemoteDataSource remoteDataSource = ref.watch(
+      final RouteSegmentRemoteDatasource remoteDataSource = ref.watch(
         routeRemoteDataSourceProvider,
       );
-      final RouteSaveRemoteDataSource saveRemoteDataSource = ref.watch(
+      final RouteRemoteDatasource saveRemoteDataSource = ref.watch(
         routeSaveRemoteDataSourceProvider,
       );
       return RouteRepositoryImpl(
-        remoteDataSource: remoteDataSource,
-        saveRemoteDataSource: saveRemoteDataSource,
+        routeRemoteDataSource: remoteDataSource,
+        routeSaveRemoteDataSource: saveRemoteDataSource,
       );
     });
 

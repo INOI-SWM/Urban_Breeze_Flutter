@@ -1,6 +1,6 @@
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/features/route_planning/data/datasources/remote/route_remote_datasource.dart';
-import 'package:ridingmate/features/route_planning/data/datasources/remote/route_save_remote_datasource.dart';
+import 'package:ridingmate/features/route_planning/data/datasources/remote/route_segment_remote_datasource.dart';
 import 'package:ridingmate/features/route_planning/data/mappers/route_mapper.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_api_response_model.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_save_request_model.dart';
@@ -9,13 +9,13 @@ import 'package:ridingmate/features/route_planning/domain/repositories/route_rep
 
 class RouteRepositoryImpl implements RouteRepository {
   RouteRepositoryImpl({
-    required RouteRemoteDataSource remoteDataSource,
-    required RouteSaveRemoteDataSource saveRemoteDataSource,
-  }) : _routeRemoteDataSource = remoteDataSource,
-       _saveRemoteDataSource = saveRemoteDataSource;
+    required RouteSegmentRemoteDatasource routeRemoteDataSource,
+    required RouteRemoteDatasource routeSaveRemoteDataSource,
+  }) : _routeRemoteDataSource = routeRemoteDataSource,
+       _routeSaveRemoteDataSource = routeSaveRemoteDataSource;
 
-  final RouteRemoteDataSource _routeRemoteDataSource;
-  final RouteSaveRemoteDataSource _saveRemoteDataSource;
+  final RouteSegmentRemoteDatasource _routeRemoteDataSource;
+  final RouteRemoteDatasource _routeSaveRemoteDataSource;
 
   @override
   Future<RouteData> getRoute(
@@ -52,6 +52,6 @@ class RouteRepositoryImpl implements RouteRepository {
       elevations: elevations,
     );
 
-    await _saveRemoteDataSource.saveRoute(request);
+    await _routeSaveRemoteDataSource.saveRoute(request);
   }
 }
