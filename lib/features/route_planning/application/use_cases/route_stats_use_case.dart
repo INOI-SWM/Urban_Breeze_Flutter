@@ -1,38 +1,38 @@
-import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
+import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
 
 class RouteStatsUseCase {
   const RouteStatsUseCase();
 
-  double getTotalDistance(List<RouteData> routeSegments) {
+  double getTotalDistance(List<RouteSegment> routeSegments) {
     return routeSegments.fold(
       0,
-      (double sum, RouteData seg) => sum + seg.distance,
+      (double sum, RouteSegment seg) => sum + seg.distance,
     );
   }
 
-  double getTotalDuration(List<RouteData> routeSegments) {
+  int getTotalDuration(List<RouteSegment> routeSegments) {
     return routeSegments.fold(
       0,
-      (double sum, RouteData seg) => sum + seg.duration,
+      (int sum, RouteSegment seg) => sum + seg.duration,
     );
   }
 
-  double getTotalElevationGain(List<RouteData> routeSegments) {
+  double getTotalElevationGain(List<RouteSegment> routeSegments) {
     return routeSegments.fold(
       0,
-      (double sum, RouteData seg) => sum + seg.elevationGain,
+      (double sum, RouteSegment seg) => sum + seg.elevationGain,
     );
   }
 
-  String getFormattedTotalDistance(List<RouteData> routeSegments) {
+  String getFormattedTotalDistance(List<RouteSegment> routeSegments) {
     return formatDistance(getTotalDistance(routeSegments));
   }
 
-  String getFormattedTotalDuration(List<RouteData> routeSegments) {
+  String getFormattedTotalDuration(List<RouteSegment> routeSegments) {
     return formatDuration(getTotalDuration(routeSegments));
   }
 
-  String getFormattedElevationGain(List<RouteData> routeSegments) {
+  String getFormattedElevationGain(List<RouteSegment> routeSegments) {
     return formatElevationGain(getTotalElevationGain(routeSegments));
   }
 
@@ -40,9 +40,9 @@ class RouteStatsUseCase {
     return (distanceInMeters / 1000).toStringAsFixed(2);
   }
 
-  String formatDuration(double durationInSeconds) {
-    final int hours = (durationInSeconds / 3600).floor();
-    final int minutes = ((durationInSeconds % 3600) / 60).floor();
+  String formatDuration(int durationInMinutes) {
+    final int hours = (durationInMinutes / 60).floor();
+    final int minutes = ((durationInMinutes % 60)).floor();
 
     if (hours > 0) {
       return '$hours시간 $minutes분';
