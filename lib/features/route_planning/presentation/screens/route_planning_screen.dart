@@ -272,11 +272,11 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
                         ),
                       ],
                     ),
-                  PolylineLayer<Object>(
+                  PolylineLayer<LatLng>(
                     polylines:
                         _routeSegments
                             .map(
-                              (RouteSegment segment) => Polyline<Object>(
+                              (RouteSegment segment) => Polyline<LatLng>(
                                 points: segment.points,
                                 color: context.semanticColor.primaryNormal,
                                 strokeWidth: 4.0,

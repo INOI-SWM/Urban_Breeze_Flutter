@@ -1,15 +1,15 @@
-class ApiResponse<T> {
-  factory ApiResponse.fromJson(
+class ApiResponseModel<T> {
+  factory ApiResponseModel.fromJson(
     Map<String, dynamic> json,
     T Function(Map<String, dynamic>) fromJsonT,
   ) {
-    return ApiResponse<T>(
+    return ApiResponseModel<T>(
       status: json['status'] as int,
       message: json['message'] as String,
       data: fromJsonT(json['data'] as Map<String, dynamic>),
     );
   }
-  const ApiResponse({
+  const ApiResponseModel({
     required this.status,
     required this.message,
     required this.data,

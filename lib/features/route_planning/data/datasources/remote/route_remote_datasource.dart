@@ -5,7 +5,7 @@ import 'package:ridingmate/features/route_planning/data/models/route_save_reques
 import 'package:ridingmate/features/route_planning/data/models/route_save_response_model.dart';
 import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
-import 'package:ridingmate/shared/api/data/models/api_response.dart';
+import 'package:ridingmate/shared/api/data/models/api_response_model.dart';
 
 class RouteRemoteDatasource extends BaseRemoteDataSource {
   RouteRemoteDatasource({super.client});
@@ -23,8 +23,8 @@ class RouteRemoteDatasource extends BaseRemoteDataSource {
       final Map<String, dynamic> jsonMap = decodeResponse(response);
 
       if (statusCode == 200 || statusCode == 201) {
-        final ApiResponse<RouteSaveResponseModel> apiResp =
-            ApiResponse<RouteSaveResponseModel>.fromJson(
+        final ApiResponseModel<RouteSaveResponseModel> apiResp =
+            ApiResponseModel<RouteSaveResponseModel>.fromJson(
               jsonMap,
               (Map<String, dynamic> data) =>
                   RouteSaveResponseModel.fromJson(data),
