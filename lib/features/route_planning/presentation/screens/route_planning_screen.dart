@@ -129,13 +129,10 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   }
 
   void _fitMapToAllRoutes() {
-    final LatLngBounds? bounds = _facade.fitMapToRoutes.execute(_routeSegments);
-
-    if (bounds != null) {
-      _mapController.fitCamera(
-        CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(20)),
-      );
-    }
+    final LatLngBounds bounds = _facade.fitMapToRoutes.execute(_routeSegments);
+    _mapController.fitCamera(
+      CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(20)),
+    );
   }
 
   void _enterSaveMode() {

@@ -3,6 +3,7 @@ import 'package:latlong2/latlong.dart';
 class RouteData {
   RouteData({
     required this.points,
+    required this.elevations,
     required this.distance,
     required this.duration,
     required this.ascent,
@@ -12,6 +13,7 @@ class RouteData {
   });
 
   final List<LatLng> points;
+  final List<double> elevations;
   final double distance; // 미터
   final double duration; // 초
   final double ascent; // ORS 원시 총 상승고도(미터)

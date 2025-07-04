@@ -25,14 +25,24 @@ class RouteStatsUseCase {
   }
 
   String getFormattedTotalDistance(List<RouteData> routeSegments) {
-    return (getTotalDistance(routeSegments) / 1000).toStringAsFixed(2);
+    return formatDistance(getTotalDistance(routeSegments));
   }
 
   String getFormattedTotalDuration(List<RouteData> routeSegments) {
-    //TODO : api 연결 시 분 단위 계산으로 변경
-    final double totalDuration = getTotalDuration(routeSegments);
-    final int hours = (totalDuration / 3600).floor();
-    final int minutes = ((totalDuration % 3600) / 60).floor();
+    return formatDuration(getTotalDuration(routeSegments));
+  }
+
+  String getFormattedElevationGain(List<RouteData> routeSegments) {
+    return formatElevationGain(getTotalElevationGain(routeSegments));
+  }
+
+  String formatDistance(double distanceInMeters) {
+    return (distanceInMeters / 1000).toStringAsFixed(2);
+  }
+
+  String formatDuration(double durationInSeconds) {
+    final int hours = (durationInSeconds / 3600).floor();
+    final int minutes = ((durationInSeconds % 3600) / 60).floor();
 
     if (hours > 0) {
       return '$hours시간 $minutes분';
@@ -41,7 +51,7 @@ class RouteStatsUseCase {
     }
   }
 
-  String getFormattedElevationGain(List<RouteData> routeSegments) {
-    return '${getTotalElevationGain(routeSegments).round()} m';
+  String formatElevationGain(double elevationGainInMeters) {
+    return '${elevationGainInMeters.round()} m';
   }
 }

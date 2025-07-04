@@ -61,7 +61,7 @@ class RouteRemoteDataSourceImpl implements RouteRemoteDataSource {
     LatLng end,
     String routeMode,
   ) {
-    final String url = '$_baseUrl$routeMode/geojson';
+    final String url = '$_baseUrl/cycling-regular/geojson';
     final Map<String, Object> body = <String, Object>{
       'coordinates': <List<double>>[
         <double>[start.longitude, start.latitude],
