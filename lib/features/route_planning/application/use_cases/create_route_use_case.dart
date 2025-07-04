@@ -1,7 +1,7 @@
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
 import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
-import 'package:ridingmate/features/route_planning/domain/repositories/route_repository.dart';
+import 'package:ridingmate/features/route_planning/domain/repositories/route_segment_repository.dart';
 
 sealed class RouteResult<T> {
   const RouteResult();
@@ -18,17 +18,17 @@ class RouteFailure<T> extends RouteResult<T> {
 }
 
 class CreateRouteUseCase {
-  CreateRouteUseCase({required RouteRepository routeRepository})
+  CreateRouteUseCase({required RouteSegmentRepository routeRepository})
     : _routeRepository = routeRepository;
 
-  final RouteRepository _routeRepository;
+  final RouteSegmentRepository _routeRepository;
 
   Future<RouteResult<RouteSegment>> execute(
     LatLng startPoint,
     LatLng endPoint,
   ) async {
     try {
-      final RouteSegment routeData = await _routeRepository.getRoute(
+      final RouteSegment routeData = await _routeRepository.getRouteSegment(
         startPoint,
         endPoint,
       );

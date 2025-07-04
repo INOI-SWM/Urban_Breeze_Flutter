@@ -1,5 +1,5 @@
 import 'package:latlong2/latlong.dart';
-import 'package:ridingmate/features/route_planning/data/models/route_api_response_model.dart';
+import 'package:ridingmate/features/route_planning/data/models/route_segment_api_response_model.dart';
 import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
 import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 import 'package:ridingmate/features/route_planning/domain/services/elevation_calculate_service.dart';
