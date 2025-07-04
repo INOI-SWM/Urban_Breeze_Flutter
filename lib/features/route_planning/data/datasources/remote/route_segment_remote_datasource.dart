@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
+import 'package:ridingmate/features/route_planning/data/models/route_api_request_model.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_api_response_model.dart';
 import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
@@ -16,13 +17,10 @@ class RouteSegmentRemoteDatasource extends BaseRemoteDataSource {
     String routeMode,
   ) async {
     try {
-      final Map<String, Object> requestBody = <String, Object>{
-        'coordinates': <List<double>>[
-          <double>[start.longitude, start.latitude],
-          <double>[end.longitude, end.latitude],
-        ],
-        'elevation': true,
-      };
+      final RouteApiRequestModel requestBody = RouteApiRequestModel.toJson(
+        start,
+        end,
+      );
 
       // 추가적인 헤더
       final Map<String, String> additionalHeaders = <String, String>{
