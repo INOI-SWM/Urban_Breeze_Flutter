@@ -13,8 +13,8 @@ class FitMapToRoutesUseCase {
     List<RouteData> routeSegments, {
     double paddingRatio = 0.8,
   }) {
-    final List<List<double>?> allBboxes =
-        routeSegments.map((RouteData segment) => segment.bbox).toList();
+    final List<List<double>> allBboxes =
+        routeSegments.map((RouteData segment) => segment.bbox!).toList();
 
     final List<double> mergedBbox = _bboxService.mergeBboxes(allBboxes);
 

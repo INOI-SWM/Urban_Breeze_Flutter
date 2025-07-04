@@ -24,14 +24,14 @@ class SaveRouteUseCase {
         routeSegments,
       );
 
-      final List<List<double>?> allBboxes =
-          routeSegments.map((RouteData segment) => segment.bbox).toList();
+      final List<List<double>> allBboxes =
+          routeSegments.map((RouteData segment) => segment.bbox!).toList();
 
       final List<double> mergedBbox = _bboxService.mergeBboxes(allBboxes);
       final double totalDistance = _routeStatsUseCase.getTotalDistance(
         routeSegments,
       );
-      final double totalDuration = _routeStatsUseCase.getTotalDuration(
+      final int totalDuration = _routeStatsUseCase.getTotalDuration(
         routeSegments,
       );
       final double elevationGain = _routeStatsUseCase.getTotalElevationGain(
@@ -46,7 +46,7 @@ class SaveRouteUseCase {
         encodedPolyline: encodedPolyline,
         bbox: mergedBbox,
         distance: totalDistance,
-        duration: (totalDuration / 60).round(),
+        duration: totalDuration,
         elevationGain: elevationGain,
         elevations: elevations,
       );
