@@ -1,13 +1,13 @@
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_api_response_model.dart';
-import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
+import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
 import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 import 'package:ridingmate/features/route_planning/domain/services/elevation_calculate_service.dart';
 
 class RouteMapper {
   static const int _elevationIndex = 2;
 
-  static RouteData fromDto(RouteApiResponseModel dto) {
+  static RouteSegment fromDto(RouteApiResponseModel dto) {
     validateRouteData(dto);
     final ({List<LatLng> points, List<double> elevations}) routeData =
         _extractRouteData(dto.geometry);
@@ -17,7 +17,7 @@ class RouteMapper {
           routeData.elevations,
         );
 
-    return RouteData(
+    return RouteSegment(
       points: routeData.points,
       elevations: routeData.elevations,
       distance: dto.totalDistance,

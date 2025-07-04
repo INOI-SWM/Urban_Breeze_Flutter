@@ -4,8 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_api_response_model.dart';
 import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
-import 'package:ridingmate/shared/data/datasources/base_remote_datasource.dart';
-import 'package:ridingmate/shared/data/models/api_response.dart';
+import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
+import 'package:ridingmate/shared/api/data/models/api_response.dart';
 
 class RouteSegmentRemoteDatasource extends BaseRemoteDataSource {
   RouteSegmentRemoteDatasource({super.client});

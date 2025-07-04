@@ -1,6 +1,6 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
+import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
 import 'package:ridingmate/features/route_planning/domain/services/bbox_service.dart';
 
 class FitMapToRoutesUseCase {
@@ -10,11 +10,11 @@ class FitMapToRoutesUseCase {
   final BboxService _bboxService;
 
   LatLngBounds execute(
-    List<RouteData> routeSegments, {
+    List<RouteSegment> routeSegments, {
     double paddingRatio = 0.8,
   }) {
     final List<List<double>> allBboxes =
-        routeSegments.map((RouteData segment) => segment.bbox).toList();
+        routeSegments.map((RouteSegment segment) => segment.bbox).toList();
 
     final List<double> mergedBbox = _bboxService.mergeBboxes(allBboxes);
 

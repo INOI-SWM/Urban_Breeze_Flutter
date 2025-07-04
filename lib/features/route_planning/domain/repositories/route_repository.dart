@@ -1,5 +1,5 @@
 import 'package:latlong2/latlong.dart';
-import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
+import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
 
 enum RouteMode {
   drivingCar,
@@ -27,7 +27,7 @@ extension RouteModeExtension on RouteMode {
 }
 
 abstract class RouteRepository {
-  Future<RouteData> getRoute(
+  Future<RouteSegment> getRoute(
     LatLng start,
     LatLng end, {
     RouteMode mode = RouteMode.cyclingRoad,

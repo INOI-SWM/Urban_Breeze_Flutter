@@ -4,7 +4,7 @@ import 'package:ridingmate/features/route_planning/data/datasources/remote/route
 import 'package:ridingmate/features/route_planning/data/mappers/route_mapper.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_api_response_model.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_save_request_model.dart';
-import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
+import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
 import 'package:ridingmate/features/route_planning/domain/repositories/route_repository.dart';
 
 class RouteRepositoryImpl implements RouteRepository {
@@ -18,7 +18,7 @@ class RouteRepositoryImpl implements RouteRepository {
   final RouteRemoteDatasource _routeSaveRemoteDataSource;
 
   @override
-  Future<RouteData> getRoute(
+  Future<RouteSegment> getRoute(
     LatLng start,
     LatLng end, {
     RouteMode mode = RouteMode.cyclingRoad,
