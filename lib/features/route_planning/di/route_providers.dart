@@ -12,8 +12,10 @@ import 'package:ridingmate/features/route_planning/data/datasources/remote/route
 import 'package:ridingmate/features/route_planning/data/datasources/remote/route_segment_remote_datasource.dart';
 import 'package:ridingmate/features/route_planning/data/repositories/location_repository_impl.dart';
 import 'package:ridingmate/features/route_planning/data/repositories/route_repository_impl.dart';
+import 'package:ridingmate/features/route_planning/data/repositories/route_segment_repository_impl.dart';
 import 'package:ridingmate/features/route_planning/domain/repositories/location_repository.dart';
 import 'package:ridingmate/features/route_planning/domain/repositories/route_repository.dart';
+import 'package:ridingmate/features/route_planning/domain/repositories/route_segment_repository.dart';
 import 'package:ridingmate/features/route_planning/domain/services/bbox_service.dart';
 
 // Infrastructure Providers
@@ -38,15 +40,15 @@ final Provider<GeolocatorLocationDataSource> locationDataSourceProvider =
       return GeolocatorLocationDataSource();
     });
 
-final Provider<RouteSegmentRemoteDatasource> routeRemoteDataSourceProvider =
-    Provider<RouteSegmentRemoteDatasource>((
-      Ref<RouteSegmentRemoteDatasource> ref,
-    ) {
-      final http.Client client = ref.watch(httpClientProvider);
-      return RouteSegmentRemoteDatasource(client: client);
-    });
+final Provider<RouteSegmentRemoteDatasource>
+routeSegmentRemoteDataSourceProvider = Provider<RouteSegmentRemoteDatasource>((
+  Ref<RouteSegmentRemoteDatasource> ref,
+) {
+  final http.Client client = ref.watch(httpClientProvider);
+  return RouteSegmentRemoteDatasource(client: client);
+});
 
-final Provider<RouteRemoteDatasource> routeSaveRemoteDataSourceProvider =
+final Provider<RouteRemoteDatasource> routeRemoteDataSourceProvider =
     Provider<RouteRemoteDatasource>((Ref<RouteRemoteDatasource> ref) {
       final http.Client client = ref.watch(httpClientProvider);
       return RouteRemoteDatasource(client: client);
@@ -61,25 +63,29 @@ final Provider<LocationRepository> locationRepositoryProvider =
       return LocationRepositoryImpl(dataSource: dataSource);
     });
 
+final Provider<RouteSegmentRepository> routeSegmentRepositoryProvider =
+    Provider<RouteSegmentRepository>((Ref<RouteSegmentRepository> ref) {
+      final RouteSegmentRemoteDatasource routeSegmentRemoteDatasource = ref
+          .watch(routeSegmentRemoteDataSourceProvider);
+
+      return RouteSegmentRepositoryImpl(
+        routeSegmentRemoteDataSource: routeSegmentRemoteDatasource,
+      );
+    });
+
 final Provider<RouteRepository> routeRepositoryProvider =
     Provider<RouteRepository>((Ref<RouteRepository> ref) {
-      final RouteSegmentRemoteDatasource remoteDataSource = ref.watch(
+      final RouteRemoteDatasource routeRemoteDatasource = ref.watch(
         routeRemoteDataSourceProvider,
       );
-      final RouteRemoteDatasource saveRemoteDataSource = ref.watch(
-        routeSaveRemoteDataSourceProvider,
-      );
-      return RouteRepositoryImpl(
-        routeRemoteDataSource: remoteDataSource,
-        routeSaveRemoteDataSource: saveRemoteDataSource,
-      );
+      return RouteRepositoryImpl(routeRemoteDatasource: routeRemoteDatasource);
     });
 
 // Use Case Providers
 final Provider<CreateRouteUseCase> createRouteUseCaseProvider =
     Provider<CreateRouteUseCase>((Ref<CreateRouteUseCase> ref) {
-      final RouteRepository routeRepository = ref.watch(
-        routeRepositoryProvider,
+      final RouteSegmentRepository routeRepository = ref.watch(
+        routeSegmentRepositoryProvider,
       );
       return CreateRouteUseCase(routeRepository: routeRepository);
     });
