@@ -10,7 +10,7 @@ class RouteMapper {
   static RouteData fromDto(RouteApiResponseModel dto) {
     validateRouteData(dto);
     final ({List<LatLng> points, List<double> elevations}) routeData =
-        _extractRouteData(dto.coordinates);
+        _extractRouteData(dto.geometry);
 
     final double elevationGain =
         ElevationCalculateService.calculateSmoothedElevationGain(
@@ -20,25 +20,23 @@ class RouteMapper {
     return RouteData(
       points: routeData.points,
       elevations: routeData.elevations,
-      distance: dto.distance,
-      duration: dto.duration,
-      ascent: dto.rawAscent,
-      descent: dto.rawDescent,
+      distance: dto.totalDistance,
+      duration: dto.totalDuration,
       elevationGain: elevationGain,
       bbox: dto.bbox,
     );
   }
 
   static void validateRouteData(RouteApiResponseModel dto) {
-    if (dto.coordinates.length < 2) {
+    if (dto.geometry.length < 2) {
       throw const RouteValidationException(
         'Route must have at least 2 coordinates',
       );
     }
-    if (dto.distance < 0) {
+    if (dto.totalDistance < 0) {
       throw const RouteValidationException('Distance cannot be negative');
     }
-    if (dto.duration < 0) {
+    if (dto.totalDuration < 0) {
       throw const RouteValidationException('Duration cannot be negative');
     }
   }

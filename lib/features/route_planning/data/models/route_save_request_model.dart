@@ -1,6 +1,6 @@
 class RouteSaveRequestModel {
   const RouteSaveRequestModel({
-    required this.name,
+    required this.title,
     required this.polyline,
     required this.distance,
     required this.duration, // 분
@@ -9,7 +9,7 @@ class RouteSaveRequestModel {
     required this.bbox,
   });
 
-  final String name;
+  final String title;
   final String polyline;
   final double distance;
   final int duration;
@@ -19,7 +19,7 @@ class RouteSaveRequestModel {
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'title': name,
+      'title': title,
       'polyline': polyline,
       'distance': distance,
       'duration': duration,

@@ -10,10 +10,10 @@ class RouteStatsUseCase {
     );
   }
 
-  double getTotalDuration(List<RouteData> routeSegments) {
+  int getTotalDuration(List<RouteData> routeSegments) {
     return routeSegments.fold(
       0,
-      (double sum, RouteData seg) => sum + seg.duration,
+      (int sum, RouteData seg) => sum + seg.duration,
     );
   }
 
@@ -40,9 +40,9 @@ class RouteStatsUseCase {
     return (distanceInMeters / 1000).toStringAsFixed(2);
   }
 
-  String formatDuration(double durationInSeconds) {
-    final int hours = (durationInSeconds / 3600).floor();
-    final int minutes = ((durationInSeconds % 3600) / 60).floor();
+  String formatDuration(int durationInMinutes) {
+    final int hours = (durationInMinutes / 60).floor();
+    final int minutes = ((durationInMinutes % 60)).floor();
 
     if (hours > 0) {
       return '$hours시간 $minutes분';

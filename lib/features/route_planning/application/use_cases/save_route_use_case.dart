@@ -25,7 +25,7 @@ class SaveRouteUseCase {
       );
 
       final List<List<double>> allBboxes =
-          routeSegments.map((RouteData segment) => segment.bbox!).toList();
+          routeSegments.map((RouteData segment) => segment.bbox).toList();
 
       final List<double> mergedBbox = _bboxService.mergeBboxes(allBboxes);
       final double totalDistance = _routeStatsUseCase.getTotalDistance(

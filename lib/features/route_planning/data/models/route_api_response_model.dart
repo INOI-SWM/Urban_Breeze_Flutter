@@ -1,54 +1,47 @@
 class RouteApiResponseModel {
-  const RouteApiResponseModel({
-    required this.coordinates,
-    required this.distance,
-    required this.duration,
-    required this.rawAscent,
-    required this.rawDescent,
-    this.bbox,
-  });
+  factory RouteApiResponseModel.fromJson(Map<String, dynamic> jsonData) {
+    List<double> bbox;
+    final List<double> rawBbox =
+        (jsonData['bbox'] as List<dynamic>)
+            .map<double>((dynamic value) => (value as num).toDouble())
+            .toList();
 
-  factory RouteApiResponseModel.fromJson(Map<String, dynamic> json) {
-    final List<List<dynamic>> coordinates =
-        (json['features'][0]['geometry']['coordinates'] as List<dynamic>)
-            .cast<List<dynamic>>();
-
-    final Map<String, dynamic> properties =
-        json['features'][0]['properties'] as Map<String, dynamic>;
-    final Map<String, dynamic> summary =
-        properties['summary'] as Map<String, dynamic>;
-
-    List<double>? bbox;
-    if (json['bbox'] != null) {
-      final List<double> rawBbox =
-          (json['bbox'] as List<dynamic>)
-              .map<double>((dynamic value) => (value as num).toDouble())
-              .toList();
-
-      if (rawBbox.length == 6) {
-        bbox = <double>[rawBbox[0], rawBbox[1], rawBbox[3], rawBbox[4]];
-      } else if (rawBbox.length == 4) {
-        bbox = rawBbox;
-      }
+    if (rawBbox.length == 6) {
+      bbox = <double>[rawBbox[0], rawBbox[1], rawBbox[3], rawBbox[4]];
+    } else {
+      bbox = rawBbox;
     }
 
+    final List<List<double>> geometry =
+        (jsonData['geometry'] as List<dynamic>)
+            .map(
+              (dynamic pt) =>
+                  (pt as List<dynamic>)
+                      .map((dynamic e) => (e as num).toDouble())
+                      .toList(),
+            )
+            .toList();
+
     return RouteApiResponseModel(
-      coordinates: coordinates,
-      distance: (summary['distance'] as num).toDouble(),
-      duration: (summary['duration'] as num).toDouble(),
-      rawAscent: (properties['ascent'] as num?)?.toDouble() ?? 0.0,
-      rawDescent: (properties['descent'] as num?)?.toDouble() ?? 0.0,
       bbox: bbox,
+      geometry: geometry,
+      totalDuration: (jsonData['totalDuration'] as num).toInt(),
+      totalDistance: (jsonData['totalDistance'] as num).toDouble(),
+      averageGradient: (jsonData['averageGradient'] as num).toDouble(),
     );
   }
 
-  /// 원시 좌표 데이터 [longitude, latitude, elevation]
-  final List<List<dynamic>> coordinates;
-  final double distance; // 단위 : 미터
-  final double duration; // 단위 : 초
-  final double rawAscent; // ORS 원시 총 상승고도(미터)
-  final double rawDescent; // 총 하강고도(미터)
+  const RouteApiResponseModel({
+    required this.bbox,
+    required this.geometry,
+    required this.totalDuration, //분
+    required this.totalDistance, //미터
+    required this.averageGradient,
+  });
 
-  /// 경로를 포함하는 경계 상자 [minLng, minLat, maxLng, maxLat]
-  final List<double>? bbox;
+  final List<double> bbox;
+  final List<List<double>> geometry;
+  final int totalDuration;
+  final double totalDistance;
+  final double averageGradient;
 }

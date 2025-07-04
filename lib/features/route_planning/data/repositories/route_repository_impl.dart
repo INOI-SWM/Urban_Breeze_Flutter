@@ -43,7 +43,7 @@ class RouteRepositoryImpl implements RouteRepository {
     required List<double> elevations,
   }) async {
     final RouteSaveRequestModel request = RouteSaveRequestModel(
-      name: title,
+      title: title,
       polyline: encodedPolyline,
       bbox: bbox,
       distance: distance,
