@@ -18,7 +18,7 @@ class NaverSearchResponse {
       items:
           (json['items'] as List<dynamic>)
               .map(
-                (item) =>
+                (dynamic item) =>
                     NaverSearchItem.fromJson(item as Map<String, dynamic>),
               )
               .toList(),
