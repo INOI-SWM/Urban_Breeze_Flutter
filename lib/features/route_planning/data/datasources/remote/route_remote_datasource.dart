@@ -24,16 +24,19 @@ class RouteRemoteDatasource extends BaseRemoteDataSource {
 
       if (statusCode == 200 || statusCode == 201) {
         final ApiResponseModel<RouteSaveResponseModel> apiResp =
-            ApiResponseModel<RouteSaveResponseModel>.fromJson(
+            ApiResponseModel<RouteSaveResponseModel>.success(
               jsonMap,
               (Map<String, dynamic> data) =>
                   RouteSaveResponseModel.fromJson(data),
             );
 
-        return apiResp.data;
+        return apiResp.data!;
       }
 
-      throw RouteSaveException('서버 오류 (${response.statusCode})');
+      final ApiResponseModel<void> errorResp = ApiResponseModel<void>.error(
+        jsonMap,
+      );
+      throw RouteSaveException('서버 오류 ($statusCode) ${errorResp.message}');
     } on SocketException {
       throw const RouteSaveException('인터넷 연결을 확인해주세요');
     } on FormatException {

@@ -36,14 +36,18 @@ class RouteSegmentRemoteDatasource extends BaseRemoteDataSource {
       final Map<String, dynamic> jsonMap = decodeResponse(response);
       if (statusCode == 200 || statusCode == 201) {
         final ApiResponseModel<RouteApiResponseModel> apiResp =
-            ApiResponseModel<RouteApiResponseModel>.fromJson(
+            ApiResponseModel<RouteApiResponseModel>.success(
               jsonMap,
               (Map<String, dynamic> data) =>
                   RouteApiResponseModel.fromJson(data),
             );
-        return apiResp.data;
+        return apiResp.data!;
       }
-      throw RouteServerException('서버 오류 ($statusCode) ${jsonMap['message']}');
+
+      final ApiResponseModel<void> errorResp = ApiResponseModel<void>.error(
+        jsonMap,
+      );
+      throw RouteServerException('서버 오류 ($statusCode) ${errorResp.message}');
     } on SocketException {
       throw const RouteNetworkException('인터넷 연결을 확인해주세요');
     } on FormatException {
