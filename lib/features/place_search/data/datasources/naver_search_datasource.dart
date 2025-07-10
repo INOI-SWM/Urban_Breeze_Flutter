@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
-import '../exceptions/place_search_exceptions.dart';
+import '../../domain/exceptions/place_search_domain_exceptions.dart';
 import '../models/naver_search_response_model.dart';
 
 class NaverSearchDataSource {
@@ -24,7 +24,7 @@ class NaverSearchDataSource {
     int display = 5,
   }) async {
     if (_clientId.isEmpty || _clientSecret.isEmpty) {
-      throw const ApiException(401, '네이버 API 키가 설정되지 않았습니다');
+      throw const PlaceSearchServerException('네이버 API 키가 설정되지 않았습니다');
     }
 
     try {
@@ -60,20 +60,22 @@ class NaverSearchDataSource {
           errorMessage = errorData['errorMessage'] ?? errorMessage;
         } catch (_) {}
 
-        throw ApiException(response.statusCode, errorMessage);
+        throw PlaceSearchServerException(
+          'API 요청 실패 (${response.statusCode}): $errorMessage',
+        );
       }
     } on SocketException {
-      throw const NetworkException('인터넷 연결을 확인해주세요');
+      throw const PlaceSearchNetworkException('인터넷 연결을 확인해주세요');
     } on FormatException {
-      throw const ParseException('응답 데이터 형식이 올바르지 않습니다');
+      throw const PlaceSearchParsingException('응답 데이터 형식이 올바르지 않습니다');
     } on http.ClientException {
-      throw const NetworkException('네트워크 요청 중 오류가 발생했습니다');
+      throw const PlaceSearchNetworkException('네트워크 요청 중 오류가 발생했습니다');
     } catch (e) {
       // 예상하지 못한 에러
-      if (e is PlaceSearchException) {
+      if (e is PlaceSearchDomainException) {
         rethrow; // 이미 우리가 정의한 예외라면 그대로 전달
       }
-      throw ParseException('알 수 없는 오류가 발생했습니다: ${e.toString()}');
+      throw PlaceSearchParsingException('알 수 없는 오류가 발생했습니다: ${e.toString()}');
     }
   }
 

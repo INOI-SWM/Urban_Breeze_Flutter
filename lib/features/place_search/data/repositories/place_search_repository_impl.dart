@@ -1,9 +1,9 @@
 import 'package:ridingmate/features/place_search/data/models/naver_search_response_model.dart';
 
 import '../../domain/entities/place.dart';
+import '../../domain/exceptions/place_search_domain_exceptions.dart';
 import '../../domain/repositories/place_search_repository.dart';
 import '../datasources/naver_search_datasource.dart';
-import '../exceptions/place_search_exceptions.dart';
 
 class PlaceSearchRepositoryImpl implements PlaceSearchRepository {
   const PlaceSearchRepositoryImpl({required NaverSearchDataSource dataSource})
@@ -23,7 +23,7 @@ class PlaceSearchRepositoryImpl implements PlaceSearchRepository {
       );
 
       if (response.items.isEmpty) {
-        throw const NoResultsException();
+        throw const NoResultsException('검색 결과가 없습니다');
       }
 
       // 네이버 응답 데이터를 Place 엔티티로 변환
@@ -34,16 +34,16 @@ class PlaceSearchRepositoryImpl implements PlaceSearchRepository {
               .toList();
 
       if (places.isEmpty) {
-        throw const NoResultsException();
+        throw const NoResultsException('유효한 장소 정보가 없습니다');
       }
 
       return places;
     } catch (e) {
-      if (e is PlaceSearchException) {
+      if (e is PlaceSearchDomainException) {
         rethrow;
       }
 
-      throw ParseException('검색 중 오류가 발생했습니다: ${e.toString()}');
+      throw PlaceSearchParsingException('검색 중 오류가 발생했습니다: ${e.toString()}');
     }
   }
 

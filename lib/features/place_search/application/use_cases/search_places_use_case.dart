@@ -1,5 +1,5 @@
-import '../../data/exceptions/place_search_exceptions.dart';
 import '../../domain/entities/place.dart';
+import '../../domain/exceptions/place_search_domain_exceptions.dart';
 import '../../domain/repositories/place_search_repository.dart';
 
 class SearchPlacesUseCase {
@@ -11,7 +11,7 @@ class SearchPlacesUseCase {
   Future<List<Place>> call({required String query, int maxResults = 5}) async {
     final String sanitizedQuery = _sanitizeQuery(query);
     if (sanitizedQuery.isEmpty) {
-      throw const NoResultsException('검색어를 입력해주세요');
+      throw const EmptyQueryException('검색어를 입력해주세요');
     }
 
     final int validatedMaxResults = _validateMaxResults(maxResults);
