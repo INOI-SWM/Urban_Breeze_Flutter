@@ -90,14 +90,18 @@ class KakaoSearchDocument {
   // 응답 데이터를 Place 엔티티로 변환
   Place toPlace() {
     return Place(
+      id: id.isNotEmpty ? id : null,
       title: placeName,
       address: addressName.isNotEmpty ? addressName : roadAddressName,
       roadAddress: roadAddressName.isNotEmpty ? roadAddressName : addressName,
       latitude: _parseCoordinate(y),
       longitude: _parseCoordinate(x),
       category: categoryName.isNotEmpty ? categoryName : null,
+      categoryCode: categoryGroupCode.isNotEmpty ? categoryGroupCode : null,
       description: categoryGroupName.isNotEmpty ? categoryGroupName : null,
       telephone: phone.isNotEmpty ? phone : null,
+      placeUrl: placeUrl.isNotEmpty ? placeUrl : null,
+      distance: distance.isNotEmpty ? distance : null,
     );
   }
 
