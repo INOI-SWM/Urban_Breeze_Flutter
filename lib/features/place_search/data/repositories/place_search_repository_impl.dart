@@ -1,15 +1,15 @@
-import 'package:ridingmate/features/place_search/data/models/naver_search_response_model.dart';
+import 'package:ridingmate/features/place_search/data/models/kakao_search_response_model.dart';
 
 import '../../domain/entities/place.dart';
 import '../../domain/exceptions/place_search_domain_exceptions.dart';
 import '../../domain/repositories/place_search_repository.dart';
-import '../datasources/naver_search_datasource.dart';
+import '../datasources/kakao_search_datasource.dart';
 
 class PlaceSearchRepositoryImpl implements PlaceSearchRepository {
-  const PlaceSearchRepositoryImpl({required NaverSearchDataSource dataSource})
+  const PlaceSearchRepositoryImpl({required KakaoSearchDataSource dataSource})
     : _dataSource = dataSource;
 
-  final NaverSearchDataSource _dataSource;
+  final KakaoSearchDataSource _dataSource;
 
   @override
   Future<List<Place>> searchPlaces({
@@ -17,19 +17,18 @@ class PlaceSearchRepositoryImpl implements PlaceSearchRepository {
     int display = 5,
   }) async {
     try {
-      final NaverSearchResponse response = await _dataSource.searchPlaces(
+      final KakaoSearchResponse response = await _dataSource.searchPlaces(
         query: query,
-        display: display,
       );
 
-      if (response.items.isEmpty) {
+      if (response.documents.isEmpty) {
         throw const NoResultsException('검색 결과가 없습니다');
       }
 
-      // 네이버 응답 데이터를 Place 엔티티로 변환
+      // 응답 데이터를 Place 엔티티로 변환
       final List<Place> places =
-          response.items
-              .map((NaverSearchItem item) => item.toPlace())
+          response.documents
+              .map((KakaoSearchDocument document) => document.toPlace())
               .where((Place place) => _isValidPlace(place))
               .toList();
 
