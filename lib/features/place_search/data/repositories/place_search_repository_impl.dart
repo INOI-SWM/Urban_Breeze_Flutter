@@ -12,10 +12,7 @@ class PlaceSearchRepositoryImpl implements PlaceSearchRepository {
   final KakaoSearchDataSource _dataSource;
 
   @override
-  Future<List<Place>> searchPlaces({
-    required String query,
-    int display = 5,
-  }) async {
+  Future<List<Place>> searchPlaces({required String query}) async {
     try {
       final KakaoSearchResponse response = await _dataSource.searchPlaces(
         query: query,
