@@ -1,17 +1,19 @@
 import 'dart:math' as math;
 
+import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
+
 class BboxService {
   const BboxService();
 
-  List<double>? mergeBboxes(List<List<double>?> bboxes) {
+  List<double> mergeBboxes(List<List<double>> bboxes) {
     final List<List<double>> validBboxes =
         bboxes
-            .where((List<double>? bbox) => isValidBbox(bbox))
+            .where((List<double> bbox) => isValidBbox(bbox))
             .cast<List<double>>()
             .toList();
 
     if (validBboxes.isEmpty) {
-      return null;
+      throw const InvalidBboxException('Invalid bboxes provided');
     }
 
     if (validBboxes.length == 1) {
@@ -52,8 +54,8 @@ class BboxService {
     ];
   }
 
-  bool isValidBbox(List<double>? bbox) {
-    if (bbox == null || bbox.length != 4) {
+  bool isValidBbox(List<double> bbox) {
+    if (bbox.length != 4) {
       return false;
     }
 
@@ -73,12 +75,12 @@ class BboxService {
     return true;
   }
 
-  String bboxToString(List<double>? bbox) {
+  String bboxToString(List<double> bbox) {
     if (!isValidBbox(bbox)) {
       return 'Invalid bbox';
     }
 
-    return 'BBox(minLng: ${bbox![0].toStringAsFixed(6)}, '
+    return 'BBox(minLng: ${bbox[0].toStringAsFixed(6)}, '
         'minLat: ${bbox[1].toStringAsFixed(6)}, '
         'maxLng: ${bbox[2].toStringAsFixed(6)}, '
         'maxLat: ${bbox[3].toStringAsFixed(6)})';

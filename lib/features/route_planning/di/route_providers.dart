@@ -8,11 +8,14 @@ import 'package:ridingmate/features/route_planning/application/use_cases/route_p
 import 'package:ridingmate/features/route_planning/application/use_cases/route_stats_use_case.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/save_route_use_case.dart';
 import 'package:ridingmate/features/route_planning/data/datasources/location_datasource.dart';
-import 'package:ridingmate/features/route_planning/data/datasources/route_remote_datasource.dart';
+import 'package:ridingmate/features/route_planning/data/datasources/remote/route_remote_datasource.dart';
+import 'package:ridingmate/features/route_planning/data/datasources/remote/route_segment_remote_datasource.dart';
 import 'package:ridingmate/features/route_planning/data/repositories/location_repository_impl.dart';
 import 'package:ridingmate/features/route_planning/data/repositories/route_repository_impl.dart';
+import 'package:ridingmate/features/route_planning/data/repositories/route_segment_repository_impl.dart';
 import 'package:ridingmate/features/route_planning/domain/repositories/location_repository.dart';
 import 'package:ridingmate/features/route_planning/domain/repositories/route_repository.dart';
+import 'package:ridingmate/features/route_planning/domain/repositories/route_segment_repository.dart';
 import 'package:ridingmate/features/route_planning/domain/services/bbox_service.dart';
 
 // Infrastructure Providers
@@ -37,10 +40,18 @@ final Provider<GeolocatorLocationDataSource> locationDataSourceProvider =
       return GeolocatorLocationDataSource();
     });
 
-final Provider<RouteRemoteDataSource> routeRemoteDataSourceProvider =
-    Provider<RouteRemoteDataSource>((Ref<RouteRemoteDataSource> ref) {
+final Provider<RouteSegmentRemoteDatasource>
+routeSegmentRemoteDataSourceProvider = Provider<RouteSegmentRemoteDatasource>((
+  Ref<RouteSegmentRemoteDatasource> ref,
+) {
+  final http.Client client = ref.watch(httpClientProvider);
+  return RouteSegmentRemoteDatasource(client: client);
+});
+
+final Provider<RouteRemoteDatasource> routeRemoteDataSourceProvider =
+    Provider<RouteRemoteDatasource>((Ref<RouteRemoteDatasource> ref) {
       final http.Client client = ref.watch(httpClientProvider);
-      return RouteRemoteDataSourceImpl(client: client);
+      return RouteRemoteDatasource(client: client);
     });
 
 // Repository Providers
@@ -52,19 +63,29 @@ final Provider<LocationRepository> locationRepositoryProvider =
       return LocationRepositoryImpl(dataSource: dataSource);
     });
 
+final Provider<RouteSegmentRepository> routeSegmentRepositoryProvider =
+    Provider<RouteSegmentRepository>((Ref<RouteSegmentRepository> ref) {
+      final RouteSegmentRemoteDatasource routeSegmentRemoteDatasource = ref
+          .watch(routeSegmentRemoteDataSourceProvider);
+
+      return RouteSegmentRepositoryImpl(
+        routeSegmentRemoteDataSource: routeSegmentRemoteDatasource,
+      );
+    });
+
 final Provider<RouteRepository> routeRepositoryProvider =
     Provider<RouteRepository>((Ref<RouteRepository> ref) {
-      final RouteRemoteDataSource remoteDataSource = ref.watch(
+      final RouteRemoteDatasource routeRemoteDatasource = ref.watch(
         routeRemoteDataSourceProvider,
       );
-      return RouteRepositoryImpl(remoteDataSource: remoteDataSource);
+      return RouteRepositoryImpl(routeRemoteDatasource: routeRemoteDatasource);
     });
 
 // Use Case Providers
 final Provider<CreateRouteUseCase> createRouteUseCaseProvider =
     Provider<CreateRouteUseCase>((Ref<CreateRouteUseCase> ref) {
-      final RouteRepository routeRepository = ref.watch(
-        routeRepositoryProvider,
+      final RouteSegmentRepository routeRepository = ref.watch(
+        routeSegmentRepositoryProvider,
       );
       return CreateRouteUseCase(routeRepository: routeRepository);
     });
@@ -72,7 +93,17 @@ final Provider<CreateRouteUseCase> createRouteUseCaseProvider =
 final Provider<SaveRouteUseCase> saveRouteUseCaseProvider =
     Provider<SaveRouteUseCase>((Ref<SaveRouteUseCase> ref) {
       final BboxService bboxService = ref.watch(bboxServiceProvider);
-      return SaveRouteUseCase(bboxService: bboxService);
+      final RouteRepository routeRepository = ref.watch(
+        routeRepositoryProvider,
+      );
+      final RouteStatsUseCase routeStatsUseCase = ref.watch(
+        routeStatsUseCaseProvider,
+      );
+      return SaveRouteUseCase(
+        bboxService: bboxService,
+        routeRepository: routeRepository,
+        routeStatsUseCase: routeStatsUseCase,
+      );
     });
 
 final Provider<GetCurrentLocationUseCase> getCurrentLocationUseCaseProvider =

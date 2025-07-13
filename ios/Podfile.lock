@@ -41,6 +41,10 @@ PODS:
   - GTMSessionFetcher/Core (3.5.0)
   - GTMSessionFetcher/Full (3.5.0):
     - GTMSessionFetcher/Core
+  - health_kit_reporter (2.1.0):
+    - Flutter
+    - HealthKitReporter (= 3.1.0)
+  - HealthKitReporter (3.1.0)
   - kakao_flutter_sdk_common (1.9.7-3):
     - Flutter
   - path_provider_foundation (0.0.1):
@@ -59,6 +63,7 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/darwin`)
   - google_sign_in_ios (from `.symlinks/plugins/google_sign_in_ios/darwin`)
+  - health_kit_reporter (from `.symlinks/plugins/health_kit_reporter/ios`)
   - kakao_flutter_sdk_common (from `.symlinks/plugins/kakao_flutter_sdk_common/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
@@ -73,6 +78,7 @@ SPEC REPOS:
     - GoogleUtilities
     - GTMAppAuth
     - GTMSessionFetcher
+    - HealthKitReporter
     - PromisesObjC
 
 EXTERNAL SOURCES:
@@ -82,6 +88,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/geolocator_apple/darwin"
   google_sign_in_ios:
     :path: ".symlinks/plugins/google_sign_in_ios/darwin"
+  health_kit_reporter:
+    :path: ".symlinks/plugins/health_kit_reporter/ios"
   kakao_flutter_sdk_common:
     :path: ".symlinks/plugins/kakao_flutter_sdk_common/ios"
   path_provider_foundation:
@@ -103,6 +111,8 @@ SPEC CHECKSUMS:
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   GTMAppAuth: f69bd07d68cd3b766125f7e072c45d7340dea0de
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
+  health_kit_reporter: c415db36059e3adea874264998f4888c45687940
+  HealthKitReporter: 4fae728be1afa52c4833d4cfb9835b368bfc89e6
   kakao_flutter_sdk_common: 600d55b532da0bd37268a529e1add49302477710
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47

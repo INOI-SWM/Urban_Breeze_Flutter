@@ -7,7 +7,7 @@ import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/create_route_use_case.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/route_planning_facade.dart';
 import 'package:ridingmate/features/route_planning/di/route_providers.dart';
-import 'package:ridingmate/features/route_planning/domain/entities/route_data.dart';
+import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
 import 'package:ridingmate/features/route_planning/presentation/screens/route_create_complete_screen.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
@@ -36,7 +36,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
 
   bool _isButtonPressed = false;
   final List<LatLng> _pins = <LatLng>[];
-  final List<RouteData> _routeSegments = <RouteData>[];
+  final List<RouteSegment> _routeSegments = <RouteSegment>[];
   bool _isRouteLoading = false;
   bool _isSaveMode = false;
 
@@ -76,7 +76,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
       _isRouteLoading = true;
     });
 
-    final RouteResult<RouteData> result = await _facade.createRoute.execute(
+    final RouteResult<RouteSegment> result = await _facade.createRoute.execute(
       _pins[_pins.length - 2],
       _pins[_pins.length - 1],
     );
@@ -87,13 +87,13 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
       });
 
       switch (result) {
-        case final RouteSuccess<RouteData> success:
+        case final RouteSuccess<RouteSegment> success:
           setState(() {
             _routeSegments.add(success.data);
             _pins[_pins.length - 2] = success.data.points.first;
             _pins[_pins.length - 1] = success.data.points.last;
           });
-        case final RouteFailure<RouteData> failure:
+        case final RouteFailure<RouteSegment> failure:
           _removeLastPin(shouldRemoveRouteSegment: false);
           _showErrorSnackBar(failure.message);
       }
@@ -129,13 +129,10 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   }
 
   void _fitMapToAllRoutes() {
-    final LatLngBounds? bounds = _facade.fitMapToRoutes.execute(_routeSegments);
-
-    if (bounds != null) {
-      _mapController.fitCamera(
-        CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(20)),
-      );
-    }
+    final LatLngBounds bounds = _facade.fitMapToRoutes.execute(_routeSegments);
+    _mapController.fitCamera(
+      CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(20)),
+    );
   }
 
   void _enterSaveMode() {
@@ -153,10 +150,20 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   }
 
   Future<void> _completeRouteSave(String title) async {
-    await _facade.saveRoute.execute(_routeSegments, title);
-    _exitSaveMode();
-    //TODO : 로딩 창 띄운 뒤 api 요청 후 완료 시 화면 전환
-    if (mounted) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      await _facade.saveRoute.execute(_routeSegments, title);
+
+      if (!mounted) return;
+
+      Navigator.of(context).pop();
+      _exitSaveMode();
+
       Navigator.push(
         context,
         PageRouteBuilder<void>(
@@ -173,6 +180,11 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
               ),
           transitionDuration: Duration.zero,
         ),
+      );
+    } catch (e) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('경로 저장에 실패했습니다. 다시 시도해주세요.')),
       );
     }
   }
@@ -260,11 +272,11 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
                         ),
                       ],
                     ),
-                  PolylineLayer<Object>(
+                  PolylineLayer<LatLng>(
                     polylines:
                         _routeSegments
                             .map(
-                              (RouteData segment) => Polyline<Object>(
+                              (RouteSegment segment) => Polyline<LatLng>(
                                 points: segment.points,
                                 color: context.semanticColor.primaryNormal,
                                 strokeWidth: 4.0,

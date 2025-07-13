@@ -37,3 +37,17 @@ class RouteValidationException extends RouteDomainException {
   @override
   String toString() => 'RouteValidationException: $message';
 }
+
+class InvalidBboxException extends RouteDomainException {
+  const InvalidBboxException(super.message);
+
+  @override
+  String toString() => 'InvalidBboxException: $message';
+}
+
+class RouteSaveException extends RouteDomainException {
+  const RouteSaveException(super.message);
+
+  @override
+  String toString() => 'RouteSaveException: $message';
+}
