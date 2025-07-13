@@ -57,10 +57,12 @@ class KakaoSearchDataSource {
       }
     } on SocketException {
       throw const PlaceSearchNetworkException('인터넷 연결을 확인해주세요');
+    } on HttpException catch (e) {
+      throw PlaceSearchNetworkException('HTTP 요청 오류: ${e.message}');
+    } on http.ClientException catch (e) {
+      throw PlaceSearchNetworkException('클라이언트 요청 오류: ${e.message}');
     } on FormatException {
       throw const PlaceSearchParsingException('응답 데이터 형식이 올바르지 않습니다');
-    } on http.ClientException {
-      throw const PlaceSearchNetworkException('네트워크 요청 중 오류가 발생했습니다');
     } catch (e) {
       // 예상하지 못한 에러
       if (e is PlaceSearchDomainException) {
