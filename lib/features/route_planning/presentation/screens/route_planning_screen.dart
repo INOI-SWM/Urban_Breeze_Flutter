@@ -4,6 +4,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/place_search/domain/entities/place.dart';
+import 'package:ridingmate/features/place_search/presentation/screens/place_search_screen.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/create_route_use_case.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/route_planning_facade.dart';
 import 'package:ridingmate/features/route_planning/di/route_providers.dart';
@@ -12,6 +14,7 @@ import 'package:ridingmate/features/route_planning/presentation/screens/route_cr
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:ridingmate/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/marker/route_pin_marker.dart';
 
 class RoutePlanningScreen extends ConsumerStatefulWidget {
@@ -39,6 +42,8 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   final List<RouteSegment> _routeSegments = <RouteSegment>[];
   bool _isRouteLoading = false;
   bool _isSaveMode = false;
+  bool _showSearchBar = true;
+  bool _hasSearched = false;
 
   late final RoutePlanningFacade _facade;
 
@@ -47,6 +52,11 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     super.initState();
     _facade = ref.read(routePlanningFacadeProvider);
     _getCurrentLocation();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -67,6 +77,36 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     setState(() {
       _isButtonPressed = !_isButtonPressed;
     });
+  }
+
+  void _onCloseTap() {
+    // TODO: 경로 생성 화면 나가는 동작 추가
+  }
+
+  Future<void> _openSearchScreen() async {
+    final Place? selectedPlace = await Navigator.push<Place>(
+      context,
+      MaterialPageRoute<Place>(
+        builder: (BuildContext context) => const PlaceSearchScreen(),
+      ),
+    );
+
+    if (selectedPlace != null) {
+      _moveToPlace(selectedPlace);
+    }
+
+    setState(() {
+      _hasSearched = true;
+    });
+
+    // TODO: 장소 선택 후 동작 추가
+  }
+
+  void _moveToPlace(Place place) {
+    final LatLng position = LatLng(place.latitude, place.longitude);
+
+    // 선택된 장소로 지도 이동
+    _mapController.move(position, initialZoom);
   }
 
   Future<void> _getRoute() async {
@@ -140,6 +180,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     setState(() {
       _isSaveMode = true;
       _isButtonPressed = false;
+      _showSearchBar = false;
     });
   }
 
@@ -304,6 +345,20 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
               if (_isRouteLoading)
                 const Positioned.fill(
                   child: Center(child: CircularProgressIndicator()),
+                ),
+              if (_showSearchBar)
+                Positioned(
+                  top: 54,
+                  left: 0,
+                  right: 0,
+                  child: FloatingSearchAppBar(
+                    searchText: '장소, 위치 검색하기',
+                    onSearchTap: _openSearchScreen,
+                    onCloseTap: _onCloseTap,
+                    onSearchTextChanged: (_) {},
+                    onSearchTextSubmitted: (_) {},
+                    isSearchActive: _hasSearched,
+                  ),
                 ),
               if (!_isSaveMode)
                 Positioned(
