@@ -35,7 +35,7 @@ class FloatingSearchAppBar extends StatelessWidget
       child: SizedBox(
         height: kToolbarHeight,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Row(
             children: <Widget>[
               Container(
@@ -51,10 +51,13 @@ class FloatingSearchAppBar extends StatelessWidget
                   child: const Icon(Icons.close, size: 24),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 4),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 4,
+                    horizontal: 4,
+                  ),
                   child: GestureDetector(
                     onTap: onSearchTap,
                     child: SearchFieldPreview(
