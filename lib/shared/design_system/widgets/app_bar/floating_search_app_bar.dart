@@ -15,6 +15,7 @@ class FloatingSearchAppBar extends StatelessWidget
     required this.onCloseTap,
     required this.onSearchTextChanged,
     required this.onSearchTextSubmitted,
+    this.isSearchActive = false,
   });
 
   final String? searchText;
@@ -23,6 +24,7 @@ class FloatingSearchAppBar extends StatelessWidget
   final VoidCallback onCloseTap;
   final ValueChanged<String> onSearchTextChanged;
   final ValueChanged<String> onSearchTextSubmitted;
+  final bool isSearchActive;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -66,6 +68,14 @@ class FloatingSearchAppBar extends StatelessWidget
                       backgroundColor: colors.backgroundNormalNormal,
                       boxShadow: AppShadows.instance.emphasize,
                       onClear: onCloseTap,
+                      textColor:
+                          isSearchActive
+                              ? colors.labelNormal
+                              : colors.labelAssistive,
+                      hintTextColor:
+                          isSearchActive
+                              ? colors.labelNormal
+                              : colors.labelAssistive,
                     ),
                   ),
                 ),

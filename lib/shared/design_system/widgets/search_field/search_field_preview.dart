@@ -13,6 +13,8 @@ class SearchFieldPreview extends StatelessWidget {
     this.backgroundColor,
     this.onClear,
     this.boxShadow,
+    this.textColor,
+    this.hintTextColor,
   });
 
   final String? text;
@@ -20,6 +22,8 @@ class SearchFieldPreview extends StatelessWidget {
   final Color? backgroundColor;
   final VoidCallback? onClear;
   final List<BoxShadow>? boxShadow;
+  final Color? textColor;
+  final Color? hintTextColor;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +35,8 @@ class SearchFieldPreview extends StatelessWidget {
       backgroundColor: backgroundColor ?? colors.fillNormal,
       boxShadow: boxShadow ?? AppShadows.instance.emphasize,
       onClear: onClear,
+      textColor: textColor,
+      hintTextColor: hintTextColor,
     );
   }
 }

@@ -15,6 +15,8 @@ class BaseSearchField extends StatelessWidget {
     this.onClear,
     this.hintText = '검색어를 입력해주세요',
     this.child,
+    this.textColor,
+    this.hintTextColor,
   });
 
   final String? text;
@@ -24,6 +26,8 @@ class BaseSearchField extends StatelessWidget {
   final VoidCallback? onClear;
   final String hintText;
   final Widget? child;
+  final Color? textColor;
+  final Color? hintTextColor;
 
   double get _padding => size == SearchFieldSize.small ? 8 : 12;
 
@@ -52,7 +56,10 @@ class BaseSearchField extends StatelessWidget {
                 Text(
                   hasText ? text! : hintText,
                   style: AppTextStyles.body1.normalRegular.copyWith(
-                    color: hasText ? colors.labelNormal : colors.labelAssistive,
+                    color:
+                        hasText
+                            ? (textColor ?? colors.labelNormal)
+                            : (hintTextColor ?? colors.labelAssistive),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
