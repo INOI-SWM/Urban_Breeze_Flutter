@@ -197,18 +197,20 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.semanticColor.backgroundNormalNormal,
-      body: Column(
-        children: <Widget>[
-          const SizedBox(height: 30),
-          SearchAppBar(
-            searchController: _searchController,
-            searchFocusNode: _searchFocusNode,
-            onSearchChanged: _onSearchTextChanged,
-            onSearchSubmitted: _performSearch,
-            onBackPressed: () => Navigator.of(context).pop(),
-          ),
-          Expanded(child: _buildSearchResults()),
-        ],
+      body: SafeArea(
+        child: Column(
+          children: <Widget>[
+            const SizedBox(height: 30),
+            SearchAppBar(
+              searchController: _searchController,
+              searchFocusNode: _searchFocusNode,
+              onSearchChanged: _onSearchTextChanged,
+              onSearchSubmitted: _performSearch,
+              onBackPressed: () => Navigator.of(context).pop(),
+            ),
+            Expanded(child: _buildSearchResults()),
+          ],
+        ),
       ),
     );
   }
