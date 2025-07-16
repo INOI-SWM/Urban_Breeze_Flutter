@@ -1,10 +1,10 @@
 import '../../domain/entities/place.dart';
 
-class KakaoSearchResponse {
-  const KakaoSearchResponse({required this.meta, required this.documents});
+class KakaoSearchResponseModel {
+  const KakaoSearchResponseModel({required this.meta, required this.documents});
 
-  factory KakaoSearchResponse.fromJson(Map<String, dynamic> json) {
-    return KakaoSearchResponse(
+  factory KakaoSearchResponseModel.fromJson(Map<String, dynamic> json) {
+    return KakaoSearchResponseModel(
       meta: KakaoSearchMeta.fromJson(json['meta'] as Map<String, dynamic>),
       documents:
           (json['documents'] as List<dynamic>)
