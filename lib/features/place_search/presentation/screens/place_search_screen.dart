@@ -161,23 +161,33 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
       itemCount: _searchResults.length,
       itemBuilder: (BuildContext context, int index) {
         final Place place = _searchResults[index];
-        return ListTile(
-          onTap: () => _selectPlace(place),
-          title: Text(
-            place.title,
-            style: AppTextStyles.body1.normalRegular,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          subtitle: Text(
-            place.roadAddress.isNotEmpty ? place.roadAddress : place.address,
-            style: AppTextStyles.body2.normalRegular.copyWith(
-              color: context.semanticColor.labelDisable,
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: InkWell(
+            onTap: () => _selectPlace(place),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  place.title,
+                  style: AppTextStyles.body1.normalRegular,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  place.roadAddress.isNotEmpty
+                      ? place.roadAddress
+                      : place.address,
+                  style: AppTextStyles.body2.normalRegular.copyWith(
+                    color: context.semanticColor.labelDisable,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
-          dense: true,
         );
       },
     );
@@ -189,7 +199,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
       backgroundColor: context.semanticColor.backgroundNormalNormal,
       body: Column(
         children: <Widget>[
-          const SizedBox(height: 54),
+          const SizedBox(height: 30),
           SearchAppBar(
             searchController: _searchController,
             searchFocusNode: _searchFocusNode,

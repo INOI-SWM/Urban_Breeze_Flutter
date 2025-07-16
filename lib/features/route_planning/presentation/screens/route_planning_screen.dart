@@ -344,7 +344,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
                 ),
               if (!_isSaveMode)
                 Positioned(
-                  top: 54,
+                  top: 30,
                   left: 0,
                   right: 0,
                   child: FloatingSearchAppBar(
