@@ -10,20 +10,14 @@ class FloatingSearchAppBar extends StatelessWidget
   const FloatingSearchAppBar({
     super.key,
     this.searchText,
-    this.searchController,
     required this.onSearchTap,
     required this.onCloseTap,
-    required this.onSearchTextChanged,
-    required this.onSearchTextSubmitted,
     this.isSearchActive = false,
   });
 
   final String? searchText;
-  final TextEditingController? searchController;
   final VoidCallback onSearchTap;
   final VoidCallback onCloseTap;
-  final ValueChanged<String> onSearchTextChanged;
-  final ValueChanged<String> onSearchTextSubmitted;
   final bool isSearchActive;
 
   @override

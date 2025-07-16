@@ -351,8 +351,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
                     searchText: _selectedPlaceName ?? '장소, 위치 검색하기',
                     onSearchTap: _openSearchScreen,
                     onCloseTap: _onCloseTap,
-                    onSearchTextChanged: (_) {},
-                    onSearchTextSubmitted: (_) {},
                     isSearchActive: _selectedPlaceName != null,
                   ),
                 ),
