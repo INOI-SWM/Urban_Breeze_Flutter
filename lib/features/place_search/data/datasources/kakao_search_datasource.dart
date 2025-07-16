@@ -5,41 +5,31 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 import '../../domain/exceptions/place_search_domain_exceptions.dart';
-import '../models/naver_search_response_model.dart';
+import '../models/kakao_search_response_model.dart';
 
-class NaverSearchDataSource {
-  NaverSearchDataSource({http.Client? httpClient})
+class KakaoSearchDataSource {
+  KakaoSearchDataSource({http.Client? httpClient})
     : _httpClient = httpClient ?? http.Client();
 
   final http.Client _httpClient;
 
   static const String _baseUrl =
-      'https://openapi.naver.com/v1/search/local.json';
+      'https://dapi.kakao.com/v2/local/search/keyword.json';
 
-  String get _clientId => dotenv.env['NAVER_CLIENT_ID'] ?? '';
-  String get _clientSecret => dotenv.env['NAVER_CLIENT_SECRET'] ?? '';
+  String get _restApiKey => dotenv.env['KAKAO_REST_API_KEY'] ?? '';
 
-  Future<NaverSearchResponse> searchPlaces({
-    required String query,
-    int display = 5,
-  }) async {
-    if (_clientId.isEmpty || _clientSecret.isEmpty) {
-      throw const PlaceSearchServerException('네이버 API 키가 설정되지 않았습니다');
+  Future<KakaoSearchResponseModel> searchPlaces({required String query}) async {
+    if (_restApiKey.isEmpty) {
+      throw const PlaceSearchServerException('카카오 REST API 키가 설정되지 않았습니다');
     }
 
     try {
-      final Uri uri = Uri.parse(_baseUrl).replace(
-        queryParameters: <String, dynamic>{
-          'query': query,
-          'display': display.toString(),
-          'start': '1', // 기본값
-          'sort': 'random', // 정확도순 내림차순 정렬
-        },
-      );
+      final Uri uri = Uri.parse(
+        _baseUrl,
+      ).replace(queryParameters: <String, dynamic>{'query': query});
 
       final Map<String, String> headers = <String, String>{
-        'X-Naver-Client-Id': _clientId,
-        'X-Naver-Client-Secret': _clientSecret,
+        'Authorization': 'KakaoAK $_restApiKey',
         'Content-Type': 'application/json',
       };
 
@@ -50,14 +40,15 @@ class NaverSearchDataSource {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData =
             json.decode(response.body) as Map<String, dynamic>;
-        return NaverSearchResponse.fromJson(jsonData);
+        return KakaoSearchResponseModel.fromJson(jsonData);
       } else {
         String errorMessage = 'API 요청 실패';
 
         try {
           final Map<String, dynamic> errorData =
               json.decode(response.body) as Map<String, dynamic>;
-          errorMessage = errorData['errorMessage'] ?? errorMessage;
+          errorMessage =
+              errorData['errorMessage'] ?? errorData['message'] ?? errorMessage;
         } catch (_) {}
 
         throw PlaceSearchServerException(
@@ -66,10 +57,12 @@ class NaverSearchDataSource {
       }
     } on SocketException {
       throw const PlaceSearchNetworkException('인터넷 연결을 확인해주세요');
+    } on HttpException catch (e) {
+      throw PlaceSearchNetworkException('HTTP 요청 오류: ${e.message}');
+    } on http.ClientException catch (e) {
+      throw PlaceSearchNetworkException('클라이언트 요청 오류: ${e.message}');
     } on FormatException {
       throw const PlaceSearchParsingException('응답 데이터 형식이 올바르지 않습니다');
-    } on http.ClientException {
-      throw const PlaceSearchNetworkException('네트워크 요청 중 오류가 발생했습니다');
     } catch (e) {
       // 예상하지 못한 에러
       if (e is PlaceSearchDomainException) {
