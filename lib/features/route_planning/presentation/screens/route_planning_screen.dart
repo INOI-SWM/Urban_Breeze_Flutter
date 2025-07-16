@@ -42,8 +42,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   final List<RouteSegment> _routeSegments = <RouteSegment>[];
   bool _isRouteLoading = false;
   bool _isSaveMode = false;
-  bool _showSearchBar = true;
-  bool _hasSearched = false;
+  String? _selectedPlaceName;
 
   late final RoutePlanningFacade _facade;
 
@@ -96,10 +95,8 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     }
 
     setState(() {
-      _hasSearched = true;
+      _selectedPlaceName = selectedPlace?.title;
     });
-
-    // TODO: 장소 선택 후 동작 추가
   }
 
   void _moveToPlace(Place place) {
@@ -180,7 +177,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     setState(() {
       _isSaveMode = true;
       _isButtonPressed = false;
-      _showSearchBar = false;
     });
   }
 
@@ -346,18 +342,18 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
                 const Positioned.fill(
                   child: Center(child: CircularProgressIndicator()),
                 ),
-              if (_showSearchBar)
+              if (!_isSaveMode)
                 Positioned(
                   top: 54,
                   left: 0,
                   right: 0,
                   child: FloatingSearchAppBar(
-                    searchText: '장소, 위치 검색하기',
+                    searchText: _selectedPlaceName ?? '장소, 위치 검색하기',
                     onSearchTap: _openSearchScreen,
                     onCloseTap: _onCloseTap,
                     onSearchTextChanged: (_) {},
                     onSearchTextSubmitted: (_) {},
-                    isSearchActive: _hasSearched,
+                    isSearchActive: _selectedPlaceName != null,
                   ),
                 ),
               if (!_isSaveMode)
