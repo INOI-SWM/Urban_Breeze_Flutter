@@ -19,7 +19,6 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
 
-  // 검색 상태
   bool _isSearching = false;
   List<Place> _searchResults = <Place>[];
 
@@ -78,29 +77,85 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
     }
   }
 
+  void _selectPlace(Place place) {
+    // 선택된 장소를 이전 화면으로 반환
+    Navigator.of(context).pop(place);
+  }
+
   Widget _buildSearchResults() {
     if (_isSearching) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Icon(
-            Icons.search,
-            size: 64,
-            color: context.semanticColor.labelDisable,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            '검색어를 입력해주세요',
-            style: AppTextStyles.body1.normalRegular.copyWith(
+    if (_searchController.text.trim().isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(
+              Icons.search,
+              size: 64,
               color: context.semanticColor.labelDisable,
             ),
+            const SizedBox(height: 16),
+            Text(
+              '검색어를 입력해주세요',
+              style: AppTextStyles.body1.normalRegular.copyWith(
+                color: context.semanticColor.labelDisable,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_searchResults.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: context.semanticColor.labelDisable,
+            ),
+            const SizedBox(height: 16),
+            Text('검색 결과가 없습니다', style: AppTextStyles.body1.normalRegular),
+            const SizedBox(height: 8),
+            Text(
+              '다른 검색어로 시도해보세요',
+              style: AppTextStyles.body2.normalRegular.copyWith(
+                color: context.semanticColor.labelDisable,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: _searchResults.length,
+      itemBuilder: (BuildContext context, int index) {
+        final Place place = _searchResults[index];
+        return ListTile(
+          onTap: () => _selectPlace(place),
+          title: Text(
+            place.title,
+            style: AppTextStyles.body1.normalRegular,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-        ],
-      ),
+          subtitle: Text(
+            place.roadAddress.isNotEmpty ? place.roadAddress : place.address,
+            style: AppTextStyles.body2.normalRegular.copyWith(
+              color: context.semanticColor.labelDisable,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          dense: true,
+        );
+      },
     );
   }
 
@@ -114,7 +169,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
           SearchAppBar(
             searchController: _searchController,
             searchFocusNode: _searchFocusNode,
-            onSearchChanged: (String query) {},
+            onSearchChanged: _performSearch,
             onSearchSubmitted: _performSearch,
             onBackPressed: () => Navigator.of(context).pop(),
           ),
