@@ -18,7 +18,7 @@ class KakaoSearchDataSource {
 
   String get _restApiKey => dotenv.env['KAKAO_REST_API_KEY'] ?? '';
 
-  Future<KakaoSearchResponse> searchPlaces({required String query}) async {
+  Future<KakaoSearchResponseModel> searchPlaces({required String query}) async {
     if (_restApiKey.isEmpty) {
       throw const PlaceSearchServerException('카카오 REST API 키가 설정되지 않았습니다');
     }
@@ -40,7 +40,7 @@ class KakaoSearchDataSource {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData =
             json.decode(response.body) as Map<String, dynamic>;
-        return KakaoSearchResponse.fromJson(jsonData);
+        return KakaoSearchResponseModel.fromJson(jsonData);
       } else {
         String errorMessage = 'API 요청 실패';
 
