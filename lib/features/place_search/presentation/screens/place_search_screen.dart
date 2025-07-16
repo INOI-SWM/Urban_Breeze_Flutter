@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
@@ -21,6 +23,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
 
   bool _isSearching = false;
   List<Place> _searchResults = <Place>[];
+  Timer? _debounceTimer; // 실시간 검색 시 과도한 API 호출 방지용 타이머
 
   late final SearchPlacesUseCase _searchPlacesUseCase;
 
@@ -28,13 +31,36 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
   void initState() {
     super.initState();
     _searchPlacesUseCase = ref.read(searchPlacesUseCaseProvider);
+
+    // 화면 진입 시 검색 필드에 자동 포커스
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _searchFocusNode.requestFocus();
+    });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     _searchFocusNode.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
+  }
+
+  void _onSearchTextChanged(String query) {
+    // 실시간 검색 (300ms 디바운스)
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      _performSearch(query);
+    });
+  }
+
+  void _showErrorSnackBar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
+      );
+    }
   }
 
   Future<void> _performSearch(String query) async {
@@ -70,9 +96,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
           errorMessage = e.message;
         }
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(errorMessage)));
+        _showErrorSnackBar(errorMessage);
       }
     }
   }
@@ -169,7 +193,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
           SearchAppBar(
             searchController: _searchController,
             searchFocusNode: _searchFocusNode,
-            onSearchChanged: _performSearch,
+            onSearchChanged: _onSearchTextChanged,
             onSearchSubmitted: _performSearch,
             onBackPressed: () => Navigator.of(context).pop(),
           ),
