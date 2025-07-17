@@ -6,6 +6,7 @@ import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/place_search/application/use_cases/search_places_use_case.dart';
 import 'package:ridingmate/features/place_search/di/place_search_providers.dart';
 import 'package:ridingmate/features/place_search/domain/entities/place.dart';
+import 'package:ridingmate/features/place_search/domain/entities/search_result.dart';
 import 'package:ridingmate/features/place_search/domain/exceptions/place_search_domain_exceptions.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/search_app_bar.dart';
@@ -107,7 +108,11 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
 
   void _selectAllPlaces() {
     if (_searchResults.isNotEmpty) {
-      Navigator.of(context).pop(_searchResults);
+      final SearchResult result = SearchResult(
+        query: _searchController.text.trim(),
+        places: _searchResults,
+      );
+      Navigator.of(context).pop(result);
     }
   }
 

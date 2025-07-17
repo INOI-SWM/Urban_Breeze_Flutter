@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/place_search/domain/entities/place.dart';
+import 'package:ridingmate/features/place_search/domain/entities/search_result.dart';
 import 'package:ridingmate/features/place_search/presentation/screens/place_search_screen.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/create_route_use_case.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/route_planning_facade.dart';
@@ -44,6 +45,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   bool _isSaveMode = false;
   Place? _selectedPlace;
   final List<Place> _searchedPlaces = <Place>[];
+  String? _lastSearchQuery;
 
   late final RoutePlanningFacade _facade;
 
@@ -83,6 +85,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     setState(() {
       _selectedPlace = null;
       _searchedPlaces.clear();
+      _lastSearchQuery = null;
     });
   }
 
@@ -94,28 +97,37 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
       ),
     );
 
-    if (result != null) {
-      setState(() {
-        if (result is Place) {
-          // 단일 장소 선택
-          _selectedPlace = result;
-          _searchedPlaces.clear();
-          _moveToPlace(result);
-        } else if (result is List<Place>) {
-          // 검색 결과 전체 선택
-          _selectedPlace = null;
-          _searchedPlaces.clear();
-          _searchedPlaces.addAll(result);
+    if (result == null) return;
 
-          if (result.isNotEmpty) {
-            // 첫 번째 장소로 지도 이동
-            _moveToPlace(result.first);
+    _handleSearchResult(result);
+  }
 
-            // 모든 검색 결과가 보이도록 지도 범위 조정
-            _fitMapToSearchResults();
-          }
-        }
-      });
+  void _handleSearchResult(dynamic result) {
+    setState(() {
+      if (result is Place) {
+        _handleSinglePlaceSelection(result);
+      } else if (result is SearchResult) {
+        _handleMultiplePlacesSelection(result);
+      }
+    });
+  }
+
+  void _handleSinglePlaceSelection(Place place) {
+    _selectedPlace = place;
+    _searchedPlaces.clear();
+    _lastSearchQuery = null;
+    _moveToPlace(place);
+  }
+
+  void _handleMultiplePlacesSelection(SearchResult searchResult) {
+    _selectedPlace = null;
+    _searchedPlaces.clear();
+    _lastSearchQuery = searchResult.query;
+    _searchedPlaces.addAll(searchResult.places);
+
+    if (searchResult.places.isNotEmpty) {
+      _moveToPlace(searchResult.places.first);
+      _fitMapToSearchResults();
     }
   }
 
@@ -287,8 +299,8 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   String _getSearchText() {
     if (_selectedPlace != null) {
       return _selectedPlace!.title;
-    } else if (_searchedPlaces.isNotEmpty) {
-      return '${_searchedPlaces.length}개 장소 검색됨';
+    } else if (_searchedPlaces.isNotEmpty && _lastSearchQuery != null) {
+      return _lastSearchQuery!;
     } else {
       return '장소, 위치 검색하기';
     }
