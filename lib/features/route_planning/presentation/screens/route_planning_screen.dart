@@ -42,7 +42,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   final List<RouteSegment> _routeSegments = <RouteSegment>[];
   bool _isRouteLoading = false;
   bool _isSaveMode = false;
-  String? _selectedPlaceName;
+  Place? _selectedPlace;
 
   late final RoutePlanningFacade _facade;
 
@@ -95,7 +95,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     }
 
     setState(() {
-      _selectedPlaceName = selectedPlace?.title;
+      _selectedPlace = selectedPlace;
     });
   }
 
@@ -255,6 +255,10 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     }
   }
 
+  void _onMarkerTap() {
+    // TODO: 장소 마커 탭 시 동작 추가
+  }
+
   @override
   Widget build(BuildContext context) {
     final String baseUrl = dotenv.env['GEOAPIFY_BASE_URL'] ?? 'fallback_url';
@@ -336,6 +340,28 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
                           );
                         }).toList(),
                   ),
+                  // 검색된 장소 마커
+                  if (_selectedPlace != null)
+                    MarkerLayer(
+                      markers: <Marker>[
+                        Marker(
+                          point: LatLng(
+                            _selectedPlace!.latitude,
+                            _selectedPlace!.longitude,
+                          ),
+                          width: 34,
+                          height: 34,
+                          child: GestureDetector(
+                            onTap: _onMarkerTap,
+                            child: Icon(
+                              Icons.place,
+                              color: context.semanticColor.primaryNormal,
+                              size: 40,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
               if (_isRouteLoading)
@@ -348,10 +374,10 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
                   left: 0,
                   right: 0,
                   child: FloatingSearchAppBar(
-                    searchText: _selectedPlaceName ?? '장소, 위치 검색하기',
+                    searchText: _selectedPlace?.title ?? '장소, 위치 검색하기',
                     onSearchTap: _openSearchScreen,
                     onCloseTap: _onCloseTap,
-                    isSearchActive: _selectedPlaceName != null,
+                    isSearchActive: _selectedPlace != null,
                   ),
                 ),
               if (!_isSaveMode)
