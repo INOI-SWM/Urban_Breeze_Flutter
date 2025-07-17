@@ -102,8 +102,13 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
   }
 
   void _selectPlace(Place place) {
-    // 선택된 장소를 이전 화면으로 반환
     Navigator.of(context).pop(place);
+  }
+
+  void _selectAllPlaces() {
+    if (_searchResults.isNotEmpty) {
+      Navigator.of(context).pop(_searchResults);
+    }
   }
 
   Widget _buildSearchResults() {
@@ -205,7 +210,13 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
               searchController: _searchController,
               searchFocusNode: _searchFocusNode,
               onSearchChanged: _onSearchTextChanged,
-              onSearchSubmitted: _performSearch,
+              onSearchSubmitted: (String query) {
+                _performSearch(query);
+                // 키보드 확인 버튼을 눌렀을 때 검색 결과를 모두 반환
+                Future<void>.delayed(const Duration(milliseconds: 100), () {
+                  _selectAllPlaces();
+                });
+              },
               onBackPressed: () => Navigator.of(context).pop(),
             ),
             Expanded(child: _buildSearchResults()),
