@@ -7,7 +7,6 @@ import 'package:ridingmate/features/place_search/application/use_cases/search_pl
 import 'package:ridingmate/features/place_search/di/place_search_providers.dart';
 import 'package:ridingmate/features/place_search/domain/entities/place.dart';
 import 'package:ridingmate/features/place_search/domain/entities/search_result.dart';
-import 'package:ridingmate/features/place_search/domain/exceptions/place_search_domain_exceptions.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/search_app_bar.dart';
 
@@ -77,27 +76,21 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
       _isSearching = true;
     });
 
-    try {
-      final List<Place> results = await _searchPlacesUseCase.call(query: query);
+    final PlaceSearchResult<List<Place>> result = await _searchPlacesUseCase
+        .call(query: query);
 
-      if (mounted) {
-        setState(() {
-          _searchResults = results;
-          _isSearching = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isSearching = false;
-        });
+    if (mounted) {
+      setState(() {
+        _isSearching = false;
+      });
 
-        String errorMessage = '검색 중 오류가 발생했습니다';
-        if (e is PlaceSearchDomainException) {
-          errorMessage = e.message;
-        }
-
-        _showErrorSnackBar(errorMessage);
+      switch (result) {
+        case final PlaceSearchSuccess<List<Place>> success:
+          setState(() {
+            _searchResults = success.places;
+          });
+        case final PlaceSearchFailure<List<Place>> failure:
+          _showErrorSnackBar(failure.message);
       }
     }
   }
