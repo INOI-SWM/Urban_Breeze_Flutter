@@ -10,19 +10,15 @@ class FloatingSearchAppBar extends StatelessWidget
   const FloatingSearchAppBar({
     super.key,
     this.searchText,
-    this.searchController,
     required this.onSearchTap,
     required this.onCloseTap,
-    required this.onSearchTextChanged,
-    required this.onSearchTextSubmitted,
+    this.isSearchActive = false,
   });
 
   final String? searchText;
-  final TextEditingController? searchController;
   final VoidCallback onSearchTap;
   final VoidCallback onCloseTap;
-  final ValueChanged<String> onSearchTextChanged;
-  final ValueChanged<String> onSearchTextSubmitted;
+  final bool isSearchActive;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -35,7 +31,7 @@ class FloatingSearchAppBar extends StatelessWidget
       child: SizedBox(
         height: kToolbarHeight,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Row(
             children: <Widget>[
               Container(
@@ -51,10 +47,13 @@ class FloatingSearchAppBar extends StatelessWidget
                   child: const Icon(Icons.close, size: 24),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 4),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 4,
+                    horizontal: 4,
+                  ),
                   child: GestureDetector(
                     onTap: onSearchTap,
                     child: SearchFieldPreview(
@@ -63,6 +62,14 @@ class FloatingSearchAppBar extends StatelessWidget
                       backgroundColor: colors.backgroundNormalNormal,
                       boxShadow: AppShadows.instance.emphasize,
                       onClear: onCloseTap,
+                      textColor:
+                          isSearchActive
+                              ? colors.labelNormal
+                              : colors.labelAssistive,
+                      hintTextColor:
+                          isSearchActive
+                              ? colors.labelNormal
+                              : colors.labelAssistive,
                     ),
                   ),
                 ),

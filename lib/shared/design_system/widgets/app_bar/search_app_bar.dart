@@ -27,40 +27,38 @@ class SearchAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
 
-    return SafeArea(
-      child: SizedBox(
-        height: kToolbarHeight,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: <Widget>[
-              GestureDetector(
-                onTap: onBackPressed ?? () => Navigator.of(context).pop(),
-                child: SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: Icon(
-                    Icons.arrow_back_ios_new,
-                    size: 24,
-                    color: colors.labelStrong,
-                  ),
+    return SizedBox(
+      height: kToolbarHeight,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: <Widget>[
+            GestureDetector(
+              onTap: onBackPressed ?? () => Navigator.of(context).pop(),
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: Icon(
+                  Icons.arrow_back_ios_new,
+                  size: 24,
+                  color: colors.labelStrong,
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: SearchField(
-                    controller: searchController,
-                    focusNode: searchFocusNode,
-                    onChanged: onSearchChanged,
-                    onSubmitted: onSearchSubmitted,
-                    size: SearchFieldSize.small,
-                  ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: SearchField(
+                  controller: searchController,
+                  focusNode: searchFocusNode,
+                  onChanged: onSearchChanged,
+                  onSubmitted: onSearchSubmitted,
+                  size: SearchFieldSize.small,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -2,23 +2,52 @@ import '../../domain/entities/place.dart';
 import '../../domain/exceptions/place_search_domain_exceptions.dart';
 import '../../domain/repositories/place_search_repository.dart';
 
+sealed class PlaceSearchResult<T> {
+  const PlaceSearchResult();
+}
+
+class PlaceSearchSuccess<T> extends PlaceSearchResult<T> {
+  const PlaceSearchSuccess(this.places);
+  final List<Place> places;
+}
+
+class PlaceSearchFailure<T> extends PlaceSearchResult<T> {
+  const PlaceSearchFailure(this.message);
+  final String message;
+}
+
 class SearchPlacesUseCase {
   const SearchPlacesUseCase({required PlaceSearchRepository repository})
     : _repository = repository;
 
   final PlaceSearchRepository _repository;
 
-  Future<List<Place>> call({required String query}) async {
+  Future<PlaceSearchResult<List<Place>>> call({required String query}) async {
     final String sanitizedQuery = _sanitizeQuery(query);
     if (sanitizedQuery.isEmpty) {
-      throw const EmptyQueryException('검색어를 입력해주세요');
+      return const PlaceSearchFailure<List<Place>>('검색어를 입력해주세요');
     }
 
-    final List<Place> places = await _repository.searchPlaces(
-      query: sanitizedQuery,
-    );
+    try {
+      final List<Place> places = await _repository.searchPlaces(
+        query: sanitizedQuery,
+      );
 
-    return _removeDuplicates(places);
+      final List<Place> uniquePlaces = _removeDuplicates(places);
+      return PlaceSearchSuccess<List<Place>>(uniquePlaces);
+    } on EmptyQueryException catch (e) {
+      return PlaceSearchFailure<List<Place>>(e.message);
+    } on NoResultsException catch (e) {
+      return PlaceSearchFailure<List<Place>>(e.message);
+    } on PlaceSearchNetworkException catch (e) {
+      return PlaceSearchFailure<List<Place>>(e.message);
+    } on PlaceSearchServerException catch (e) {
+      return PlaceSearchFailure<List<Place>>(e.message);
+    } on PlaceSearchParsingException catch (e) {
+      return PlaceSearchFailure<List<Place>>(e.message);
+    } catch (e) {
+      return const PlaceSearchFailure<List<Place>>('검색 중 오류가 발생했습니다');
+    }
   }
 
   // 앞뒤 공백 제거, 연속된 공백을 하나로 통합

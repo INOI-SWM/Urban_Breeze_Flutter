@@ -4,6 +4,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/place_search/domain/entities/place.dart';
+import 'package:ridingmate/features/place_search/domain/entities/search_result.dart';
+import 'package:ridingmate/features/place_search/presentation/screens/place_search_screen.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/create_route_use_case.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/route_planning_facade.dart';
 import 'package:ridingmate/features/route_planning/di/route_providers.dart';
@@ -12,6 +15,7 @@ import 'package:ridingmate/features/route_planning/presentation/screens/route_cr
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:ridingmate/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/marker/route_pin_marker.dart';
 
 class RoutePlanningScreen extends ConsumerStatefulWidget {
@@ -39,6 +43,9 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   final List<RouteSegment> _routeSegments = <RouteSegment>[];
   bool _isRouteLoading = false;
   bool _isSaveMode = false;
+  Place? _selectedPlace;
+  final List<Place> _searchedPlaces = <Place>[];
+  String? _lastSearchQuery;
 
   late final RoutePlanningFacade _facade;
 
@@ -47,6 +54,11 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     super.initState();
     _facade = ref.read(routePlanningFacadeProvider);
     _getCurrentLocation();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -67,6 +79,63 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     setState(() {
       _isButtonPressed = !_isButtonPressed;
     });
+  }
+
+  void _onCloseTap() {
+    setState(() {
+      _selectedPlace = null;
+      _searchedPlaces.clear();
+      _lastSearchQuery = null;
+    });
+  }
+
+  Future<void> _openSearchScreen() async {
+    final dynamic result = await Navigator.push<dynamic>(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (BuildContext context) => const PlaceSearchScreen(),
+      ),
+    );
+
+    if (result == null) return;
+
+    _handleSearchResult(result);
+  }
+
+  void _handleSearchResult(dynamic result) {
+    setState(() {
+      if (result is Place) {
+        _handleSinglePlaceSelection(result);
+      } else if (result is SearchResult) {
+        _handleMultiplePlacesSelection(result);
+      }
+    });
+  }
+
+  void _handleSinglePlaceSelection(Place place) {
+    _selectedPlace = place;
+    _searchedPlaces.clear();
+    _lastSearchQuery = null;
+    _moveToPlace(place);
+  }
+
+  void _handleMultiplePlacesSelection(SearchResult searchResult) {
+    _selectedPlace = null;
+    _searchedPlaces.clear();
+    _lastSearchQuery = searchResult.query;
+    _searchedPlaces.addAll(searchResult.places);
+
+    if (searchResult.places.isNotEmpty) {
+      _moveToPlace(searchResult.places.first);
+      _fitMapToSearchResults();
+    }
+  }
+
+  void _moveToPlace(Place place) {
+    final LatLng position = LatLng(place.latitude, place.longitude);
+
+    // 선택된 장소로 지도 이동
+    _mapController.move(position, initialZoom);
   }
 
   Future<void> _getRoute() async {
@@ -135,6 +204,37 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     );
   }
 
+  void _fitMapToSearchResults() {
+    if (_searchedPlaces.isEmpty) return;
+
+    if (_searchedPlaces.length == 1) {
+      _moveToPlace(_searchedPlaces.first);
+      return;
+    }
+
+    // 모든 검색 결과를 포함하는 범위 계산
+    double minLat = _searchedPlaces.first.latitude;
+    double maxLat = _searchedPlaces.first.latitude;
+    double minLng = _searchedPlaces.first.longitude;
+    double maxLng = _searchedPlaces.first.longitude;
+
+    for (final Place place in _searchedPlaces) {
+      if (place.latitude < minLat) minLat = place.latitude;
+      if (place.latitude > maxLat) maxLat = place.latitude;
+      if (place.longitude < minLng) minLng = place.longitude;
+      if (place.longitude > maxLng) maxLng = place.longitude;
+    }
+
+    final LatLngBounds bounds = LatLngBounds(
+      LatLng(minLat, minLng),
+      LatLng(maxLat, maxLng),
+    );
+
+    _mapController.fitCamera(
+      CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)),
+    );
+  }
+
   void _enterSaveMode() {
     _fitMapToAllRoutes();
     setState(() {
@@ -196,6 +296,16 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
   String get formattedElevationGain =>
       _facade.routeStats.getFormattedElevationGain(_routeSegments);
 
+  String _getSearchText() {
+    if (_selectedPlace != null) {
+      return _selectedPlace!.title;
+    } else if (_searchedPlaces.isNotEmpty && _lastSearchQuery != null) {
+      return _lastSearchQuery!;
+    } else {
+      return '장소, 위치 검색하기';
+    }
+  }
+
   Widget _buildBottomBar() {
     return RouteCreateBottomPanel(
       mode: _isSaveMode ? RouteCreateMode.save : RouteCreateMode.create,
@@ -216,6 +326,15 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
         SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
       );
     }
+  }
+
+  void _onMarkerTap() {
+    // TODO: 장소 마커 탭 시 동작 추가
+  }
+
+  void _onSearchResultMarkerTap(Place place) {
+    // 검색 결과 마커를 탭했을 때 해당 장소로 지도 이동
+    _moveToPlace(place);
   }
 
   @override
@@ -299,11 +418,64 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
                           );
                         }).toList(),
                   ),
+                  // 검색된 장소 마커
+                  if (_selectedPlace != null || _searchedPlaces.isNotEmpty)
+                    MarkerLayer(
+                      markers: <Marker>[
+                        // 단일 선택된 장소 마커
+                        if (_selectedPlace != null)
+                          Marker(
+                            point: LatLng(
+                              _selectedPlace!.latitude,
+                              _selectedPlace!.longitude,
+                            ),
+                            width: 34,
+                            height: 34,
+                            child: GestureDetector(
+                              onTap: _onMarkerTap,
+                              child: Icon(
+                                Icons.place,
+                                color: context.semanticColor.primaryNormal,
+                                size: 40,
+                              ),
+                            ),
+                          ),
+                        // 검색 결과 전체 장소 마커들
+                        ..._searchedPlaces.map(
+                          (Place place) => Marker(
+                            point: LatLng(place.latitude, place.longitude),
+                            width: 34,
+                            height: 34,
+                            child: GestureDetector(
+                              onTap: () => _onSearchResultMarkerTap(place),
+                              child: Icon(
+                                Icons.location_on,
+                                color: context.semanticColor.primaryNormal,
+                                size: 34,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
               if (_isRouteLoading)
                 const Positioned.fill(
                   child: Center(child: CircularProgressIndicator()),
+                ),
+              if (!_isSaveMode)
+                Positioned(
+                  top: 30,
+                  left: 0,
+                  right: 0,
+                  child: FloatingSearchAppBar(
+                    searchText: _getSearchText(),
+                    onSearchTap: _openSearchScreen,
+                    onCloseTap: _onCloseTap,
+                    isSearchActive:
+                        _selectedPlace != null || _searchedPlaces.isNotEmpty,
+                  ),
                 ),
               if (!_isSaveMode)
                 Positioned(
