@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/distance_data.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/heart_rate_data.dart';
+import 'package:ridingmate/navigation/page_with_app_bar.dart';
+import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 
 import '../../data/repositories/apple_health_kit_sync_repository_impl.dart';
 import '../../domain/entities/workout_record.dart';
 
-class WorkoutHistoryScreen extends StatefulWidget {
+class WorkoutHistoryScreen extends StatefulWidget implements PageWithAppBar {
   const WorkoutHistoryScreen({super.key});
 
   @override
   State<WorkoutHistoryScreen> createState() => _WorkoutHistoryScreenState();
+
+  @override
+  PreferredSizeWidget getAppBar(BuildContext context) {
+    return const CustomAppBar(title: '기록');
+  }
 }
 
 class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
@@ -55,62 +62,52 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('운동 기록'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            // 권한 요청 버튼
-            ElevatedButton.icon(
-              onPressed: _requestPermissions,
-              icon: const Icon(Icons.security),
-              label: const Text('권한 요청'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          // 권한 요청 버튼
+          ElevatedButton.icon(
+            onPressed: _requestPermissions,
+            icon: const Icon(Icons.security),
+            label: const Text('권한 요청'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 12),
             ),
+          ),
 
-            const SizedBox(height: 8),
+          const SizedBox(height: 8),
 
-            // 테스트 버튼
-            ElevatedButton.icon(
-              onPressed: _isLoading ? null : _testGetCyclingWorkouts,
-              icon:
-                  _isLoading
-                      ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      )
-                      : const Icon(Icons.directions_bike),
-              label: Text(_isLoading ? '로딩 중...' : '자전거 운동 데이터 가져오기'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
+          // 테스트 버튼
+          ElevatedButton.icon(
+            onPressed: _isLoading ? null : _testGetCyclingWorkouts,
+            icon:
+                _isLoading
+                    ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                    : const Icon(Icons.directions_bike),
+            label: Text(_isLoading ? '로딩 중...' : '자전거 운동 데이터 가져오기'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 12),
             ),
+          ),
 
-            const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-            // 결과 표시
-            Expanded(child: _buildResultWidget()),
-          ],
-        ),
+          // 결과 표시
+          Expanded(child: _buildResultWidget()),
+        ],
       ),
     );
   }

@@ -39,7 +39,7 @@ class BottomNavigation extends StatelessWidget {
     NavigationItem(
       icon: Icons.bar_chart,
       selectedIcon: Icons.bar_chart,
-      label: '운동 기록',
+      label: '기록',
     ),
     NavigationItem(icon: Icons.person, selectedIcon: Icons.person, label: 'MY'),
   ];
