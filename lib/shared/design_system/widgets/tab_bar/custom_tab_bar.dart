@@ -10,7 +10,7 @@ class CustomTabBar<T> extends StatelessWidget {
     required this.selectedTab,
     required this.onTabSelected,
     required this.labelExtractor,
-  }) : assert(tabs.length >= 2, 'TabBarWidget must have at least 2 tabs');
+  }) : assert(tabs.length >= 2, 'CustomTabBar must have at least 2 tabs');
 
   final List<T> tabs;
   final T selectedTab;
@@ -20,9 +20,9 @@ class CustomTabBar<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-
+    const double tabBarHeight = 40;
     return Container(
-      height: 40,
+      height: tabBarHeight,
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(color: colors.lineNormalAlternative, width: 1.0),
