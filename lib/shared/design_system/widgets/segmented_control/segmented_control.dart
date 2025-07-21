@@ -3,14 +3,14 @@ import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 
-class CustomTabBar<T> extends StatelessWidget {
-  const CustomTabBar({
+class SegmentedControl<T> extends StatelessWidget {
+  const SegmentedControl({
     super.key,
     required this.tabs,
     required this.selectedTab,
     required this.onTabSelected,
     required this.labelExtractor,
-  }) : assert(tabs.length >= 2, 'CustomTabBar must have at least 2 tabs');
+  }) : assert(tabs.length >= 2, 'SegmentedControl must have at least 2 tabs');
 
   final List<T> tabs;
   final T selectedTab;
@@ -18,7 +18,7 @@ class CustomTabBar<T> extends StatelessWidget {
   final String Function(T tab) labelExtractor;
 
   static const double _containerHeight = 40.0;
-  static const double _bottomBorderWidth = 1.0;
+  static const double _containerBorderRadius = 10.0;
 
   @override
   Widget build(BuildContext context) {
@@ -27,15 +27,11 @@ class CustomTabBar<T> extends StatelessWidget {
     return Container(
       height: _containerHeight,
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: colors.lineNormalAlternative,
-            width: _bottomBorderWidth,
-          ),
-        ),
+        color: colors.fillNormal,
+        borderRadius: BorderRadius.circular(_containerBorderRadius),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.max,
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children:
             tabs.map((T tab) {
@@ -43,7 +39,7 @@ class CustomTabBar<T> extends StatelessWidget {
               final bool isSelected = tab == selectedTab;
 
               return Expanded(
-                child: _TabItem<T>(
+                child: _SegmentItem<T>(
                   key: ValueKey<T>(tab),
                   text: tabText,
                   value: tab,
@@ -58,8 +54,8 @@ class CustomTabBar<T> extends StatelessWidget {
   }
 }
 
-class _TabItem<T> extends StatelessWidget {
-  const _TabItem({
+class _SegmentItem<T> extends StatelessWidget {
+  const _SegmentItem({
     super.key,
     required this.text,
     required this.value,
@@ -74,7 +70,12 @@ class _TabItem<T> extends StatelessWidget {
   final void Function(T value) onTap;
   final SemanticColors colors;
 
-  static const double _selectedBorderWidth = 2.0;
+  static const double _itemBorderRadius = 8.0;
+  static const EdgeInsets _itemMargin = EdgeInsets.all(2.0);
+  static const EdgeInsets _itemPadding = EdgeInsets.all(9.0);
+  static const double _shadowBlurRadius = 4.0;
+  static const int _shadowOpacityAlpha = 20; // 8% opacity
+  static const Offset _shadowOffset = Offset(0, 0);
 
   @override
   Widget build(BuildContext context) {
@@ -84,27 +85,35 @@ class _TabItem<T> extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: isSelected ? _buildSelectedDecoration() : null,
+        margin: _itemMargin,
+        decoration: BoxDecoration(
+          color:
+              isSelected ? colors.backgroundElevatedNormal : Colors.transparent,
+          borderRadius: BorderRadius.circular(_itemBorderRadius),
+          boxShadow: isSelected ? _buildBoxShadow() : null,
+        ),
+        padding: _itemPadding,
         child: Center(
           child: Text(
             text,
-            style: AppTextStyles.body2.normalBold.copyWith(
-              color: isSelected ? colors.labelStrong : colors.labelAssistive,
+            style: AppTextStyles.body2.normalMedium.copyWith(
+              color: isSelected ? colors.labelNormal : colors.labelAlternative,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ),
     );
   }
 
-  BoxDecoration _buildSelectedDecoration() {
-    return BoxDecoration(
-      border: Border(
-        bottom: BorderSide(
-          color: colors.labelNormal,
-          width: _selectedBorderWidth,
-        ),
+  List<BoxShadow> _buildBoxShadow() {
+    return <BoxShadow>[
+      BoxShadow(
+        color: Colors.black.withAlpha(_shadowOpacityAlpha),
+        blurRadius: _shadowBlurRadius,
+        offset: _shadowOffset,
       ),
-    );
+    ];
   }
 }
