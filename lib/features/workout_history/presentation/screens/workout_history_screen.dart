@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/distance_data.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/heart_rate_data.dart';
-import 'package:ridingmate/navigation/page_with_app_bar.dart';
-import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 
 import '../../data/repositories/apple_health_kit_sync_repository_impl.dart';
 import '../../domain/entities/workout_record.dart';
 
-class WorkoutHistoryScreen extends StatefulWidget implements PageWithAppBar {
+class WorkoutHistoryScreen extends StatefulWidget {
   const WorkoutHistoryScreen({super.key});
 
   @override
   State<WorkoutHistoryScreen> createState() => _WorkoutHistoryScreenState();
-
-  @override
-  PreferredSizeWidget getAppBar(BuildContext context) {
-    return const CustomAppBar(title: '기록');
-  }
 }
 
 class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
