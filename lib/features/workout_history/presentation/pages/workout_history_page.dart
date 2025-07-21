@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ridingmate/features/workout_history/presentation/screens/workout_history_screen.dart';
 import 'package:ridingmate/navigation/page_with_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/segmented_control/tab_bar_widget.dart';
@@ -61,7 +62,7 @@ class _WorkoutHistoryPageState extends State<WorkoutHistoryPage> {
       case WorkoutHistoryTab.statistics:
         return const Center(child: Text('통계 콘텐츠가 여기에 표시됩니다'));
       case WorkoutHistoryTab.ridingHistory:
-        return const Center(child: Text('라이딩 기록 콘텐츠가 여기에 표시됩니다'));
+        return const WorkoutHistoryScreen();
     }
   }
 }
