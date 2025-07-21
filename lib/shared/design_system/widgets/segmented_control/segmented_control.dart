@@ -17,16 +17,18 @@ class SegmentedControl<T> extends StatelessWidget {
   final void Function(T tab) onTabSelected;
   final String Function(T tab) labelExtractor;
 
+  static const double _containerHeight = 40.0;
+  static const double _containerBorderRadius = 10.0;
+
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-    const double borderRadius = 10;
 
     return Container(
-      height: 40,
+      height: _containerHeight,
       decoration: BoxDecoration(
         color: colors.fillNormal,
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: BorderRadius.circular(_containerBorderRadius),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -65,33 +67,29 @@ class _SegmentItem<T> extends StatelessWidget {
   final void Function(T value) onTap;
   final SemanticColors colors;
 
+  static const double _itemBorderRadius = 8.0;
+  static const EdgeInsets _itemMargin = EdgeInsets.all(2.0);
+  static const EdgeInsets _itemPadding = EdgeInsets.all(9.0);
+  static const double _shadowBlurRadius = 4.0;
+  static const int _shadowOpacityAlpha = 20; // 8% opacity
+  static const Offset _shadowOffset = Offset(0, 0);
+
   @override
   Widget build(BuildContext context) {
-    const double borderRadius = 8; // 내부에서 직접 정의
-
     return Expanded(
       child: Container(
-        margin: const EdgeInsets.all(2),
+        margin: _itemMargin,
         decoration: BoxDecoration(
           color:
               isSelected ? colors.backgroundElevatedNormal : Colors.transparent,
-          borderRadius: BorderRadius.circular(borderRadius),
-          boxShadow:
-              isSelected
-                  ? <BoxShadow>[
-                    BoxShadow(
-                      color: Colors.black.withAlpha(20), // 8% = 20/255
-                      blurRadius: 4,
-                      offset: const Offset(0, 0),
-                    ),
-                  ]
-                  : null,
+          borderRadius: BorderRadius.circular(_itemBorderRadius),
+          boxShadow: isSelected ? _buildBoxShadow() : null,
         ),
         child: GestureDetector(
           onTap: () => onTap(value),
           behavior: HitTestBehavior.opaque,
           child: Padding(
-            padding: const EdgeInsets.all(9),
+            padding: _itemPadding,
             child: Center(
               child: Text(
                 text,
@@ -107,5 +105,15 @@ class _SegmentItem<T> extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  List<BoxShadow> _buildBoxShadow() {
+    return <BoxShadow>[
+      BoxShadow(
+        color: Colors.black.withAlpha(_shadowOpacityAlpha),
+        blurRadius: _shadowBlurRadius,
+        offset: _shadowOffset,
+      ),
+    ];
   }
 }
