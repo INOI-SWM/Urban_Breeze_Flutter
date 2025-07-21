@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/home/presentation/screens/home_screen.dart';
 import 'package:ridingmate/features/profile/presentation/pages/profile_page.dart';
 import 'package:ridingmate/features/riding/presentation/screens/riding_screen.dart';
@@ -54,6 +55,7 @@ class _NavigationScaffoldState extends State<NavigationScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: context.semanticColor.backgroundNormalNormal,
       appBar: _getAppBar(),
       body: SafeArea(child: _pages[_currentIndex]),
       bottomNavigationBar: BottomNavigation(
