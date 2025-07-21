@@ -32,18 +32,21 @@ class SegmentedControl<T> extends StatelessWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children:
             tabs.map((T tab) {
               final String tabText = labelExtractor(tab);
               final bool isSelected = tab == selectedTab;
 
-              return _SegmentItem<T>(
-                key: ValueKey<T>(tab),
-                text: tabText,
-                value: tab,
-                isSelected: isSelected,
-                onTap: onTabSelected,
-                colors: colors,
+              return Expanded(
+                child: _SegmentItem<T>(
+                  key: ValueKey<T>(tab),
+                  text: tabText,
+                  value: tab,
+                  isSelected: isSelected,
+                  onTap: onTabSelected,
+                  colors: colors,
+                ),
               );
             }).toList(),
       ),
@@ -76,8 +79,12 @@ class _SegmentItem<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return GestureDetector(
+      onTap: () => onTap(value),
+      behavior: HitTestBehavior.opaque,
       child: Container(
+        width: double.infinity,
+        height: double.infinity,
         margin: _itemMargin,
         decoration: BoxDecoration(
           color:
@@ -85,22 +92,15 @@ class _SegmentItem<T> extends StatelessWidget {
           borderRadius: BorderRadius.circular(_itemBorderRadius),
           boxShadow: isSelected ? _buildBoxShadow() : null,
         ),
-        child: GestureDetector(
-          onTap: () => onTap(value),
-          behavior: HitTestBehavior.opaque,
-          child: Padding(
-            padding: _itemPadding,
-            child: Center(
-              child: Text(
-                text,
-                style: AppTextStyles.body2.normalMedium.copyWith(
-                  color:
-                      isSelected ? colors.labelNormal : colors.labelAlternative,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+        padding: _itemPadding,
+        child: Center(
+          child: Text(
+            text,
+            style: AppTextStyles.body2.normalMedium.copyWith(
+              color: isSelected ? colors.labelNormal : colors.labelAlternative,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ),
