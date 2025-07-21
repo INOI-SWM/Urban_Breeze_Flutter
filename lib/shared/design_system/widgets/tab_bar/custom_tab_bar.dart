@@ -10,22 +10,28 @@ class CustomTabBar<T> extends StatelessWidget {
     required this.selectedTab,
     required this.onTabSelected,
     required this.labelExtractor,
-  }) : assert(tabs.length >= 2, 'TabBarWidget must have at least 2 tabs');
+  }) : assert(tabs.length >= 2, 'CustomTabBar must have at least 2 tabs');
 
   final List<T> tabs;
   final T selectedTab;
   final void Function(T tab) onTabSelected;
   final String Function(T tab) labelExtractor;
 
+  static const double _containerHeight = 40.0;
+  static const double _bottomBorderWidth = 1.0;
+
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
 
     return Container(
-      height: 40,
+      height: _containerHeight,
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: colors.lineNormalAlternative, width: 1.0),
+          bottom: BorderSide(
+            color: colors.lineNormalAlternative,
+            width: _bottomBorderWidth,
+          ),
         ),
       ),
       child: Row(
@@ -68,6 +74,8 @@ class _TabItem<T> extends StatelessWidget {
   final void Function(T value) onTap;
   final SemanticColors colors;
 
+  static const double _selectedBorderWidth = 2.0;
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -76,14 +84,7 @@ class _TabItem<T> extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration:
-            isSelected
-                ? BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: colors.labelNormal, width: 2.0),
-                  ),
-                )
-                : null,
+        decoration: isSelected ? _buildSelectedDecoration() : null,
         child: Center(
           child: Text(
             text,
@@ -91,6 +92,17 @@ class _TabItem<T> extends StatelessWidget {
               color: isSelected ? colors.labelStrong : colors.labelAssistive,
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  BoxDecoration _buildSelectedDecoration() {
+    return BoxDecoration(
+      border: Border(
+        bottom: BorderSide(
+          color: colors.labelNormal,
+          width: _selectedBorderWidth,
         ),
       ),
     );
