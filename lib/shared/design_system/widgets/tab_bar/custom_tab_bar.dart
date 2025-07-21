@@ -3,8 +3,8 @@ import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 
-class TabBarWidget<T> extends StatelessWidget {
-  const TabBarWidget({
+class CustomTabBar<T> extends StatelessWidget {
+  const CustomTabBar({
     super.key,
     required this.tabs,
     required this.selectedTab,

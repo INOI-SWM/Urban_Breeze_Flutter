@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/features/workout_history/presentation/screens/workout_history_screen.dart';
 import 'package:ridingmate/navigation/page_with_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
-import 'package:ridingmate/shared/design_system/widgets/segmented_control/tab_bar_widget.dart';
+import 'package:ridingmate/shared/design_system/widgets/tab_bar/custom_tab_bar.dart';
 
 enum WorkoutHistoryTab {
   statistics,
@@ -42,7 +42,7 @@ class _WorkoutHistoryPageState extends State<WorkoutHistoryPage> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        TabBarWidget<WorkoutHistoryTab>(
+        CustomTabBar<WorkoutHistoryTab>(
           tabs: _tabs,
           selectedTab: _selectedTab,
           onTabSelected: (WorkoutHistoryTab tab) {
