@@ -40,26 +40,23 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: <Widget>[
-          SegmentedControl<StatisticType>(
-            tabs: _tabs,
-            selectedTab: _selectedType,
-            onTabSelected: (StatisticType type) {
-              setState(() {
-                _selectedType = type;
-              });
-            },
-            labelExtractor: (StatisticType type) => type.label,
-          ),
+    return Column(
+      children: <Widget>[
+        SegmentedControl<StatisticType>(
+          tabs: _tabs,
+          selectedTab: _selectedType,
+          onTabSelected: (StatisticType type) {
+            setState(() {
+              _selectedType = type;
+            });
+          },
+          labelExtractor: (StatisticType type) => type.label,
+        ),
 
-          const SizedBox(height: 32),
+        const SizedBox(height: 32),
 
-          Expanded(child: _buildStatisticContent()),
-        ],
-      ),
+        Expanded(child: _buildStatisticContent()),
+      ],
     );
   }
 
