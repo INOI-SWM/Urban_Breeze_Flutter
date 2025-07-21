@@ -55,62 +55,52 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('운동 기록'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            // 권한 요청 버튼
-            ElevatedButton.icon(
-              onPressed: _requestPermissions,
-              icon: const Icon(Icons.security),
-              label: const Text('권한 요청'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          // 권한 요청 버튼
+          ElevatedButton.icon(
+            onPressed: _requestPermissions,
+            icon: const Icon(Icons.security),
+            label: const Text('권한 요청'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 12),
             ),
+          ),
 
-            const SizedBox(height: 8),
+          const SizedBox(height: 8),
 
-            // 테스트 버튼
-            ElevatedButton.icon(
-              onPressed: _isLoading ? null : _testGetCyclingWorkouts,
-              icon:
-                  _isLoading
-                      ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.white,
-                          ),
-                        ),
-                      )
-                      : const Icon(Icons.directions_bike),
-              label: Text(_isLoading ? '로딩 중...' : '자전거 운동 데이터 가져오기'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
+          // 테스트 버튼
+          ElevatedButton.icon(
+            onPressed: _isLoading ? null : _testGetCyclingWorkouts,
+            icon:
+                _isLoading
+                    ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                    : const Icon(Icons.directions_bike),
+            label: Text(_isLoading ? '로딩 중...' : '자전거 운동 데이터 가져오기'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 12),
             ),
+          ),
 
-            const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-            // 결과 표시
-            Expanded(child: _buildResultWidget()),
-          ],
-        ),
+          // 결과 표시
+          Expanded(child: _buildResultWidget()),
+        ],
       ),
     );
   }
