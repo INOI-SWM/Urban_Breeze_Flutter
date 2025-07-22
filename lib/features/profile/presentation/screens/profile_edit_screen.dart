@@ -43,13 +43,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       backgroundColor: colors.backgroundNormalNormal,
       appBar: CustomAppBar(
         title: '프로필 수정',
-        leading: GestureDetector(
-          child: const SizedBox(
-            width: 24,
-            height: 24,
-            child: Icon(Icons.arrow_back_ios_new, size: 24),
-          ),
+        leading: AppbarButton(
           onTap: () => Navigator.of(context).pop(),
+          icon: Icons.arrow_back_ios_new,
         ),
       ),
       body: SingleChildScrollView(

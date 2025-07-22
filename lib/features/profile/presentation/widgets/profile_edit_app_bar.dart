@@ -25,13 +25,9 @@ class ProfileEditAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     return CustomAppBar(
       title: title,
-      leading: GestureDetector(
-        child: const SizedBox(
-          width: 24,
-          height: 24,
-          child: Icon(Icons.arrow_back_ios_new, size: 24),
-        ),
+      leading: AppbarButton(
         onTap: () => Navigator.of(context).pop(),
+        icon: Icons.arrow_back_ios_new,
       ),
       actions: <Widget>[
         GestureDetector(

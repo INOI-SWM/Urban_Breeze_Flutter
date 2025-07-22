@@ -52,10 +52,7 @@ class _RouteListScreenState extends State<RouteListScreen> {
     return Column(
       children: <Widget>[
         CustomAppBar(
-          leading: IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.chevron_left),
-          ),
+          leading: AppbarButton(onTap: () {}, icon: Icons.arrow_back_ios_new),
           title: '경로 목록',
           actions: <Widget>[
             IconButton(onPressed: () {}, icon: const Icon(Icons.add)),

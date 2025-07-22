@@ -95,7 +95,7 @@ class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
         return CustomAppBar(
           title: '경로 생성',
           centerTitle: false,
-          titleTextSize: NavBarTitleSize.large,
+          titleTextSize: AppBarTitleSize.large,
           actions: <Widget>[
             ButtonSolid(
               text: '저장',
@@ -115,14 +115,10 @@ class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
         return CustomAppBar(
           title: '경로 저장',
           centerTitle: true,
-          titleTextSize: NavBarTitleSize.large,
-          leading: GestureDetector(
-            onTap: widget.onBack,
-            child: const SizedBox(
-              width: 24,
-              height: 24,
-              child: Icon(Icons.arrow_back_ios_new, size: 24),
-            ),
+          titleTextSize: AppBarTitleSize.large,
+          leading: AppbarButton(
+            onTap: widget.onBack ?? () => Navigator.of(context).pop(),
+            icon: Icons.arrow_back_ios_new,
           ),
           actions: <Widget>[
             ButtonSolid(
