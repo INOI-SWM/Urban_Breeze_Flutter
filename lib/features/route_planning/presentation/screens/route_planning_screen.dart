@@ -93,7 +93,9 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     final dynamic result = await Navigator.push<dynamic>(
       context,
       MaterialPageRoute<dynamic>(
-        builder: (BuildContext context) => const PlaceSearchScreen(),
+        builder:
+            (BuildContext context) =>
+                PlaceSearchScreen(initialLocation: _currentPosition),
       ),
     );
 

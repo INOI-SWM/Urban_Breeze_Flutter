@@ -14,7 +14,7 @@ final Provider<http.Client> httpClientProvider = Provider<http.Client>((
   return client;
 });
 
-final Provider<KakaoSearchDataSource> kakaoSearchDataSourceProvider =
+final Provider<KakaoSearchDataSource> serverSearchDataSourceProvider =
     Provider<KakaoSearchDataSource>((Ref<KakaoSearchDataSource> ref) {
       final http.Client httpClient = ref.watch(httpClientProvider);
 
@@ -30,7 +30,7 @@ final Provider<KakaoSearchDataSource> kakaoSearchDataSourceProvider =
 final Provider<PlaceSearchRepository> placeSearchRepositoryProvider =
     Provider<PlaceSearchRepository>((Ref<PlaceSearchRepository> ref) {
       final KakaoSearchDataSource dataSource = ref.watch(
-        kakaoSearchDataSourceProvider,
+        serverSearchDataSourceProvider,
       );
 
       return PlaceSearchRepositoryImpl(dataSource: dataSource);
