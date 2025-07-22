@@ -5,6 +5,7 @@ import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/card_list.dart';
 import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
+import 'package:ridingmate/shared/utils/date_formatter.dart';
 
 import '../../data/repositories/apple_health_kit_sync_repository_impl.dart';
 import '../../domain/entities/workout_record.dart';
@@ -150,7 +151,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                     thumbnailPath: 'assets/images/png/thumbnail_r3_2.png',
                     sourceType: ThumbnailSourceType.asset,
                     title: '운동 ${index + 1}',
-                    createDate: workout.startTime.toString().substring(0, 16),
+                    createDate: DateFormatter.formatKorean(workout.startTime),
                     badges: <BadgeData>[
                       BadgeData(
                         text:
