@@ -19,7 +19,7 @@ class WorkoutRecord {
   final DateTime startTime;
   final DateTime endTime;
   final Duration duration;
-  final double distance; // 미터 단위
+  final double distance; // 1m 단위
   final double calories; // kcal 단위
   final List<HeartRateData> heartRateData; // 원시 심박수 데이터
   final List<DistanceData> distanceData; // 원시 거리 데이터
@@ -58,7 +58,7 @@ class WorkoutRecord {
     return 'CyclingWorkoutRecord{'
         'id: $id, '
         'duration: $duration, '
-        'distance: ${distance}m, '
+        'distance: $distance m, '
         'calories: ${calories}kcal, '
         'heartRateData: ${heartRateData.length}개, '
         'distanceData: ${distanceData.length}개, '

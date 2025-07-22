@@ -142,6 +142,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
               itemBuilder: (BuildContext context, int index) {
                 final WorkoutRecord workout = _workouts[index];
                 // TODO : 서버 저장 양식에 따라 데이터 파싱 변경
+                debugPrint('workout: $workout');
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: CardList(
@@ -152,7 +153,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                     badges: <BadgeData>[
                       BadgeData(
                         text:
-                            '${(workout.distance / 1000000).toStringAsFixed(1)}km',
+                            '${(workout.distance / 1000).toStringAsFixed(1)}km',
                         icon: Icons.route,
                       ),
                       BadgeData(
