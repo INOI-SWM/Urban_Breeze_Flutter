@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
+import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/card_list.dart';
 import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
 
 import '../../data/repositories/apple_health_kit_sync_repository_impl.dart';
 import '../../domain/entities/workout_record.dart';
 
+//TODO : 추후 api 개발 시 에러 처리 추가
 class WorkoutHistoryScreen extends StatefulWidget {
   const WorkoutHistoryScreen({super.key});
 
@@ -15,14 +19,13 @@ class WorkoutHistoryScreen extends StatefulWidget {
 class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
   bool _isLoading = false;
   List<WorkoutRecord> _workouts = <WorkoutRecord>[];
-  String? _errorMessage;
+
   final AppleHealthKitSyncRepositoryImpl _repository =
       AppleHealthKitSyncRepositoryImpl();
 
   Future<void> _testGetCyclingWorkouts() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
 
     try {
@@ -39,7 +42,6 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
         _isLoading = false;
       });
     }
@@ -49,7 +51,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
     try {
       await _repository.requestPermissions();
     } catch (e) {
-      // 권한 요청 실패 시 무시
+      // TODO : 권한 요청 실패 시 무시
     }
   }
 
@@ -112,49 +114,20 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
   }
 
   Widget _buildResultWidget() {
-    if (_errorMessage != null) {
-      return Card(
-        color: Colors.red.shade50,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Icon(Icons.error, color: Colors.red.shade700),
-                  const SizedBox(width: 8),
-                  Text(
-                    '오류 발생',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red.shade700,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _errorMessage!,
-                style: TextStyle(color: Colors.red.shade600),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
+    final SemanticColors colors = context.semanticColor;
     if (_workouts.isEmpty && !_isLoading) {
-      return const Column(
+      return Column(
         children: <Widget>[
-          Icon(Icons.info_outline, size: 48, color: Colors.grey),
-          SizedBox(height: 8),
+          Icon(Icons.info_outline, size: 48, color: colors.labelAlternative),
+          const SizedBox(height: 8),
+          Text('운동 데이터가 없습니다', style: AppTextStyles.body2.normalBold),
+          const SizedBox(height: 4),
           Text(
-            '운동 데이터가 없습니다',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            '먼저 권한을 요청하고 데이터를 불러오세요',
+            style: AppTextStyles.label2.medium.copyWith(
+              color: colors.labelAlternative,
+            ),
           ),
-          SizedBox(height: 4),
-          Text('먼저 권한을 요청하고 데이터를 불러오세요', style: TextStyle(color: Colors.grey)),
         ],
       );
     }
@@ -193,8 +166,13 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
             ),
           ),
         ] else ...<Widget>[
-          const Center(
-            child: Text('데이터를 불러오는 중...', style: TextStyle(color: Colors.grey)),
+          Center(
+            child: Text(
+              '데이터를 불러오는 중...',
+              style: AppTextStyles.label2.medium.copyWith(
+                color: colors.labelAlternative,
+              ),
+            ),
           ),
         ],
       ],
