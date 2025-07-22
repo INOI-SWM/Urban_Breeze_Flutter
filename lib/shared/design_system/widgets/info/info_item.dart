@@ -4,16 +4,23 @@ import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 
 class InfoItem extends StatelessWidget {
-  const InfoItem({super.key, required this.label, required this.value});
+  const InfoItem({
+    super.key,
+    required this.label,
+    required this.value,
+    this.alignment = CrossAxisAlignment.center,
+  });
 
   final String label;
   final String value;
+  final CrossAxisAlignment alignment;
 
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: alignment,
       children: <Widget>[
         Text(
           label,
