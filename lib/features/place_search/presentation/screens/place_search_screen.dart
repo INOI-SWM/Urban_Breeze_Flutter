@@ -77,7 +77,11 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
     });
 
     final PlaceSearchResult<List<Place>> result = await _searchPlacesUseCase
-        .call(query: query);
+        .call(
+          query: query,
+          longitude: searchLocation.longitude,
+          latitude: searchLocation.latitude,
+        );
 
     if (mounted) {
       setState(() {

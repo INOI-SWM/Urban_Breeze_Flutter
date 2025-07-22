@@ -22,7 +22,11 @@ class SearchPlacesUseCase {
 
   final PlaceSearchRepository _repository;
 
-  Future<PlaceSearchResult<List<Place>>> call({required String query}) async {
+  Future<PlaceSearchResult<List<Place>>> call({
+    required String query,
+    required double longitude,
+    required double latitude,
+  }) async {
     final String sanitizedQuery = _sanitizeQuery(query);
     if (sanitizedQuery.isEmpty) {
       return const PlaceSearchFailure<List<Place>>('검색어를 입력해주세요');
@@ -31,6 +35,8 @@ class SearchPlacesUseCase {
     try {
       final List<Place> places = await _repository.searchPlaces(
         query: sanitizedQuery,
+        longitude: longitude,
+        latitude: latitude,
       );
 
       final List<Place> uniquePlaces = _removeDuplicates(places);
