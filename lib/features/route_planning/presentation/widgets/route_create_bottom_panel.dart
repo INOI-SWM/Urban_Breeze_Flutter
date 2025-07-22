@@ -6,6 +6,7 @@ import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/button_size.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/button_solid.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/text_field/custom_text_field.dart';
 
 enum RouteCreateMode { create, save }
@@ -116,9 +117,9 @@ class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
           title: '경로 저장',
           centerTitle: true,
           titleTextSize: AppBarTitleSize.large,
-          leading: AppbarButton(
-            onTap: widget.onBack ?? () => Navigator.of(context).pop(),
+          leading: CustomIconButton(
             icon: Icons.arrow_back_ios_new,
+            onTap: widget.onBack ?? () => Navigator.of(context).pop(),
           ),
           actions: <Widget>[
             ButtonSolid(

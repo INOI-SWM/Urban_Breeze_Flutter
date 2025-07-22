@@ -5,12 +5,6 @@ import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style
 
 enum AppBarTitleSize { medium, large }
 
-class AppbarButton {
-  const AppbarButton({required this.onTap, required this.icon});
-  final VoidCallback onTap;
-  final IconData icon;
-}
-
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
     super.key,
@@ -21,7 +15,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.titleTextSize = AppBarTitleSize.medium,
   });
 
-  final AppbarButton? leading;
+  final Widget? leading;
   final String? title;
   final List<Widget>? actions;
   final bool centerTitle;
@@ -29,18 +23,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-
-  Widget _buildButtonWidget(AppbarButton button) {
-    return GestureDetector(
-      onTap: button.onTap,
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        width: 24,
-        height: 24,
-        child: Icon(button.icon, size: 24),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +74,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 alignment: Alignment.centerLeft,
                 child: Padding(
                   padding: const EdgeInsets.only(left: 16),
-                  child: _buildButtonWidget(leading!),
+                  child: leading!,
                 ),
               ),
 

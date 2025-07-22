@@ -4,6 +4,7 @@ import 'package:ridingmate/features/workout_history/domain/entities/workout_reco
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:ridingmate/shared/utils/date_formatter.dart';
 
 class WorkoutDetailScreen extends StatelessWidget {
@@ -23,29 +24,56 @@ class WorkoutDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: colors.backgroundNormalNormal,
       appBar: CustomAppBar(
-        leading: AppbarButton(
-          onTap: () => Navigator.of(context).pop(),
+        leading: CustomIconButton(
           icon: Icons.arrow_back_ios_new,
+          onTap: () => Navigator.of(context).pop(),
         ),
         actions: <Widget>[
-          GestureDetector(
-            onTap: () {},
-            child: const SizedBox(
-              width: 24,
-              height: 24,
-              child: Icon(Icons.more_vert, size: 24),
-            ),
+          CustomIconButton(
+            icon: Icons.more_vert,
+            onTap: () {
+              // TODO: 더보기 메뉴 구현
+            },
           ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
               DateFormatter.formatKorean(workoutRecord.startTime),
               style: AppTextStyles.label2.bold.copyWith(
                 color: colors.labelAlternative,
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border(
+                  bottom: BorderSide(color: colors.lineNormalNormal, width: 1),
+                ),
+              ),
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    '운동기록 ${workoutIndex + 1}',
+                    style: AppTextStyles.title3.bold.copyWith(
+                      color: colors.labelStrong,
+                    ),
+                  ),
+                  CustomIconButton(
+                    icon: Icons.edit_outlined,
+                    onTap: () {
+                      // TODO: 편집 기능 구현
+                    },
+                  ),
+                ],
               ),
             ),
           ],

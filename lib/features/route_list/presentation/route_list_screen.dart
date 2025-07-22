@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/features/route_list/application/services/route_list_service.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/card_normal.dart';
 import 'package:ridingmate/shared/design_system/widgets/category/category_filter.dart';
 
@@ -52,7 +53,10 @@ class _RouteListScreenState extends State<RouteListScreen> {
     return Column(
       children: <Widget>[
         CustomAppBar(
-          leading: AppbarButton(onTap: () {}, icon: Icons.arrow_back_ios_new),
+          leading: CustomIconButton(
+            icon: Icons.arrow_back_ios_new,
+            onTap: () {},
+          ),
           title: '경로 목록',
           actions: <Widget>[
             IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
