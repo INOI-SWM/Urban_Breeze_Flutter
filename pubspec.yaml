@@ -50,6 +50,7 @@ flutter:
 
   assets:
     - assets/icons/svg/
-    - assets/images/png/
-    - .env
     - assets/icons/png/
+    - assets/images/png/
+
+    - .env

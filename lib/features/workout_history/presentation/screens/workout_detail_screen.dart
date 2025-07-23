@@ -45,174 +45,286 @@ class WorkoutDetailScreen extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: colors.lineNormalNormal, width: 1),
-                ),
-              ),
-              padding: const EdgeInsets.only(bottom: 8),
+            // 메인 컨텐츠 - padding 적용된 영역
+            Padding(
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: colors.lineNormalNormal,
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          DateFormatter.formatKorean(workoutRecord.startTime),
+                          style: AppTextStyles.label2.bold.copyWith(
+                            color: colors.labelAlternative,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              '운동기록 ${workoutIndex + 1}',
+                              style: AppTextStyles.title3.bold.copyWith(
+                                color: colors.labelStrong,
+                              ),
+                            ),
+                            CustomIconButton(
+                              icon: Icons.edit_outlined,
+                              onTap: () {
+                                // TODO: 편집 기능 구현
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   Text(
-                    DateFormatter.formatKorean(workoutRecord.startTime),
-                    style: AppTextStyles.label2.bold.copyWith(
+                    '이동 거리',
+                    style: AppTextStyles.label1.normalBold.copyWith(
                       color: colors.labelAlternative,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  Text(
+                    '${(workoutRecord.distance / 1000).toStringAsFixed(1)} km',
+                    style: AppTextStyles.display1.bold.copyWith(
+                      color: colors.labelStrong,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text(
-                        '운동기록 ${workoutIndex + 1}',
-                        style: AppTextStyles.title3.bold.copyWith(
-                          color: colors.labelStrong,
+                      Expanded(
+                        child: InfoItem(
+                          label: '운동 시간',
+                          value:
+                              '${workoutRecord.duration.inMinutes}분 ${workoutRecord.duration.inSeconds % 60}초',
+                          alignment: CrossAxisAlignment.start,
                         ),
                       ),
-                      CustomIconButton(
-                        icon: Icons.edit_outlined,
-                        onTap: () {
-                          // TODO: 편집 기능 구현
-                        },
+                      Expanded(
+                        child: InfoItem(
+                          label: '평균 속도',
+                          value:
+                              '${(workoutRecord.distance / 1000 / (workoutRecord.duration.inMinutes / 60)).toStringAsFixed(1)} km/h',
+                          alignment: CrossAxisAlignment.start,
+                        ),
+                      ),
+                      Expanded(
+                        child: InfoItem(
+                          label: '소모 칼로리',
+                          value:
+                              '${workoutRecord.calories.toStringAsFixed(0)} kcal',
+                          alignment: CrossAxisAlignment.start,
+                        ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 12),
+                  //TODO: api 개발 후 데이터 변경
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: InfoItem(
+                          label: '전체 시간',
+                          value: '${workoutRecord.duration.inMinutes}분',
+                          alignment: CrossAxisAlignment.start,
+                        ),
+                      ),
+                      const Expanded(
+                        child: InfoItem(
+                          label: '케이던스',
+                          value: '--',
+                          alignment: CrossAxisAlignment.start,
+                        ),
+                      ),
+                      Expanded(
+                        child: InfoItem(
+                          label: '평균 심박수',
+                          value:
+                              '${workoutRecord.heartRateData.first.heartRate} bpm',
+                          alignment: CrossAxisAlignment.start,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ButtonOutlined(
+                      text: '상세 정보',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder:
+                                (BuildContext context) =>
+                                    const WorkoutDetailStatScreen(),
+                          ),
+                        );
+                      },
+                      textColor: colors.labelNormal,
+                      borderColor: colors.lineNormalNormal,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: 300,
+                    child: _WorkoutDetailMapWidget(
+                      workoutRecord: workoutRecord,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ButtonOutlined(
+                      text: '상세 경로',
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder:
+                                (BuildContext context) =>
+                                    const WorkoutDetailStatScreen(),
+                          ),
+                        );
+                      },
+                      textColor: colors.labelNormal,
+                      borderColor: colors.lineNormalNormal,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    '사진',
+                    style: AppTextStyles.headline1.bold.copyWith(
+                      color: colors.labelNormal,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '최대 30장의 사진을 추가할 수 있습니다.',
+                    style: AppTextStyles.label1.readingBold.copyWith(
+                      color: colors.labelAlternative,
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            Text(
-              '이동 거리',
-              style: AppTextStyles.label1.normalBold.copyWith(
-                color: colors.labelAlternative,
-              ),
-            ),
-            Text(
-              '${(workoutRecord.distance / 1000).toStringAsFixed(1)} km',
-              style: AppTextStyles.display1.bold.copyWith(
-                color: colors.labelStrong,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: InfoItem(
-                    label: '운동 시간',
-                    value:
-                        '${workoutRecord.duration.inMinutes}분 ${workoutRecord.duration.inSeconds % 60}초',
-                    alignment: CrossAxisAlignment.start,
-                  ),
-                ),
-                Expanded(
-                  child: InfoItem(
-                    label: '평균 속도',
-                    value:
-                        '${(workoutRecord.distance / 1000 / (workoutRecord.duration.inMinutes / 60)).toStringAsFixed(1)} km/h',
-                    alignment: CrossAxisAlignment.start,
-                  ),
-                ),
-                Expanded(
-                  child: InfoItem(
-                    label: '소모 칼로리',
-                    value: '${workoutRecord.calories.toStringAsFixed(0)} kcal',
-                    alignment: CrossAxisAlignment.start,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            //TODO: api 개발 후 데이터 변경
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: InfoItem(
-                    label: '전체 시간',
-                    value: '${workoutRecord.duration.inMinutes}분',
-                    alignment: CrossAxisAlignment.start,
-                  ),
-                ),
-                const Expanded(
-                  child: InfoItem(
-                    label: '케이던스',
-                    value: '--',
-                    alignment: CrossAxisAlignment.start,
-                  ),
-                ),
-                Expanded(
-                  child: InfoItem(
-                    label: '평균 심박수',
-                    value: '${workoutRecord.heartRateData.first.heartRate} bpm',
-                    alignment: CrossAxisAlignment.start,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
+            // 사진 섹션 - 전체 너비 사용
             SizedBox(
-              width: double.infinity,
-              child: ButtonOutlined(
-                text: '상세 정보',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder:
-                          (BuildContext context) =>
-                              const WorkoutDetailStatScreen(),
+              height: 100,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                clipBehavior: Clip.none,
+                children: <Widget>[
+                  // 사진 추가 버튼
+                  Container(
+                    width: 100,
+                    height: 100,
+                    margin: const EdgeInsets.only(right: 8),
+                    decoration: BoxDecoration(
+                      color: colors.fillNormal,
+                      border: Border.all(
+                        color: colors.lineNormalNormal,
+                        width: 1,
+                        style: BorderStyle.solid,
+                      ),
                     ),
-                  );
-                },
-                textColor: colors.labelNormal,
-                borderColor: colors.lineNormalNormal,
-              ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 300,
-              child: _WorkoutDetailMapWidget(workoutRecord: workoutRecord),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ButtonOutlined(
-                text: '상세 경로',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder:
-                          (BuildContext context) =>
-                              const WorkoutDetailStatScreen(),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          // TODO: 사진 추가 기능 구현
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(
+                              Icons.add_photo_alternate_outlined,
+                              size: 24,
+                              color: colors.labelAlternative,
+                            ),
+                            const SizedBox(height: 4),
+                          ],
+                        ),
+                      ),
                     ),
-                  );
-                },
-                textColor: colors.labelNormal,
-                borderColor: colors.lineNormalNormal,
+                  ),
+                  // 예시 사진들
+                  _buildPhotoItem(context, '1'),
+                  _buildPhotoItem(context, '2'),
+                  _buildPhotoItem(context, '3'),
+                ],
               ),
             ),
-            const SizedBox(height: 20),
-            Text(
-              '사진',
-              style: AppTextStyles.body1.readingBold.copyWith(
-                color: colors.labelNormal,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '최대 30장의 사진을 추가할 수 있습니다.',
-              style: AppTextStyles.label1.readingBold.copyWith(
-                color: colors.labelAlternative,
-              ),
-            ),
+            const SizedBox(height: 50), // 빈 공간 추가
           ],
         ),
+      ),
+    );
+  }
+
+  /// 사진 아이템 위젯 생성
+  Widget _buildPhotoItem(BuildContext context, String label) {
+    const String imagePath = 'assets/images/png/thumbnail_r1_1.png';
+    final SemanticColors colors = context.semanticColor;
+    return Container(
+      width: 100,
+      height: 100,
+      margin: const EdgeInsets.only(right: 8),
+      decoration: BoxDecoration(
+        color: colors.fillAlternative,
+        border: Border.all(color: colors.lineNormalNormal, width: 1),
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: <Widget>[
+          // 실제 PNG 이미지 표시
+          ClipRRect(
+            child: Image.asset(
+              imagePath,
+              width: double.infinity,
+              height: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          ),
+          // 삭제 버튼
+          Positioned(
+            top: -8,
+            right: -8,
+            child: GestureDetector(
+              onTap: () {
+                // TODO: 사진 삭제 기능 구현
+              },
+              child: Container(
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  color: colors.labelAlternative,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.close, size: 12, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
