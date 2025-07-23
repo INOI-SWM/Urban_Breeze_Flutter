@@ -6,6 +6,7 @@ import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style
 import 'package:ridingmate/shared/design_system/widgets/card/card_list.dart';
 import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
 import 'package:ridingmate/shared/utils/date_formatter.dart';
+import 'package:ridingmate/shared/utils/workout_formatter.dart';
 
 import '../../data/repositories/apple_health_kit_sync_repository_impl.dart';
 import '../../domain/entities/workout_record.dart';
@@ -153,12 +154,11 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
                     createDate: DateFormatter.formatKorean(workout.startTime),
                     badges: <BadgeData>[
                       BadgeData(
-                        text:
-                            '${(workout.distance / 1000).toStringAsFixed(1)}km',
+                        text: WorkoutFormatter.toKmText(workout.distance),
                         icon: Icons.route,
                       ),
                       BadgeData(
-                        text: '${workout.duration.inMinutes}분',
+                        text: WorkoutFormatter.toDurationText(workout.duration),
                         icon: Icons.access_time,
                       ),
                     ],
