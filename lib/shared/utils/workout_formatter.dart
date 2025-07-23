@@ -17,11 +17,11 @@ class WorkoutFormatter {
 
   /// 속도를 km/h 문자열로 변환 ("0.0 km/h" 또는 "--")
   static String toSpeedText(double distanceInMeters, Duration duration) {
-    if (distanceInMeters <= 0 || duration.inMinutes <= 0) {
+    if (distanceInMeters <= 0 || duration.inSeconds <= 0) {
       return '--';
     }
     final double kmPerHour =
-        distanceInMeters / 1000 / (duration.inMinutes / 60);
+        distanceInMeters / 1000 / (duration.inSeconds / 3600);
     return '${kmPerHour.toStringAsFixed(1)} km/h';
   }
 
