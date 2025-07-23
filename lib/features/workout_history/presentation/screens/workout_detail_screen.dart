@@ -197,6 +197,20 @@ class WorkoutDetailScreen extends StatelessWidget {
                 borderColor: colors.lineNormalNormal,
               ),
             ),
+            const SizedBox(height: 20),
+            Text(
+              '사진',
+              style: AppTextStyles.body1.readingBold.copyWith(
+                color: colors.labelNormal,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '최대 30장의 사진을 추가할 수 있습니다.',
+              style: AppTextStyles.label1.readingBold.copyWith(
+                color: colors.labelAlternative,
+              ),
+            ),
           ],
         ),
       ),
