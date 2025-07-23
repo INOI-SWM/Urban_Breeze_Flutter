@@ -1,49 +1,49 @@
 import '../../domain/entities/place.dart';
 
-class KakaoSearchResponseModel {
-  const KakaoSearchResponseModel({
+class PlaceSearchResponseModel {
+  const PlaceSearchResponseModel({
     this.code,
     required this.message,
     required this.data,
   });
 
-  factory KakaoSearchResponseModel.fromJson(Map<String, dynamic> json) {
-    return KakaoSearchResponseModel(
+  factory PlaceSearchResponseModel.fromJson(Map<String, dynamic> json) {
+    return PlaceSearchResponseModel(
       code: json['code']?.toString(),
       message: json['message']?.toString() ?? '',
-      data: KakaoSearchData.fromJson(json['data'] as Map<String, dynamic>),
+      data: PlaceSearchData.fromJson(json['data'] as Map<String, dynamic>),
     );
   }
 
   final String message;
-  final KakaoSearchData data;
+  final PlaceSearchData data;
   final String? code;
 }
 
-class KakaoSearchData {
-  const KakaoSearchData({required this.bbox, required this.documents});
+class PlaceSearchData {
+  const PlaceSearchData({required this.bbox, required this.documents});
 
-  factory KakaoSearchData.fromJson(Map<String, dynamic> json) {
-    return KakaoSearchData(
-      bbox: KakaoSearchBbox.fromJson(json['bbox'] as Map<String, dynamic>),
+  factory PlaceSearchData.fromJson(Map<String, dynamic> json) {
+    return PlaceSearchData(
+      bbox: PlaceSearchBbox.fromJson(json['bbox'] as Map<String, dynamic>),
       documents:
           (json['documents'] as List<dynamic>?)
               ?.map(
-                (dynamic document) => KakaoSearchDocument.fromJson(
+                (dynamic document) => PlaceSearchDocument.fromJson(
                   document as Map<String, dynamic>,
                 ),
               )
               .toList() ??
-          <KakaoSearchDocument>[],
+          <PlaceSearchDocument>[],
     );
   }
 
-  final KakaoSearchBbox bbox;
-  final List<KakaoSearchDocument> documents;
+  final PlaceSearchBbox bbox;
+  final List<PlaceSearchDocument> documents;
 }
 
-class KakaoSearchBbox {
-  const KakaoSearchBbox({
+class PlaceSearchBbox {
+  const PlaceSearchBbox({
     required this.minLon,
     required this.minLat,
     required this.maxLon,
@@ -52,8 +52,8 @@ class KakaoSearchBbox {
     required this.midLat,
   });
 
-  factory KakaoSearchBbox.fromJson(Map<String, dynamic> json) {
-    return KakaoSearchBbox(
+  factory PlaceSearchBbox.fromJson(Map<String, dynamic> json) {
+    return PlaceSearchBbox(
       minLon: (json['minLon'] as num?)?.toDouble() ?? 0.0,
       minLat: (json['minLat'] as num?)?.toDouble() ?? 0.0,
       maxLon: (json['maxLon'] as num?)?.toDouble() ?? 0.0,
@@ -71,8 +71,8 @@ class KakaoSearchBbox {
   final double midLat;
 }
 
-class KakaoSearchDocument {
-  const KakaoSearchDocument({
+class PlaceSearchDocument {
+  const PlaceSearchDocument({
     required this.placeName,
     required this.distance,
     required this.placeUrl,
@@ -83,8 +83,8 @@ class KakaoSearchDocument {
     required this.y,
   });
 
-  factory KakaoSearchDocument.fromJson(Map<String, dynamic> json) {
-    return KakaoSearchDocument(
+  factory PlaceSearchDocument.fromJson(Map<String, dynamic> json) {
+    return PlaceSearchDocument(
       placeName: json['place_name']?.toString() ?? '',
       distance: json['distance']?.toString() ?? '',
       placeUrl: json['place_url']?.toString() ?? '',
