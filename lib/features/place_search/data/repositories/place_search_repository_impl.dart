@@ -1,31 +1,39 @@
-import 'package:ridingmate/features/place_search/data/models/kakao_search_response_model.dart';
+import 'package:ridingmate/features/place_search/data/models/place_search_response_model.dart';
 
 import '../../domain/entities/place.dart';
+import '../../domain/entities/search_result.dart';
 import '../../domain/exceptions/place_search_domain_exceptions.dart';
 import '../../domain/repositories/place_search_repository.dart';
-import '../datasources/kakao_search_datasource.dart';
+import '../datasources/remote_place_search_datasource.dart';
 
 class PlaceSearchRepositoryImpl implements PlaceSearchRepository {
-  const PlaceSearchRepositoryImpl({required KakaoSearchDataSource dataSource})
-    : _dataSource = dataSource;
+  const PlaceSearchRepositoryImpl({
+    required RemotePlaceSearchDataSource dataSource,
+  }) : _dataSource = dataSource;
 
-  final KakaoSearchDataSource _dataSource;
+  final RemotePlaceSearchDataSource _dataSource;
 
   @override
-  Future<List<Place>> searchPlaces({required String query}) async {
+  Future<SearchResult> searchPlaces({
+    required String query,
+    required double longitude,
+    required double latitude,
+  }) async {
     try {
-      final KakaoSearchResponseModel response = await _dataSource.searchPlaces(
+      final PlaceSearchResponseModel response = await _dataSource.searchPlaces(
         query: query,
+        longitude: longitude,
+        latitude: latitude,
       );
 
-      if (response.documents.isEmpty) {
+      if (response.data.documents.isEmpty) {
         throw const NoResultsException('검색 결과가 없습니다');
       }
 
       // 응답 데이터를 Place 엔티티로 변환
       final List<Place> places =
-          response.documents
-              .map((KakaoSearchDocument document) => document.toPlace())
+          response.data.documents
+              .map((PlaceSearchDocument document) => document.toPlace())
               .where((Place place) => _isValidPlace(place))
               .toList();
 
@@ -33,7 +41,17 @@ class PlaceSearchRepositoryImpl implements PlaceSearchRepository {
         throw const NoResultsException('유효한 장소 정보가 없습니다');
       }
 
-      return places;
+      // bbox 정보를 SearchResultBbox로 변환
+      final SearchResultBbox bbox = SearchResultBbox(
+        minLon: response.data.bbox.minLon,
+        minLat: response.data.bbox.minLat,
+        maxLon: response.data.bbox.maxLon,
+        maxLat: response.data.bbox.maxLat,
+        midLon: response.data.bbox.midLon,
+        midLat: response.data.bbox.midLat,
+      );
+
+      return SearchResult(query: query, places: places, bbox: bbox);
     } catch (e) {
       if (e is PlaceSearchDomainException) {
         rethrow;
@@ -48,7 +66,7 @@ class PlaceSearchRepositoryImpl implements PlaceSearchRepository {
       return false;
     }
 
-    if (place.address.trim().isEmpty && place.roadAddress.trim().isEmpty) {
+    if (place.address.trim().isEmpty && place.address.trim().isEmpty) {
       return false;
     }
 

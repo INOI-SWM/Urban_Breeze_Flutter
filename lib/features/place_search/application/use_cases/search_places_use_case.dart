@@ -1,4 +1,5 @@
 import '../../domain/entities/place.dart';
+import '../../domain/entities/search_result.dart';
 import '../../domain/exceptions/place_search_domain_exceptions.dart';
 import '../../domain/repositories/place_search_repository.dart';
 
@@ -7,8 +8,8 @@ sealed class PlaceSearchResult<T> {
 }
 
 class PlaceSearchSuccess<T> extends PlaceSearchResult<T> {
-  const PlaceSearchSuccess(this.places);
-  final List<Place> places;
+  const PlaceSearchSuccess(this.searchResult);
+  final SearchResult searchResult;
 }
 
 class PlaceSearchFailure<T> extends PlaceSearchResult<T> {
@@ -22,31 +23,43 @@ class SearchPlacesUseCase {
 
   final PlaceSearchRepository _repository;
 
-  Future<PlaceSearchResult<List<Place>>> call({required String query}) async {
+  Future<PlaceSearchResult<SearchResult>> call({
+    required String query,
+    required double longitude,
+    required double latitude,
+  }) async {
     final String sanitizedQuery = _sanitizeQuery(query);
     if (sanitizedQuery.isEmpty) {
-      return const PlaceSearchFailure<List<Place>>('검색어를 입력해주세요');
+      return const PlaceSearchFailure<SearchResult>('검색어를 입력해주세요');
     }
 
     try {
-      final List<Place> places = await _repository.searchPlaces(
+      final SearchResult searchResult = await _repository.searchPlaces(
         query: sanitizedQuery,
+        longitude: longitude,
+        latitude: latitude,
       );
 
-      final List<Place> uniquePlaces = _removeDuplicates(places);
-      return PlaceSearchSuccess<List<Place>>(uniquePlaces);
+      final List<Place> uniquePlaces = _removeDuplicates(searchResult.places);
+      final SearchResult uniqueSearchResult = SearchResult(
+        query: sanitizedQuery,
+        places: uniquePlaces,
+        bbox: searchResult.bbox,
+      );
+
+      return PlaceSearchSuccess<SearchResult>(uniqueSearchResult);
     } on EmptyQueryException catch (e) {
-      return PlaceSearchFailure<List<Place>>(e.message);
+      return PlaceSearchFailure<SearchResult>(e.message);
     } on NoResultsException catch (e) {
-      return PlaceSearchFailure<List<Place>>(e.message);
+      return PlaceSearchFailure<SearchResult>(e.message);
     } on PlaceSearchNetworkException catch (e) {
-      return PlaceSearchFailure<List<Place>>(e.message);
+      return PlaceSearchFailure<SearchResult>(e.message);
     } on PlaceSearchServerException catch (e) {
-      return PlaceSearchFailure<List<Place>>(e.message);
+      return PlaceSearchFailure<SearchResult>(e.message);
     } on PlaceSearchParsingException catch (e) {
-      return PlaceSearchFailure<List<Place>>(e.message);
+      return PlaceSearchFailure<SearchResult>(e.message);
     } catch (e) {
-      return const PlaceSearchFailure<List<Place>>('검색 중 오류가 발생했습니다');
+      return const PlaceSearchFailure<SearchResult>('검색 중 오류가 발생했습니다');
     }
   }
 

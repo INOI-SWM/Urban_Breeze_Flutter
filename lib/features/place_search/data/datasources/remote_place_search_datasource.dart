@@ -5,31 +5,31 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 import '../../domain/exceptions/place_search_domain_exceptions.dart';
-import '../models/kakao_search_response_model.dart';
+import '../models/place_search_response_model.dart';
 
-class KakaoSearchDataSource {
-  KakaoSearchDataSource({http.Client? httpClient})
+class RemotePlaceSearchDataSource {
+  RemotePlaceSearchDataSource({http.Client? httpClient})
     : _httpClient = httpClient ?? http.Client();
 
   final http.Client _httpClient;
 
-  static const String _baseUrl =
-      'https://dapi.kakao.com/v2/local/search/keyword.json';
+  String get _baseUrl => dotenv.env['API_BASE_URL'] ?? '';
 
-  String get _restApiKey => dotenv.env['KAKAO_REST_API_KEY'] ?? '';
-
-  Future<KakaoSearchResponseModel> searchPlaces({required String query}) async {
-    if (_restApiKey.isEmpty) {
-      throw const PlaceSearchServerException('카카오 REST API 키가 설정되지 않았습니다');
-    }
-
+  Future<PlaceSearchResponseModel> searchPlaces({
+    required String query,
+    required double longitude,
+    required double latitude,
+  }) async {
     try {
-      final Uri uri = Uri.parse(
-        _baseUrl,
-      ).replace(queryParameters: <String, dynamic>{'query': query});
+      final Uri uri = Uri.parse('$_baseUrl/api/routes/search').replace(
+        queryParameters: <String, dynamic>{
+          'query': query,
+          'lon': longitude.toString(),
+          'lat': latitude.toString(),
+        },
+      );
 
       final Map<String, String> headers = <String, String>{
-        'Authorization': 'KakaoAK $_restApiKey',
         'Content-Type': 'application/json',
       };
 
@@ -40,7 +40,7 @@ class KakaoSearchDataSource {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData =
             json.decode(response.body) as Map<String, dynamic>;
-        return KakaoSearchResponseModel.fromJson(jsonData);
+        return PlaceSearchResponseModel.fromJson(jsonData);
       } else {
         String errorMessage = 'API 요청 실패';
 

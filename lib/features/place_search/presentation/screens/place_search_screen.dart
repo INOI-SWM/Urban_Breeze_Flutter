@@ -2,16 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/place_search/application/use_cases/search_places_use_case.dart';
 import 'package:ridingmate/features/place_search/di/place_search_providers.dart';
 import 'package:ridingmate/features/place_search/domain/entities/place.dart';
 import 'package:ridingmate/features/place_search/domain/entities/search_result.dart';
+import 'package:ridingmate/features/route_planning/application/use_cases/get_current_location_use_case.dart';
+import 'package:ridingmate/features/route_planning/di/route_providers.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/search_app_bar.dart';
 
 class PlaceSearchScreen extends ConsumerStatefulWidget {
-  const PlaceSearchScreen({super.key});
+  const PlaceSearchScreen({super.key, this.initialLocation});
+
+  final LatLng? initialLocation;
 
   @override
   ConsumerState<PlaceSearchScreen> createState() => _PlaceSearchScreenState();
@@ -23,14 +28,26 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
 
   bool _isSearching = false;
   List<Place> _searchResults = <Place>[];
+  SearchResult? _lastSearchResult; // 마지막 검색 결과 저장
   Timer? _debounceTimer; // 실시간 검색 시 과도한 API 호출 방지용 타이머
 
   late final SearchPlacesUseCase _searchPlacesUseCase;
+  late final GetCurrentLocationUseCase _getCurrentLocationUseCase;
+
+  LatLng? _currentLocation;
+  static const LatLng _defaultLocation = LatLng(37.5665, 126.9780); // 서울시청
 
   @override
   void initState() {
     super.initState();
     _searchPlacesUseCase = ref.read(searchPlacesUseCaseProvider);
+    _getCurrentLocationUseCase = ref.read(getCurrentLocationUseCaseProvider);
+
+    // 초기 위치 사용 (null인 경우 현재 위치 가져오기)
+    _currentLocation = widget.initialLocation;
+    if (_currentLocation == null) {
+      _getCurrentLocation();
+    }
 
     // 화면 진입 시 검색 필드에 자동 포커스
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -54,6 +71,24 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
     });
   }
 
+  Future<void> _getCurrentLocation() async {
+    try {
+      final LatLng? location = await _getCurrentLocationUseCase.execute();
+      if (mounted) {
+        setState(() {
+          _currentLocation = location;
+        });
+      }
+    } catch (e) {
+      // 위치 정보를 가져올 수 없는 경우 기본 위치 사용
+      if (mounted) {
+        setState(() {
+          _currentLocation = _defaultLocation;
+        });
+      }
+    }
+  }
+
   void _showErrorSnackBar(String message) {
     if (mounted) {
       ScaffoldMessenger.of(context).clearSnackBars();
@@ -72,12 +107,19 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
       return;
     }
 
+    // 현재 위치 사용 (기본 위치 또는 실제 위치)
+    final LatLng searchLocation = _currentLocation ?? _defaultLocation;
+
     setState(() {
       _isSearching = true;
     });
 
-    final PlaceSearchResult<List<Place>> result = await _searchPlacesUseCase
-        .call(query: query);
+    final PlaceSearchResult<SearchResult> result = await _searchPlacesUseCase
+        .call(
+          query: query,
+          longitude: searchLocation.longitude,
+          latitude: searchLocation.latitude,
+        );
 
     if (mounted) {
       setState(() {
@@ -85,11 +127,12 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
       });
 
       switch (result) {
-        case final PlaceSearchSuccess<List<Place>> success:
+        case final PlaceSearchSuccess<SearchResult> success:
           setState(() {
-            _searchResults = success.places;
+            _searchResults = success.searchResult.places;
+            _lastSearchResult = success.searchResult;
           });
-        case final PlaceSearchFailure<List<Place>> failure:
+        case final PlaceSearchFailure<SearchResult> failure:
           _showErrorSnackBar(failure.message);
       }
     }
@@ -100,12 +143,8 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
   }
 
   void _selectAllPlaces() {
-    if (_searchResults.isNotEmpty) {
-      final SearchResult result = SearchResult(
-        query: _searchController.text.trim(),
-        places: _searchResults,
-      );
-      Navigator.of(context).pop(result);
+    if (_searchResults.isNotEmpty && _lastSearchResult != null) {
+      Navigator.of(context).pop(_lastSearchResult);
     }
   }
 
@@ -179,9 +218,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  place.roadAddress.isNotEmpty
-                      ? place.roadAddress
-                      : place.address,
+                  place.address,
                   style: AppTextStyles.body2.normalRegular.copyWith(
                     color: context.semanticColor.labelDisable,
                   ),
