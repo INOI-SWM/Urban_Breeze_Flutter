@@ -7,6 +7,7 @@ import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:ridingmate/shared/utils/date_formatter.dart';
+import 'package:ridingmate/shared/utils/workout_formatter.dart';
 
 class WorkoutDetailStatScreen extends StatelessWidget {
   const WorkoutDetailStatScreen({
@@ -87,40 +88,40 @@ class WorkoutDetailStatScreen extends StatelessWidget {
     return <Map<String, String>>[
       <String, String>{
         'label': '거리',
-        'value': '${(workoutRecord.distance / 1000).toStringAsFixed(1)} km',
+        'value': WorkoutFormatter.toKmText(workoutRecord.distance),
       },
       <String, String>{'label': '최고속도', 'value': '24.0 km/h'},
       <String, String>{
         'label': '평균속도',
-        'value':
-            '${(workoutRecord.distance / 1000 / (workoutRecord.duration.inMinutes / 60)).toStringAsFixed(1)} km/h',
+        'value': WorkoutFormatter.toSpeedText(
+          workoutRecord.distance,
+          workoutRecord.duration,
+        ),
       },
       <String, String>{'label': '상승고도', 'value': '124 m'}, // 임의 값
       <String, String>{'label': '하강고도', 'value': '118 m'}, // 임의 값
       <String, String>{
         'label': '전체시간',
-        'value':
-            '${workoutRecord.duration.inMinutes}분 ${workoutRecord.duration.inSeconds % 60}초',
+        'value': WorkoutFormatter.toDurationText(workoutRecord.duration),
       },
       <String, String>{
         'label': '운동시간',
-        'value':
-            '${workoutRecord.duration.inMinutes}분 ${workoutRecord.duration.inSeconds % 60}초',
+        'value': WorkoutFormatter.toDurationText(workoutRecord.duration),
       },
       <String, String>{'label': '케이던스', 'value': '85 rpm'}, // 임의 값
       <String, String>{
         'label': '평균 심박수',
-        'value': avgHeartRate > 0 ? '${avgHeartRate.round()} bpm' : '-- bpm',
+        'value': WorkoutFormatter.toHeartRateText(avgHeartRate),
       },
       <String, String>{
         'label': '최대 심박수',
-        'value': maxHeartRate > 0 ? '${maxHeartRate.round()} bpm' : '-- bpm',
+        'value': WorkoutFormatter.toHeartRateText(maxHeartRate),
       },
       <String, String>{'label': '평균 파워', 'value': '180 W'}, // 임의 값
       <String, String>{'label': '최고파워', 'value': '320 W'}, // 임의 값
       <String, String>{
         'label': '소모 칼로리',
-        'value': '${workoutRecord.calories.round()} kcal',
+        'value': WorkoutFormatter.toCaloriesText(workoutRecord.calories),
       },
     ];
   }
