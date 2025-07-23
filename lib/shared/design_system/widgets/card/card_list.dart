@@ -20,6 +20,7 @@ class CardList extends StatelessWidget {
     required this.title,
     required this.createDate,
     required this.badges,
+    this.onTap,
   });
 
   final String thumbnailPath;
@@ -27,66 +28,71 @@ class CardList extends StatelessWidget {
   final String title;
   final String createDate;
   final List<BadgeData> badges;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
 
-    return Row(
-      children: <Widget>[
-        SizedBox(
-          height: 64,
-          child: Thumbnail(
-            path: thumbnailPath,
-            ratio: ThumbnailRatio.r3_2,
-            sourceType: sourceType,
-            hasRadius: true,
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Row(
+        children: <Widget>[
+          SizedBox(
+            height: 64,
+            child: Thumbnail(
+              path: thumbnailPath,
+              ratio: ThumbnailRatio.r3_2,
+              sourceType: sourceType,
+              hasRadius: true,
+            ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    title,
-                    style: AppTextStyles.body2.normalBold.copyWith(
-                      color: colors.labelNormal,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      title,
+                      style: AppTextStyles.body2.normalBold.copyWith(
+                        color: colors.labelNormal,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    createDate,
-                    style: AppTextStyles.label2.medium.copyWith(
-                      color: colors.labelAlternative,
+                    const SizedBox(height: 4),
+                    Text(
+                      createDate,
+                      style: AppTextStyles.label2.medium.copyWith(
+                        color: colors.labelAlternative,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 6,
-                children:
-                    badges
-                        .map(
-                          (BadgeData badge) => ContentBadge(
-                            text: badge.text,
-                            type: ContentBadgeType.solid,
-                            backgroundColor: colors.fillNormal,
-                            textColor: colors.labelAlternative,
-                            leftIcon: badge.icon,
-                            size: ContentBadgeSize.xsmall,
-                          ),
-                        )
-                        .toList(),
-              ),
-            ],
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  children:
+                      badges
+                          .map(
+                            (BadgeData badge) => ContentBadge(
+                              text: badge.text,
+                              type: ContentBadgeType.solid,
+                              backgroundColor: colors.fillNormal,
+                              textColor: colors.labelAlternative,
+                              leftIcon: badge.icon,
+                              size: ContentBadgeSize.xsmall,
+                            ),
+                          )
+                          .toList(),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

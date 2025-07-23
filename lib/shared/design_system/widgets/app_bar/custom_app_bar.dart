@@ -3,7 +3,7 @@ import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 
-enum NavBarTitleSize { medium, large }
+enum AppBarTitleSize { medium, large }
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
@@ -12,14 +12,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.title,
     this.actions,
     this.centerTitle = true,
-    this.titleTextSize = NavBarTitleSize.medium,
+    this.titleTextSize = AppBarTitleSize.medium,
   });
 
   final Widget? leading;
   final String? title;
   final List<Widget>? actions;
   final bool centerTitle;
-  final NavBarTitleSize titleTextSize;
+  final AppBarTitleSize titleTextSize;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -30,11 +30,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     TextStyle getTitleStyle() {
       switch (titleTextSize) {
-        case NavBarTitleSize.large:
+        case AppBarTitleSize.large:
           return AppTextStyles.heading2.bold.copyWith(
             color: colors.labelStrong,
           );
-        case NavBarTitleSize.medium:
+        case AppBarTitleSize.medium:
           return AppTextStyles.headline2.bold.copyWith(
             color: colors.labelStrong,
           );
@@ -74,7 +74,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 alignment: Alignment.centerLeft,
                 child: Padding(
                   padding: const EdgeInsets.only(left: 16),
-                  child: leading,
+                  child: leading!,
                 ),
               ),
 

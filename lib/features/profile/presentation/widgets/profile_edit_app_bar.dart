@@ -3,6 +3,7 @@ import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 
 class ProfileEditAppBar extends StatelessWidget implements PreferredSizeWidget {
   const ProfileEditAppBar({
@@ -25,12 +26,8 @@ class ProfileEditAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     return CustomAppBar(
       title: title,
-      leading: GestureDetector(
-        child: const SizedBox(
-          width: 24,
-          height: 24,
-          child: Icon(Icons.arrow_back_ios_new, size: 24),
-        ),
+      leading: CustomIconButton(
+        icon: Icons.arrow_back_ios_new,
         onTap: () => Navigator.of(context).pop(),
       ),
       actions: <Widget>[
