@@ -1,7 +1,7 @@
-import '../entities/place.dart';
+import '../entities/search_result.dart';
 
 abstract class PlaceSearchRepository {
-  Future<List<Place>> searchPlaces({
+  Future<SearchResult> searchPlaces({
     required String query,
     required double longitude,
     required double latitude,

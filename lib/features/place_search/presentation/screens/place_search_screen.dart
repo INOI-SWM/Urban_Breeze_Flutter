@@ -28,6 +28,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
 
   bool _isSearching = false;
   List<Place> _searchResults = <Place>[];
+  SearchResult? _lastSearchResult; // 마지막 검색 결과 저장
   Timer? _debounceTimer; // 실시간 검색 시 과도한 API 호출 방지용 타이머
 
   late final SearchPlacesUseCase _searchPlacesUseCase;
@@ -113,7 +114,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
       _isSearching = true;
     });
 
-    final PlaceSearchResult<List<Place>> result = await _searchPlacesUseCase
+    final PlaceSearchResult<SearchResult> result = await _searchPlacesUseCase
         .call(
           query: query,
           longitude: searchLocation.longitude,
@@ -126,11 +127,12 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
       });
 
       switch (result) {
-        case final PlaceSearchSuccess<List<Place>> success:
+        case final PlaceSearchSuccess<SearchResult> success:
           setState(() {
-            _searchResults = success.places;
+            _searchResults = success.searchResult.places;
+            _lastSearchResult = success.searchResult;
           });
-        case final PlaceSearchFailure<List<Place>> failure:
+        case final PlaceSearchFailure<SearchResult> failure:
           _showErrorSnackBar(failure.message);
       }
     }
@@ -141,12 +143,8 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
   }
 
   void _selectAllPlaces() {
-    if (_searchResults.isNotEmpty) {
-      final SearchResult result = SearchResult(
-        query: _searchController.text.trim(),
-        places: _searchResults,
-      );
-      Navigator.of(context).pop(result);
+    if (_searchResults.isNotEmpty && _lastSearchResult != null) {
+      Navigator.of(context).pop(_lastSearchResult);
     }
   }
 

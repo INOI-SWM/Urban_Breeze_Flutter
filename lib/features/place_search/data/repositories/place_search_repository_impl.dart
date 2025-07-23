@@ -1,6 +1,7 @@
 import 'package:ridingmate/features/place_search/data/models/place_search_response_model.dart';
 
 import '../../domain/entities/place.dart';
+import '../../domain/entities/search_result.dart';
 import '../../domain/exceptions/place_search_domain_exceptions.dart';
 import '../../domain/repositories/place_search_repository.dart';
 import '../datasources/remote_place_search_datasource.dart';
@@ -13,7 +14,7 @@ class PlaceSearchRepositoryImpl implements PlaceSearchRepository {
   final RemotePlaceSearchDataSource _dataSource;
 
   @override
-  Future<List<Place>> searchPlaces({
+  Future<SearchResult> searchPlaces({
     required String query,
     required double longitude,
     required double latitude,
@@ -40,7 +41,17 @@ class PlaceSearchRepositoryImpl implements PlaceSearchRepository {
         throw const NoResultsException('유효한 장소 정보가 없습니다');
       }
 
-      return places;
+      // bbox 정보를 SearchResultBbox로 변환
+      final SearchResultBbox bbox = SearchResultBbox(
+        minLon: response.data.bbox.minLon,
+        minLat: response.data.bbox.minLat,
+        maxLon: response.data.bbox.maxLon,
+        maxLat: response.data.bbox.maxLat,
+        midLon: response.data.bbox.midLon,
+        midLat: response.data.bbox.midLat,
+      );
+
+      return SearchResult(query: query, places: places, bbox: bbox);
     } catch (e) {
       if (e is PlaceSearchDomainException) {
         rethrow;
