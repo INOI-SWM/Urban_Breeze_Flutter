@@ -2,22 +2,22 @@ import '../../domain/entities/place.dart';
 
 class KakaoSearchResponseModel {
   const KakaoSearchResponseModel({
-    required this.code,
+    this.code,
     required this.message,
     required this.data,
   });
 
   factory KakaoSearchResponseModel.fromJson(Map<String, dynamic> json) {
     return KakaoSearchResponseModel(
-      code: json['code'] as String? ?? '',
-      message: json['message'] as String? ?? '',
+      code: json['code']?.toString(),
+      message: json['message']?.toString() ?? '',
       data: KakaoSearchData.fromJson(json['data'] as Map<String, dynamic>),
     );
   }
 
-  final String code;
   final String message;
   final KakaoSearchData data;
+  final String? code;
 }
 
 class KakaoSearchData {
@@ -25,7 +25,7 @@ class KakaoSearchData {
 
   factory KakaoSearchData.fromJson(Map<String, dynamic> json) {
     return KakaoSearchData(
-      bbox: json['bbox'] as String? ?? '',
+      bbox: KakaoSearchBbox.fromJson(json['bbox'] as Map<String, dynamic>),
       documents:
           (json['documents'] as List<dynamic>?)
               ?.map(
@@ -38,8 +38,37 @@ class KakaoSearchData {
     );
   }
 
-  final String bbox;
+  final KakaoSearchBbox bbox;
   final List<KakaoSearchDocument> documents;
+}
+
+class KakaoSearchBbox {
+  const KakaoSearchBbox({
+    required this.minLon,
+    required this.minLat,
+    required this.maxLon,
+    required this.maxLat,
+    required this.midLon,
+    required this.midLat,
+  });
+
+  factory KakaoSearchBbox.fromJson(Map<String, dynamic> json) {
+    return KakaoSearchBbox(
+      minLon: (json['minLon'] as num?)?.toDouble() ?? 0.0,
+      minLat: (json['minLat'] as num?)?.toDouble() ?? 0.0,
+      maxLon: (json['maxLon'] as num?)?.toDouble() ?? 0.0,
+      maxLat: (json['maxLat'] as num?)?.toDouble() ?? 0.0,
+      midLon: (json['midLon'] as num?)?.toDouble() ?? 0.0,
+      midLat: (json['midLat'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
+
+  final double minLon;
+  final double minLat;
+  final double maxLon;
+  final double maxLat;
+  final double midLon;
+  final double midLat;
 }
 
 class KakaoSearchDocument {
@@ -56,14 +85,14 @@ class KakaoSearchDocument {
 
   factory KakaoSearchDocument.fromJson(Map<String, dynamic> json) {
     return KakaoSearchDocument(
-      placeName: json['place_name'] as String? ?? '',
-      distance: json['distance'] as String? ?? '',
-      placeUrl: json['place_url'] as String? ?? '',
-      addressName: json['address_name'] as String? ?? '',
-      phone: json['phone'] as String? ?? '',
-      categoryGroupName: json['category_group_name'] as String? ?? '',
-      x: json['x'] as String? ?? '',
-      y: json['y'] as String? ?? '',
+      placeName: json['place_name']?.toString() ?? '',
+      distance: json['distance']?.toString() ?? '',
+      placeUrl: json['place_url']?.toString() ?? '',
+      addressName: json['address_name']?.toString() ?? '',
+      phone: json['phone']?.toString() ?? '',
+      categoryGroupName: json['category_group_name']?.toString() ?? '',
+      x: json['x']?.toString() ?? '',
+      y: json['y']?.toString() ?? '',
     );
   }
 
