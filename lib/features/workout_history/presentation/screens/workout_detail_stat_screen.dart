@@ -90,7 +90,10 @@ class WorkoutDetailStatScreen extends StatelessWidget {
         'label': '거리',
         'value': WorkoutFormatter.toKmText(workoutRecord.distance),
       },
-      <String, String>{'label': '최고속도', 'value': '24.0 km/h'},
+      <String, String>{
+        'label': '최고속도',
+        'value': WorkoutFormatter.toMaxSpeedText(null),
+      }, // 데이터 없음
       <String, String>{
         'label': '평균속도',
         'value': WorkoutFormatter.toSpeedText(
@@ -98,8 +101,14 @@ class WorkoutDetailStatScreen extends StatelessWidget {
           workoutRecord.duration,
         ),
       },
-      <String, String>{'label': '상승고도', 'value': '124 m'}, // 임의 값
-      <String, String>{'label': '하강고도', 'value': '118 m'}, // 임의 값
+      <String, String>{
+        'label': '상승고도',
+        'value': WorkoutFormatter.toAltitudeText(null),
+      }, // 데이터 없음
+      <String, String>{
+        'label': '하강고도',
+        'value': WorkoutFormatter.toAltitudeText(null),
+      }, // 데이터 없음
       <String, String>{
         'label': '전체시간',
         'value': WorkoutFormatter.toDurationText(workoutRecord.duration),
@@ -108,7 +117,10 @@ class WorkoutDetailStatScreen extends StatelessWidget {
         'label': '운동시간',
         'value': WorkoutFormatter.toDurationText(workoutRecord.duration),
       },
-      <String, String>{'label': '케이던스', 'value': '85 rpm'}, // 임의 값
+      <String, String>{
+        'label': '케이던스',
+        'value': WorkoutFormatter.toCadenceText(null),
+      }, // 데이터 없음
       <String, String>{
         'label': '평균 심박수',
         'value': WorkoutFormatter.toHeartRateText(avgHeartRate),
@@ -117,8 +129,14 @@ class WorkoutDetailStatScreen extends StatelessWidget {
         'label': '최대 심박수',
         'value': WorkoutFormatter.toHeartRateText(maxHeartRate),
       },
-      <String, String>{'label': '평균 파워', 'value': '180 W'}, // 임의 값
-      <String, String>{'label': '최고파워', 'value': '320 W'}, // 임의 값
+      <String, String>{
+        'label': '평균 파워',
+        'value': WorkoutFormatter.toPowerText(null),
+      }, // 데이터 없음
+      <String, String>{
+        'label': '최고파워',
+        'value': WorkoutFormatter.toPowerText(null),
+      }, // 데이터 없음
       <String, String>{
         'label': '소모 칼로리',
         'value': WorkoutFormatter.toCaloriesText(workoutRecord.calories),
