@@ -14,6 +14,6 @@ class DateFormatter {
 
     final String minute = dateTime.minute.toString().padLeft(2, '0');
 
-    return '$year년 $month $day - $period $hour12:$minute';
+    return '$year년 $month $day $period $hour12:$minute';
   }
 }
