@@ -54,8 +54,7 @@ class PlaceSearchRepositoryImpl implements PlaceSearchRepository {
       return false;
     }
 
-    if (place.address.trim().isEmpty &&
-        (place.roadAddress?.trim().isEmpty ?? true)) {
+    if (place.address.trim().isEmpty && place.address.trim().isEmpty) {
       return false;
     }
 

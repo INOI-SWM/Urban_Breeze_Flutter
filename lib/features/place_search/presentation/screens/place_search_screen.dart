@@ -220,9 +220,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  place.roadAddress.isNotEmpty
-                      ? place.roadAddress
-                      : place.address,
+                  place.address,
                   style: AppTextStyles.body2.normalRegular.copyWith(
                     color: context.semanticColor.labelDisable,
                   ),
