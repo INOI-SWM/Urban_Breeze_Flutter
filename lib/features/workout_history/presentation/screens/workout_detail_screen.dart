@@ -155,18 +155,20 @@ class WorkoutDetailScreen extends StatelessWidget {
                           alignment: CrossAxisAlignment.start,
                         ),
                       ),
-                      const Expanded(
+                      Expanded(
                         child: InfoItem(
                           label: '케이던스',
-                          value: '--',
+                          value: WorkoutFormatter.toCadenceText(null), // 데이터 없음
                           alignment: CrossAxisAlignment.start,
                         ),
                       ),
                       Expanded(
                         child: InfoItem(
                           label: '평균 심박수',
-                          value:
-                              '${workoutRecord.heartRateData.first.heartRate} bpm',
+                          value: WorkoutFormatter.toHeartRateText(
+                            workoutRecord.heartRateData.first.heartRate
+                                .toDouble(),
+                          ),
                           alignment: CrossAxisAlignment.start,
                         ),
                       ),

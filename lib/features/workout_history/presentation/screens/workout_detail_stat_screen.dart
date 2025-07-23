@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/workout_history/domain/entities/heart_rate_data.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/workout_record.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
@@ -69,21 +68,6 @@ class WorkoutDetailStatScreen extends StatelessWidget {
   /// TODO: api 연동 후 수정
   List<Map<String, String>> _getStatItems() {
     // 심박수 데이터 계산
-    final double avgHeartRate =
-        workoutRecord.heartRateData.isNotEmpty
-            ? (workoutRecord.heartRateData
-                        .map((HeartRateData data) => data.heartRate)
-                        .reduce((int a, int b) => a + b) /
-                    workoutRecord.heartRateData.length)
-                .toDouble()
-            : 0;
-    final double maxHeartRate =
-        workoutRecord.heartRateData.isNotEmpty
-            ? workoutRecord.heartRateData
-                .map((HeartRateData data) => data.heartRate)
-                .reduce((int a, int b) => a > b ? a : b)
-                .toDouble()
-            : 0;
 
     return <Map<String, String>>[
       <String, String>{
@@ -123,11 +107,15 @@ class WorkoutDetailStatScreen extends StatelessWidget {
       }, // 데이터 없음
       <String, String>{
         'label': '평균 심박수',
-        'value': WorkoutFormatter.toHeartRateText(avgHeartRate),
+        'value': WorkoutFormatter.toHeartRateText(
+          workoutRecord.heartRateData.first.heartRate.toDouble(),
+        ),
       },
       <String, String>{
         'label': '최대 심박수',
-        'value': WorkoutFormatter.toHeartRateText(maxHeartRate),
+        'value': WorkoutFormatter.toHeartRateText(
+          workoutRecord.heartRateData.last.heartRate.toDouble(),
+        ),
       },
       <String, String>{
         'label': '평균 파워',
