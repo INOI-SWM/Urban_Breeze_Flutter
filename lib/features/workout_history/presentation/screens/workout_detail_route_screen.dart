@@ -4,8 +4,8 @@ import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 
-class WorkoutDetailStatScreen extends StatelessWidget {
-  const WorkoutDetailStatScreen({super.key});
+class WorkoutDetailRouteScreen extends StatelessWidget {
+  const WorkoutDetailRouteScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
