@@ -11,14 +11,14 @@ import '../../data/repositories/apple_health_kit_sync_repository_impl.dart';
 import '../../domain/entities/workout_record.dart';
 
 //TODO : 추후 api 개발 시 에러 처리 추가
-class WorkoutHistoryScreen extends StatefulWidget {
-  const WorkoutHistoryScreen({super.key});
+class WorkoutListScreen extends StatefulWidget {
+  const WorkoutListScreen({super.key});
 
   @override
-  State<WorkoutHistoryScreen> createState() => _WorkoutHistoryScreenState();
+  State<WorkoutListScreen> createState() => _WorkoutListScreenState();
 }
 
-class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
+class _WorkoutListScreenState extends State<WorkoutListScreen> {
   bool _isLoading = false;
   List<WorkoutRecord> _workouts = <WorkoutRecord>[];
 
