@@ -169,6 +169,25 @@ class WorkoutDetailScreen extends StatelessWidget {
                 borderColor: colors.lineNormalNormal,
               ),
             ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ButtonOutlined(
+                text: '상세 경로',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder:
+                          (BuildContext context) =>
+                              const WorkoutDetailStatScreen(),
+                    ),
+                  );
+                },
+                textColor: colors.labelNormal,
+                borderColor: colors.lineNormalNormal,
+              ),
+            ),
           ],
         ),
       ),
