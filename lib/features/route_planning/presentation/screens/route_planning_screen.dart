@@ -129,7 +129,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
 
     if (searchResult.places.isNotEmpty) {
       _moveToPlace(searchResult.places.first);
-      _fitMapToSearchResults();
+      _fitMapToSearchResults(searchResult);
     }
   }
 
@@ -206,21 +206,35 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
     );
   }
 
-  void _fitMapToSearchResults() {
-    if (_searchedPlaces.isEmpty) return;
+  void _fitMapToSearchResults(SearchResult searchResult) {
+    if (searchResult.places.isEmpty) return;
 
-    if (_searchedPlaces.length == 1) {
-      _moveToPlace(_searchedPlaces.first);
+    // 서버에서 받은 bbox 정보를 우선 사용
+    if (searchResult.bbox != null) {
+      final LatLngBounds bounds = LatLngBounds(
+        LatLng(searchResult.bbox!.minLat, searchResult.bbox!.minLon),
+        LatLng(searchResult.bbox!.maxLat, searchResult.bbox!.maxLon),
+      );
+
+      _mapController.fitCamera(
+        CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)),
+      );
+      return;
+    }
+
+    // bbox 정보가 없는 경우 클라이언트에서 계산 (fallback)
+    if (searchResult.places.length == 1) {
+      _moveToPlace(searchResult.places.first);
       return;
     }
 
     // 모든 검색 결과를 포함하는 범위 계산
-    double minLat = _searchedPlaces.first.latitude;
-    double maxLat = _searchedPlaces.first.latitude;
-    double minLng = _searchedPlaces.first.longitude;
-    double maxLng = _searchedPlaces.first.longitude;
+    double minLat = searchResult.places.first.latitude;
+    double maxLat = searchResult.places.first.latitude;
+    double minLng = searchResult.places.first.longitude;
+    double maxLng = searchResult.places.first.longitude;
 
-    for (final Place place in _searchedPlaces) {
+    for (final Place place in searchResult.places) {
       if (place.latitude < minLat) minLat = place.latitude;
       if (place.latitude > maxLat) maxLat = place.latitude;
       if (place.longitude < minLng) minLng = place.longitude;
