@@ -4,6 +4,7 @@ import 'package:ridingmate/features/workout_history/domain/entities/workout_reco
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/button_outlined.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/info/info_item.dart';
 import 'package:ridingmate/shared/utils/date_formatter.dart';
@@ -147,6 +148,18 @@ class WorkoutDetailScreen extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ButtonOutlined(
+                text: '상세 정보',
+                onPressed: () {
+                  // TODO: 수정 기능 구현
+                },
+                textColor: colors.labelNormal,
+                borderColor: colors.lineNormalNormal,
+              ),
             ),
           ],
         ),
