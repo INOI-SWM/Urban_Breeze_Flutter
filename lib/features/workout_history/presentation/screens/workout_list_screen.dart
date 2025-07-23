@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/workout_history/presentation/screens/workout_detail_screen.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/card_list.dart';
 import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
+import 'package:ridingmate/shared/utils/date_formatter.dart';
 
 import '../../data/repositories/apple_health_kit_sync_repository_impl.dart';
 import '../../domain/entities/workout_record.dart';
 
 //TODO : 추후 api 개발 시 에러 처리 추가
-class WorkoutHistoryScreen extends StatefulWidget {
-  const WorkoutHistoryScreen({super.key});
+class WorkoutListScreen extends StatefulWidget {
+  const WorkoutListScreen({super.key});
 
   @override
-  State<WorkoutHistoryScreen> createState() => _WorkoutHistoryScreenState();
+  State<WorkoutListScreen> createState() => _WorkoutListScreenState();
 }
 
-class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
+class _WorkoutListScreenState extends State<WorkoutListScreen> {
   bool _isLoading = false;
   List<WorkoutRecord> _workouts = <WorkoutRecord>[];
 
@@ -142,14 +144,13 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
               itemBuilder: (BuildContext context, int index) {
                 final WorkoutRecord workout = _workouts[index];
                 // TODO : 서버 저장 양식에 따라 데이터 파싱 변경
-                debugPrint('workout: $workout');
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: CardList(
                     thumbnailPath: 'assets/images/png/thumbnail_r3_2.png',
                     sourceType: ThumbnailSourceType.asset,
                     title: '운동 ${index + 1}',
-                    createDate: workout.startTime.toString().substring(0, 16),
+                    createDate: DateFormatter.formatKorean(workout.startTime),
                     badges: <BadgeData>[
                       BadgeData(
                         text:
@@ -161,6 +162,18 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                         icon: Icons.access_time,
                       ),
                     ],
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder:
+                              (BuildContext context) => WorkoutDetailScreen(
+                                workoutRecord: workout,
+                                workoutIndex: index,
+                              ),
+                        ),
+                      );
+                    },
                   ),
                 );
               },

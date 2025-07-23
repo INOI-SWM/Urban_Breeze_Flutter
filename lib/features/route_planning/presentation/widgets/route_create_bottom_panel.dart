@@ -6,6 +6,7 @@ import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/button_size.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/button_solid.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/text_field/custom_text_field.dart';
 
 enum RouteCreateMode { create, save }
@@ -95,7 +96,7 @@ class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
         return CustomAppBar(
           title: '경로 생성',
           centerTitle: false,
-          titleTextSize: NavBarTitleSize.large,
+          titleTextSize: AppBarTitleSize.large,
           actions: <Widget>[
             ButtonSolid(
               text: '저장',
@@ -115,14 +116,10 @@ class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
         return CustomAppBar(
           title: '경로 저장',
           centerTitle: true,
-          titleTextSize: NavBarTitleSize.large,
-          leading: GestureDetector(
-            onTap: widget.onBack,
-            child: const SizedBox(
-              width: 24,
-              height: 24,
-              child: Icon(Icons.arrow_back_ios_new, size: 24),
-            ),
+          titleTextSize: AppBarTitleSize.large,
+          leading: CustomIconButton(
+            icon: Icons.arrow_back_ios_new,
+            onTap: widget.onBack ?? () => Navigator.of(context).pop(),
           ),
           actions: <Widget>[
             ButtonSolid(

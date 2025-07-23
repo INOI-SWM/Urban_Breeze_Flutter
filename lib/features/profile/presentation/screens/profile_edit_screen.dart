@@ -9,6 +9,7 @@ import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_it
 import 'package:ridingmate/features/profile/presentation/widgets/profile_image_edit_button.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key, required this.user});
@@ -43,12 +44,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       backgroundColor: colors.backgroundNormalNormal,
       appBar: CustomAppBar(
         title: '프로필 수정',
-        leading: GestureDetector(
-          child: const SizedBox(
-            width: 24,
-            height: 24,
-            child: Icon(Icons.arrow_back_ios_new, size: 24),
-          ),
+        leading: CustomIconButton(
+          icon: Icons.arrow_back_ios_new,
           onTap: () => Navigator.of(context).pop(),
         ),
       ),
