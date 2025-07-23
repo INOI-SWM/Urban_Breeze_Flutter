@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/workout_record.dart';
 import 'package:ridingmate/features/workout_history/presentation/screens/workout_detail_stat_screen.dart';
@@ -40,7 +43,7 @@ class WorkoutDetailScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,6 +173,8 @@ class WorkoutDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
+            const SizedBox(height: 300, child: _WorkoutDetailMapWidget()),
+            const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: ButtonOutlined(
@@ -191,6 +196,46 @@ class WorkoutDetailScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+//TODO: 추후 api 연결 시 폴리곤 띄우기"
+class _WorkoutDetailMapWidget extends StatelessWidget {
+  const _WorkoutDetailMapWidget();
+
+  static const LatLng _defaultCenter = LatLng(37.5665, 126.9780);
+  static const double _defaultZoom = 13.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final String baseUrl = dotenv.env['GEOAPIFY_BASE_URL'] ?? 'fallback_url';
+    final String apiKey = dotenv.env['GEOAPIFY_API_KEY'] ?? 'fallback_key';
+    final String fullUrlTemplate = '$baseUrl?&apiKey=$apiKey';
+
+    return FlutterMap(
+      options: const MapOptions(
+        initialCenter: _defaultCenter,
+        initialZoom: _defaultZoom,
+        interactionOptions: InteractionOptions(flags: InteractiveFlag.none),
+      ),
+      children: <Widget>[
+        TileLayer(
+          urlTemplate: fullUrlTemplate,
+          userAgentPackageName: 'com.example.ridingmate',
+          subdomains: const <String>['a', 'b', 'c'],
+        ),
+        RichAttributionWidget(
+          alignment: AttributionAlignment.bottomLeft,
+          showFlutterMapAttribution: false,
+          attributions: <SourceAttribution>[
+            TextSourceAttribution(
+              'Powered by Geoapify | © OpenStreetMap contributors',
+              textStyle: AppTextStyles.caption2.regular,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
