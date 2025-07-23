@@ -21,13 +21,10 @@ class AppleHealthKitMapper {
   /// Workout을 기본 정보만 포함한 CyclingWorkoutRecord로 변환 (심박수/거리 데이터 없음)
   static WorkoutRecord basicWorkoutRecord(Workout workout) {
     try {
-      final double distanceKm =
+      final double distance =
           workout.harmonized.totalDistance?.toDouble() ?? 0.0;
       final double calories =
           workout.harmonized.totalEnergyBurned?.toDouble() ?? 0.0;
-
-      // 킬로미터를 미터로 변환
-      final double distanceM = distanceKm * 1000;
 
       return WorkoutRecord(
         id: workout.uuid,
@@ -38,7 +35,7 @@ class AppleHealthKitMapper {
           workout.endTimestamp,
         ),
         duration: Duration(seconds: workout.duration.toInt()),
-        distance: distanceM, // 미터 단위로 저장
+        distance: distance, // 미터 단위로 저장
         calories: calories,
         heartRateData: <HeartRateData>[], // 빈 리스트로 시작
         distanceData: <DistanceData>[], // 빈 리스트로 시작
@@ -98,14 +95,12 @@ class AppleHealthKitMapper {
         throw HealthKitDataException('DISTANCE_CYCLING 타입이 아닌 데이터입니다');
       }
 
-      final double distanceKm = quantity.harmonized.value.toDouble();
-      final double distanceM = distanceKm * 1000; // 킬로미터를 미터로 변환
-
+      final double distance = quantity.harmonized.value.toDouble();
       return DistanceData(
         timestamp: AppleHealthKitTimestampUtils.fromHealthKitTimestamp(
           quantity.startTimestamp,
         ),
-        distance: distanceM, // 미터 단위로 저장
+        distance: distance,
       );
     } catch (e) {
       throw HealthKitDataException('거리 데이터 변환 실패: $e');

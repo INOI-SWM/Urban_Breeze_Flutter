@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/features/workout_history/domain/entities/distance_data.dart';
-import 'package:ridingmate/features/workout_history/domain/entities/heart_rate_data.dart';
+import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
+import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:ridingmate/shared/design_system/widgets/card/card_list.dart';
+import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
 
 import '../../data/repositories/apple_health_kit_sync_repository_impl.dart';
 import '../../domain/entities/workout_record.dart';
 
+//TODO : 추후 api 개발 시 에러 처리 추가
 class WorkoutHistoryScreen extends StatefulWidget {
   const WorkoutHistoryScreen({super.key});
 
@@ -15,18 +19,17 @@ class WorkoutHistoryScreen extends StatefulWidget {
 class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
   bool _isLoading = false;
   List<WorkoutRecord> _workouts = <WorkoutRecord>[];
-  String? _errorMessage;
+
   final AppleHealthKitSyncRepositoryImpl _repository =
       AppleHealthKitSyncRepositoryImpl();
 
   Future<void> _testGetCyclingWorkouts() async {
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
 
     try {
-      // Repository를 통해 모든 데이터가 포함된 자전거 운동 데이터 가져오기
+      // todo : 추후 서버 API 호출로 변경
       final List<WorkoutRecord> workouts = await _repository
           .fetchCyclingWorkoutsFromHealthKit(
             startDate: DateTime.now().subtract(const Duration(days: 30)),
@@ -39,7 +42,6 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
       });
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
         _isLoading = false;
       });
     }
@@ -49,19 +51,32 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
     try {
       await _repository.requestPermissions();
     } catch (e) {
-      // 권한 요청 실패 시 무시
+      // TODO : 권한 요청 실패 시 무시
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          // 권한 요청 버튼
-          ElevatedButton.icon(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        // TODO: 개발 완료 후 삭제 예정
+        _buildTestButtons(),
+
+        const SizedBox(height: 16),
+
+        // 결과 표시
+        Expanded(child: _buildResultWidget()),
+      ],
+    );
+  }
+
+  // TODO: 개발 완료 후 이 메서드 전체 삭제 예정
+  Widget _buildTestButtons() {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: ElevatedButton.icon(
             onPressed: _requestPermissions,
             icon: const Icon(Icons.security),
             label: const Text('권한 요청'),
@@ -71,11 +86,9 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
               padding: const EdgeInsets.symmetric(vertical: 12),
             ),
           ),
-
-          const SizedBox(height: 8),
-
-          // 테스트 버튼
-          ElevatedButton.icon(
+        ),
+        Expanded(
+          child: ElevatedButton.icon(
             onPressed: _isLoading ? null : _testGetCyclingWorkouts,
             icon:
                 _isLoading
@@ -88,189 +101,82 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                       ),
                     )
                     : const Icon(Icons.directions_bike),
-            label: Text(_isLoading ? '로딩 중...' : '자전거 운동 데이터 가져오기'),
+            label: Text(_isLoading ? '로딩 중...' : ' 데이터 가져오기'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 12),
             ),
           ),
-
-          const SizedBox(height: 16),
-
-          // 결과 표시
-          Expanded(child: _buildResultWidget()),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _buildResultWidget() {
-    if (_errorMessage != null) {
-      return Card(
-        color: Colors.red.shade50,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Icon(Icons.error, color: Colors.red.shade700),
-                  const SizedBox(width: 8),
-                  Text(
-                    '오류 발생',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red.shade700,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _errorMessage!,
-                style: TextStyle(color: Colors.red.shade600),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
+    final SemanticColors colors = context.semanticColor;
     if (_workouts.isEmpty && !_isLoading) {
-      return const Card(
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            children: <Widget>[
-              Icon(Icons.info_outline, size: 48, color: Colors.grey),
-              SizedBox(height: 8),
-              Text(
-                '운동 데이터가 없습니다',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 4),
-              Text(
-                '먼저 권한을 요청하고 데이터를 불러오세요',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ],
+      return Column(
+        children: <Widget>[
+          Icon(Icons.info_outline, size: 48, color: colors.labelAlternative),
+          const SizedBox(height: 8),
+          Text('운동 데이터가 없습니다', style: AppTextStyles.body2.normalBold),
+          const SizedBox(height: 4),
+          Text(
+            '먼저 권한을 요청하고 데이터를 불러오세요',
+            style: AppTextStyles.label2.medium.copyWith(
+              color: colors.labelAlternative,
+            ),
           ),
-        ),
+        ],
       );
     }
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                const Icon(Icons.directions_bike, color: Colors.green),
-                const SizedBox(width: 8),
-                Text(
-                  '자전거 운동 (${_workouts.length}개)',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            if (_workouts.isNotEmpty) ...<Widget>[
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _workouts.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final WorkoutRecord workout = _workouts[index];
-
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ExpansionTile(
-                        leading: const Icon(Icons.fitness_center),
-                        title: Text('운동 ${index + 1}'),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              '시작: ${workout.startTime.toString().substring(0, 16)}',
-                            ),
-                            Text('소요시간: ${workout.duration.inMinutes}분'),
-                            Text(
-                              '거리: ${(workout.distance / 1000).toStringAsFixed(2)}km',
-                            ),
-                            Text(
-                              '칼로리: ${workout.calories.toStringAsFixed(1)}kcal',
-                            ),
-                          ],
-                        ),
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                const Text(
-                                  '📊 상세 데이터',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  '❤️ 심박수 데이터: ${workout.heartRateData.length}개',
-                                ),
-                                if (workout
-                                    .heartRateData
-                                    .isNotEmpty) ...<Widget>[
-                                  Text(
-                                    '   최고: ${workout.heartRateData.map((HeartRateData e) => e.heartRate).reduce((int a, int b) => a > b ? a : b)}bpm',
-                                  ),
-                                  Text(
-                                    '   평균: ${(workout.heartRateData.map((HeartRateData e) => e.heartRate).reduce((int a, int b) => a + b) / workout.heartRateData.length).round()}bpm',
-                                  ),
-                                ],
-                                const SizedBox(height: 4),
-                                Text(
-                                  '📏 거리 데이터: ${workout.distanceData.length}개',
-                                ),
-                                if (workout
-                                    .distanceData
-                                    .isNotEmpty) ...<Widget>[
-                                  Text(
-                                    '   총 거리: ${(workout.distanceData.map((DistanceData e) => e.distance).reduce((double a, double b) => a + b) / 1000).toStringAsFixed(2)}km',
-                                  ),
-                                ],
-                                const SizedBox(height: 4),
-                                Text(
-                                  '🗺️ GPS 경로: ${workout.locationData.isNotEmpty ? '${workout.locationData.length}개 포인트' : '없음'}',
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        if (_workouts.isNotEmpty) ...<Widget>[
+          Expanded(
+            child: ListView.builder(
+              itemCount: _workouts.length,
+              itemBuilder: (BuildContext context, int index) {
+                final WorkoutRecord workout = _workouts[index];
+                // TODO : 서버 저장 양식에 따라 데이터 파싱 변경
+                debugPrint('workout: $workout');
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: CardList(
+                    thumbnailPath: 'assets/images/png/thumbnail_r3_2.png',
+                    sourceType: ThumbnailSourceType.asset,
+                    title: '운동 ${index + 1}',
+                    createDate: workout.startTime.toString().substring(0, 16),
+                    badges: <BadgeData>[
+                      BadgeData(
+                        text:
+                            '${(workout.distance / 1000).toStringAsFixed(1)}km',
+                        icon: Icons.route,
                       ),
-                    );
-                  },
-                ),
+                      BadgeData(
+                        text: '${workout.duration.inMinutes}분',
+                        icon: Icons.access_time,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        ] else ...<Widget>[
+          Center(
+            child: Text(
+              '데이터를 불러오는 중...',
+              style: AppTextStyles.label2.medium.copyWith(
+                color: colors.labelAlternative,
               ),
-            ] else ...<Widget>[
-              const Center(
-                child: Text(
-                  '데이터를 불러오는 중...',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

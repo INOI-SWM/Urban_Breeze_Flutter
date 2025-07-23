@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ridingmate/core/extensions/theme_extensions.dart';
 
 class RouteBarLayout extends StatelessWidget {
   const RouteBarLayout({
@@ -13,7 +14,7 @@ class RouteBarLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: Colors.white,
+      color: context.semanticColor.backgroundNormalNormal,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[topNavigationBar, content],

@@ -5,6 +5,13 @@ import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style
 import 'package:ridingmate/shared/design_system/widgets/badge/content_badge.dart';
 import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
 
+class BadgeData {
+  const BadgeData({required this.text, required this.icon});
+
+  final String text;
+  final IconData icon;
+}
+
 class CardList extends StatelessWidget {
   const CardList({
     super.key,
@@ -12,16 +19,14 @@ class CardList extends StatelessWidget {
     required this.sourceType,
     required this.title,
     required this.createDate,
-    required this.distance,
-    required this.elevation,
+    required this.badges,
   });
 
   final String thumbnailPath;
   final ThumbnailSourceType sourceType;
   final String title;
   final String createDate;
-  final String distance;
-  final String elevation;
+  final List<BadgeData> badges;
 
   @override
   Widget build(BuildContext context) {
@@ -64,24 +69,19 @@ class CardList extends StatelessWidget {
               const SizedBox(height: 8),
               Wrap(
                 spacing: 6,
-                children: <Widget>[
-                  ContentBadge(
-                    text: distance,
-                    type: ContentBadgeType.solid,
-                    backgroundColor: colors.fillNormal,
-                    textColor: colors.labelAlternative,
-                    leftIcon: Icons.route,
-                    size: ContentBadgeSize.xsmall,
-                  ),
-                  ContentBadge(
-                    text: elevation,
-                    type: ContentBadgeType.solid,
-                    backgroundColor: colors.fillNormal,
-                    textColor: colors.labelAlternative,
-                    leftIcon: Icons.terrain,
-                    size: ContentBadgeSize.xsmall,
-                  ),
-                ],
+                children:
+                    badges
+                        .map(
+                          (BadgeData badge) => ContentBadge(
+                            text: badge.text,
+                            type: ContentBadgeType.solid,
+                            backgroundColor: colors.fillNormal,
+                            textColor: colors.labelAlternative,
+                            leftIcon: badge.icon,
+                            size: ContentBadgeSize.xsmall,
+                          ),
+                        )
+                        .toList(),
               ),
             ],
           ),
