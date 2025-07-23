@@ -24,13 +24,13 @@ class PlaceSearchRepositoryImpl implements PlaceSearchRepository {
         latitude: latitude,
       );
 
-      if (response.documents.isEmpty) {
+      if (response.data.documents.isEmpty) {
         throw const NoResultsException('검색 결과가 없습니다');
       }
 
       // 응답 데이터를 Place 엔티티로 변환
       final List<Place> places =
-          response.documents
+          response.data.documents
               .map((KakaoSearchDocument document) => document.toPlace())
               .where((Place place) => _isValidPlace(place))
               .toList();
@@ -54,7 +54,8 @@ class PlaceSearchRepositoryImpl implements PlaceSearchRepository {
       return false;
     }
 
-    if (place.address.trim().isEmpty && place.roadAddress.trim().isEmpty) {
+    if (place.address.trim().isEmpty &&
+        (place.roadAddress?.trim().isEmpty ?? true)) {
       return false;
     }
 

@@ -2,7 +2,6 @@ class Place {
   const Place({
     required this.title,
     required this.address,
-    required this.roadAddress,
     required this.latitude,
     required this.longitude,
     this.id,
@@ -17,7 +16,6 @@ class Place {
   final String? id; // 카카오 장소 고유 ID
   final String title; // 장소명
   final String address; // 지번 주소
-  final String roadAddress; // 도로명 주소
   final double latitude; // 위도
   final double longitude; // 경도
   final String? category; // 상세 카테고리 (예: "음식점 > 한식")
