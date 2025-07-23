@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/workout_record.dart';
+import 'package:ridingmate/features/workout_history/presentation/screens/workout_detail_stat_screen.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
@@ -155,7 +156,14 @@ class WorkoutDetailScreen extends StatelessWidget {
               child: ButtonOutlined(
                 text: '상세 정보',
                 onPressed: () {
-                  // TODO: 수정 기능 구현
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder:
+                          (BuildContext context) =>
+                              const WorkoutDetailStatScreen(),
+                    ),
+                  );
                 },
                 textColor: colors.labelNormal,
                 borderColor: colors.lineNormalNormal,
