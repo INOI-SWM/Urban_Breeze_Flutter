@@ -29,36 +29,19 @@ class RemotePlaceSearchDataSource {
         },
       );
 
-      print('🌐 API 요청 시작');
-      print('📍 URL: $uri');
-      print('🔍 검색어: $query');
-      print('📍 위치: ($latitude, $longitude)');
-
       final Map<String, String> headers = <String, String>{
         'Content-Type': 'application/json',
       };
-
-      print('📋 헤더: $headers');
 
       final http.Response response = await _httpClient
           .get(uri, headers: headers)
           .timeout(const Duration(seconds: 10));
 
-      print('📡 응답 상태: ${response.statusCode}');
-      print('📏 응답 크기: ${response.body.length} bytes');
-      print('⏱️ 응답 시간: ${DateTime.now()}');
-
       if (response.statusCode == 200) {
-        print('✅ 성공 응답:');
-        print('📄 응답 본문: ${response.body}');
-
         final Map<String, dynamic> jsonData =
             json.decode(response.body) as Map<String, dynamic>;
         return PlaceSearchResponseModel.fromJson(jsonData);
       } else {
-        print('❌ 에러 응답:');
-        print('📄 에러 본문: ${response.body}');
-
         String errorMessage = 'API 요청 실패';
 
         try {
@@ -73,19 +56,14 @@ class RemotePlaceSearchDataSource {
         );
       }
     } on SocketException {
-      print('🌐 네트워크 연결 오류');
       throw const PlaceSearchNetworkException('인터넷 연결을 확인해주세요');
     } on HttpException catch (e) {
-      print('🌐 HTTP 요청 오류: ${e.message}');
       throw PlaceSearchNetworkException('HTTP 요청 오류: ${e.message}');
     } on http.ClientException catch (e) {
-      print('🌐 클라이언트 요청 오류: ${e.message}');
       throw PlaceSearchNetworkException('클라이언트 요청 오류: ${e.message}');
     } on FormatException {
-      print('📄 JSON 파싱 오류');
       throw const PlaceSearchParsingException('응답 데이터 형식이 올바르지 않습니다');
     } catch (e) {
-      print('❌ 예상하지 못한 오류: ${e.toString()}');
       // 예상하지 못한 에러
       if (e is PlaceSearchDomainException) {
         rethrow; // 이미 우리가 정의한 예외라면 그대로 전달
