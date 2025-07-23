@@ -176,7 +176,10 @@ class WorkoutDetailScreen extends StatelessWidget {
                           MaterialPageRoute<void>(
                             builder:
                                 (BuildContext context) =>
-                                    const WorkoutDetailStatScreen(),
+                                    WorkoutDetailStatScreen(
+                                      workoutIndex: workoutIndex,
+                                      workoutRecord: workoutRecord,
+                                    ),
                           ),
                         );
                       },
@@ -282,7 +285,7 @@ class WorkoutDetailScreen extends StatelessWidget {
     );
   }
 
-  /// 사진 아이템 위젯 생성
+  /// 사진 아이템 위젯 생성 TODO: stateless widget 으로 변경
   Widget _buildPhotoItem(BuildContext context, String label) {
     const String imagePath = 'assets/images/png/thumbnail_r1_1.png';
     final SemanticColors colors = context.semanticColor;
