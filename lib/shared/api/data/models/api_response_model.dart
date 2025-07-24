@@ -4,18 +4,19 @@ class ApiResponseModel<T> {
     T Function(Map<String, dynamic>) fromJsonT,
   ) {
     return ApiResponseModel<T>(
-      status: json['status'] as int,
+      code: json['code'] as String,
       message: json['message'] as String,
       data: fromJsonT(json['data'] as Map<String, dynamic>),
     );
   }
+
   const ApiResponseModel({
-    required this.status,
+    this.code,
     required this.message,
     required this.data,
   });
 
-  final int status;
+  final String? code;
   final String message;
   final T data;
 }
