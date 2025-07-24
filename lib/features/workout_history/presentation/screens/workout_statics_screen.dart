@@ -42,6 +42,23 @@ enum StaticDataType {
   }
 }
 
+// TODO: 추후 실제 API 데이터로 교체
+class _StatisticData {
+  const _StatisticData({
+    required this.distance,
+    required this.elevation,
+    required this.duration,
+    required this.ridingCount,
+    required this.workoutTime,
+  });
+
+  final double distance; // km
+  final double elevation; // m
+  final Duration duration; // 전체 시간
+  final int ridingCount; // 라이딩 횟수
+  final Duration workoutTime; // 실제 운동 시간
+}
+
 class WorkoutStaticsScreen extends StatefulWidget {
   const WorkoutStaticsScreen({super.key});
 
@@ -66,9 +83,44 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
     StaticDataType.duration,
   ];
 
+  // TODO: 추후 실제 API 데이터로 교체
+  final Map<StatisticPeriodType, _StatisticData> _mockData =
+      <StatisticPeriodType, _StatisticData>{
+        StatisticPeriodType.week: const _StatisticData(
+          distance: 3.14,
+          elevation: 100,
+          duration: Duration(hours: 1, minutes: 13, seconds: 13),
+          ridingCount: 1,
+          workoutTime: Duration(hours: 1, minutes: 13, seconds: 13),
+        ),
+        StatisticPeriodType.month: const _StatisticData(
+          distance: 45.8, // 가장 큰 거리
+          elevation: 580,
+          duration: Duration(hours: 15, minutes: 30),
+          ridingCount: 8,
+          workoutTime: Duration(hours: 12, minutes: 45),
+        ),
+        StatisticPeriodType.year: const _StatisticData(
+          distance: 285.6,
+          elevation: 2850, // 가장 큰 상승고도
+          duration: Duration(hours: 85, minutes: 20),
+          ridingCount: 42,
+          workoutTime: Duration(hours: 78, minutes: 15),
+        ),
+        StatisticPeriodType.all: const _StatisticData(
+          distance: 420.3,
+          elevation: 3200,
+          duration: Duration(hours: 125, minutes: 45), // 가장 긴 시간
+          ridingCount: 65,
+          workoutTime: Duration(hours: 115, minutes: 30),
+        ),
+      };
+
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
+    final _StatisticData currentData = _mockData[_selectedPeriodType]!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
