@@ -1,24 +1,7 @@
+import '../../../../shared/api/data/models/api_response_model.dart';
 import '../../domain/entities/place.dart';
 
-class PlaceSearchResponseModel {
-  const PlaceSearchResponseModel({
-    this.code,
-    required this.message,
-    required this.data,
-  });
-
-  factory PlaceSearchResponseModel.fromJson(Map<String, dynamic> json) {
-    return PlaceSearchResponseModel(
-      code: json['code']?.toString(),
-      message: json['message']?.toString() ?? '',
-      data: PlaceSearchData.fromJson(json['data'] as Map<String, dynamic>),
-    );
-  }
-
-  final String message;
-  final PlaceSearchData data;
-  final String? code;
-}
+typedef PlaceSearchResponseModel = ApiResponseModel<PlaceSearchData>;
 
 class PlaceSearchData {
   const PlaceSearchData({required this.bbox, required this.documents});
