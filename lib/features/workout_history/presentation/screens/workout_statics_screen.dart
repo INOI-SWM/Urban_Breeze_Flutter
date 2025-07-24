@@ -423,7 +423,21 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     if (maxValue <= 50) return 10;
     if (maxValue <= 100) return 20;
     if (maxValue <= 500) return 100;
-    return (maxValue / 5).roundToDouble();
+    if (maxValue <= 1000) return 200;
+    if (maxValue <= 5000) return 1000;
+    if (maxValue <= 10000) return 2000;
+    if (maxValue <= 50000) return 10000;
+
+    // 매우 큰 값들은 적절한 10의 배수로 설정
+    final double baseInterval = (maxValue / 5).roundToDouble();
+    if (baseInterval >= 10000) {
+      return (baseInterval / 10000).round() * 10000.0;
+    } else if (baseInterval >= 1000) {
+      return (baseInterval / 1000).round() * 1000.0;
+    } else if (baseInterval >= 100) {
+      return (baseInterval / 100).round() * 100.0;
+    }
+    return baseInterval;
   }
 
   double _calculateYAxisReservedSize(List<WorkoutStatisticsChartPoint> points) {
