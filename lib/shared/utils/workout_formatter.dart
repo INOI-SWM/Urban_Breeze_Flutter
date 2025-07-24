@@ -8,11 +8,23 @@ class WorkoutFormatter {
         : '--';
   }
 
-  /// 시간을 분/초 문자열로 변환 ("0분 0초" 또는 "--")
+  /// 시간을 동적 문자열로 변환 ("1시간 30분 45초", "30분 45초", "45초" 또는 "--")
   static String toDurationText(Duration duration) {
-    return duration.inSeconds > 0
-        ? '${duration.inMinutes}분 ${duration.inSeconds % 60}초'
-        : '--';
+    if (duration.inSeconds <= 0) {
+      return '--';
+    }
+
+    final int hours = duration.inHours;
+    final int minutes = duration.inMinutes.remainder(60);
+    final int seconds = duration.inSeconds.remainder(60);
+
+    if (hours > 0) {
+      return '$hours:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    } else if (minutes > 0) {
+      return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    } else {
+      return '$seconds초';
+    }
   }
 
   /// 속도를 km/h 문자열로 변환 ("0.0 km/h" 또는 "--")

@@ -4,6 +4,7 @@ import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/info/info_item.dart';
 import 'package:ridingmate/shared/design_system/widgets/segmented_control/segmented_control.dart';
+import 'package:ridingmate/shared/utils/workout_formatter.dart';
 
 enum StatisticPeriodType {
   week,
@@ -52,8 +53,8 @@ class _StatisticData {
     required this.workoutTime,
   });
 
-  final double distance; // km
-  final double elevation; // m
+  final int distance; // 미터 단위
+  final int elevation; // 미터 단위
   final Duration duration; // 전체 시간
   final int ridingCount; // 라이딩 횟수
   final Duration workoutTime; // 실제 운동 시간
@@ -87,32 +88,32 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
   final Map<StatisticPeriodType, _StatisticData> _mockData =
       <StatisticPeriodType, _StatisticData>{
         StatisticPeriodType.week: const _StatisticData(
-          distance: 3.14,
-          elevation: 100,
-          duration: Duration(hours: 1, minutes: 13, seconds: 13),
-          ridingCount: 1,
-          workoutTime: Duration(hours: 1, minutes: 13, seconds: 13),
+          distance: 15200,
+          elevation: 120,
+          duration: Duration(hours: 2, minutes: 15, seconds: 30),
+          ridingCount: 3,
+          workoutTime: Duration(hours: 2, minutes: 10, seconds: 0),
         ),
         StatisticPeriodType.month: const _StatisticData(
-          distance: 45.8, // 가장 큰 거리
-          elevation: 580,
-          duration: Duration(hours: 15, minutes: 30),
-          ridingCount: 8,
-          workoutTime: Duration(hours: 12, minutes: 45),
+          distance: 125800,
+          elevation: 850,
+          duration: Duration(hours: 18, minutes: 45),
+          ridingCount: 12,
+          workoutTime: Duration(hours: 16, minutes: 30),
         ),
         StatisticPeriodType.year: const _StatisticData(
-          distance: 285.6,
-          elevation: 2850, // 가장 큰 상승고도
-          duration: Duration(hours: 85, minutes: 20),
-          ridingCount: 42,
-          workoutTime: Duration(hours: 78, minutes: 15),
+          distance: 89300, // 미터 단위로 변경 (89.3km)
+          elevation: 1850,
+          duration: Duration(hours: 45, minutes: 20),
+          ridingCount: 28,
+          workoutTime: Duration(hours: 42, minutes: 15),
         ),
         StatisticPeriodType.all: const _StatisticData(
-          distance: 420.3,
-          elevation: 3200,
-          duration: Duration(hours: 125, minutes: 45), // 가장 긴 시간
-          ridingCount: 65,
-          workoutTime: Duration(hours: 115, minutes: 30),
+          distance: 95700, // 미터 단위로 변경 (95.7km)
+          elevation: 1200,
+          duration: Duration(hours: 85, minutes: 30),
+          ridingCount: 48,
+          workoutTime: Duration(hours: 78, minutes: 45),
         ),
       };
 
@@ -138,7 +139,7 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
         const SizedBox(height: 20),
         //TODO : 클릭 시 월 변경 옵션 띄우기
         Text(
-          '25년 7월',
+          _getPeriodDisplayText(),
           style: AppTextStyles.title3.bold.copyWith(color: colors.labelStrong),
         ),
         const SizedBox(height: 20),
@@ -154,38 +155,40 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
         ),
         const SizedBox(height: 20),
         Text(
-          '주간 라이딩 거리',
+          _getDataTypeLabel(),
           style: AppTextStyles.label1.normalBold.copyWith(
             color: colors.labelAlternative,
           ),
         ),
         Text(
-          '3.14 km',
+          _getMainValue(),
           style: AppTextStyles.display1.bold.copyWith(
             color: colors.labelStrong,
           ),
         ),
         const SizedBox(height: 20),
-        const Row(
+        Row(
           children: <Widget>[
             Expanded(
               child: InfoItem(
                 label: '라이딩',
-                value: '1',
+                value: '${currentData.ridingCount}',
                 alignment: CrossAxisAlignment.start,
               ),
             ),
             Expanded(
               child: InfoItem(
                 label: '운동 시간',
-                value: '1:13:13',
+                value: WorkoutFormatter.toDurationText(currentData.workoutTime),
                 alignment: CrossAxisAlignment.start,
               ),
             ),
             Expanded(
               child: InfoItem(
                 label: '상승 고도',
-                value: '100m',
+                value: WorkoutFormatter.toAltitudeText(
+                  currentData.elevation.toDouble(),
+                ),
                 alignment: CrossAxisAlignment.start,
               ),
             ),
@@ -193,5 +196,43 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
         ),
       ],
     );
+  }
+
+  /// 선택된 기간에 따른 표시 텍스트
+  String _getPeriodDisplayText() {
+    switch (_selectedPeriodType) {
+      case StatisticPeriodType.week:
+        return '25년 7월 3주';
+      case StatisticPeriodType.month:
+        return '25년 7월';
+      case StatisticPeriodType.year:
+        return '2025년';
+      case StatisticPeriodType.all:
+        return '전체';
+    }
+  }
+
+  /// 선택된 데이터 타입과 기간에 따른 라벨
+  String _getDataTypeLabel() {
+    final String periodLabel = _selectedPeriodType.label;
+    final String dataLabel = _selectedDataType.label;
+
+    return '$periodLabel간 라이딩 $dataLabel';
+  }
+
+  /// 선택된 데이터 타입에 따른 메인 값
+  String _getMainValue() {
+    final _StatisticData currentData = _mockData[_selectedPeriodType]!;
+
+    switch (_selectedDataType) {
+      case StaticDataType.distance:
+        return WorkoutFormatter.toKmText(currentData.distance.toDouble());
+      case StaticDataType.elevation:
+        return WorkoutFormatter.toAltitudeText(
+          currentData.elevation.toDouble(),
+        );
+      case StaticDataType.duration:
+        return WorkoutFormatter.toDurationText(currentData.duration);
+    }
   }
 }
