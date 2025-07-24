@@ -56,5 +56,3 @@ app.*.map.json
 # 테스트 관련
 test/
 
-# Mock 데이터 파일 (개발용 더미 데이터)
-lib/features/workout_history/data/datasources/mock_workout_statistics_data.dart
