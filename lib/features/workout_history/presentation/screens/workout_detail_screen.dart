@@ -14,6 +14,7 @@ import 'package:ridingmate/shared/design_system/widgets/button/button_outlined.d
 import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/info/info_item.dart';
 import 'package:ridingmate/shared/utils/date_formatter.dart';
+import 'package:ridingmate/shared/utils/workout_formatter.dart';
 
 class WorkoutDetailScreen extends StatelessWidget {
   const WorkoutDetailScreen({
@@ -103,7 +104,7 @@ class WorkoutDetailScreen extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${(workoutRecord.distance / 1000).toStringAsFixed(1)} km',
+                    WorkoutFormatter.toKmText(workoutRecord.distance),
                     style: AppTextStyles.display1.bold.copyWith(
                       color: colors.labelStrong,
                     ),
@@ -114,24 +115,28 @@ class WorkoutDetailScreen extends StatelessWidget {
                       Expanded(
                         child: InfoItem(
                           label: '운동 시간',
-                          value:
-                              '${workoutRecord.duration.inMinutes}분 ${workoutRecord.duration.inSeconds % 60}초',
+                          value: WorkoutFormatter.toDurationText(
+                            workoutRecord.duration,
+                          ),
                           alignment: CrossAxisAlignment.start,
                         ),
                       ),
                       Expanded(
                         child: InfoItem(
                           label: '평균 속도',
-                          value:
-                              '${(workoutRecord.distance / 1000 / (workoutRecord.duration.inMinutes / 60)).toStringAsFixed(1)} km/h',
+                          value: WorkoutFormatter.toSpeedText(
+                            workoutRecord.distance,
+                            workoutRecord.duration,
+                          ),
                           alignment: CrossAxisAlignment.start,
                         ),
                       ),
                       Expanded(
                         child: InfoItem(
                           label: '소모 칼로리',
-                          value:
-                              '${workoutRecord.calories.toStringAsFixed(0)} kcal',
+                          value: WorkoutFormatter.toCaloriesText(
+                            workoutRecord.calories,
+                          ),
                           alignment: CrossAxisAlignment.start,
                         ),
                       ),
@@ -144,22 +149,26 @@ class WorkoutDetailScreen extends StatelessWidget {
                       Expanded(
                         child: InfoItem(
                           label: '전체 시간',
-                          value: '${workoutRecord.duration.inMinutes}분',
+                          value: WorkoutFormatter.toDurationText(
+                            workoutRecord.duration,
+                          ),
                           alignment: CrossAxisAlignment.start,
                         ),
                       ),
-                      const Expanded(
+                      Expanded(
                         child: InfoItem(
                           label: '케이던스',
-                          value: '--',
+                          value: WorkoutFormatter.toCadenceText(null), // 데이터 없음
                           alignment: CrossAxisAlignment.start,
                         ),
                       ),
                       Expanded(
                         child: InfoItem(
                           label: '평균 심박수',
-                          value:
-                              '${workoutRecord.heartRateData.first.heartRate} bpm',
+                          value: WorkoutFormatter.toHeartRateText(
+                            workoutRecord.heartRateData.first.heartRate
+                                .toDouble(),
+                          ),
                           alignment: CrossAxisAlignment.start,
                         ),
                       ),
@@ -176,7 +185,10 @@ class WorkoutDetailScreen extends StatelessWidget {
                           MaterialPageRoute<void>(
                             builder:
                                 (BuildContext context) =>
-                                    const WorkoutDetailStatScreen(),
+                                    WorkoutDetailStatScreen(
+                                      workoutIndex: workoutIndex,
+                                      workoutRecord: workoutRecord,
+                                    ),
                           ),
                         );
                       },
@@ -282,7 +294,7 @@ class WorkoutDetailScreen extends StatelessWidget {
     );
   }
 
-  /// 사진 아이템 위젯 생성
+  /// 사진 아이템 위젯 생성 TODO: stateless widget 으로 변경
   Widget _buildPhotoItem(BuildContext context, String label) {
     const String imagePath = 'assets/images/png/thumbnail_r1_1.png';
     final SemanticColors colors = context.semanticColor;
