@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
@@ -193,9 +194,209 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
           ),
           const SizedBox(height: 20),
           Row(children: _buildBottomInfoItems()),
+          const SizedBox(height: 40),
+          _buildChart(),
         ],
       ],
     );
+  }
+
+  Widget _buildChart() {
+    final SemanticColors colors = context.semanticColor;
+    final WorkoutStatisticsChartData? chartData = _currentStatistics?.chartData;
+    final List<WorkoutStatisticsChartPoint> chartPoints =
+        chartData != null
+            ? _getChartPointsFromData(chartData)
+            : <WorkoutStatisticsChartPoint>[];
+
+    if (chartData == null ||
+        chartPoints.isEmpty ||
+        chartPoints.every(
+          (WorkoutStatisticsChartPoint point) => point.value == 0,
+        )) {
+      return Container(
+        height: 200,
+        decoration: BoxDecoration(
+          border: Border.all(color: context.semanticColor.lineNormalNormal),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Center(
+          child: Text(
+            '데이터가 없습니다',
+            style: AppTextStyles.body2.readingMedium.copyWith(
+              color: context.semanticColor.labelAlternative,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 200,
+      child: BarChart(
+        BarChartData(
+          barGroups:
+              chartPoints.asMap().entries.map((
+                MapEntry<int, WorkoutStatisticsChartPoint> entry,
+              ) {
+                return BarChartGroupData(
+                  x: entry.key,
+                  barRods: <BarChartRodData>[
+                    BarChartRodData(
+                      toY: entry.value.value,
+                      color: context.semanticColor.primaryNormal,
+                      width: 20,
+                      borderRadius: const BorderRadius.vertical(),
+                    ),
+                  ],
+                );
+              }).toList(),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: _calculateYAxisReservedSize(chartPoints),
+                getTitlesWidget: (double value, TitleMeta meta) {
+                  final double interval = _getYAxisInterval(chartPoints);
+                  if (value % interval != 0) {
+                    return const Text('');
+                  }
+                  return Text(
+                    _formatYAxisLabel(value),
+                    style: AppTextStyles.caption2.regular.copyWith(
+                      color: colors.labelAlternative,
+                    ),
+                  );
+                },
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (double value, TitleMeta meta) {
+                  final int index = value.toInt();
+                  if (index >= 0 && index < chartPoints.length) {
+                    return Text(
+                      chartPoints[index].label,
+                      style: AppTextStyles.caption2.regular.copyWith(
+                        color: colors.labelAlternative,
+                      ),
+                    );
+                  }
+                  return const Text('');
+                },
+              ),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+          ),
+
+          gridData: FlGridData(
+            show: true,
+            drawHorizontalLine: true,
+            drawVerticalLine: false,
+            horizontalInterval: _getYAxisInterval(chartPoints),
+            getDrawingHorizontalLine:
+                (double value) => FlLine(
+                  color: colors.lineNormalNormal.withValues(alpha: 0.3),
+                  strokeWidth: 1,
+                ),
+          ),
+          borderData: FlBorderData(show: false),
+          minY: 0,
+          maxY: _calculateChartMaxY(chartPoints),
+          barTouchData: BarTouchData(
+            enabled: true,
+            touchTooltipData: BarTouchTooltipData(
+              getTooltipItem: (
+                BarChartGroupData group,
+                int groupIndex,
+                BarChartRodData rod,
+                int rodIndex,
+              ) {
+                return BarTooltipItem(
+                  '${chartPoints[group.x].label}\n${_formatYAxisLabel(rod.toY)}',
+                  AppTextStyles.caption2.regular.copyWith(
+                    color: colors.staticWhite,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<WorkoutStatisticsChartPoint> _getChartPointsFromData(
+    WorkoutStatisticsChartData chartData,
+  ) {
+    switch (_selectedDataType) {
+      case StaticDataType.distance:
+        return chartData.distancePoints;
+      case StaticDataType.elevation:
+        return chartData.elevationPoints;
+      case StaticDataType.duration:
+        return chartData.durationPoints;
+    }
+  }
+
+  String _formatYAxisLabel(double value) {
+    switch (_selectedDataType) {
+      case StaticDataType.distance:
+        return '${value.toStringAsFixed(0)} km';
+      case StaticDataType.elevation:
+        return '${value.toStringAsFixed(0)} m';
+      case StaticDataType.duration:
+        return '${value.toStringAsFixed(0)} 분';
+    }
+  }
+
+  double _getMaxYValue(List<WorkoutStatisticsChartPoint> points) {
+    if (points.isEmpty) return 100;
+    return points
+        .map((WorkoutStatisticsChartPoint p) => p.value)
+        .reduce((double a, double b) => a > b ? a : b);
+  }
+
+  double _getYAxisInterval(List<WorkoutStatisticsChartPoint> points) {
+    final double maxValue = _getMaxYValue(points);
+    if (maxValue <= 10) return 2;
+    if (maxValue <= 50) return 10;
+    if (maxValue <= 100) return 20;
+    if (maxValue <= 500) return 100;
+    return (maxValue / 5).roundToDouble();
+  }
+
+  double _calculateYAxisReservedSize(List<WorkoutStatisticsChartPoint> points) {
+    final double maxValue = _getMaxYValue(points);
+    final String formattedMaxValue = _formatYAxisLabel(maxValue);
+
+    final TextPainter textPainter = TextPainter(
+      text: TextSpan(
+        text: formattedMaxValue,
+        style: AppTextStyles.caption2.regular.copyWith(
+          color: context.semanticColor.labelAlternative,
+        ),
+      ),
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+
+    return textPainter.size.width + 8;
+  }
+
+  double _calculateChartMaxY(List<WorkoutStatisticsChartPoint> points) {
+    final double maxValue = _getMaxYValue(points);
+    final double interval = _getYAxisInterval(points);
+
+    // interval 단위로 올림 후 약간의 여유 공간 추가하여 상단 grid line 표시
+    return ((maxValue / interval).ceil()) * interval + (interval * 0.1);
   }
 
   String _getPeriodDisplayText() {
@@ -273,8 +474,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     return Expanded(
       child: InfoItem(
         label: '운동 시간',
-        value:
-            duration != null ? WorkoutFormatter.toDurationText(duration) : '--',
+        value: WorkoutFormatter.toDurationText(duration),
         alignment: CrossAxisAlignment.start,
       ),
     );
@@ -285,10 +485,9 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     return Expanded(
       child: InfoItem(
         label: '거리',
-        value:
-            distance != null
-                ? WorkoutFormatter.toKmText(distance * 1000) // km → m 변환
-                : '--',
+        value: WorkoutFormatter.toKmText(
+          distance != null ? distance * 1000 : null,
+        ), // km → m 변환
         alignment: CrossAxisAlignment.start,
       ),
     );
@@ -299,10 +498,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     return Expanded(
       child: InfoItem(
         label: '상승 고도',
-        value:
-            elevation != null
-                ? WorkoutFormatter.toAltitudeText(elevation.toDouble())
-                : '--',
+        value: WorkoutFormatter.toAltitudeText(elevation?.toDouble()),
         alignment: CrossAxisAlignment.start,
       ),
     );
