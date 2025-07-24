@@ -224,31 +224,45 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
 
     return SizedBox(
       height: _UIConstants.chartHeight,
-      child: BarChart(_buildChartData(chartPoints)),
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return BarChart(_buildChartData(chartPoints, constraints.maxWidth));
+        },
+      ),
     );
   }
 
   Widget _buildEmptyChart() {
-    return Container(
+    return SizedBox(
       height: _UIConstants.chartHeight,
-      decoration: BoxDecoration(
-        border: Border.all(color: context.semanticColor.lineNormalNormal),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Center(
-        child: Text(
-          '데이터가 없습니다',
-          style: AppTextStyles.body2.readingMedium.copyWith(
-            color: context.semanticColor.labelAlternative,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: context.semanticColor.lineNormalNormal),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Center(
+          child: Text(
+            '데이터가 없습니다',
+            style: AppTextStyles.body2.readingMedium.copyWith(
+              color: context.semanticColor.labelAlternative,
+            ),
           ),
         ),
       ),
     );
   }
 
-  BarChartData _buildChartData(List<WorkoutStatisticsChartPoint> chartPoints) {
+  BarChartData _buildChartData(
+    List<WorkoutStatisticsChartPoint> chartPoints,
+    double availableWidth,
+  ) {
+    final double barWidth = _calculateDynamicBarWidth(
+      chartPoints.length,
+      availableWidth,
+    );
+
     return BarChartData(
-      barGroups: _buildBarGroups(chartPoints),
+      barGroups: _buildBarGroups(chartPoints, barWidth),
       titlesData: _buildTitlesData(chartPoints),
       gridData: _buildGridData(chartPoints),
       borderData: FlBorderData(show: false),
@@ -260,6 +274,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
 
   List<BarChartGroupData> _buildBarGroups(
     List<WorkoutStatisticsChartPoint> chartPoints,
+    double barWidth,
   ) {
     return chartPoints.asMap().entries.map((
       MapEntry<int, WorkoutStatisticsChartPoint> entry,
@@ -270,12 +285,37 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
           BarChartRodData(
             toY: entry.value.value,
             color: _barColor,
-            width: _UIConstants.barWidth,
+            width: barWidth,
             borderRadius: const BorderRadius.vertical(),
           ),
         ],
       );
     }).toList();
+  }
+
+  double _calculateDynamicBarWidth(int dataCount, double availableWidth) {
+    if (_currentStatistics?.chartData == null || dataCount <= 0) {
+      return _UIConstants.barWidth;
+    }
+
+    final double yAxisReservedSize = _calculateYAxisReservedSize(
+      _getChartPointsFromData(_currentStatistics!.chartData),
+    );
+
+    const double horizontalPadding = 40;
+    final double chartGraphWidth =
+        availableWidth - yAxisReservedSize - horizontalPadding;
+
+    if (chartGraphWidth <= 0) {
+      return _UIConstants.barWidth;
+    }
+
+    final double calculatedWidth = chartGraphWidth / dataCount;
+
+    const double minWidth = 4.0;
+    const double maxWidth = 30.0;
+
+    return calculatedWidth.clamp(minWidth, maxWidth);
   }
 
   FlTitlesData _buildTitlesData(List<WorkoutStatisticsChartPoint> chartPoints) {
@@ -299,7 +339,10 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
           getTitlesWidget: (double value, TitleMeta meta) {
             final int index = value.toInt();
             if (index >= 0 && index < chartPoints.length) {
-              return Text(chartPoints[index].label, style: _chartLabelStyle);
+              // 기간 타입에 따라 라벨 표시 간격 조정
+              if (_shouldShowXAxisLabel(index, chartPoints.length)) {
+                return Text(chartPoints[index].label, style: _chartLabelStyle);
+              }
             }
             return const Text('');
           },
@@ -515,5 +558,19 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
         alignment: CrossAxisAlignment.start,
       ),
     );
+  }
+
+  bool _shouldShowXAxisLabel(int index, int totalPoints) {
+    switch (_selectedPeriodType) {
+      case StatisticPeriodType.week:
+        return true;
+      case StatisticPeriodType.month:
+        // 월간 데이터: 1일, 5일, 10일, 15일, 20일, 25일, 30일만 표시
+        return index == 0 || (index + 1) % 5 == 0;
+      case StatisticPeriodType.year:
+        return true;
+      case StatisticPeriodType.all:
+        return true;
+    }
   }
 }
