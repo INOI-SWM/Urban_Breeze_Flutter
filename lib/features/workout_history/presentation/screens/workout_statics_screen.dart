@@ -120,7 +120,6 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-    final _StatisticData currentData = _mockData[_selectedPeriodType]!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,7 +136,7 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
         ),
 
         const SizedBox(height: 20),
-        //TODO : 클릭 시 월 변경 옵션 띄우기
+        //TODO : 클릭 시 기간 변경 옵션 띄우기
         Text(
           _getPeriodDisplayText(),
           style: AppTextStyles.title3.bold.copyWith(color: colors.labelStrong),
@@ -155,7 +154,7 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
         ),
         const SizedBox(height: 20),
         Text(
-          _getDataTypeLabel(),
+          _selectedDataType.label,
           style: AppTextStyles.label1.normalBold.copyWith(
             color: colors.labelAlternative,
           ),
@@ -167,33 +166,7 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
           ),
         ),
         const SizedBox(height: 20),
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: InfoItem(
-                label: '라이딩',
-                value: '${currentData.ridingCount}',
-                alignment: CrossAxisAlignment.start,
-              ),
-            ),
-            Expanded(
-              child: InfoItem(
-                label: '운동 시간',
-                value: WorkoutFormatter.toDurationText(currentData.workoutTime),
-                alignment: CrossAxisAlignment.start,
-              ),
-            ),
-            Expanded(
-              child: InfoItem(
-                label: '상승 고도',
-                value: WorkoutFormatter.toAltitudeText(
-                  currentData.elevation.toDouble(),
-                ),
-                alignment: CrossAxisAlignment.start,
-              ),
-            ),
-          ],
-        ),
+        Row(children: _buildBottomInfoItems()),
       ],
     );
   }
@@ -212,15 +185,6 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
     }
   }
 
-  /// 선택된 데이터 타입과 기간에 따른 라벨
-  String _getDataTypeLabel() {
-    final String periodLabel = _selectedPeriodType.label;
-    final String dataLabel = _selectedDataType.label;
-
-    return '$periodLabel간 라이딩 $dataLabel';
-  }
-
-  /// 선택된 데이터 타입에 따른 메인 값
   String _getMainValue() {
     final _StatisticData currentData = _mockData[_selectedPeriodType]!;
 
@@ -234,5 +198,78 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
       case StaticDataType.duration:
         return WorkoutFormatter.toDurationText(currentData.duration);
     }
+  }
+
+  List<Widget> _buildBottomInfoItems() {
+    switch (_selectedDataType) {
+      case StaticDataType.distance:
+        return <Widget>[
+          _buildRidingCountItem(),
+          _buildWorkoutTimeItem(),
+          _buildElevationItem(),
+        ];
+      case StaticDataType.elevation:
+        return <Widget>[
+          _buildRidingCountItem(),
+          _buildWorkoutTimeItem(),
+          _buildDistanceItem(),
+        ];
+      case StaticDataType.duration:
+        return <Widget>[
+          _buildRidingCountItem(),
+          _buildDistanceItem(),
+          _buildElevationItem(),
+        ];
+    }
+  }
+
+  /// 라이딩 횟수 항목
+  Widget _buildRidingCountItem() {
+    final _StatisticData currentData = _mockData[_selectedPeriodType]!;
+    return Expanded(
+      child: InfoItem(
+        label: '라이딩',
+        value: '${currentData.ridingCount}',
+        alignment: CrossAxisAlignment.start,
+      ),
+    );
+  }
+
+  /// 운동 시간 항목
+  Widget _buildWorkoutTimeItem() {
+    final _StatisticData currentData = _mockData[_selectedPeriodType]!;
+    return Expanded(
+      child: InfoItem(
+        label: '운동 시간',
+        value: WorkoutFormatter.toDurationText(currentData.workoutTime),
+        alignment: CrossAxisAlignment.start,
+      ),
+    );
+  }
+
+  /// 거리 항목
+  Widget _buildDistanceItem() {
+    final _StatisticData currentData = _mockData[_selectedPeriodType]!;
+    return Expanded(
+      child: InfoItem(
+        label: '거리',
+        value: WorkoutFormatter.toKmText(currentData.distance.toDouble()),
+        alignment: CrossAxisAlignment.start,
+      ),
+    );
+  }
+
+  /// 상승 고도 항목
+  Widget _buildElevationItem() {
+    final _StatisticData currentData = _mockData[_selectedPeriodType]!;
+    return Expanded(
+      child: InfoItem(
+        label: '상승 고도',
+        value: WorkoutFormatter.toAltitudeText(
+          currentData.elevation.toDouble(),
+        ),
+        alignment: CrossAxisAlignment.start,
+      ),
+    );
   }
 }
