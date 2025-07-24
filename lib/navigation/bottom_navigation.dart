@@ -34,7 +34,7 @@ class BottomNavigation extends StatelessWidget {
     NavigationItem(
       icon: Icons.directions_bike,
       selectedIcon: Icons.directions_bike,
-      label: '라이딩',
+      label: '나의 경로',
     ),
     NavigationItem(
       icon: Icons.bar_chart,
