@@ -2,12 +2,12 @@ class WorkoutStatistics {
   const WorkoutStatistics({
     required this.period,
     required this.summary,
-    required this.details,
+    required this.chartData,
   });
 
   final WorkoutStatisticsPeriod period;
   final WorkoutStatisticsSummary summary;
-  final List<WorkoutStatisticsDetail> details; // 그래프용 데이터
+  final WorkoutStatisticsChartData chartData; // 그래프용 데이터
 
   @override
   bool operator ==(Object other) {
@@ -15,27 +15,18 @@ class WorkoutStatistics {
     return other is WorkoutStatistics &&
         other.period == period &&
         other.summary == summary &&
-        other.details.length == details.length &&
-        _listEquals(other.details, details);
-  }
-
-  bool _listEquals<T>(List<T> a, List<T> b) {
-    if (a.length != b.length) return false;
-    for (int i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
+        other.chartData == chartData;
   }
 
   @override
-  int get hashCode => Object.hash(period, summary, details);
+  int get hashCode => Object.hash(period, summary, chartData);
 
   @override
   String toString() {
     return 'WorkoutStatistics('
         'period: $period, '
         'summary: $summary, '
-        'details: ${details.length} items'
+        'chartData: $chartData'
         ')';
   }
 }
@@ -119,49 +110,58 @@ class WorkoutStatisticsSummary {
   }
 }
 
-class WorkoutStatisticsDetailValue {
-  const WorkoutStatisticsDetailValue({
-    required this.distance,
-    required this.elevationGain,
-    required this.duration,
+class WorkoutStatisticsChartData {
+  const WorkoutStatisticsChartData({
+    required this.distancePoints,
+    required this.elevationPoints,
+    required this.durationPoints,
   });
 
-  final double distance; // km
-  final int elevationGain; // m
-  final Duration duration;
+  final List<WorkoutStatisticsChartPoint> distancePoints;
+  final List<WorkoutStatisticsChartPoint> elevationPoints;
+  final List<WorkoutStatisticsChartPoint> durationPoints;
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is WorkoutStatisticsDetailValue &&
-        other.distance == distance &&
-        other.elevationGain == elevationGain &&
-        other.duration == duration;
+    return other is WorkoutStatisticsChartData &&
+        _listEquals(other.distancePoints, distancePoints) &&
+        _listEquals(other.elevationPoints, elevationPoints) &&
+        _listEquals(other.durationPoints, durationPoints);
+  }
+
+  bool _listEquals<T>(List<T> a, List<T> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 
   @override
-  int get hashCode => Object.hash(distance, elevationGain, duration);
+  int get hashCode =>
+      Object.hash(distancePoints, elevationPoints, durationPoints);
 
   @override
   String toString() {
-    return 'WorkoutStatisticsDetailValue('
-        'distance: $distance km, '
-        'elevationGain: $elevationGain m, '
-        'duration: $duration'
+    return 'WorkoutStatisticsChartData('
+        'distancePoints: ${distancePoints.length}, '
+        'elevationPoints: ${elevationPoints.length}, '
+        'durationPoints: ${durationPoints.length}'
         ')';
   }
 }
 
-class WorkoutStatisticsDetail {
-  const WorkoutStatisticsDetail({required this.label, required this.value});
+class WorkoutStatisticsChartPoint {
+  const WorkoutStatisticsChartPoint({required this.label, required this.value});
 
   final String label; // x축 라벨 (날짜)
-  final WorkoutStatisticsDetailValue value;
+  final double value; // y축 값 (거리 km, 상승고도 m, 시간 분)
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is WorkoutStatisticsDetail &&
+    return other is WorkoutStatisticsChartPoint &&
         other.label == label &&
         other.value == value;
   }
@@ -171,6 +171,6 @@ class WorkoutStatisticsDetail {
 
   @override
   String toString() {
-    return 'WorkoutStatisticsDetail(label: $label, value: $value)';
+    return 'WorkoutStatisticsChartPoint(label: $label, value: $value)';
   }
 }

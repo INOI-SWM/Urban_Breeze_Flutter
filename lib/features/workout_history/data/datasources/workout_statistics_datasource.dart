@@ -9,7 +9,6 @@ class WorkoutStatisticsDatasource {
     DateTime? endDate,
   }) async {
     // TODO: 실제 API 호출 구현
-    await Future.delayed(const Duration(milliseconds: 500)); // API 호출 시뮬레이션
 
     final Map<String, dynamic> jsonData = _getMockStatisticsData(periodType);
     return WorkoutStatisticsResponseModel.fromJson(jsonData);

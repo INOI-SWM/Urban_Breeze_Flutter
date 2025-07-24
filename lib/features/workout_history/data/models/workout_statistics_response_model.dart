@@ -125,7 +125,7 @@ class WorkoutStatisticsResponseModel {
       details:
           (json['details'] as List<dynamic>)
               .map(
-                (detail) => WorkoutStatisticsDetailModel.fromJson(
+                (dynamic detail) => WorkoutStatisticsDetailModel.fromJson(
                   detail as Map<String, dynamic>,
                 ),
               )

@@ -171,7 +171,6 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
     );
   }
 
-  /// 선택된 기간에 따른 표시 텍스트
   String _getPeriodDisplayText() {
     switch (_selectedPeriodType) {
       case StatisticPeriodType.week:
@@ -223,7 +222,6 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
     }
   }
 
-  /// 라이딩 횟수 항목
   Widget _buildRidingCountItem() {
     final _StatisticData currentData = _mockData[_selectedPeriodType]!;
     return Expanded(
@@ -235,7 +233,6 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
     );
   }
 
-  /// 운동 시간 항목
   Widget _buildWorkoutTimeItem() {
     final _StatisticData currentData = _mockData[_selectedPeriodType]!;
     return Expanded(
@@ -247,7 +244,6 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
     );
   }
 
-  /// 거리 항목
   Widget _buildDistanceItem() {
     final _StatisticData currentData = _mockData[_selectedPeriodType]!;
     return Expanded(
@@ -259,7 +255,6 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
     );
   }
 
-  /// 상승 고도 항목
   Widget _buildElevationItem() {
     final _StatisticData currentData = _mockData[_selectedPeriodType]!;
     return Expanded(

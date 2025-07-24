@@ -6,7 +6,6 @@ class GetWorkoutStatisticsUseCase {
 
   final WorkoutStatisticsRepository _repository;
 
-  /// 기간별 운동 통계 데이터 조회
   Future<WorkoutStatistics> execute({
     required String periodType, // "week", "month", "year", "all"
     DateTime? startDate,

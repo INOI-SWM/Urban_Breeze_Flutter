@@ -2,16 +2,14 @@ import '../../domain/entities/workout_statistics.dart';
 import '../models/workout_statistics_response_model.dart';
 
 class WorkoutStatisticsMapper {
-  /// Model을 Entity로 변환
   static WorkoutStatistics toEntity(WorkoutStatisticsResponseModel model) {
     return WorkoutStatistics(
       period: _mapPeriod(model.period),
       summary: _mapSummary(model.summary),
-      details: model.details.map(_mapDetail).toList(),
+      chartData: _mapChartData(model.details),
     );
   }
 
-  /// Period Model을 Entity로 변환
   static WorkoutStatisticsPeriod _mapPeriod(
     WorkoutStatisticsPeriodModel model,
   ) {
@@ -23,7 +21,6 @@ class WorkoutStatisticsMapper {
     );
   }
 
-  /// Summary Model을 Entity로 변환
   static WorkoutStatisticsSummary _mapSummary(
     WorkoutStatisticsSummaryModel model,
   ) {
@@ -35,24 +32,43 @@ class WorkoutStatisticsMapper {
     );
   }
 
-  /// Detail Model을 Entity로 변환
-  static WorkoutStatisticsDetail _mapDetail(
-    WorkoutStatisticsDetailModel model,
+  static WorkoutStatisticsChartData _mapChartData(
+    List<WorkoutStatisticsDetailModel> details,
   ) {
-    return WorkoutStatisticsDetail(
-      label: model.label,
-      value: _mapDetailValue(model.value),
-    );
-  }
+    final List<WorkoutStatisticsChartPoint> distancePoints =
+        <WorkoutStatisticsChartPoint>[];
+    final List<WorkoutStatisticsChartPoint> elevationPoints =
+        <WorkoutStatisticsChartPoint>[];
+    final List<WorkoutStatisticsChartPoint> durationPoints =
+        <WorkoutStatisticsChartPoint>[];
 
-  /// DetailValue Model을 Entity로 변환
-  static WorkoutStatisticsDetailValue _mapDetailValue(
-    WorkoutStatisticsDetailValueModel model,
-  ) {
-    return WorkoutStatisticsDetailValue(
-      distance: model.distanceKm,
-      elevationGain: model.elevationGainM,
-      duration: Duration(seconds: model.durationSec), // 초를 Duration으로 변환
+    for (final WorkoutStatisticsDetailModel detail in details) {
+      distancePoints.add(
+        WorkoutStatisticsChartPoint(
+          label: detail.label,
+          value: detail.value.distanceKm,
+        ),
+      );
+
+      elevationPoints.add(
+        WorkoutStatisticsChartPoint(
+          label: detail.label,
+          value: detail.value.elevationGainM.toDouble(),
+        ),
+      );
+
+      durationPoints.add(
+        WorkoutStatisticsChartPoint(
+          label: detail.label,
+          value: detail.value.durationSec / 60.0, // 초 → 분
+        ),
+      );
+    }
+
+    return WorkoutStatisticsChartData(
+      distancePoints: distancePoints,
+      elevationPoints: elevationPoints,
+      durationPoints: durationPoints,
     );
   }
 }
