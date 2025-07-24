@@ -2,7 +2,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/info/info_item.dart';
 import 'package:ridingmate/shared/design_system/widgets/segmented_control/segmented_control.dart';
@@ -11,55 +10,17 @@ import 'package:ridingmate/shared/utils/workout_formatter.dart';
 import '../../application/use_cases/get_workout_statistics_use_case.dart';
 import '../../di/workout_statistics_providers.dart';
 import '../../domain/entities/workout_statistics.dart';
+import '../../domain/enums/statistic_enums.dart';
 
-enum StatisticPeriodType {
-  week,
-  month,
-  year,
-  all;
-
-  String get label {
-    switch (this) {
-      case StatisticPeriodType.week:
-        return '주';
-      case StatisticPeriodType.month:
-        return '월';
-      case StatisticPeriodType.year:
-        return '년';
-      case StatisticPeriodType.all:
-        return '전체';
-    }
-  }
-
-  String get apiValue {
-    switch (this) {
-      case StatisticPeriodType.week:
-        return 'week';
-      case StatisticPeriodType.month:
-        return 'month';
-      case StatisticPeriodType.year:
-        return 'year';
-      case StatisticPeriodType.all:
-        return 'all';
-    }
-  }
-}
-
-enum StaticDataType {
-  distance,
-  elevation,
-  duration;
-
-  String get label {
-    switch (this) {
-      case StaticDataType.distance:
-        return '거리';
-      case StaticDataType.elevation:
-        return '상승 고도';
-      case StaticDataType.duration:
-        return '시간';
-    }
-  }
+class _UIConstants {
+  static const double defaultSpacing = 20.0;
+  static const double largeSpacing = 40.0;
+  static const double chartHeight = 200.0;
+  static const double barWidth = 20.0;
+  static const double gridLineWidth = 1.0;
+  static const double reservedSizePadding = 8.0;
+  static const double topPaddingRatio = 0.1;
+  static const EdgeInsets loadingPadding = EdgeInsets.symmetric(vertical: 20);
 }
 
 class WorkoutStaticsScreen extends ConsumerStatefulWidget {
@@ -102,6 +63,33 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     _loadStatistics();
   }
 
+  TextStyle get _chartLabelStyle => AppTextStyles.caption2.regular.copyWith(
+    color: context.semanticColor.labelAlternative,
+  );
+
+  Color get _gridLineColor =>
+      context.semanticColor.lineNormalNormal.withValues(alpha: 0.3);
+
+  Color get _barColor => context.semanticColor.primaryNormal;
+
+  Color get _tooltipTextColor => context.semanticColor.staticWhite;
+
+  TextStyle get _titleStyle => AppTextStyles.title3.bold.copyWith(
+    color: context.semanticColor.labelStrong,
+  );
+
+  TextStyle get _labelStyle => AppTextStyles.label1.normalBold.copyWith(
+    color: context.semanticColor.labelAlternative,
+  );
+
+  TextStyle get _mainValueStyle => AppTextStyles.display1.bold.copyWith(
+    color: context.semanticColor.labelStrong,
+  );
+
+  TextStyle get _errorStyle => AppTextStyles.body2.readingMedium.copyWith(
+    color: context.semanticColor.labelAlternative,
+  );
+
   Future<void> _loadStatistics() async {
     setState(() {
       _isLoading = true;
@@ -110,7 +98,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
 
     try {
       final WorkoutStatistics statistics = await _getWorkoutStatisticsUseCase
-          .execute(periodType: _selectedPeriodType.apiValue);
+          .execute(periodType: _selectedPeriodType);
 
       setState(() {
         _currentStatistics = statistics;
@@ -126,83 +114,100 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final SemanticColors colors = context.semanticColor;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        SegmentedControl<StatisticPeriodType>(
-          tabs: _periodTabs,
-          selectedTab: _selectedPeriodType,
-          onTabSelected: (StatisticPeriodType type) {
-            setState(() {
-              _selectedPeriodType = type;
-            });
-            _loadStatistics();
-          },
-          labelExtractor: (StatisticPeriodType type) => type.label,
-        ),
+        _buildPeriodSelector(),
+        const SizedBox(height: _UIConstants.defaultSpacing),
+        _buildPeriodTitle(),
+        const SizedBox(height: _UIConstants.defaultSpacing),
+        _buildDataTypeSelector(),
+        const SizedBox(height: _UIConstants.defaultSpacing),
+        _buildDataTypeLabel(),
+        _buildContentByState(),
+      ],
+    );
+  }
 
-        const SizedBox(height: 20),
-        //TODO : 클릭 시 기간 변경 옵션 띄우기
-        Text(
-          _getPeriodDisplayText(),
-          style: AppTextStyles.title3.bold.copyWith(color: colors.labelStrong),
-        ),
-        const SizedBox(height: 20),
-        SegmentedControl<StaticDataType>(
-          tabs: _dataTypeTabs,
-          selectedTab: _selectedDataType,
-          onTabSelected: (StaticDataType type) {
-            setState(() {
-              _selectedDataType = type;
-            });
-          },
-          labelExtractor: (StaticDataType type) => type.label,
-        ),
-        const SizedBox(height: 20),
-        Text(
-          _selectedDataType.label,
-          style: AppTextStyles.label1.normalBold.copyWith(
-            color: colors.labelAlternative,
-          ),
-        ),
+  Widget _buildPeriodSelector() {
+    return SegmentedControl<StatisticPeriodType>(
+      tabs: _periodTabs,
+      selectedTab: _selectedPeriodType,
+      onTabSelected: (StatisticPeriodType type) {
+        setState(() {
+          _selectedPeriodType = type;
+        });
+        _loadStatistics();
+      },
+      labelExtractor: (StatisticPeriodType type) => type.label,
+    );
+  }
 
-        if (_isLoading)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 20),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        else if (_error != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Center(
-              child: Text(
-                '데이터를 불러올 수 없습니다: $_error',
-                style: AppTextStyles.body2.readingMedium.copyWith(
-                  color: colors.labelAlternative,
-                ),
-              ),
-            ),
-          )
-        else if (_currentStatistics != null) ...<Widget>[
-          Text(
-            _getMainValue(),
-            style: AppTextStyles.display1.bold.copyWith(
-              color: colors.labelStrong,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(children: _buildBottomInfoItems()),
-          const SizedBox(height: 40),
-          _buildChart(),
-        ],
+  Widget _buildPeriodTitle() {
+    //TODO : 클릭 시 기간 변경 옵션 띄우기
+    return Text(_getPeriodDisplayText(), style: _titleStyle);
+  }
+
+  Widget _buildDataTypeSelector() {
+    return SegmentedControl<StaticDataType>(
+      tabs: _dataTypeTabs,
+      selectedTab: _selectedDataType,
+      onTabSelected: (StaticDataType type) {
+        setState(() {
+          _selectedDataType = type;
+        });
+      },
+      labelExtractor: (StaticDataType type) => type.label,
+    );
+  }
+
+  Widget _buildDataTypeLabel() {
+    return Text(_selectedDataType.label, style: _labelStyle);
+  }
+
+  Widget _buildContentByState() {
+    if (_isLoading) {
+      return _buildLoadingState();
+    } else if (_error != null) {
+      return _buildErrorState();
+    } else if (_currentStatistics != null) {
+      return _buildDataContent();
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildLoadingState() {
+    return const Padding(
+      padding: _UIConstants.loadingPadding,
+      child: Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        vertical: _UIConstants.defaultSpacing,
+      ),
+      child: Center(
+        child: Text('데이터를 불러올 수 없습니다: $_error', style: _errorStyle),
+      ),
+    );
+  }
+
+  Widget _buildDataContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(_getMainValue(), style: _mainValueStyle),
+        const SizedBox(height: _UIConstants.defaultSpacing),
+        Row(children: _buildBottomInfoItems()),
+        const SizedBox(height: _UIConstants.largeSpacing),
+        _buildChart(),
       ],
     );
   }
 
   Widget _buildChart() {
-    final SemanticColors colors = context.semanticColor;
     final WorkoutStatisticsChartData? chartData = _currentStatistics?.chartData;
     final List<WorkoutStatisticsChartPoint> chartPoints =
         chartData != null
@@ -214,120 +219,126 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
         chartPoints.every(
           (WorkoutStatisticsChartPoint point) => point.value == 0,
         )) {
-      return Container(
-        height: 200,
-        decoration: BoxDecoration(
-          border: Border.all(color: context.semanticColor.lineNormalNormal),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Text(
-            '데이터가 없습니다',
-            style: AppTextStyles.body2.readingMedium.copyWith(
-              color: context.semanticColor.labelAlternative,
-            ),
-          ),
-        ),
-      );
+      return _buildEmptyChart();
     }
 
     return SizedBox(
-      height: 200,
-      child: BarChart(
-        BarChartData(
-          barGroups:
-              chartPoints.asMap().entries.map((
-                MapEntry<int, WorkoutStatisticsChartPoint> entry,
-              ) {
-                return BarChartGroupData(
-                  x: entry.key,
-                  barRods: <BarChartRodData>[
-                    BarChartRodData(
-                      toY: entry.value.value,
-                      color: context.semanticColor.primaryNormal,
-                      width: 20,
-                      borderRadius: const BorderRadius.vertical(),
-                    ),
-                  ],
-                );
-              }).toList(),
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: _calculateYAxisReservedSize(chartPoints),
-                getTitlesWidget: (double value, TitleMeta meta) {
-                  final double interval = _getYAxisInterval(chartPoints);
-                  if (value % interval != 0) {
-                    return const Text('');
-                  }
-                  return Text(
-                    _formatYAxisLabel(value),
-                    style: AppTextStyles.caption2.regular.copyWith(
-                      color: colors.labelAlternative,
-                    ),
-                  );
-                },
-              ),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (double value, TitleMeta meta) {
-                  final int index = value.toInt();
-                  if (index >= 0 && index < chartPoints.length) {
-                    return Text(
-                      chartPoints[index].label,
-                      style: AppTextStyles.caption2.regular.copyWith(
-                        color: colors.labelAlternative,
-                      ),
-                    );
-                  }
-                  return const Text('');
-                },
-              ),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-          ),
+      height: _UIConstants.chartHeight,
+      child: BarChart(_buildChartData(chartPoints)),
+    );
+  }
 
-          gridData: FlGridData(
-            show: true,
-            drawHorizontalLine: true,
-            drawVerticalLine: false,
-            horizontalInterval: _getYAxisInterval(chartPoints),
-            getDrawingHorizontalLine:
-                (double value) => FlLine(
-                  color: colors.lineNormalNormal.withValues(alpha: 0.3),
-                  strokeWidth: 1,
-                ),
-          ),
-          borderData: FlBorderData(show: false),
-          minY: 0,
-          maxY: _calculateChartMaxY(chartPoints),
-          barTouchData: BarTouchData(
-            enabled: true,
-            touchTooltipData: BarTouchTooltipData(
-              getTooltipItem: (
-                BarChartGroupData group,
-                int groupIndex,
-                BarChartRodData rod,
-                int rodIndex,
-              ) {
-                return BarTooltipItem(
-                  '${chartPoints[group.x].label}\n${_formatYAxisLabel(rod.toY)}',
-                  AppTextStyles.caption2.regular.copyWith(
-                    color: colors.staticWhite,
-                  ),
-                );
-              },
-            ),
+  Widget _buildEmptyChart() {
+    return Container(
+      height: _UIConstants.chartHeight,
+      decoration: BoxDecoration(
+        border: Border.all(color: context.semanticColor.lineNormalNormal),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Center(
+        child: Text(
+          '데이터가 없습니다',
+          style: AppTextStyles.body2.readingMedium.copyWith(
+            color: context.semanticColor.labelAlternative,
           ),
         ),
+      ),
+    );
+  }
+
+  BarChartData _buildChartData(List<WorkoutStatisticsChartPoint> chartPoints) {
+    return BarChartData(
+      barGroups: _buildBarGroups(chartPoints),
+      titlesData: _buildTitlesData(chartPoints),
+      gridData: _buildGridData(chartPoints),
+      borderData: FlBorderData(show: false),
+      minY: 0,
+      maxY: _calculateChartMaxY(chartPoints),
+      barTouchData: _buildTouchData(chartPoints),
+    );
+  }
+
+  List<BarChartGroupData> _buildBarGroups(
+    List<WorkoutStatisticsChartPoint> chartPoints,
+  ) {
+    return chartPoints.asMap().entries.map((
+      MapEntry<int, WorkoutStatisticsChartPoint> entry,
+    ) {
+      return BarChartGroupData(
+        x: entry.key,
+        barRods: <BarChartRodData>[
+          BarChartRodData(
+            toY: entry.value.value,
+            color: _barColor,
+            width: _UIConstants.barWidth,
+            borderRadius: const BorderRadius.vertical(),
+          ),
+        ],
+      );
+    }).toList();
+  }
+
+  FlTitlesData _buildTitlesData(List<WorkoutStatisticsChartPoint> chartPoints) {
+    return FlTitlesData(
+      leftTitles: AxisTitles(
+        sideTitles: SideTitles(
+          showTitles: true,
+          reservedSize: _calculateYAxisReservedSize(chartPoints),
+          getTitlesWidget: (double value, TitleMeta meta) {
+            final double interval = _getYAxisInterval(chartPoints);
+            if (value % interval != 0) {
+              return const Text('');
+            }
+            return Text(_formatYAxisLabel(value), style: _chartLabelStyle);
+          },
+        ),
+      ),
+      bottomTitles: AxisTitles(
+        sideTitles: SideTitles(
+          showTitles: true,
+          getTitlesWidget: (double value, TitleMeta meta) {
+            final int index = value.toInt();
+            if (index >= 0 && index < chartPoints.length) {
+              return Text(chartPoints[index].label, style: _chartLabelStyle);
+            }
+            return const Text('');
+          },
+        ),
+      ),
+      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+    );
+  }
+
+  FlGridData _buildGridData(List<WorkoutStatisticsChartPoint> chartPoints) {
+    return FlGridData(
+      show: true,
+      drawHorizontalLine: true,
+      drawVerticalLine: false,
+      horizontalInterval: _getYAxisInterval(chartPoints),
+      getDrawingHorizontalLine:
+          (double value) => FlLine(
+            color: _gridLineColor,
+            strokeWidth: _UIConstants.gridLineWidth,
+          ),
+    );
+  }
+
+  BarTouchData _buildTouchData(List<WorkoutStatisticsChartPoint> chartPoints) {
+    return BarTouchData(
+      enabled: true,
+      touchTooltipData: BarTouchTooltipData(
+        getTooltipItem: (
+          BarChartGroupData group,
+          int groupIndex,
+          BarChartRodData rod,
+          int rodIndex,
+        ) {
+          return BarTooltipItem(
+            '${chartPoints[group.x].label}\n${_formatYAxisLabel(rod.toY)}',
+            AppTextStyles.caption2.regular.copyWith(color: _tooltipTextColor),
+          );
+        },
       ),
     );
   }
@@ -388,7 +399,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     );
     textPainter.layout();
 
-    return textPainter.size.width + 8;
+    return textPainter.size.width + _UIConstants.reservedSizePadding;
   }
 
   double _calculateChartMaxY(List<WorkoutStatisticsChartPoint> points) {
@@ -396,9 +407,11 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     final double interval = _getYAxisInterval(points);
 
     // interval 단위로 올림 후 약간의 여유 공간 추가하여 상단 grid line 표시
-    return ((maxValue / interval).ceil()) * interval + (interval * 0.1);
+    return ((maxValue / interval).ceil()) * interval +
+        (interval * _UIConstants.topPaddingRatio);
   }
 
+  //TODO : api 연동 후 변경 필요
   String _getPeriodDisplayText() {
     if (_currentStatistics != null) {
       return _currentStatistics!.period.displayTitle;

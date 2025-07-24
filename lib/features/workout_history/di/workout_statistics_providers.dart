@@ -22,7 +22,7 @@ workoutStatisticsRepositoryProvider = Provider<WorkoutStatisticsRepository>((
     workoutStatisticsDatasourceProvider,
   );
 
-  return WorkoutStatisticsRepositoryImpl(dataSource: dataSource);
+  return WorkoutStatisticsRepositoryImpl(dataSource);
 });
 
 // Use Case Provider

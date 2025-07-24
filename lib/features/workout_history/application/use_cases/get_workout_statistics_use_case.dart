@@ -1,4 +1,5 @@
 import '../../domain/entities/workout_statistics.dart';
+import '../../domain/enums/statistic_enums.dart';
 import '../../domain/repositories/workout_statistics_repository.dart';
 
 class GetWorkoutStatisticsUseCase {
@@ -7,7 +8,7 @@ class GetWorkoutStatisticsUseCase {
   final WorkoutStatisticsRepository _repository;
 
   Future<WorkoutStatistics> execute({
-    required String periodType, // "week", "month", "year", "all"
+    required StatisticPeriodType periodType,
     DateTime? startDate,
     DateTime? endDate,
   }) async {

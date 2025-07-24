@@ -1,33 +1,29 @@
+import 'package:ridingmate/features/workout_history/data/models/workout_statistics_response_model.dart';
+
 import '../../domain/entities/workout_statistics.dart';
+import '../../domain/enums/statistic_enums.dart';
 import '../../domain/repositories/workout_statistics_repository.dart';
 import '../datasources/workout_statistics_datasource.dart';
 import '../mappers/workout_statistics_mapper.dart';
-import '../models/workout_statistics_response_model.dart';
 
 class WorkoutStatisticsRepositoryImpl implements WorkoutStatisticsRepository {
-  WorkoutStatisticsRepositoryImpl({WorkoutStatisticsDatasource? dataSource})
-    : _dataSource = dataSource ?? WorkoutStatisticsDatasource();
+  const WorkoutStatisticsRepositoryImpl(this._datasource);
 
-  final WorkoutStatisticsDatasource _dataSource;
+  final WorkoutStatisticsDatasource _datasource;
 
   @override
   Future<WorkoutStatistics> getWorkoutStatistics({
-    required String periodType,
+    required StatisticPeriodType periodType,
     DateTime? startDate,
     DateTime? endDate,
   }) async {
-    try {
-      final WorkoutStatisticsResponseModel model = await _dataSource
-          .getWorkoutStatistics(
-            periodType: periodType,
-            startDate: startDate,
-            endDate: endDate,
-          );
+    final WorkoutStatisticsResponseModel response = await _datasource
+        .getWorkoutStatistics(
+          periodType: periodType,
+          startDate: startDate,
+          endDate: endDate,
+        );
 
-      return WorkoutStatisticsMapper.toEntity(model);
-    } catch (e) {
-      // TODO: 적절한 domain exception으로 변환
-      rethrow;
-    }
+    return WorkoutStatisticsMapper.toEntity(response);
   }
 }

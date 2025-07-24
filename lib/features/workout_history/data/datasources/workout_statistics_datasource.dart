@@ -1,10 +1,11 @@
+import '../../domain/enums/statistic_enums.dart';
 import '../models/workout_statistics_response_model.dart';
 
 // TODO: 추후 실제 API 호출로 교체
 class WorkoutStatisticsDatasource {
   /// 기간별 운동 통계 데이터 조회
   Future<WorkoutStatisticsResponseModel> getWorkoutStatistics({
-    required String periodType, // "week", "month", "year", "all"
+    required StatisticPeriodType periodType,
     DateTime? startDate,
     DateTime? endDate,
   }) async {
@@ -15,9 +16,9 @@ class WorkoutStatisticsDatasource {
   }
 
   /// Mock 데이터 생성 (실제 API 응답 형식에 맞춤)
-  Map<String, dynamic> _getMockStatisticsData(String periodType) {
+  Map<String, dynamic> _getMockStatisticsData(StatisticPeriodType periodType) {
     switch (periodType) {
-      case 'week':
+      case StatisticPeriodType.week:
         return <String, dynamic>{
           'period': <String, String>{
             'type': 'week',
@@ -90,7 +91,7 @@ class WorkoutStatisticsDatasource {
             },
           ],
         };
-      case 'month':
+      case StatisticPeriodType.month:
         return <String, dynamic>{
           'period': <String, String>{
             'type': 'month',
@@ -106,7 +107,7 @@ class WorkoutStatisticsDatasource {
           },
           'details': <dynamic>[], // 월별 상세 데이터는 나중에 구현
         };
-      case 'year':
+      case StatisticPeriodType.year:
         return <String, dynamic>{
           'period': <String, String>{
             'type': 'year',
@@ -122,7 +123,7 @@ class WorkoutStatisticsDatasource {
           },
           'details': <dynamic>[], // 년별 상세 데이터는 나중에 구현
         };
-      case 'all':
+      case StatisticPeriodType.all:
         return <String, dynamic>{
           'period': <String, String>{
             'type': 'all',
@@ -138,8 +139,6 @@ class WorkoutStatisticsDatasource {
           },
           'details': <dynamic>[], // 전체 상세 데이터는 나중에 구현
         };
-      default:
-        throw ArgumentError('지원하지 않는 기간 타입: $periodType');
     }
   }
 }
