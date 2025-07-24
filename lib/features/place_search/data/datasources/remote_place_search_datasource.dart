@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../../shared/api/data/models/api_response_model.dart';
 import '../../domain/exceptions/place_search_domain_exceptions.dart';
 import '../models/place_search_response_model.dart';
 
@@ -40,7 +41,14 @@ class RemotePlaceSearchDataSource {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData =
             json.decode(response.body) as Map<String, dynamic>;
-        return PlaceSearchResponseModel.fromJson(jsonData);
+
+        final ApiResponseModel<PlaceSearchData> apiResponse =
+            ApiResponseModel<PlaceSearchData>.fromJson(
+              jsonData,
+              (Map<String, dynamic> data) => PlaceSearchData.fromJson(data),
+            );
+
+        return apiResponse;
       } else {
         String errorMessage = 'API 요청 실패';
 
