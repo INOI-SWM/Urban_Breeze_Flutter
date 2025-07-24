@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/info/info_item.dart';
 import 'package:ridingmate/shared/design_system/widgets/segmented_control/segmented_control.dart';
 import 'package:ridingmate/shared/utils/workout_formatter.dart';
+
+import '../../application/use_cases/get_workout_statistics_use_case.dart';
+import '../../di/workout_statistics_providers.dart';
+import '../../domain/entities/workout_statistics.dart';
 
 enum StatisticPeriodType {
   week,
@@ -22,6 +27,19 @@ enum StatisticPeriodType {
         return '년';
       case StatisticPeriodType.all:
         return '전체';
+    }
+  }
+
+  String get apiValue {
+    switch (this) {
+      case StatisticPeriodType.week:
+        return 'week';
+      case StatisticPeriodType.month:
+        return 'month';
+      case StatisticPeriodType.year:
+        return 'year';
+      case StatisticPeriodType.all:
+        return 'all';
     }
   }
 }
@@ -43,33 +61,23 @@ enum StaticDataType {
   }
 }
 
-// TODO: 추후 실제 API 데이터로 교체
-class _StatisticData {
-  const _StatisticData({
-    required this.distance,
-    required this.elevation,
-    required this.duration,
-    required this.ridingCount,
-    required this.workoutTime,
-  });
-
-  final int distance; // 미터 단위
-  final int elevation; // 미터 단위
-  final Duration duration; // 전체 시간
-  final int ridingCount; // 라이딩 횟수
-  final Duration workoutTime; // 실제 운동 시간
-}
-
-class WorkoutStaticsScreen extends StatefulWidget {
+class WorkoutStaticsScreen extends ConsumerStatefulWidget {
   const WorkoutStaticsScreen({super.key});
 
   @override
-  State<WorkoutStaticsScreen> createState() => _WorkoutStaticsScreenState();
+  ConsumerState<WorkoutStaticsScreen> createState() =>
+      _WorkoutStaticsScreenState();
 }
 
-class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
+class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
   StatisticPeriodType _selectedPeriodType = StatisticPeriodType.week;
   StaticDataType _selectedDataType = StaticDataType.distance;
+
+  bool _isLoading = false;
+  WorkoutStatistics? _currentStatistics;
+  String? _error;
+
+  late final GetWorkoutStatisticsUseCase _getWorkoutStatisticsUseCase;
 
   static const List<StatisticPeriodType> _periodTabs = <StatisticPeriodType>[
     StatisticPeriodType.week,
@@ -84,38 +92,36 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
     StaticDataType.duration,
   ];
 
-  // TODO: 추후 실제 API 데이터로 교체
-  final Map<StatisticPeriodType, _StatisticData> _mockData =
-      <StatisticPeriodType, _StatisticData>{
-        StatisticPeriodType.week: const _StatisticData(
-          distance: 15200,
-          elevation: 120,
-          duration: Duration(hours: 2, minutes: 15, seconds: 30),
-          ridingCount: 3,
-          workoutTime: Duration(hours: 2, minutes: 10, seconds: 0),
-        ),
-        StatisticPeriodType.month: const _StatisticData(
-          distance: 125800,
-          elevation: 850,
-          duration: Duration(hours: 18, minutes: 45),
-          ridingCount: 12,
-          workoutTime: Duration(hours: 16, minutes: 30),
-        ),
-        StatisticPeriodType.year: const _StatisticData(
-          distance: 89300, // 미터 단위로 변경 (89.3km)
-          elevation: 1850,
-          duration: Duration(hours: 45, minutes: 20),
-          ridingCount: 28,
-          workoutTime: Duration(hours: 42, minutes: 15),
-        ),
-        StatisticPeriodType.all: const _StatisticData(
-          distance: 95700, // 미터 단위로 변경 (95.7km)
-          elevation: 1200,
-          duration: Duration(hours: 85, minutes: 30),
-          ridingCount: 48,
-          workoutTime: Duration(hours: 78, minutes: 45),
-        ),
-      };
+  @override
+  void initState() {
+    super.initState();
+    _getWorkoutStatisticsUseCase = ref.read(
+      getWorkoutStatisticsUseCaseProvider,
+    );
+    _loadStatistics();
+  }
+
+  Future<void> _loadStatistics() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final WorkoutStatistics statistics = await _getWorkoutStatisticsUseCase
+          .execute(periodType: _selectedPeriodType.apiValue);
+
+      setState(() {
+        _currentStatistics = statistics;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,6 +137,7 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
             setState(() {
               _selectedPeriodType = type;
             });
+            _loadStatistics();
           },
           labelExtractor: (StatisticPeriodType type) => type.label,
         ),
@@ -159,19 +166,43 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
             color: colors.labelAlternative,
           ),
         ),
-        Text(
-          _getMainValue(),
-          style: AppTextStyles.display1.bold.copyWith(
-            color: colors.labelStrong,
+
+        if (_isLoading)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (_error != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Center(
+              child: Text(
+                '데이터를 불러올 수 없습니다: $_error',
+                style: AppTextStyles.body2.readingMedium.copyWith(
+                  color: colors.labelAlternative,
+                ),
+              ),
+            ),
+          )
+        else if (_currentStatistics != null) ...<Widget>[
+          Text(
+            _getMainValue(),
+            style: AppTextStyles.display1.bold.copyWith(
+              color: colors.labelStrong,
+            ),
           ),
-        ),
-        const SizedBox(height: 20),
-        Row(children: _buildBottomInfoItems()),
+          const SizedBox(height: 20),
+          Row(children: _buildBottomInfoItems()),
+        ],
       ],
     );
   }
 
   String _getPeriodDisplayText() {
+    if (_currentStatistics != null) {
+      return _currentStatistics!.period.displayTitle;
+    }
+
     switch (_selectedPeriodType) {
       case StatisticPeriodType.week:
         return '25년 7월 3주';
@@ -185,17 +216,21 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
   }
 
   String _getMainValue() {
-    final _StatisticData currentData = _mockData[_selectedPeriodType]!;
+    if (_currentStatistics == null) return '--';
+
+    final WorkoutStatisticsSummary summary = _currentStatistics!.summary;
 
     switch (_selectedDataType) {
       case StaticDataType.distance:
-        return WorkoutFormatter.toKmText(currentData.distance.toDouble());
+        return WorkoutFormatter.toKmText(
+          summary.totalDistance * 1000,
+        ); // km → m 변환
       case StaticDataType.elevation:
         return WorkoutFormatter.toAltitudeText(
-          currentData.elevation.toDouble(),
+          summary.totalElevationGain.toDouble(),
         );
       case StaticDataType.duration:
-        return WorkoutFormatter.toDurationText(currentData.duration);
+        return WorkoutFormatter.toDurationText(summary.totalDuration);
     }
   }
 
@@ -223,46 +258,51 @@ class _WorkoutStaticsScreenState extends State<WorkoutStaticsScreen> {
   }
 
   Widget _buildRidingCountItem() {
-    final _StatisticData currentData = _mockData[_selectedPeriodType]!;
+    final int count = _currentStatistics?.summary.totalActivityCount ?? 0;
     return Expanded(
       child: InfoItem(
         label: '라이딩',
-        value: '${currentData.ridingCount}',
+        value: '$count',
         alignment: CrossAxisAlignment.start,
       ),
     );
   }
 
   Widget _buildWorkoutTimeItem() {
-    final _StatisticData currentData = _mockData[_selectedPeriodType]!;
+    final Duration? duration = _currentStatistics?.summary.totalDuration;
     return Expanded(
       child: InfoItem(
         label: '운동 시간',
-        value: WorkoutFormatter.toDurationText(currentData.workoutTime),
+        value:
+            duration != null ? WorkoutFormatter.toDurationText(duration) : '--',
         alignment: CrossAxisAlignment.start,
       ),
     );
   }
 
   Widget _buildDistanceItem() {
-    final _StatisticData currentData = _mockData[_selectedPeriodType]!;
+    final double? distance = _currentStatistics?.summary.totalDistance;
     return Expanded(
       child: InfoItem(
         label: '거리',
-        value: WorkoutFormatter.toKmText(currentData.distance.toDouble()),
+        value:
+            distance != null
+                ? WorkoutFormatter.toKmText(distance * 1000) // km → m 변환
+                : '--',
         alignment: CrossAxisAlignment.start,
       ),
     );
   }
 
   Widget _buildElevationItem() {
-    final _StatisticData currentData = _mockData[_selectedPeriodType]!;
+    final int? elevation = _currentStatistics?.summary.totalElevationGain;
     return Expanded(
       child: InfoItem(
         label: '상승 고도',
-        value: WorkoutFormatter.toAltitudeText(
-          currentData.elevation.toDouble(),
-        ),
+        value:
+            elevation != null
+                ? WorkoutFormatter.toAltitudeText(elevation.toDouble())
+                : '--',
         alignment: CrossAxisAlignment.start,
       ),
     );
