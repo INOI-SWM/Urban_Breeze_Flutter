@@ -4,7 +4,7 @@ class ApiResponseModel<T> {
     T Function(Map<String, dynamic>) fromJsonT,
   ) {
     return ApiResponseModel<T>(
-      code: json['code'] as String,
+      code: json['code'] as String?,
       message: json['message'] as String,
       data: fromJsonT(json['data'] as Map<String, dynamic>),
     );
