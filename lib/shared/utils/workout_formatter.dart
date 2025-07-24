@@ -2,15 +2,15 @@ class WorkoutFormatter {
   WorkoutFormatter._();
 
   /// 거리를 km 단위 문자열로 변환 (미터 → "0.0 km" 또는 "--")
-  static String toKmText(double distanceInMeters) {
-    return distanceInMeters > 0
+  static String toKmText(double? distanceInMeters) {
+    return distanceInMeters != null && distanceInMeters > 0
         ? '${(distanceInMeters / 1000).toStringAsFixed(1)} km'
         : '--';
   }
 
   /// 시간을 동적 문자열로 변환 ("1시간 30분 45초", "30분 45초", "45초" 또는 "--")
-  static String toDurationText(Duration duration) {
-    if (duration.inSeconds <= 0) {
+  static String toDurationText(Duration? duration) {
+    if (duration == null || duration.inSeconds <= 0) {
       return '--';
     }
 
@@ -28,8 +28,11 @@ class WorkoutFormatter {
   }
 
   /// 속도를 km/h 문자열로 변환 ("0.0 km/h" 또는 "--")
-  static String toSpeedText(double distanceInMeters, Duration duration) {
-    if (distanceInMeters <= 0 || duration.inSeconds <= 0) {
+  static String toSpeedText(double? distanceInMeters, Duration? duration) {
+    if (distanceInMeters == null ||
+        duration == null ||
+        distanceInMeters <= 0 ||
+        duration.inSeconds <= 0) {
       return '--';
     }
     final double kmPerHour =
@@ -38,13 +41,15 @@ class WorkoutFormatter {
   }
 
   /// 칼로리를 kcal 문자열로 변환 ("000 kcal" 또는 "--")
-  static String toCaloriesText(double calories) {
-    return calories > 0 ? '${calories.round()} kcal' : '--';
+  static String toCaloriesText(double? calories) {
+    return calories != null && calories > 0 ? '${calories.round()} kcal' : '--';
   }
 
   /// 심박수를 bpm 문자열로 변환 ("000 bpm" 또는 "--")
-  static String toHeartRateText(double heartRate) {
-    return heartRate > 0 ? '${heartRate.round()} bpm' : '--';
+  static String toHeartRateText(double? heartRate) {
+    return heartRate != null && heartRate > 0
+        ? '${heartRate.round()} bpm'
+        : '--';
   }
 
   /// 고도를 m 문자열로 변환 ("000 m" 또는 "--")
