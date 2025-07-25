@@ -7,6 +7,9 @@ import '../../domain/enums/statistic_enums.dart';
 
 class _PeriodSelectorConstants {
   static const double pickerItemExtent = 50.0;
+  static const double pickerHeight = 200.0;
+  static const double pickerSpacing = 12.0;
+  static const double pickerSpacingLarge = 20.0;
   static const int firstMonth = 1;
   static const int lastMonth = 12;
   static const int firstWeek = 1;
@@ -233,49 +236,27 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
     return (_selectedWeek - minWeek).clamp(0, _generateWeekItems().length - 1);
   }
 
-  void _onYearChanged(int index) {
+  void _onYearChanged(
+    int index, {
+    bool adjustMonth = true,
+    bool adjustWeek = true,
+  }) {
     setState(() {
       _selectedYear = _getYearFromIndex(index);
-      _adjustMonthIfNeeded();
-      _adjustWeekIfNeeded();
+      if (adjustMonth) _adjustMonthIfNeeded();
+      if (adjustWeek) _adjustWeekIfNeeded();
     });
     _notifySelection();
   }
 
-  void _onMonthChanged(int index) {
+  void _onMonthChanged(int index, {bool adjustWeek = true}) {
     setState(() {
       final int minMonth = _DateRangeCalculator.getMinMonthForYear(
         _selectedYear,
         widget.startDate,
       );
       _selectedMonth = minMonth + index;
-      _adjustWeekIfNeeded();
-    });
-    _notifySelection();
-  }
-
-  void _onYearChangedForMonth(int index) {
-    setState(() {
-      _selectedYear = _getYearFromIndex(index);
-      _adjustMonthIfNeeded();
-    });
-    _notifySelection();
-  }
-
-  void _onMonthChangedForMonth(int index) {
-    setState(() {
-      final int minMonth = _DateRangeCalculator.getMinMonthForYear(
-        _selectedYear,
-        widget.startDate,
-      );
-      _selectedMonth = minMonth + index;
-    });
-    _notifySelection();
-  }
-
-  void _onYearChangedForYear(int index) {
-    setState(() {
-      _selectedYear = _getYearFromIndex(index);
+      if (adjustWeek) _adjustWeekIfNeeded();
     });
     _notifySelection();
   }
@@ -302,87 +283,77 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
     }
   }
 
-  Widget _buildWeekSelector() {
+  Widget _buildPickerContainer(Widget child) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        SizedBox(
-          height: 200,
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: _CustomPicker(
-                  items: _generateYearItems(),
-                  selectedIndex: _getYearIndexFromYear(_selectedYear),
-                  onChanged: _onYearChanged,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _CustomPicker(
-                  items: _generateMonthItems(),
-                  selectedIndex: _getSelectedMonthIndex(),
-                  onChanged: _onMonthChanged,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _CustomPicker(
-                  items: _generateWeekItems(),
-                  selectedIndex: _getSelectedWeekIndex(),
-                  onChanged: _onWeekChanged,
-                ),
-              ),
-            ],
-          ),
-        ),
+        SizedBox(height: _PeriodSelectorConstants.pickerHeight, child: child),
       ],
+    );
+  }
+
+  Widget _buildPickerRow(
+    List<Widget> pickers, {
+    double spacing = _PeriodSelectorConstants.pickerSpacing,
+  }) {
+    final List<Widget> children = <Widget>[];
+    for (int i = 0; i < pickers.length; i++) {
+      children.add(Expanded(child: pickers[i]));
+      if (i < pickers.length - 1) {
+        children.add(SizedBox(width: spacing));
+      }
+    }
+    return Row(children: children);
+  }
+
+  Widget _buildWeekSelector() {
+    return _buildPickerContainer(
+      _buildPickerRow(<Widget>[
+        _CustomPicker(
+          items: _generateYearItems(),
+          selectedIndex: _getYearIndexFromYear(_selectedYear),
+          onChanged: _onYearChanged,
+        ),
+        _CustomPicker(
+          items: _generateMonthItems(),
+          selectedIndex: _getSelectedMonthIndex(),
+          onChanged: _onMonthChanged,
+        ),
+        _CustomPicker(
+          items: _generateWeekItems(),
+          selectedIndex: _getSelectedWeekIndex(),
+          onChanged: _onWeekChanged,
+        ),
+      ]),
     );
   }
 
   Widget _buildMonthSelector() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        SizedBox(
-          height: 200,
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: _CustomPicker(
-                  items: _generateYearItems(),
-                  selectedIndex: _getYearIndexFromYear(_selectedYear),
-                  onChanged: _onYearChangedForMonth,
-                ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: _CustomPicker(
-                  items: _generateMonthItems(),
-                  selectedIndex: _getSelectedMonthIndex(),
-                  onChanged: _onMonthChangedForMonth,
-                ),
-              ),
-            ],
-          ),
+    return _buildPickerContainer(
+      _buildPickerRow(<Widget>[
+        _CustomPicker(
+          items: _generateYearItems(),
+          selectedIndex: _getYearIndexFromYear(_selectedYear),
+          onChanged: (int index) => _onYearChanged(index, adjustWeek: false),
         ),
-      ],
+        _CustomPicker(
+          items: _generateMonthItems(),
+          selectedIndex: _getSelectedMonthIndex(),
+          onChanged: (int index) => _onMonthChanged(index, adjustWeek: false),
+        ),
+      ], spacing: _PeriodSelectorConstants.pickerSpacingLarge),
     );
   }
 
   Widget _buildYearSelector() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        SizedBox(
-          height: 200,
-          child: _CustomPicker(
-            items: _generateYearItems(),
-            selectedIndex: _getYearIndexFromYear(_selectedYear),
-            onChanged: _onYearChangedForYear,
-          ),
-        ),
-      ],
+    return _buildPickerContainer(
+      _CustomPicker(
+        items: _generateYearItems(),
+        selectedIndex: _getYearIndexFromYear(_selectedYear),
+        onChanged:
+            (int index) =>
+                _onYearChanged(index, adjustMonth: false, adjustWeek: false),
+      ),
     );
   }
 }
