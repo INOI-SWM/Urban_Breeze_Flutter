@@ -626,6 +626,8 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
         });
         _loadStatistics();
       },
+      startYear: 2020,
+      startDate: DateTime(2020, 7, 22), //TODO : 실제 데이터 연동 후 변경 필요
     );
   }
 }

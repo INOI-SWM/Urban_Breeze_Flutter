@@ -105,6 +105,7 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
   final DateTime _now = DateTime.now();
   late int _currentYear;
   late int _currentMonth;
+  late int _currentWeek;
 
   @override
   void initState() {
@@ -115,6 +116,7 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
 
     _currentYear = _now.year;
     _currentMonth = _now.month;
+    _currentWeek = _getCurrentWeekOfMonth();
 
     // 초기값 조정
     _adjustMonthIfNeeded();
@@ -122,12 +124,28 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
 
     // 조정된 값으로 ScrollController 초기화
     final int minWeek = _getMinWeekForYearMonth(_selectedYear, _selectedMonth);
-    final int weekIndex = (_selectedWeek - minWeek).clamp(
-      0,
-      _getWeeksInMonth(_selectedYear, _selectedMonth) - minWeek,
-    );
+    final int maxWeek = _getMaxWeekForYearMonth(_selectedYear, _selectedMonth);
+    final int weekIndex = (_selectedWeek - minWeek).clamp(0, maxWeek - minWeek);
 
     _weekScrollController = FixedExtentScrollController(initialItem: weekIndex);
+  }
+
+  // 현재 날짜의 주차 계산
+  int _getCurrentWeekOfMonth() {
+    final DateTime firstDayOfMonth = DateTime(_now.year, _now.month, 1);
+    final int firstWeekday = firstDayOfMonth.weekday;
+    final int currentDay = _now.day;
+
+    return ((currentDay + firstWeekday - 2) ~/ 7) + 1;
+  }
+
+  // 선택된 년월에 따른 최대 주차 계산
+  int _getMaxWeekForYearMonth(int year, int month) {
+    if (year == _currentYear && month == _currentMonth) {
+      return _currentWeek; // 현재 년월이면 현재 주차까지만
+    } else {
+      return _getWeeksInMonth(year, month); // 과거 년월이면 해당 월의 모든 주차
+    }
   }
 
   @override
@@ -218,7 +236,7 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
   }
 
   void _adjustWeekIfNeeded() {
-    final int maxWeek = _getWeeksInMonth(_selectedYear, _selectedMonth);
+    final int maxWeek = _getMaxWeekForYearMonth(_selectedYear, _selectedMonth);
     final int minWeek = _getMinWeekForYearMonth(_selectedYear, _selectedMonth);
     _selectedWeek = _selectedWeek.clamp(minWeek, maxWeek);
   }
@@ -329,7 +347,7 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
                   scrollController: _weekScrollController,
                   onSelectedItemChanged: _onWeekChanged,
                   children: List<Widget>.generate(
-                    _getWeeksInMonth(_selectedYear, _selectedMonth) -
+                    _getMaxWeekForYearMonth(_selectedYear, _selectedMonth) -
                         _getMinWeekForYearMonth(_selectedYear, _selectedMonth) +
                         1,
                     (int index) {
