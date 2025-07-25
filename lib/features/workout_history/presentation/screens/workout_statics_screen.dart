@@ -11,6 +11,7 @@ import '../../application/use_cases/get_workout_statistics_use_case.dart';
 import '../../di/workout_statistics_providers.dart';
 import '../../domain/entities/workout_statistics.dart';
 import '../../domain/enums/statistic_enums.dart';
+import '../widgets/period_selector_dialog.dart';
 
 class _UIConstants {
   static const double defaultSpacing = 20.0;
@@ -40,6 +41,13 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
   String? _error;
 
   late final GetWorkoutStatisticsUseCase _getWorkoutStatisticsUseCase;
+
+  // 기간 선택을 위한 상태 변수
+  PeriodSelection _periodSelection = PeriodSelection(
+    year: DateTime.now().year,
+    month: DateTime.now().month,
+    week: 1,
+  );
 
   static const List<StatisticPeriodType> _periodTabs = <StatisticPeriodType>[
     StatisticPeriodType.week,
@@ -144,8 +152,27 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
   }
 
   Widget _buildPeriodTitle() {
-    //TODO : 클릭 시 기간 변경 옵션 띄우기
-    return Text(_getPeriodDisplayText(), style: _titleStyle);
+    if (_selectedPeriodType == StatisticPeriodType.all) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        child: Text(_getPeriodDisplayText(), style: _titleStyle),
+      );
+    }
+
+    return InkWell(
+      onTap: _showPeriodSelector,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(_getPeriodDisplayText(), style: _titleStyle),
+            const Icon(Icons.arrow_drop_down),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildDataTypeSelector() {
@@ -476,11 +503,11 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
 
     switch (_selectedPeriodType) {
       case StatisticPeriodType.week:
-        return '25년 7월 3주';
+        return '${_periodSelection.year}년 ${_periodSelection.month}월 ${_periodSelection.week}주';
       case StatisticPeriodType.month:
-        return '25년 7월';
+        return '${_periodSelection.year}년 ${_periodSelection.month}월';
       case StatisticPeriodType.year:
-        return '2025년';
+        return '${_periodSelection.year}년';
       case StatisticPeriodType.all:
         return '전체';
     }
@@ -586,5 +613,19 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
       case StatisticPeriodType.all:
         return true;
     }
+  }
+
+  void _showPeriodSelector() {
+    PeriodSelectorDialog.show(
+      context,
+      periodType: _selectedPeriodType,
+      initialSelection: _periodSelection,
+      onPeriodChanged: (PeriodSelection newSelection) {
+        setState(() {
+          _periodSelection = newSelection;
+        });
+        _loadStatistics();
+      },
+    );
   }
 }
