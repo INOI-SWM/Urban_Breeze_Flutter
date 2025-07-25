@@ -5,6 +5,13 @@ import 'package:ridingmate/shared/design_system/widgets/modal/modal_show.dart';
 
 import '../../domain/enums/statistic_enums.dart';
 
+class _PeriodSelectorConstants {
+  static const double pickerItemExtent = 50.0;
+  static const int firstMonth = 1;
+  static const int lastMonth = 12;
+  static const int firstWeek = 1;
+}
+
 class PeriodSelection {
   const PeriodSelection({
     required this.year,
@@ -43,11 +50,11 @@ class PeriodSelectorDialog {
     required StatisticPeriodType periodType,
     required PeriodSelection initialSelection,
     required ValueChanged<PeriodSelection> onPeriodChanged,
-    int? startYear, // 시작 년도 (기본값: null이면 현재 년도)
-    DateTime? startDate, // 시작 날짜 (기본값: null이면 제한 없음)
+    DateTime? startDate,
   }) {
-    final int effectiveStartYear = startYear ?? DateTime.now().year;
-    final int endYear = DateTime.now().year;
+    final DateTime now = DateTime.now();
+    final int startYear = startDate?.year ?? now.year;
+    final int endYear = now.year;
 
     final ValueNotifier<PeriodSelection> selectionNotifier =
         ValueNotifier<PeriodSelection>(initialSelection);
@@ -58,7 +65,7 @@ class PeriodSelectorDialog {
       content: _PeriodSelectorContent(
         periodType: periodType,
         initialSelection: initialSelection,
-        startYear: effectiveStartYear,
+        startYear: startYear,
         endYear: endYear,
         startDate: startDate,
         onSelectionChanged:
@@ -100,12 +107,7 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
   late int _selectedMonth;
   late int _selectedWeek;
 
-  late FixedExtentScrollController _weekScrollController;
-
   final DateTime _now = DateTime.now();
-  late int _currentYear;
-  late int _currentMonth;
-  late int _currentWeek;
 
   @override
   void initState() {
@@ -114,44 +116,8 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
     _selectedMonth = widget.initialSelection.month;
     _selectedWeek = widget.initialSelection.week;
 
-    _currentYear = _now.year;
-    _currentMonth = _now.month;
-    _currentWeek = _getCurrentWeekOfMonth();
-
-    // 초기값 조정
     _adjustMonthIfNeeded();
     _adjustWeekIfNeeded();
-
-    // 조정된 값으로 ScrollController 초기화
-    final int minWeek = _getMinWeekForYearMonth(_selectedYear, _selectedMonth);
-    final int maxWeek = _getMaxWeekForYearMonth(_selectedYear, _selectedMonth);
-    final int weekIndex = (_selectedWeek - minWeek).clamp(0, maxWeek - minWeek);
-
-    _weekScrollController = FixedExtentScrollController(initialItem: weekIndex);
-  }
-
-  // 현재 날짜의 주차 계산
-  int _getCurrentWeekOfMonth() {
-    final DateTime firstDayOfMonth = DateTime(_now.year, _now.month, 1);
-    final int firstWeekday = firstDayOfMonth.weekday;
-    final int currentDay = _now.day;
-
-    return ((currentDay + firstWeekday - 2) ~/ 7) + 1;
-  }
-
-  // 선택된 년월에 따른 최대 주차 계산
-  int _getMaxWeekForYearMonth(int year, int month) {
-    if (year == _currentYear && month == _currentMonth) {
-      return _currentWeek; // 현재 년월이면 현재 주차까지만
-    } else {
-      return _getWeeksInMonth(year, month); // 과거 년월이면 해당 월의 모든 주차
-    }
-  }
-
-  @override
-  void dispose() {
-    _weekScrollController.dispose();
-    super.dispose();
   }
 
   void _notifySelection() {
@@ -164,81 +130,154 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
     );
   }
 
-  void _updateWeekToFirst() {
-    final int minWeek = _getMinWeekForYearMonth(_selectedYear, _selectedMonth);
-    _selectedWeek = minWeek; // 첫 번째 가능한 주차로 설정
-    if (_weekScrollController.hasClients) {
-      _weekScrollController.animateTo(
-        0, // 첫 번째 항목으로 스크롤
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
-  // 주차 picker에서 사용할 실제 onSelectedItemChanged
-  void _onWeekChanged(int index) {
-    setState(() {
-      final int minWeek = _getMinWeekForYearMonth(
-        _selectedYear,
-        _selectedMonth,
-      );
-      _selectedWeek = minWeek + index;
-    });
-    _notifySelection();
-  }
-
   int get _yearCount => widget.endYear - widget.startYear + 1;
 
   int _getYearIndexFromYear(int year) => year - widget.startYear;
 
   int _getYearFromIndex(int index) => widget.startYear + index;
 
-  int _getMaxMonthForYear(int year) {
-    if (year == _currentYear) {
-      return _currentMonth;
-    } else {
-      return 12;
-    }
+  List<String> _generateYearItems() {
+    return List<String>.generate(_yearCount, (int index) {
+      final int year = _getYearFromIndex(index);
+      return '$year년';
+    });
   }
 
-  // 선택된 년도에 따른 최소 월 계산
-  int _getMinMonthForYear(int year) {
-    if (widget.startDate != null && year == widget.startDate!.year) {
-      return widget.startDate!.month; // 시작 날짜의 월부터
-    } else {
-      return 1; // 일반적으로는 1월부터
-    }
+  List<String> _generateMonthItems() {
+    final int minMonth = _DateRangeCalculator.getMinMonthForYear(
+      _selectedYear,
+      widget.startDate,
+    );
+    final int maxMonth = _DateRangeCalculator.getMaxMonthForYear(
+      _selectedYear,
+      _now,
+    );
+    return List<String>.generate(maxMonth - minMonth + 1, (int index) {
+      final int month = minMonth + index;
+      return '$month월';
+    });
   }
 
-  // 선택된 년월에 따른 최소 주차 계산
-  int _getMinWeekForYearMonth(int year, int month) {
-    if (widget.startDate != null &&
-        year == widget.startDate!.year &&
-        month == widget.startDate!.month) {
-      // 시작 날짜가 포함된 주차 계산
-      final DateTime firstDayOfMonth = DateTime(year, month, 1);
-      final int firstWeekday = firstDayOfMonth.weekday;
-      final int startDay = widget.startDate!.day;
+  List<String> _generateWeekItems() {
+    final int minWeek = _DateRangeCalculator.getMinWeekForYearMonth(
+      _selectedYear,
+      _selectedMonth,
+      widget.startDate,
+    );
+    final int maxWeek = _DateRangeCalculator.getMaxWeekForYearMonth(
+      _selectedYear,
+      _selectedMonth,
+      _now,
+    );
+    return List<String>.generate(maxWeek - minWeek + 1, (int index) {
+      final int week = minWeek + index;
+      return '$week주';
+    });
+  }
 
-      // 해당 날짜가 몇 번째 주인지 계산
-      final int weekOfMonth = ((startDay + firstWeekday - 2) ~/ 7) + 1;
-      return weekOfMonth;
-    } else {
-      return 1; // 일반적으로는 1주차부터
-    }
+  void _onWeekChanged(int index) {
+    setState(() {
+      final int minWeek = _DateRangeCalculator.getMinWeekForYearMonth(
+        _selectedYear,
+        _selectedMonth,
+        widget.startDate,
+      );
+      _selectedWeek = minWeek + index;
+    });
+    _notifySelection();
   }
 
   void _adjustMonthIfNeeded() {
-    final int maxMonth = _getMaxMonthForYear(_selectedYear);
-    final int minMonth = _getMinMonthForYear(_selectedYear);
+    final int maxMonth = _DateRangeCalculator.getMaxMonthForYear(
+      _selectedYear,
+      _now,
+    );
+    final int minMonth = _DateRangeCalculator.getMinMonthForYear(
+      _selectedYear,
+      widget.startDate,
+    );
     _selectedMonth = _selectedMonth.clamp(minMonth, maxMonth);
   }
 
   void _adjustWeekIfNeeded() {
-    final int maxWeek = _getMaxWeekForYearMonth(_selectedYear, _selectedMonth);
-    final int minWeek = _getMinWeekForYearMonth(_selectedYear, _selectedMonth);
+    final int maxWeek = _DateRangeCalculator.getMaxWeekForYearMonth(
+      _selectedYear,
+      _selectedMonth,
+      _now,
+    );
+    final int minWeek = _DateRangeCalculator.getMinWeekForYearMonth(
+      _selectedYear,
+      _selectedMonth,
+      widget.startDate,
+    );
     _selectedWeek = _selectedWeek.clamp(minWeek, maxWeek);
+  }
+
+  int _getSelectedMonthIndex() {
+    final int minMonth = _DateRangeCalculator.getMinMonthForYear(
+      _selectedYear,
+      widget.startDate,
+    );
+    return (_selectedMonth - minMonth).clamp(
+      0,
+      _generateMonthItems().length - 1,
+    );
+  }
+
+  int _getSelectedWeekIndex() {
+    final int minWeek = _DateRangeCalculator.getMinWeekForYearMonth(
+      _selectedYear,
+      _selectedMonth,
+      widget.startDate,
+    );
+    return (_selectedWeek - minWeek).clamp(0, _generateWeekItems().length - 1);
+  }
+
+  void _onYearChanged(int index) {
+    setState(() {
+      _selectedYear = _getYearFromIndex(index);
+      _adjustMonthIfNeeded();
+      _adjustWeekIfNeeded();
+    });
+    _notifySelection();
+  }
+
+  void _onMonthChanged(int index) {
+    setState(() {
+      final int minMonth = _DateRangeCalculator.getMinMonthForYear(
+        _selectedYear,
+        widget.startDate,
+      );
+      _selectedMonth = minMonth + index;
+      _adjustWeekIfNeeded();
+    });
+    _notifySelection();
+  }
+
+  void _onYearChangedForMonth(int index) {
+    setState(() {
+      _selectedYear = _getYearFromIndex(index);
+      _adjustMonthIfNeeded();
+    });
+    _notifySelection();
+  }
+
+  void _onMonthChangedForMonth(int index) {
+    setState(() {
+      final int minMonth = _DateRangeCalculator.getMinMonthForYear(
+        _selectedYear,
+        widget.startDate,
+      );
+      _selectedMonth = minMonth + index;
+    });
+    _notifySelection();
+  }
+
+  void _onYearChangedForYear(int index) {
+    setState(() {
+      _selectedYear = _getYearFromIndex(index);
+    });
+    _notifySelection();
   }
 
   @override
@@ -272,101 +311,26 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
           child: Row(
             children: <Widget>[
               Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 50,
-                  scrollController: FixedExtentScrollController(
-                    initialItem: _getYearIndexFromYear(_selectedYear),
-                  ),
-                  onSelectedItemChanged: (int index) {
-                    setState(() {
-                      _selectedYear = _getYearFromIndex(index);
-                      _adjustMonthIfNeeded();
-                      _adjustWeekIfNeeded(); // 주차도 조정
-                      _updateWeekToFirst();
-                    });
-                    _notifySelection();
-                  },
-                  children: List<Widget>.generate(_yearCount, (int index) {
-                    final int year = _getYearFromIndex(index);
-                    return Center(
-                      child: Text(
-                        '$year년',
-                        style: AppTextStyles.body1.readingMedium.copyWith(
-                          color: context.semanticColor.labelStrong,
-                        ),
-                      ),
-                    );
-                  }),
+                child: _CustomPicker(
+                  items: _generateYearItems(),
+                  selectedIndex: _getYearIndexFromYear(_selectedYear),
+                  onChanged: _onYearChanged,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 50,
-                  scrollController: FixedExtentScrollController(
-                    initialItem: (_selectedMonth -
-                            _getMinMonthForYear(_selectedYear))
-                        .clamp(
-                          0,
-                          _getMaxMonthForYear(_selectedYear) -
-                              _getMinMonthForYear(_selectedYear),
-                        ),
-                  ),
-                  onSelectedItemChanged: (int index) {
-                    setState(() {
-                      final int minMonth = _getMinMonthForYear(_selectedYear);
-                      _selectedMonth = minMonth + index;
-                      _adjustWeekIfNeeded(); // 월 변경 시 주차 조정
-                      _updateWeekToFirst();
-                    });
-                    _notifySelection();
-                  },
-                  children: List<Widget>.generate(
-                    _getMaxMonthForYear(_selectedYear) -
-                        _getMinMonthForYear(_selectedYear) +
-                        1,
-                    (int index) {
-                      final int month =
-                          _getMinMonthForYear(_selectedYear) + index;
-                      return Center(
-                        child: Text(
-                          '$month월',
-                          style: AppTextStyles.body1.readingMedium.copyWith(
-                            color: context.semanticColor.labelStrong,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                child: _CustomPicker(
+                  items: _generateMonthItems(),
+                  selectedIndex: _getSelectedMonthIndex(),
+                  onChanged: _onMonthChanged,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 50,
-                  scrollController: _weekScrollController,
-                  onSelectedItemChanged: _onWeekChanged,
-                  children: List<Widget>.generate(
-                    _getMaxWeekForYearMonth(_selectedYear, _selectedMonth) -
-                        _getMinWeekForYearMonth(_selectedYear, _selectedMonth) +
-                        1,
-                    (int index) {
-                      final int week =
-                          _getMinWeekForYearMonth(
-                            _selectedYear,
-                            _selectedMonth,
-                          ) +
-                          index;
-                      return Center(
-                        child: Text(
-                          '$week주',
-                          style: AppTextStyles.body1.readingMedium.copyWith(
-                            color: context.semanticColor.labelStrong,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                child: _CustomPicker(
+                  items: _generateWeekItems(),
+                  selectedIndex: _getSelectedWeekIndex(),
+                  onChanged: _onWeekChanged,
                 ),
               ),
             ],
@@ -385,68 +349,18 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
           child: Row(
             children: <Widget>[
               Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 50,
-                  scrollController: FixedExtentScrollController(
-                    initialItem: _getYearIndexFromYear(_selectedYear),
-                  ),
-                  onSelectedItemChanged: (int index) {
-                    setState(() {
-                      _selectedYear = _getYearFromIndex(index);
-                      _adjustMonthIfNeeded();
-                    });
-                    _notifySelection();
-                  },
-                  children: List<Widget>.generate(_yearCount, (int index) {
-                    final int year = _getYearFromIndex(index);
-                    return Center(
-                      child: Text(
-                        '$year년',
-                        style: AppTextStyles.body1.readingMedium.copyWith(
-                          color: context.semanticColor.labelStrong,
-                        ),
-                      ),
-                    );
-                  }),
+                child: _CustomPicker(
+                  items: _generateYearItems(),
+                  selectedIndex: _getYearIndexFromYear(_selectedYear),
+                  onChanged: _onYearChangedForMonth,
                 ),
               ),
               const SizedBox(width: 20),
               Expanded(
-                child: CupertinoPicker(
-                  itemExtent: 50,
-                  scrollController: FixedExtentScrollController(
-                    initialItem: (_selectedMonth -
-                            _getMinMonthForYear(_selectedYear))
-                        .clamp(
-                          0,
-                          _getMaxMonthForYear(_selectedYear) -
-                              _getMinMonthForYear(_selectedYear),
-                        ),
-                  ),
-                  onSelectedItemChanged: (int index) {
-                    setState(() {
-                      final int minMonth = _getMinMonthForYear(_selectedYear);
-                      _selectedMonth = minMonth + index;
-                    });
-                    _notifySelection();
-                  },
-                  children: List<Widget>.generate(
-                    _getMaxMonthForYear(_selectedYear) -
-                        _getMinMonthForYear(_selectedYear) +
-                        1,
-                    (int index) {
-                      final int month =
-                          _getMinMonthForYear(_selectedYear) + index;
-                      return Center(
-                        child: Text(
-                          '$month월',
-                          style: AppTextStyles.body1.readingMedium.copyWith(
-                            color: context.semanticColor.labelStrong,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                child: _CustomPicker(
+                  items: _generateMonthItems(),
+                  selectedIndex: _getSelectedMonthIndex(),
+                  onChanged: _onMonthChangedForMonth,
                 ),
               ),
             ],
@@ -462,42 +376,94 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
       children: <Widget>[
         SizedBox(
           height: 200,
-          child: CupertinoPicker(
-            itemExtent: 50,
-            scrollController: FixedExtentScrollController(
-              initialItem: _getYearIndexFromYear(_selectedYear),
-            ),
-            onSelectedItemChanged: (int index) {
-              setState(() {
-                _selectedYear = _getYearFromIndex(index);
-              });
-              _notifySelection();
-            },
-            children: List<Widget>.generate(_yearCount, (int index) {
-              final int year = _getYearFromIndex(index);
-              return Center(
-                child: Text(
-                  '$year년',
-                  style: AppTextStyles.body1.readingMedium.copyWith(
-                    color: context.semanticColor.labelStrong,
-                  ),
-                ),
-              );
-            }),
+          child: _CustomPicker(
+            items: _generateYearItems(),
+            selectedIndex: _getYearIndexFromYear(_selectedYear),
+            onChanged: _onYearChangedForYear,
           ),
         ),
       ],
     );
   }
+}
 
-  int _getWeeksInMonth(int year, int month) {
+class _DateRangeCalculator {
+  static int getWeekOfMonth(DateTime date) {
+    final DateTime firstDayOfMonth = DateTime(date.year, date.month, 1);
+    final int firstWeekday = firstDayOfMonth.weekday;
+    final int day = date.day;
+
+    return ((day + firstWeekday - 2) ~/ 7) + 1;
+  }
+
+  static int getWeeksInMonth(int year, int month) {
     final DateTime firstDay = DateTime(year, month, 1);
     final DateTime lastDay = DateTime(year, month + 1, 0);
     final int daysInMonth = lastDay.day;
-
     final int firstWeekday = firstDay.weekday;
-
     final int totalDays = daysInMonth + firstWeekday - 1;
     return (totalDays / 7).ceil();
+  }
+
+  static int getMinMonthForYear(int year, DateTime? startDate) {
+    if (startDate != null && year == startDate.year) {
+      return startDate.month;
+    }
+    return _PeriodSelectorConstants.firstMonth;
+  }
+
+  static int getMaxMonthForYear(int year, DateTime currentDate) {
+    if (year == currentDate.year) {
+      return currentDate.month;
+    }
+    return _PeriodSelectorConstants.lastMonth;
+  }
+
+  static int getMinWeekForYearMonth(int year, int month, DateTime? startDate) {
+    if (startDate != null &&
+        year == startDate.year &&
+        month == startDate.month) {
+      return getWeekOfMonth(startDate);
+    }
+    return _PeriodSelectorConstants.firstWeek;
+  }
+
+  static int getMaxWeekForYearMonth(int year, int month, DateTime currentDate) {
+    if (year == currentDate.year && month == currentDate.month) {
+      return getWeekOfMonth(currentDate);
+    }
+    return getWeeksInMonth(year, month);
+  }
+}
+
+class _CustomPicker extends StatelessWidget {
+  const _CustomPicker({
+    required this.items,
+    required this.selectedIndex,
+    required this.onChanged,
+  });
+
+  final List<String> items;
+  final int selectedIndex;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPicker(
+      itemExtent: _PeriodSelectorConstants.pickerItemExtent,
+      scrollController: FixedExtentScrollController(initialItem: selectedIndex),
+      onSelectedItemChanged: onChanged,
+      children:
+          items.asMap().entries.map((MapEntry<int, String> entry) {
+            return Center(
+              child: Text(
+                entry.value,
+                style: AppTextStyles.body1.readingMedium.copyWith(
+                  color: context.semanticColor.labelStrong,
+                ),
+              ),
+            );
+          }).toList(),
+    );
   }
 }
