@@ -43,7 +43,11 @@ class PeriodSelectorDialog {
     required StatisticPeriodType periodType,
     required PeriodSelection initialSelection,
     required ValueChanged<PeriodSelection> onPeriodChanged,
+    int? startYear, // 시작 년도 (기본값: null이면 현재 년도)
   }) {
+    final int effectiveStartYear = startYear ?? DateTime.now().year;
+    final int endYear = DateTime.now().year;
+
     final ValueNotifier<PeriodSelection> selectionNotifier =
         ValueNotifier<PeriodSelection>(initialSelection);
 
@@ -53,6 +57,8 @@ class PeriodSelectorDialog {
       content: _PeriodSelectorContent(
         periodType: periodType,
         initialSelection: initialSelection,
+        startYear: effectiveStartYear,
+        endYear: endYear,
         onSelectionChanged:
             (PeriodSelection selection) => selectionNotifier.value = selection,
       ),
@@ -70,11 +76,15 @@ class _PeriodSelectorContent extends StatefulWidget {
   const _PeriodSelectorContent({
     required this.periodType,
     required this.initialSelection,
+    required this.startYear,
+    required this.endYear,
     required this.onSelectionChanged,
   });
 
   final StatisticPeriodType periodType;
   final PeriodSelection initialSelection;
+  final int startYear;
+  final int endYear;
   final ValueChanged<PeriodSelection> onSelectionChanged;
 
   @override
@@ -86,7 +96,6 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
   late int _selectedMonth;
   late int _selectedWeek;
 
-  // ScrollController를 멤버 변수로 선언
   late FixedExtentScrollController _weekScrollController;
 
   @override
@@ -96,7 +105,6 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
     _selectedMonth = widget.initialSelection.month;
     _selectedWeek = widget.initialSelection.week;
 
-    // 주차 ScrollController 초기화
     _weekScrollController = FixedExtentScrollController(
       initialItem: _selectedWeek - 1,
     );
@@ -128,6 +136,12 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
       );
     }
   }
+
+  int get _yearCount => widget.endYear - widget.startYear + 1;
+
+  int _getYearIndexFromYear(int year) => year - widget.startYear;
+
+  int _getYearFromIndex(int index) => widget.startYear + index;
 
   @override
   Widget build(BuildContext context) {
@@ -163,17 +177,17 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
                 child: CupertinoPicker(
                   itemExtent: 50,
                   scrollController: FixedExtentScrollController(
-                    initialItem: _selectedYear - 2020,
+                    initialItem: _getYearIndexFromYear(_selectedYear),
                   ),
                   onSelectedItemChanged: (int index) {
                     setState(() {
-                      _selectedYear = 2020 + index;
+                      _selectedYear = _getYearFromIndex(index);
                       _updateWeekToFirst();
                     });
                     _notifySelection();
                   },
-                  children: List<Widget>.generate(10, (int index) {
-                    final int year = 2020 + index;
+                  children: List<Widget>.generate(_yearCount, (int index) {
+                    final int year = _getYearFromIndex(index);
                     return Center(
                       child: Text(
                         '$year년',
@@ -186,7 +200,6 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
                 ),
               ),
               const SizedBox(width: 12),
-              // 월 선택
               Expanded(
                 child: CupertinoPicker(
                   itemExtent: 50,
@@ -196,7 +209,7 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
                   onSelectedItemChanged: (int index) {
                     setState(() {
                       _selectedMonth = index + 1;
-                      _updateWeekToFirst(); // 월 변경 시 주차 초기화 및 스크롤
+                      _updateWeekToFirst();
                     });
                     _notifySelection();
                   },
@@ -214,7 +227,6 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
                 ),
               ),
               const SizedBox(width: 12),
-              // 주차 선택
               Expanded(
                 child: CupertinoPicker(
                   itemExtent: 50,
@@ -256,21 +268,20 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
           height: 200,
           child: Row(
             children: <Widget>[
-              // 년도 선택
               Expanded(
                 child: CupertinoPicker(
                   itemExtent: 50,
                   scrollController: FixedExtentScrollController(
-                    initialItem: _selectedYear - 2020,
+                    initialItem: _getYearIndexFromYear(_selectedYear),
                   ),
                   onSelectedItemChanged: (int index) {
                     setState(() {
-                      _selectedYear = 2020 + index;
+                      _selectedYear = _getYearFromIndex(index);
                     });
                     _notifySelection();
                   },
-                  children: List<Widget>.generate(10, (int index) {
-                    final int year = 2020 + index;
+                  children: List<Widget>.generate(_yearCount, (int index) {
+                    final int year = _getYearFromIndex(index);
                     return Center(
                       child: Text(
                         '$year년',
@@ -283,7 +294,6 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
                 ),
               ),
               const SizedBox(width: 20),
-              // 월 선택
               Expanded(
                 child: CupertinoPicker(
                   itemExtent: 50,
@@ -325,28 +335,25 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
           child: CupertinoPicker(
             itemExtent: 50,
             scrollController: FixedExtentScrollController(
-              initialItem: _selectedYear - 2020, // 2020년부터 시작
+              initialItem: _getYearIndexFromYear(_selectedYear),
             ),
             onSelectedItemChanged: (int index) {
               setState(() {
-                _selectedYear = 2020 + index;
+                _selectedYear = _getYearFromIndex(index);
               });
               _notifySelection();
             },
-            children: List<Widget>.generate(
-              10, // 2020년부터 2029년까지
-              (int index) {
-                final int year = 2020 + index;
-                return Center(
-                  child: Text(
-                    '$year년',
-                    style: AppTextStyles.body1.readingMedium.copyWith(
-                      color: context.semanticColor.labelStrong,
-                    ),
+            children: List<Widget>.generate(_yearCount, (int index) {
+              final int year = _getYearFromIndex(index);
+              return Center(
+                child: Text(
+                  '$year년',
+                  style: AppTextStyles.body1.readingMedium.copyWith(
+                    color: context.semanticColor.labelStrong,
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            }),
           ),
         ),
       ],
