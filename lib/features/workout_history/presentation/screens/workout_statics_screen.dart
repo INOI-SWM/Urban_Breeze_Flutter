@@ -5,6 +5,7 @@ import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/info/info_item.dart';
 import 'package:ridingmate/shared/design_system/widgets/segmented_control/segmented_control.dart';
+import 'package:ridingmate/shared/utils/period_utils.dart';
 import 'package:ridingmate/shared/utils/workout_formatter.dart';
 
 import '../../application/use_cases/get_workout_statistics_use_case.dart';
@@ -46,16 +47,8 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
   PeriodSelection _periodSelection = PeriodSelection(
     year: DateTime.now().year,
     month: DateTime.now().month,
-    week: _getCurrentWeekOfMonth(),
+    week: PeriodUtils.getWeekOfMonth(DateTime.now()),
   );
-
-  static int _getCurrentWeekOfMonth() {
-    final DateTime now = DateTime.now();
-    final DateTime firstDayOfMonth = DateTime(now.year, now.month, 1);
-    final int firstWeekday = firstDayOfMonth.weekday;
-    final int day = now.day;
-    return ((day + firstWeekday - 2) ~/ 7) + 1;
-  }
 
   static const List<StatisticPeriodType> _periodTabs = <StatisticPeriodType>[
     StatisticPeriodType.week,
@@ -503,39 +496,11 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
         (interval * _UIConstants.topPaddingRatio);
   }
 
-  DateTime _getStartOfWeek(int year, int month, int week) {
-    final DateTime firstDayOfMonth = DateTime(year, month, 1);
-    final int firstWeekday = firstDayOfMonth.weekday;
-    final int daysToAdd = (week - 1) * 7 - (firstWeekday - 1);
-    return firstDayOfMonth.add(Duration(days: daysToAdd));
-  }
-
-  DateTime _getEndOfWeek(int year, int month, int week) {
-    final DateTime startOfWeek = _getStartOfWeek(year, month, week);
-    return startOfWeek.add(const Duration(days: 6));
-  }
-
-  String _formatWeekRange(int year, int month, int week) {
-    final DateTime startDate = _getStartOfWeek(year, month, week);
-    final DateTime endDate = _getEndOfWeek(year, month, week);
-
-    final int startMonth = startDate.month;
-    final int startDay = startDate.day;
-    final int endMonth = endDate.month;
-    final int endDay = endDate.day;
-
-    if (startMonth == endMonth) {
-      return '($startMonth/$startDay - $endMonth/$endDay)';
-    } else {
-      return '($startMonth/$startDay - $endMonth/$endDay)';
-    }
-  }
-
   //TODO : api 연동 후 변경 필요
   String _getPeriodDisplayText() {
     switch (_selectedPeriodType) {
       case StatisticPeriodType.week:
-        final String weekRange = _formatWeekRange(
+        final String weekRange = PeriodUtils.formatWeekRange(
           _periodSelection.year,
           _periodSelection.month,
           _periodSelection.week,

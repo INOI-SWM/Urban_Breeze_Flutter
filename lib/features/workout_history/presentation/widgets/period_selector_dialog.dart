@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/modal/modal_show.dart';
+import 'package:ridingmate/shared/utils/period_utils.dart';
 
 import '../../domain/enums/statistic_enums.dart';
 
@@ -373,23 +374,6 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
 }
 
 class _DateRangeCalculator {
-  static int getWeekOfMonth(DateTime date) {
-    final DateTime firstDayOfMonth = DateTime(date.year, date.month, 1);
-    final int firstWeekday = firstDayOfMonth.weekday;
-    final int day = date.day;
-
-    return ((day + firstWeekday - 2) ~/ 7) + 1;
-  }
-
-  static int getWeeksInMonth(int year, int month) {
-    final DateTime firstDay = DateTime(year, month, 1);
-    final DateTime lastDay = DateTime(year, month + 1, 0);
-    final int daysInMonth = lastDay.day;
-    final int firstWeekday = firstDay.weekday;
-    final int totalDays = daysInMonth + firstWeekday - 1;
-    return (totalDays / 7).ceil();
-  }
-
   static int getMinMonthForYear(int year, DateTime? startDate) {
     if (startDate != null && year == startDate.year) {
       return startDate.month;
@@ -408,16 +392,16 @@ class _DateRangeCalculator {
     if (startDate != null &&
         year == startDate.year &&
         month == startDate.month) {
-      return getWeekOfMonth(startDate);
+      return PeriodUtils.getWeekOfMonth(startDate);
     }
     return _PeriodSelectorConstants.firstWeek;
   }
 
   static int getMaxWeekForYearMonth(int year, int month, DateTime currentDate) {
     if (year == currentDate.year && month == currentDate.month) {
-      return getWeekOfMonth(currentDate);
+      return PeriodUtils.getWeekOfMonth(currentDate);
     }
-    return getWeeksInMonth(year, month);
+    return PeriodUtils.getWeeksInMonth(year, month);
   }
 }
 
