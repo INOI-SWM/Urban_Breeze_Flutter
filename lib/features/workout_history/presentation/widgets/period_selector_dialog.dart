@@ -10,6 +10,7 @@ class _PeriodSelectorConstants {
   static const double pickerHeight = 200.0;
   static const double pickerSpacing = 4.0;
   static const double pickerSpacingLarge = 12.0;
+  static const double contentPadding = 16.0;
   static const int firstMonth = 1;
   static const int lastMonth = 12;
   static const int firstWeek = 1;
@@ -133,17 +134,30 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
     );
   }
 
-  int get _yearCount => widget.endYear - widget.startYear + 1;
-
   int _getYearIndexFromYear(int year) => year - widget.startYear;
 
   int _getYearFromIndex(int index) => widget.startYear + index;
 
-  List<String> _generateYearItems() {
-    return List<String>.generate(_yearCount, (int index) {
-      final int year = _getYearFromIndex(index);
-      return '$year년';
+  int _calculateSelectedIndex(int selectedValue, int minValue, int maxValue) {
+    return (selectedValue - minValue).clamp(0, maxValue - minValue);
+  }
+
+  List<String> _generateItems(
+    int minValue,
+    int maxValue,
+    String Function(int) formatter,
+  ) {
+    return List<String>.generate(maxValue - minValue + 1, (int index) {
+      return formatter(minValue + index);
     });
+  }
+
+  List<String> _generateYearItems() {
+    return _generateItems(
+      widget.startYear,
+      widget.endYear,
+      _PeriodTextFormatter.formatYear,
+    );
   }
 
   List<String> _generateMonthItems() {
@@ -155,10 +169,7 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
       _selectedYear,
       _now,
     );
-    return List<String>.generate(maxMonth - minMonth + 1, (int index) {
-      final int month = minMonth + index;
-      return '$month월';
-    });
+    return _generateItems(minMonth, maxMonth, _PeriodTextFormatter.formatMonth);
   }
 
   List<String> _generateWeekItems() {
@@ -172,10 +183,7 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
       _selectedMonth,
       _now,
     );
-    return List<String>.generate(maxWeek - minWeek + 1, (int index) {
-      final int week = minWeek + index;
-      return '$week주';
-    });
+    return _generateItems(minWeek, maxWeek, _PeriodTextFormatter.formatWeek);
   }
 
   void _onWeekChanged(int index) {
@@ -191,27 +199,27 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
   }
 
   void _adjustMonthIfNeeded() {
-    final int maxMonth = _DateRangeCalculator.getMaxMonthForYear(
-      _selectedYear,
-      _now,
-    );
     final int minMonth = _DateRangeCalculator.getMinMonthForYear(
       _selectedYear,
       widget.startDate,
+    );
+    final int maxMonth = _DateRangeCalculator.getMaxMonthForYear(
+      _selectedYear,
+      _now,
     );
     _selectedMonth = _selectedMonth.clamp(minMonth, maxMonth);
   }
 
   void _adjustWeekIfNeeded() {
-    final int maxWeek = _DateRangeCalculator.getMaxWeekForYearMonth(
-      _selectedYear,
-      _selectedMonth,
-      _now,
-    );
     final int minWeek = _DateRangeCalculator.getMinWeekForYearMonth(
       _selectedYear,
       _selectedMonth,
       widget.startDate,
+    );
+    final int maxWeek = _DateRangeCalculator.getMaxWeekForYearMonth(
+      _selectedYear,
+      _selectedMonth,
+      _now,
     );
     _selectedWeek = _selectedWeek.clamp(minWeek, maxWeek);
   }
@@ -221,10 +229,11 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
       _selectedYear,
       widget.startDate,
     );
-    return (_selectedMonth - minMonth).clamp(
-      0,
-      _generateMonthItems().length - 1,
+    final int maxMonth = _DateRangeCalculator.getMaxMonthForYear(
+      _selectedYear,
+      _now,
     );
+    return _calculateSelectedIndex(_selectedMonth, minMonth, maxMonth);
   }
 
   int _getSelectedWeekIndex() {
@@ -233,7 +242,12 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
       _selectedMonth,
       widget.startDate,
     );
-    return (_selectedWeek - minWeek).clamp(0, _generateWeekItems().length - 1);
+    final int maxWeek = _DateRangeCalculator.getMaxWeekForYearMonth(
+      _selectedYear,
+      _selectedMonth,
+      _now,
+    );
+    return _calculateSelectedIndex(_selectedWeek, minWeek, maxWeek);
   }
 
   void _onYearChanged(
@@ -264,7 +278,7 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(_PeriodSelectorConstants.contentPadding),
       child: _buildPeriodSelectorContent(),
     );
   }
@@ -405,6 +419,12 @@ class _DateRangeCalculator {
     }
     return getWeeksInMonth(year, month);
   }
+}
+
+class _PeriodTextFormatter {
+  static String formatYear(int year) => '$year년';
+  static String formatMonth(int month) => '$month월';
+  static String formatWeek(int week) => '$week주';
 }
 
 class _CustomPicker extends StatelessWidget {
