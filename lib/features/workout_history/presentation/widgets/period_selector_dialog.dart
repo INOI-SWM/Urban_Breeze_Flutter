@@ -8,8 +8,8 @@ import '../../domain/enums/statistic_enums.dart';
 class _PeriodSelectorConstants {
   static const double pickerItemExtent = 50.0;
   static const double pickerHeight = 200.0;
-  static const double pickerSpacing = 12.0;
-  static const double pickerSpacingLarge = 20.0;
+  static const double pickerSpacing = 4.0;
+  static const double pickerSpacingLarge = 12.0;
   static const int firstMonth = 1;
   static const int lastMonth = 12;
   static const int firstWeek = 1;
