@@ -98,12 +98,19 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
 
   late FixedExtentScrollController _weekScrollController;
 
+  final DateTime _now = DateTime.now();
+  late int _currentYear;
+  late int _currentMonth;
+
   @override
   void initState() {
     super.initState();
     _selectedYear = widget.initialSelection.year;
     _selectedMonth = widget.initialSelection.month;
     _selectedWeek = widget.initialSelection.week;
+
+    _currentYear = _now.year;
+    _currentMonth = _now.month;
 
     _weekScrollController = FixedExtentScrollController(
       initialItem: _selectedWeek - 1,
@@ -142,6 +149,21 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
   int _getYearIndexFromYear(int year) => year - widget.startYear;
 
   int _getYearFromIndex(int index) => widget.startYear + index;
+
+  int _getMaxMonthForYear(int year) {
+    if (year == _currentYear) {
+      return _currentMonth;
+    } else {
+      return 12;
+    }
+  }
+
+  void _adjustMonthIfNeeded() {
+    final int maxMonth = _getMaxMonthForYear(_selectedYear);
+    if (_selectedMonth > maxMonth) {
+      _selectedMonth = maxMonth;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -182,6 +204,7 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
                   onSelectedItemChanged: (int index) {
                     setState(() {
                       _selectedYear = _getYearFromIndex(index);
+                      _adjustMonthIfNeeded();
                       _updateWeekToFirst();
                     });
                     _notifySelection();
@@ -204,7 +227,10 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
                 child: CupertinoPicker(
                   itemExtent: 50,
                   scrollController: FixedExtentScrollController(
-                    initialItem: _selectedMonth - 1,
+                    initialItem: (_selectedMonth - 1).clamp(
+                      0,
+                      _getMaxMonthForYear(_selectedYear) - 1,
+                    ),
                   ),
                   onSelectedItemChanged: (int index) {
                     setState(() {
@@ -213,17 +239,20 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
                     });
                     _notifySelection();
                   },
-                  children: List<Widget>.generate(12, (int index) {
-                    final int month = index + 1;
-                    return Center(
-                      child: Text(
-                        '$month월',
-                        style: AppTextStyles.body1.readingMedium.copyWith(
-                          color: context.semanticColor.labelStrong,
+                  children: List<Widget>.generate(
+                    _getMaxMonthForYear(_selectedYear),
+                    (int index) {
+                      final int month = index + 1;
+                      return Center(
+                        child: Text(
+                          '$month월',
+                          style: AppTextStyles.body1.readingMedium.copyWith(
+                            color: context.semanticColor.labelStrong,
+                          ),
                         ),
-                      ),
-                    );
-                  }),
+                      );
+                    },
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
@@ -277,6 +306,7 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
                   onSelectedItemChanged: (int index) {
                     setState(() {
                       _selectedYear = _getYearFromIndex(index);
+                      _adjustMonthIfNeeded();
                     });
                     _notifySelection();
                   },
@@ -298,7 +328,10 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
                 child: CupertinoPicker(
                   itemExtent: 50,
                   scrollController: FixedExtentScrollController(
-                    initialItem: _selectedMonth - 1,
+                    initialItem: (_selectedMonth - 1).clamp(
+                      0,
+                      _getMaxMonthForYear(_selectedYear) - 1,
+                    ),
                   ),
                   onSelectedItemChanged: (int index) {
                     setState(() {
@@ -306,17 +339,20 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
                     });
                     _notifySelection();
                   },
-                  children: List<Widget>.generate(12, (int index) {
-                    final int month = index + 1;
-                    return Center(
-                      child: Text(
-                        '$month월',
-                        style: AppTextStyles.body1.readingMedium.copyWith(
-                          color: context.semanticColor.labelStrong,
+                  children: List<Widget>.generate(
+                    _getMaxMonthForYear(_selectedYear),
+                    (int index) {
+                      final int month = index + 1;
+                      return Center(
+                        child: Text(
+                          '$month월',
+                          style: AppTextStyles.body1.readingMedium.copyWith(
+                            color: context.semanticColor.labelStrong,
+                          ),
                         ),
-                      ),
-                    );
-                  }),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
