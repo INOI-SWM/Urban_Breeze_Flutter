@@ -4,9 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_segment_api_request_model.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_segment_api_response_model.dart';
-import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
 import 'package:ridingmate/shared/api/data/models/api_response_model.dart';
+import 'package:ridingmate/shared/domain/exceptions/base_domain_exception.dart';
 
 class RouteSegmentRemoteDatasource extends BaseRemoteDataSource {
   RouteSegmentRemoteDatasource({super.client});
@@ -43,17 +43,19 @@ class RouteSegmentRemoteDatasource extends BaseRemoteDataSource {
             );
         return apiResp.data;
       }
-      throw RouteServerException('서버 오류 ($statusCode) ${jsonMap['message']}');
+      throw ServerException(
+        '서버 오류 (${response.statusCode}) ${jsonMap['message']}',
+      );
     } on SocketException {
-      throw const RouteNetworkException('인터넷 연결을 확인해주세요');
+      throw const NetworkException('인터넷 연결을 확인해주세요');
     } on FormatException {
-      throw const RouteParsingException('서버 응답 데이터 형식이 잘못되었습니다');
-    } on RouteServerException {
+      throw const ParsingException('서버 응답 데이터 형식이 잘못되었습니다');
+    } on ServerException {
       rethrow;
-    } on RouteParsingException {
+    } on ParsingException {
       rethrow;
     } catch (e) {
-      throw RouteNetworkException('네트워크 오류: ${e.toString()}');
+      throw NetworkException('네트워크 오류: ${e.toString()}');
     }
   }
 }
