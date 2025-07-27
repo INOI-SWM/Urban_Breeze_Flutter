@@ -33,9 +33,13 @@ class RouteSegmentRemoteDataSource extends BaseRemoteDataSource {
             );
         return apiResp.data;
       }
-      throw ServerException(
-        '서버 오류 (${response.statusCode}) ${jsonMap['message']}',
-      );
+
+      final String errorMessage =
+          jsonMap['message'] as String? ??
+          jsonMap['error'] as String? ??
+          '서버 오류가 발생했습니다';
+
+      throw ServerException('서버 오류 (${response.statusCode}): $errorMessage');
     } on ServerException {
       rethrow;
     }

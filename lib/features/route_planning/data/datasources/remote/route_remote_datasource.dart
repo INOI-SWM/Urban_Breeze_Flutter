@@ -31,7 +31,14 @@ class RouteRemoteDataSource extends BaseRemoteDataSource {
         return apiResp.data;
       }
 
-      throw RouteSaveException('서버 오류 (${response.statusCode})');
+      // 서버에서 전달된 구체적인 에러 메시지 추출
+      final String errorMessage =
+          jsonMap['message'] as String? ??
+          jsonMap['error'] as String? ??
+          jsonMap['errorMessage'] as String? ??
+          '경로 저장에 실패했습니다';
+
+      throw RouteSaveException('서버 오류 (${response.statusCode}): $errorMessage');
     } on RouteSaveException {
       rethrow;
     }
