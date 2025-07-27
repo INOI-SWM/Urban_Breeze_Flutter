@@ -1,8 +1,8 @@
+import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
 import 'package:ridingmate/features/place_search/domain/exceptions/place_search_domain_exceptions.dart';
 import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 import 'package:ridingmate/features/workout_history/domain/exceptions/apple_health_kit_exceptions.dart';
 import 'package:ridingmate/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
-import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
 
 class ErrorMessageMapper {
   static String getErrorMessage(BaseDomainException exception) {
@@ -16,27 +16,27 @@ class ErrorMessageMapper {
   static String? _getFeatureSpecificMessage(BaseDomainException exception) {
     switch (exception.runtimeType) {
       // Place Search 특화 Exception
-      case EmptyQueryException _:
+      case EmptyQueryException():
         return '검색어를 입력해주세요';
-      case NoResultsException _:
+      case NoResultsException():
         return '검색 결과가 없습니다. 다른 키워드로 검색해보세요';
 
       // Route Planning 특화 Exception
-      case InvalidBboxException _:
+      case InvalidBboxException():
         return '경로 정보가 올바르지 않습니다. 다시 시도해주세요';
-      case RouteSaveException _:
+      case RouteSaveException():
         return '경로 저장에 실패했습니다. 다시 시도해주세요';
 
       // Workout History 특화 Exception
-      case WorkoutTitleUpdateException _:
+      case WorkoutTitleUpdateException():
         return '운동 기록 제목 수정에 실패했습니다';
 
       // Apple HealthKit 특화 Exception
-      case HealthKitPermissionException _:
+      case HealthKitPermissionException():
         return 'Apple Health 권한이 필요합니다. 설정에서 권한을 허용해주세요';
-      case HealthKitDataException _:
+      case HealthKitDataException():
         return 'Apple Health 데이터를 가져올 수 없습니다';
-      case HealthKitWorkoutNotFoundException _:
+      case HealthKitWorkoutNotFoundException():
         return '해당 운동 기록을 찾을 수 없습니다';
 
       default:
@@ -46,13 +46,13 @@ class ErrorMessageMapper {
 
   static String _getCommonMessage(BaseDomainException exception) {
     switch (exception.runtimeType) {
-      case NetworkException _:
+      case NetworkException():
         return '인터넷 연결을 확인해주세요';
-      case ServerException _:
+      case ServerException():
         return '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요';
-      case ParsingException _:
+      case ParsingException():
         return '데이터 처리 중 오류가 발생했습니다';
-      case ValidationException _:
+      case ValidationException():
         return exception.message; // ValidationException은 사용자용 메시지 그대로 사용
       default:
         return exception.message.isNotEmpty
