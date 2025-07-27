@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/features/my_route/application/services/my_route_service.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
-import 'package:ridingmate/shared/design_system/widgets/card/card_normal.dart';
+import 'package:ridingmate/shared/design_system/widgets/card/route_card.dart';
 import 'package:ridingmate/shared/design_system/widgets/category/category_filter.dart';
 
 class MyRouteScreen extends StatefulWidget {
@@ -90,14 +90,18 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
                         final Map<String, dynamic> route = routeList[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 16),
-                          child: CardNormal(
+                          child: RouteCard(
                             thumbnailPath: route['thumbnailPath'],
                             sourceType: route['sourceType'],
-                            badgeText: route['badgeText'],
-                            title: route['title'],
-                            createDate: route['createDate'],
+                            userProfileImage: route['userProfileImage'],
+                            userName: route['userName'],
+                            routeTitle: route['title'],
+                            date: route['createDate'],
                             distance: route['distance'],
                             elevation: route['elevation'],
+                            onTap: () {
+                              // TODO: 경로 상세 화면으로 이동
+                            },
                           ),
                         );
                       },

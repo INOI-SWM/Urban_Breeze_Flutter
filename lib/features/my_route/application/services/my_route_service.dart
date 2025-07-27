@@ -21,7 +21,7 @@ class RouteListService {
     final List<Map<String, dynamic>> allRoutes = <Map<String, dynamic>>[
       <String, dynamic>{
         'id': '1',
-        'thumbnailPath': 'assets/images/png/thumbnail_r21_9.png',
+        'thumbnailPath': 'assets/images/png/thumbnail_r3_2.png',
         'sourceType': ThumbnailSourceType.asset,
         'badgeText': '사용자1',
         'title': '한강 라이딩 코스',
@@ -29,10 +29,12 @@ class RouteListService {
         'distance': '15.2km',
         'elevation': '50m',
         'creatorId': 'user1',
+        'userName': '라이더김',
+        'userProfileImage': 'https://via.placeholder.com/24',
       },
       <String, dynamic>{
         'id': '2',
-        'thumbnailPath': 'assets/images/png/thumbnail_r21_9.png',
+        'thumbnailPath': 'assets/images/png/thumbnail_r3_2.png',
         'sourceType': ThumbnailSourceType.asset,
         'badgeText': '사용자1',
         'title': '남산 힐클라이밍',
@@ -40,10 +42,12 @@ class RouteListService {
         'distance': '8.5km',
         'elevation': '200m',
         'creatorId': 'user1',
+        'userName': '라이더김',
+        'userProfileImage': 'https://via.placeholder.com/24',
       },
       <String, dynamic>{
         'id': '3',
-        'thumbnailPath': 'assets/images/png/thumbnail_r21_9.png',
+        'thumbnailPath': 'assets/images/png/thumbnail_r3_2.png',
         'sourceType': ThumbnailSourceType.asset,
         'badgeText': '사용자2',
         'title': '올림픽공원 순환코스',
@@ -51,10 +55,12 @@ class RouteListService {
         'distance': '12.0km',
         'elevation': '30m',
         'creatorId': 'user2',
+        'userName': '노종빈',
+        'userProfileImage': 'https://via.placeholder.com/24',
       },
       <String, dynamic>{
         'id': '4',
-        'thumbnailPath': 'assets/images/png/thumbnail_r21_9.png',
+        'thumbnailPath': 'assets/images/png/thumbnail_r3_2.png',
         'sourceType': ThumbnailSourceType.asset,
         'badgeText': '사용자3',
         'title': '청계천 야간 라이딩',
@@ -62,10 +68,12 @@ class RouteListService {
         'distance': '7.8km',
         'elevation': '20m',
         'creatorId': 'user3',
+        'userName': '야간라이더',
+        'userProfileImage': 'https://via.placeholder.com/24',
       },
       <String, dynamic>{
         'id': '5',
-        'thumbnailPath': 'assets/images/png/thumbnail_r21_9.png',
+        'thumbnailPath': 'assets/images/png/thumbnail_r3_2.png',
         'sourceType': ThumbnailSourceType.asset,
         'badgeText': '사용자4',
         'title': '불광천 주간 라이딩',
@@ -73,6 +81,8 @@ class RouteListService {
         'distance': '10.5km',
         'elevation': '10m',
         'creatorId': 'user4',
+        'userName': '불광천러버',
+        'userProfileImage': 'https://via.placeholder.com/24',
       },
     ];
 
