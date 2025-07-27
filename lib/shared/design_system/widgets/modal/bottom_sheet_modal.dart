@@ -41,9 +41,7 @@ class BottomSheetModal extends StatelessWidget {
           // 구분선
           Container(height: 1, color: colors.lineNormalAlternative),
           // 내용 영역
-          Flexible(
-            child: Padding(padding: const EdgeInsets.all(20), child: content),
-          ),
+          Padding(padding: const EdgeInsets.all(20), child: content),
         ],
       ),
     );
@@ -105,17 +103,26 @@ class BottomSheetShow {
   }) {
     return showModalBottomSheet<T>(
       context: context,
+      isScrollControlled: true,
       isDismissible: isDismissible,
       enableDrag: enableDrag,
-      backgroundColor: Colors.transparent,
+      backgroundColor: context.semanticColor.backgroundNormalNormal,
       builder: (BuildContext context) {
-        return BottomSheetModal(
-          title: title,
-          content: content,
-          showCloseButton: showCloseButton,
-          onClose: onClose,
-          isDismissible: isDismissible,
-          enableDrag: enableDrag,
+        return Container(
+          color: Colors.transparent,
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).padding.bottom,
+          ),
+          child: IntrinsicHeight(
+            child: BottomSheetModal(
+              title: title,
+              content: content,
+              showCloseButton: showCloseButton,
+              onClose: onClose,
+              isDismissible: isDismissible,
+              enableDrag: enableDrag,
+            ),
+          ),
         );
       },
     );
