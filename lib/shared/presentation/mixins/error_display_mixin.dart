@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/shared/core/result/app_result.dart';
-import 'package:ridingmate/shared/domain/exceptions/base_domain_exception.dart';
+import 'package:ridingmate/core/result/app_result.dart';
+import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
 import 'package:ridingmate/shared/presentation/utils/error_message_mapper.dart';
 
 mixin ErrorDisplayMixin {

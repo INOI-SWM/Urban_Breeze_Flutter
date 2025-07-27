@@ -6,7 +6,7 @@ import 'package:ridingmate/features/route_planning/data/models/route_segment_api
 import 'package:ridingmate/features/route_planning/data/models/route_segment_api_response_model.dart';
 import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
 import 'package:ridingmate/shared/api/data/models/api_response_model.dart';
-import 'package:ridingmate/shared/domain/exceptions/base_domain_exception.dart';
+import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
 
 class RouteSegmentRemoteDatasource extends BaseRemoteDataSource {
   RouteSegmentRemoteDatasource({super.client});

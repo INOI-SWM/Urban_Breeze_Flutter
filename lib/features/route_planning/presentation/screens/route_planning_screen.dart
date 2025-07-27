@@ -13,7 +13,7 @@ import 'package:ridingmate/features/route_planning/domain/entities/route_segment
 import 'package:ridingmate/features/route_planning/presentation/screens/route_create_complete_screen.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
-import 'package:ridingmate/shared/core/result/app_result.dart';
+import 'package:ridingmate/core/result/app_result.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/marker/route_pin_marker.dart';

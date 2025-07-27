@@ -2,7 +2,7 @@ import 'package:ridingmate/features/place_search/domain/exceptions/place_search_
 import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 import 'package:ridingmate/features/workout_history/domain/exceptions/apple_health_kit_exceptions.dart';
 import 'package:ridingmate/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
-import 'package:ridingmate/shared/domain/exceptions/base_domain_exception.dart';
+import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
 
 class ErrorMessageMapper {
   static String getErrorMessage(BaseDomainException exception) {

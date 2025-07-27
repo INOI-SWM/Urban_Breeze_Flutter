@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:ridingmate/shared/domain/exceptions/base_domain_exception.dart';
+import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
 
 import '../../../../shared/api/data/models/api_response_model.dart';
 import '../models/place_search_response_model.dart';

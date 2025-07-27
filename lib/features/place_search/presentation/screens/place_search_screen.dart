@@ -10,7 +10,7 @@ import 'package:ridingmate/features/place_search/domain/entities/place.dart';
 import 'package:ridingmate/features/place_search/domain/entities/search_result.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/get_current_location_use_case.dart';
 import 'package:ridingmate/features/route_planning/di/route_providers.dart';
-import 'package:ridingmate/shared/core/result/app_result.dart';
+import 'package:ridingmate/core/result/app_result.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/search_app_bar.dart';
 import 'package:ridingmate/shared/presentation/mixins/error_display_mixin.dart';

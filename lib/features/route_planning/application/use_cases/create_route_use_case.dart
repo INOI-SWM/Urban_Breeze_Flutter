@@ -1,8 +1,8 @@
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
 import 'package:ridingmate/features/route_planning/domain/repositories/route_segment_repository.dart';
-import 'package:ridingmate/shared/core/result/app_result.dart';
-import 'package:ridingmate/shared/domain/exceptions/base_domain_exception.dart';
+import 'package:ridingmate/core/result/app_result.dart';
+import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
 
 class CreateRouteUseCase {
   CreateRouteUseCase({required RouteSegmentRepository routeRepository})

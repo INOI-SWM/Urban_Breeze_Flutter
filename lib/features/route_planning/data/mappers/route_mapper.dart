@@ -2,7 +2,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_segment_api_response_model.dart';
 import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
 import 'package:ridingmate/features/route_planning/domain/services/elevation_calculate_service.dart';
-import 'package:ridingmate/shared/domain/exceptions/base_domain_exception.dart';
+import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
 
 class RouteMapper {
   static const int _elevationIndex = 2;
