@@ -17,8 +17,8 @@ class InlineEditTextField extends StatefulWidget {
   });
 
   final String initialText;
-  final Function(String) onSaved;
-  final Function(String)? onSubmitted;
+  final ValueChanged<String> onSaved; // 포커스를 잃을 때 호출
+  final ValueChanged<String>? onSubmitted; // 엔터를 눌렀을 때 호출 (선택사항)
   final TextStyle? textStyle;
   final int maxLength;
   final bool autofocus;
