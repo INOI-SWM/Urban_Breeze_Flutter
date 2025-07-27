@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/my_route/application/services/my_route_service.dart';
+import 'package:ridingmate/features/my_route/presentation/widgets/sort_modal.dart';
+import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/route_card.dart';
-import 'package:ridingmate/shared/design_system/widgets/category/category_filter.dart';
+import 'package:ridingmate/shared/design_system/widgets/chip/chip_filter.dart';
 
 class MyRouteScreen extends StatefulWidget {
   const MyRouteScreen({super.key});
@@ -13,8 +16,7 @@ class MyRouteScreen extends StatefulWidget {
 }
 
 class _MyRouteScreenState extends State<MyRouteScreen> {
-  final List<String> categories = <String>['전체', '내가 만든 경로', '공유 받은 경로'];
-  String selectedCategory = '전체';
+  String selectedSortOption = SortModal.sortOptions.first;
 
   List<Map<String, dynamic>> routeList = <Map<String, dynamic>>[];
   bool isLoading = true;
@@ -25,11 +27,21 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
     _loadRouteList();
   }
 
-  void onCategorySelected(String category) {
-    setState(() {
-      selectedCategory = category;
-    });
-    _loadRouteList();
+  void _showSortModal() {
+    SortModal.show(
+      context: context,
+      selectedOption: selectedSortOption,
+      onOptionSelected: (String option) {
+        setState(() {
+          selectedSortOption = option;
+        });
+        // TODO: 정렬 로직 구현
+      },
+    );
+  }
+
+  void _showFilterModal() {
+    // TODO: 필터 모달 구현
   }
 
   Future<void> _loadRouteList() async {
@@ -37,11 +49,8 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
       isLoading = true;
     });
 
-    final Set<String>? categoryFilter =
-        selectedCategory == '전체' ? null : <String>{selectedCategory};
-
     final List<Map<String, dynamic>> routes =
-        await RouteListService.fetchRouteList(categoryFilter: categoryFilter);
+        await RouteListService.fetchRouteList();
     setState(() {
       routeList = routes;
       isLoading = false;
@@ -50,6 +59,8 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final SemanticColors colors = context.semanticColor;
+
     return Column(
       children: <Widget>[
         CustomAppBar(
@@ -66,10 +77,24 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Row(
             children: <Widget>[
-              CategoryFilter(
-                categories: categories,
-                selectedCategories: <String>{selectedCategory},
-                onCategorySelected: onCategorySelected,
+              ChipFilter(
+                text: selectedSortOption,
+                size: ChipFilterSize.xsmall,
+                type: ChipFilterType.outlined,
+                textColor: colors.labelAlternative,
+                iconColor: colors.labelAlternative,
+                borderColor: colors.lineNormalNeutral,
+                onPressed: _showSortModal,
+              ),
+              const SizedBox(width: 16),
+              ChipFilter(
+                text: '필터',
+                size: ChipFilterSize.xsmall,
+                type: ChipFilterType.outlined,
+                textColor: colors.labelAlternative,
+                iconColor: colors.labelAlternative,
+                borderColor: colors.lineNormalNeutral,
+                onPressed: _showFilterModal,
               ),
             ],
           ),
