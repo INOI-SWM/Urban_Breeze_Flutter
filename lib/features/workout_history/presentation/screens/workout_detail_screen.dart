@@ -101,6 +101,13 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
       return;
     }
 
+    if (newTitle.trim() == _workoutTitle.trim()) {
+      setState(() {
+        _isEditingTitle = false;
+      });
+      return;
+    }
+
     ModalShow.show(
       context: context,
       content: Text(
