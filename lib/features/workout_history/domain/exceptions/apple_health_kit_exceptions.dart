@@ -1,28 +1,16 @@
-abstract class AppleHealthKitException implements Exception {
-  AppleHealthKitException(this.message);
-  final String message;
+import 'package:ridingmate/shared/domain/exceptions/base_domain_exception.dart';
 
-  @override
-  String toString() => 'HealthKitException: $message';
+/// Apple HealthKit 권한 관련 오류
+class HealthKitPermissionException extends BaseDomainException {
+  const HealthKitPermissionException(super.message, [super.code]);
 }
 
-class HealthKitPermissionException extends AppleHealthKitException {
-  HealthKitPermissionException(super.message);
-
-  @override
-  String toString() => 'HealthKitPermissionException: $message';
+/// Apple HealthKit 데이터 관련 오류
+class HealthKitDataException extends BaseDomainException {
+  const HealthKitDataException(super.message, [super.code]);
 }
 
-class HealthKitDataException extends AppleHealthKitException {
-  HealthKitDataException(super.message);
-
-  @override
-  String toString() => 'HealthKitDataException: $message';
-}
-
-class HealthKitWorkoutNotFoundException extends AppleHealthKitException {
-  HealthKitWorkoutNotFoundException(super.message);
-
-  @override
-  String toString() => 'HealthKitWorkoutNotFoundException: $message';
+/// Apple HealthKit에서 운동 기록을 찾을 수 없을 때
+class HealthKitWorkoutNotFoundException extends BaseDomainException {
+  const HealthKitWorkoutNotFoundException(super.message, [super.code]);
 }

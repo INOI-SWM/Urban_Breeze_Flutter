@@ -1,3 +1,5 @@
+import 'package:ridingmate/shared/domain/exceptions/base_domain_exception.dart';
+
 import '../../domain/exceptions/workout_history_domain_exceptions.dart';
 import '../../domain/repositories/workout_history_repository.dart';
 
@@ -14,7 +16,7 @@ class UpdateWorkoutTitleUseCase {
   }) async {
     try {
       if (title.trim().isEmpty) {
-        throw const WorkoutHistoryValidationException('제목은 비어있을 수 없습니다.');
+        throw const ValidationException('제목은 비어있을 수 없습니다.');
       }
 
       await _workoutHistoryRepository.updateWorkoutTitle(
@@ -22,7 +24,7 @@ class UpdateWorkoutTitleUseCase {
         title: title.trim(),
       );
     } catch (e) {
-      if (e is WorkoutHistoryDomainException) {
+      if (e is WorkoutTitleUpdateException) {
         rethrow;
       }
       throw WorkoutTitleUpdateException('운동기록 제목 수정 중 오류가 발생했습니다: $e');
