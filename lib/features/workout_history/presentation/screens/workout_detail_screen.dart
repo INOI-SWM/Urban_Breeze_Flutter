@@ -37,6 +37,13 @@ class WorkoutDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
+  // 상수 정의
+  static const int _maxTitleLength = 60;
+  static const String _emptyTitleMessage = '제목은 비어있을 수 없습니다';
+  static const String _titleSavedMessage = '제목이 저장되었습니다';
+  static const String _unknownErrorMessage = '알 수 없는 오류가 발생했습니다';
+  static const String _unsavedChangesMessage = '저장되지 않는 내용은 모두 사라집니다.';
+
   bool _isEditingTitle = false;
   late String _workoutTitle;
 
@@ -46,6 +53,22 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
     _workoutTitle = '운동기록 ${widget.workoutIndex + 1}';
   }
 
+  void _showSnackBar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
+  bool _isValidTitle(String title) {
+    return title.trim().isNotEmpty;
+  }
+
+  bool _isTitleChanged(String newTitle) {
+    return newTitle.trim() != _workoutTitle.trim();
+  }
+
   void _startEditing() {
     setState(() {
       _isEditingTitle = true;
@@ -53,65 +76,55 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
   }
 
   Future<void> _saveTitle(String newTitle) async {
-    if (newTitle.trim().isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('제목은 비어있을 수 없습니다')));
-      }
+    if (!_isValidTitle(newTitle)) {
+      _showSnackBar(_emptyTitleMessage);
       return;
     }
 
     try {
-      final UpdateWorkoutTitleUseCase useCase = ref.read(
-        updateWorkoutTitleUseCaseProvider,
-      );
-
-      await useCase.execute(
-        workoutId: widget.workoutRecord.id,
-        title: newTitle,
-      );
-
-      setState(() {
-        _workoutTitle = newTitle;
-        _isEditingTitle = false;
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('제목이 저장되었습니다')));
-      }
+      await _performTitleUpdate(newTitle);
+      _updateTitleState(newTitle);
+      _showSnackBar(_titleSavedMessage);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('알 수 없는 오류가 발생했습니다: ${e.toString()}')),
-        );
-      }
+      _showSnackBar('$_unknownErrorMessage: ${e.toString()}');
     }
   }
 
+  Future<void> _performTitleUpdate(String newTitle) async {
+    final UpdateWorkoutTitleUseCase useCase = ref.read(
+      updateWorkoutTitleUseCaseProvider,
+    );
+    await useCase.execute(workoutId: widget.workoutRecord.id, title: newTitle);
+  }
+
+  void _updateTitleState(String newTitle) {
+    setState(() {
+      _workoutTitle = newTitle;
+      _isEditingTitle = false;
+    });
+  }
+
+  void _exitEditingMode() {
+    setState(() {
+      _isEditingTitle = false;
+    });
+  }
+
   void _showSaveConfirmationDialog(String newTitle) {
-    if (newTitle.trim().isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('제목은 비어있을 수 없습니다')));
-      }
+    if (!_isValidTitle(newTitle)) {
+      _showSnackBar(_emptyTitleMessage);
       return;
     }
 
-    if (newTitle.trim() == _workoutTitle.trim()) {
-      setState(() {
-        _isEditingTitle = false;
-      });
+    if (!_isTitleChanged(newTitle)) {
+      _exitEditingMode();
       return;
     }
 
     ModalShow.show(
       context: context,
       content: Text(
-        '저장되지 않는 내용은 모두 사라집니다.',
+        _unsavedChangesMessage,
         textAlign: TextAlign.center,
         style: AppTextStyles.label1.readingBold,
       ),
@@ -120,11 +133,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
       onPrimaryButtonPressed: () {
         _saveTitle(newTitle);
       },
-      onSecondaryButtonPressed: () {
-        setState(() {
-          _isEditingTitle = false;
-        });
-      },
+      onSecondaryButtonPressed: _exitEditingMode,
     );
   }
 
@@ -203,7 +212,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
                                               .copyWith(
                                                 color: colors.labelStrong,
                                               ),
-                                          maxLength: 60,
+                                          maxLength: _maxTitleLength,
                                         )
                                         : Text(
                                           _workoutTitle,
