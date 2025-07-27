@@ -1,3 +1,5 @@
+import 'package:ridingmate/shared/domain/exceptions/base_domain_exception.dart';
+
 import '../../domain/entities/place.dart';
 import '../../domain/entities/search_result.dart';
 import '../../domain/exceptions/place_search_domain_exceptions.dart';
@@ -52,11 +54,11 @@ class SearchPlacesUseCase {
       return PlaceSearchFailure<SearchResult>(e.message);
     } on NoResultsException catch (e) {
       return PlaceSearchFailure<SearchResult>(e.message);
-    } on PlaceSearchNetworkException catch (e) {
+    } on NetworkException catch (e) {
       return PlaceSearchFailure<SearchResult>(e.message);
-    } on PlaceSearchServerException catch (e) {
+    } on ServerException catch (e) {
       return PlaceSearchFailure<SearchResult>(e.message);
-    } on PlaceSearchParsingException catch (e) {
+    } on ParsingException catch (e) {
       return PlaceSearchFailure<SearchResult>(e.message);
     } catch (e) {
       return const PlaceSearchFailure<SearchResult>('검색 중 오류가 발생했습니다');

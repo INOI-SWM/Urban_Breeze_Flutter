@@ -1,4 +1,5 @@
 import 'package:ridingmate/features/place_search/data/models/place_search_response_model.dart';
+import 'package:ridingmate/shared/domain/exceptions/base_domain_exception.dart';
 
 import '../../domain/entities/place.dart';
 import '../../domain/entities/search_result.dart';
@@ -53,11 +54,11 @@ class PlaceSearchRepositoryImpl implements PlaceSearchRepository {
 
       return SearchResult(query: query, places: places, bbox: bbox);
     } catch (e) {
-      if (e is PlaceSearchDomainException) {
+      if (e is BaseDomainException) {
         rethrow;
       }
 
-      throw PlaceSearchParsingException('검색 중 오류가 발생했습니다: ${e.toString()}');
+      throw ParsingException('검색 중 오류가 발생했습니다: ${e.toString()}');
     }
   }
 
