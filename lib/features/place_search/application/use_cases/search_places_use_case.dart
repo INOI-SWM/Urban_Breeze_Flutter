@@ -1,3 +1,4 @@
+import 'package:ridingmate/shared/core/result/app_result.dart';
 import 'package:ridingmate/shared/domain/exceptions/base_domain_exception.dart';
 
 import '../../domain/entities/place.dart';
@@ -5,34 +6,20 @@ import '../../domain/entities/search_result.dart';
 import '../../domain/exceptions/place_search_domain_exceptions.dart';
 import '../../domain/repositories/place_search_repository.dart';
 
-sealed class PlaceSearchResult<T> {
-  const PlaceSearchResult();
-}
-
-class PlaceSearchSuccess<T> extends PlaceSearchResult<T> {
-  const PlaceSearchSuccess(this.searchResult);
-  final SearchResult searchResult;
-}
-
-class PlaceSearchFailure<T> extends PlaceSearchResult<T> {
-  const PlaceSearchFailure(this.message);
-  final String message;
-}
-
 class SearchPlacesUseCase {
   const SearchPlacesUseCase({required PlaceSearchRepository repository})
     : _repository = repository;
 
   final PlaceSearchRepository _repository;
 
-  Future<PlaceSearchResult<SearchResult>> call({
+  Future<AppResult<SearchResult>> call({
     required String query,
     required double longitude,
     required double latitude,
   }) async {
     final String sanitizedQuery = _sanitizeQuery(query);
     if (sanitizedQuery.isEmpty) {
-      return const PlaceSearchFailure<SearchResult>('검색어를 입력해주세요');
+      return const AppFailure<SearchResult>(ValidationException('검색어를 입력해주세요'));
     }
 
     try {
@@ -49,19 +36,21 @@ class SearchPlacesUseCase {
         bbox: searchResult.bbox,
       );
 
-      return PlaceSearchSuccess<SearchResult>(uniqueSearchResult);
+      return AppSuccess<SearchResult>(uniqueSearchResult);
     } on EmptyQueryException catch (e) {
-      return PlaceSearchFailure<SearchResult>(e.message);
+      return AppFailure<SearchResult>(e);
     } on NoResultsException catch (e) {
-      return PlaceSearchFailure<SearchResult>(e.message);
+      return AppFailure<SearchResult>(e);
     } on NetworkException catch (e) {
-      return PlaceSearchFailure<SearchResult>(e.message);
+      return AppFailure<SearchResult>(e);
     } on ServerException catch (e) {
-      return PlaceSearchFailure<SearchResult>(e.message);
+      return AppFailure<SearchResult>(e);
     } on ParsingException catch (e) {
-      return PlaceSearchFailure<SearchResult>(e.message);
+      return AppFailure<SearchResult>(e);
     } catch (e) {
-      return const PlaceSearchFailure<SearchResult>('검색 중 오류가 발생했습니다');
+      return const AppFailure<SearchResult>(
+        ParsingException('검색 중 오류가 발생했습니다'),
+      );
     }
   }
 

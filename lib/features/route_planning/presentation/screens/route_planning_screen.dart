@@ -7,13 +7,13 @@ import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/place_search/domain/entities/place.dart';
 import 'package:ridingmate/features/place_search/domain/entities/search_result.dart';
 import 'package:ridingmate/features/place_search/presentation/screens/place_search_screen.dart';
-import 'package:ridingmate/features/route_planning/application/use_cases/create_route_use_case.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/route_planning_facade.dart';
 import 'package:ridingmate/features/route_planning/di/route_providers.dart';
 import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
 import 'package:ridingmate/features/route_planning/presentation/screens/route_create_complete_screen.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
+import 'package:ridingmate/shared/core/result/app_result.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/marker/route_pin_marker.dart';
@@ -147,7 +147,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
       _isRouteLoading = true;
     });
 
-    final RouteResult<RouteSegment> result = await _facade.createRoute.execute(
+    final AppResult<RouteSegment> result = await _facade.createRoute.execute(
       _pins[_pins.length - 2],
       _pins[_pins.length - 1],
     );
@@ -158,13 +158,13 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
       });
 
       switch (result) {
-        case final RouteSuccess<RouteSegment> success:
+        case final AppSuccess<RouteSegment> success:
           setState(() {
             _routeSegments.add(success.data);
             _pins[_pins.length - 2] = success.data.points.first;
             _pins[_pins.length - 1] = success.data.points.last;
           });
-        case final RouteFailure<RouteSegment> failure:
+        case final AppFailure<RouteSegment> failure:
           _removeLastPin(shouldRemoveRouteSegment: false);
           _showErrorSnackBar(failure.message);
       }
