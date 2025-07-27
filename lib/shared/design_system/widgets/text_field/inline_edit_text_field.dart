@@ -10,6 +10,7 @@ class InlineEditTextField extends StatefulWidget {
     super.key,
     required this.initialText,
     required this.onSaved,
+    this.onSubmitted,
     this.textStyle,
     this.maxLength = 60,
     this.autofocus = true,
@@ -17,6 +18,7 @@ class InlineEditTextField extends StatefulWidget {
 
   final String initialText;
   final Function(String) onSaved;
+  final Function(String)? onSubmitted;
   final TextStyle? textStyle;
   final int maxLength;
   final bool autofocus;
@@ -67,6 +69,14 @@ class _InlineEditTextFieldState extends State<InlineEditTextField> {
     widget.onSaved(_controller.text.trim());
   }
 
+  void _onSubmit() {
+    if (widget.onSubmitted != null) {
+      widget.onSubmitted!(_controller.text.trim());
+    } else {
+      widget.onSaved(_controller.text.trim());
+    }
+  }
+
   void _onClear() {
     _controller.clear();
   }
@@ -97,7 +107,7 @@ class _InlineEditTextFieldState extends State<InlineEditTextField> {
                 inputFormatters: <TextInputFormatter>[
                   LengthLimitingTextInputFormatter(widget.maxLength),
                 ],
-                onSubmitted: (_) => _onSave(),
+                onSubmitted: (_) => _onSubmit(),
               ),
             ),
             CustomIconButton(icon: Icons.close, onTap: _onClear),
