@@ -11,10 +11,10 @@ final Provider<RemotePlaceSearchDataSource>
 remotePlaceSearchDataSourceProvider = Provider<RemotePlaceSearchDataSource>((
   Ref<RemotePlaceSearchDataSource> ref,
 ) {
-  final http.Client httpClient = ref.watch(httpClientProvider);
+  final http.Client client = ref.watch(httpClientProvider);
 
   final RemotePlaceSearchDataSource dataSource = RemotePlaceSearchDataSource(
-    client: httpClient,
+    client: client,
   );
 
   return dataSource;

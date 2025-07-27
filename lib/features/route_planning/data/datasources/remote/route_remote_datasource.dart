@@ -5,8 +5,8 @@ import 'package:ridingmate/features/route_planning/domain/exceptions/route_domai
 import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
 import 'package:ridingmate/shared/api/data/models/api_response_model.dart';
 
-class RouteRemoteDatasource extends BaseRemoteDataSource {
-  RouteRemoteDatasource({super.client});
+class RouteRemoteDataSource extends BaseRemoteDataSource {
+  RouteRemoteDataSource({super.client});
 
   Future<RouteSaveResponseModel> saveRoute(
     RouteSaveRequestModel request,

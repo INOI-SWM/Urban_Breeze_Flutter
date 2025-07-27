@@ -34,18 +34,18 @@ final Provider<GeolocatorLocationDataSource> locationDataSourceProvider =
       return GeolocatorLocationDataSource();
     });
 
-final Provider<RouteSegmentRemoteDatasource>
-routeSegmentRemoteDataSourceProvider = Provider<RouteSegmentRemoteDatasource>((
-  Ref<RouteSegmentRemoteDatasource> ref,
+final Provider<RouteSegmentRemoteDataSource>
+routeSegmentRemoteDataSourceProvider = Provider<RouteSegmentRemoteDataSource>((
+  Ref<RouteSegmentRemoteDataSource> ref,
 ) {
   final http.Client client = ref.watch(httpClientProvider);
-  return RouteSegmentRemoteDatasource(client: client);
+  return RouteSegmentRemoteDataSource(client: client);
 });
 
-final Provider<RouteRemoteDatasource> routeRemoteDataSourceProvider =
-    Provider<RouteRemoteDatasource>((Ref<RouteRemoteDatasource> ref) {
+final Provider<RouteRemoteDataSource> routeRemoteDataSourceProvider =
+    Provider<RouteRemoteDataSource>((Ref<RouteRemoteDataSource> ref) {
       final http.Client client = ref.watch(httpClientProvider);
-      return RouteRemoteDatasource(client: client);
+      return RouteRemoteDataSource(client: client);
     });
 
 // Repository Providers
@@ -59,20 +59,20 @@ final Provider<LocationRepository> locationRepositoryProvider =
 
 final Provider<RouteSegmentRepository> routeSegmentRepositoryProvider =
     Provider<RouteSegmentRepository>((Ref<RouteSegmentRepository> ref) {
-      final RouteSegmentRemoteDatasource routeSegmentRemoteDatasource = ref
+      final RouteSegmentRemoteDataSource routeSegmentRemoteDataSource = ref
           .watch(routeSegmentRemoteDataSourceProvider);
 
       return RouteSegmentRepositoryImpl(
-        routeSegmentRemoteDataSource: routeSegmentRemoteDatasource,
+        routeSegmentRemoteDataSource: routeSegmentRemoteDataSource,
       );
     });
 
 final Provider<RouteRepository> routeRepositoryProvider =
     Provider<RouteRepository>((Ref<RouteRepository> ref) {
-      final RouteRemoteDatasource routeRemoteDatasource = ref.watch(
+      final RouteRemoteDataSource routeRemoteDataSource = ref.watch(
         routeRemoteDataSourceProvider,
       );
-      return RouteRepositoryImpl(routeRemoteDatasource: routeRemoteDatasource);
+      return RouteRepositoryImpl(routeRemoteDataSource: routeRemoteDataSource);
     });
 
 // Use Case Providers

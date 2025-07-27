@@ -4,7 +4,7 @@ import '../datasources/remote_workout_history_datasource.dart';
 class WorkoutHistoryRepositoryImpl implements WorkoutHistoryRepository {
   const WorkoutHistoryRepositoryImpl({required this.remoteDataSource});
 
-  final RemoteWorkoutHistoryDatasource remoteDataSource;
+  final RemoteWorkoutHistoryDataSource remoteDataSource;
 
   @override
   Future<void> updateWorkoutTitle({

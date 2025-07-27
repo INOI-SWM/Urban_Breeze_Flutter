@@ -9,7 +9,7 @@ import '../mappers/workout_statistics_mapper.dart';
 class WorkoutStatisticsRepositoryImpl implements WorkoutStatisticsRepository {
   const WorkoutStatisticsRepositoryImpl(this._datasource);
 
-  final WorkoutStatisticsDatasource _datasource;
+  final WorkoutStatisticsDataSource _datasource;
 
   @override
   Future<WorkoutStatistics> getWorkoutStatistics({

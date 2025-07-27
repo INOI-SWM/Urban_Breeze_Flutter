@@ -4,8 +4,8 @@ import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.da
 
 import '../models/workout_title_update_request_model.dart';
 
-class RemoteWorkoutHistoryDatasource extends BaseRemoteDataSource {
-  RemoteWorkoutHistoryDatasource({super.client});
+class RemoteWorkoutHistoryDataSource extends BaseRemoteDataSource {
+  RemoteWorkoutHistoryDataSource({super.client});
 
   Future<void> updateWorkoutTitle({
     required String workoutId,

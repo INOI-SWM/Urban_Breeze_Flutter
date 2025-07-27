@@ -7,10 +7,10 @@ import 'package:ridingmate/features/route_planning/domain/repositories/route_seg
 
 class RouteSegmentRepositoryImpl implements RouteSegmentRepository {
   RouteSegmentRepositoryImpl({
-    required RouteSegmentRemoteDatasource routeSegmentRemoteDataSource,
+    required RouteSegmentRemoteDataSource routeSegmentRemoteDataSource,
   }) : _routeSegmentRemoteDataSource = routeSegmentRemoteDataSource;
 
-  final RouteSegmentRemoteDatasource _routeSegmentRemoteDataSource;
+  final RouteSegmentRemoteDataSource _routeSegmentRemoteDataSource;
 
   @override
   Future<RouteSegment> getRouteSegment(

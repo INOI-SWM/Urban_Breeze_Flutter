@@ -12,23 +12,20 @@ import '../domain/repositories/workout_history_repository.dart';
 import '../domain/repositories/workout_statistics_repository.dart';
 
 // Data Source Providers
-final Provider<WorkoutStatisticsDatasource>
-workoutStatisticsDatasourceProvider = Provider<WorkoutStatisticsDatasource>((
-  Ref<WorkoutStatisticsDatasource> ref,
+final Provider<WorkoutStatisticsDataSource>
+workoutStatisticsDataSourceProvider = Provider<WorkoutStatisticsDataSource>((
+  Ref<WorkoutStatisticsDataSource> ref,
 ) {
-  return WorkoutStatisticsDatasource();
+  return WorkoutStatisticsDataSource();
 });
 
-final Provider<RemoteWorkoutHistoryDatasource>
-remoteWorkoutHistoryDatasourceProvider =
-    Provider<RemoteWorkoutHistoryDatasource>((
-      Ref<RemoteWorkoutHistoryDatasource> ref,
+final Provider<RemoteWorkoutHistoryDataSource>
+remoteWorkoutHistoryDataSourceProvider =
+    Provider<RemoteWorkoutHistoryDataSource>((
+      Ref<RemoteWorkoutHistoryDataSource> ref,
     ) {
       final http.Client client = ref.watch(httpClientProvider);
-      final RemoteWorkoutHistoryDatasource dataSource =
-          RemoteWorkoutHistoryDatasource(client: client);
-      ref.onDispose(() => dataSource.dispose());
-      return dataSource;
+      return RemoteWorkoutHistoryDataSource(client: client);
     });
 
 // Repository Providers
@@ -36,8 +33,8 @@ final Provider<WorkoutStatisticsRepository>
 workoutStatisticsRepositoryProvider = Provider<WorkoutStatisticsRepository>((
   Ref<WorkoutStatisticsRepository> ref,
 ) {
-  final WorkoutStatisticsDatasource dataSource = ref.watch(
-    workoutStatisticsDatasourceProvider,
+  final WorkoutStatisticsDataSource dataSource = ref.watch(
+    workoutStatisticsDataSourceProvider,
   );
 
   return WorkoutStatisticsRepositoryImpl(dataSource);
@@ -45,8 +42,8 @@ workoutStatisticsRepositoryProvider = Provider<WorkoutStatisticsRepository>((
 
 final Provider<WorkoutHistoryRepository> workoutHistoryRepositoryProvider =
     Provider<WorkoutHistoryRepository>((Ref<WorkoutHistoryRepository> ref) {
-      final RemoteWorkoutHistoryDatasource dataSource = ref.watch(
-        remoteWorkoutHistoryDatasourceProvider,
+      final RemoteWorkoutHistoryDataSource dataSource = ref.watch(
+        remoteWorkoutHistoryDataSourceProvider,
       );
 
       return WorkoutHistoryRepositoryImpl(remoteDataSource: dataSource);

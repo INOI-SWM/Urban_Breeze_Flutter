@@ -3,10 +3,10 @@ import 'package:ridingmate/features/route_planning/data/models/route_save_reques
 import 'package:ridingmate/features/route_planning/domain/repositories/route_repository.dart';
 
 class RouteRepositoryImpl implements RouteRepository {
-  RouteRepositoryImpl({required RouteRemoteDatasource routeRemoteDatasource})
-    : _routeRemoteDataSource = routeRemoteDatasource;
+  RouteRepositoryImpl({required RouteRemoteDataSource routeRemoteDataSource})
+    : _routeRemoteDataSource = routeRemoteDataSource;
 
-  final RouteRemoteDatasource _routeRemoteDataSource;
+  final RouteRemoteDataSource _routeRemoteDataSource;
 
   @override
   Future<void> saveRoute({

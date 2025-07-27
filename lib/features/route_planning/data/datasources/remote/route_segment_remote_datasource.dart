@@ -6,8 +6,8 @@ import 'package:ridingmate/features/route_planning/data/models/route_segment_api
 import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
 import 'package:ridingmate/shared/api/data/models/api_response_model.dart';
 
-class RouteSegmentRemoteDatasource extends BaseRemoteDataSource {
-  RouteSegmentRemoteDatasource({super.client});
+class RouteSegmentRemoteDataSource extends BaseRemoteDataSource {
+  RouteSegmentRemoteDataSource({super.client});
 
   Future<RouteApiResponseModel> fetchRoute(
     LatLng start,
