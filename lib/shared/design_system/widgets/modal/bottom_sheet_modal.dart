@@ -42,10 +42,7 @@ class BottomSheetModal extends StatelessWidget {
           Container(height: 1, color: colors.lineNormalAlternative),
           // 내용 영역
           Flexible(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: content,
-            ),
+            child: Padding(padding: const EdgeInsets.all(20), child: content),
           ),
         ],
       ),
