@@ -45,3 +45,46 @@ mixin ErrorDisplayMixin {
     return ErrorMessageMapper.getErrorMessage(exception);
   }
 }
+
+/// Static helper methods for use in ConsumerWidget and other widgets
+class ErrorDisplay {
+  static void showErrorMessage(BuildContext context, String message) {
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 3),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      ),
+    );
+  }
+
+  static void showErrorFromException(
+    BuildContext context,
+    BaseDomainException exception,
+  ) {
+    showErrorMessage(context, ErrorMessageMapper.getErrorMessage(exception));
+  }
+
+  static void showErrorFromAppResult<T>(
+    BuildContext context,
+    AppFailure<T> failure,
+  ) {
+    showErrorFromException(context, failure.exception);
+  }
+
+  static void showSuccessMessage(BuildContext context, String message) {
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+      ),
+    );
+  }
+}
