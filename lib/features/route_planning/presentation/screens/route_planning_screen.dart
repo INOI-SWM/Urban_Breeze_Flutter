@@ -17,6 +17,7 @@ import 'package:ridingmate/shared/core/result/app_result.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/marker/route_pin_marker.dart';
+import 'package:ridingmate/shared/presentation/mixins/error_display_mixin.dart';
 
 class RoutePlanningScreen extends ConsumerStatefulWidget {
   const RoutePlanningScreen({super.key});
@@ -26,7 +27,8 @@ class RoutePlanningScreen extends ConsumerStatefulWidget {
       _RoutePlanningScreenState();
 }
 
-class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
+class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
+    with ErrorDisplayMixin {
   static const LatLng _seoulCityHall = LatLng(37.5665, 126.9780);
   static const double _defaultZoom = 16.0;
 
@@ -166,7 +168,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
           });
         case final AppFailure<RouteSegment> failure:
           _removeLastPin(shouldRemoveRouteSegment: false);
-          _showErrorSnackBar(failure.message);
+          showErrorFromAppResult(context, failure);
       }
     }
   }
@@ -333,15 +335,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
       onBack: _exitSaveMode,
       onComplete: _completeRouteSave,
     );
-  }
-
-  void _showErrorSnackBar(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
-      );
-    }
   }
 
   void _onMarkerTap() {

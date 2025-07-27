@@ -13,6 +13,7 @@ import 'package:ridingmate/features/route_planning/di/route_providers.dart';
 import 'package:ridingmate/shared/core/result/app_result.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/search_app_bar.dart';
+import 'package:ridingmate/shared/presentation/mixins/error_display_mixin.dart';
 
 class PlaceSearchScreen extends ConsumerStatefulWidget {
   const PlaceSearchScreen({super.key, this.initialLocation});
@@ -23,7 +24,8 @@ class PlaceSearchScreen extends ConsumerStatefulWidget {
   ConsumerState<PlaceSearchScreen> createState() => _PlaceSearchScreenState();
 }
 
-class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
+class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
+    with ErrorDisplayMixin {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
 
@@ -90,15 +92,6 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
     }
   }
 
-  void _showErrorSnackBar(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
-      );
-    }
-  }
-
   Future<void> _performSearch(String query) async {
     if (query.trim().isEmpty) {
       setState(() {
@@ -108,7 +101,6 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
       return;
     }
 
-    // 현재 위치 사용 (기본 위치 또는 실제 위치)
     final LatLng searchLocation = _currentLocation ?? _defaultLocation;
 
     setState(() {
@@ -133,7 +125,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
             _lastSearchResult = success.data;
           });
         case final AppFailure<SearchResult> failure:
-          _showErrorSnackBar(failure.message);
+          showErrorFromAppResult(context, failure);
       }
     }
   }
