@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
 import 'package:ridingmate/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
 
@@ -27,10 +26,8 @@ class RemoteWorkoutHistoryDatasource extends BaseRemoteDataSource {
 
       // 성공적으로 완료된 경우 (200, 204 등)
       return;
-    } on BaseDomainException {
+    } on WorkoutTitleUpdateException {
       rethrow;
-    } catch (e) {
-      throw WorkoutTitleUpdateException('네트워크 오류: ${e.toString()}');
     }
     // BaseRemoteDataSource에서 NetworkException, ParsingException 처리
   }

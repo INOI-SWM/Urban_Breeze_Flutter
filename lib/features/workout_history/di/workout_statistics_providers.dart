@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:ridingmate/core/di/core_providers.dart';
 
 import '../application/use_cases/get_workout_statistics_use_case.dart';
 import '../application/use_cases/update_workout_title_use_case.dart';
@@ -10,16 +11,7 @@ import '../data/repositories/workout_statistics_repository_impl.dart';
 import '../domain/repositories/workout_history_repository.dart';
 import '../domain/repositories/workout_statistics_repository.dart';
 
-// HTTP Client Provider
-final Provider<http.Client> httpClientProvider = Provider<http.Client>((
-  Ref<http.Client> ref,
-) {
-  final http.Client client = http.Client();
-  ref.onDispose(() => client.close());
-  return client;
-});
-
-// DataSource Providers
+// Data Source Providers
 final Provider<WorkoutStatisticsDatasource>
 workoutStatisticsDatasourceProvider = Provider<WorkoutStatisticsDatasource>((
   Ref<WorkoutStatisticsDatasource> ref,

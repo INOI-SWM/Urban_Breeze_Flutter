@@ -1,18 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:ridingmate/core/di/core_providers.dart';
 
 import '../application/use_cases/search_places_use_case.dart';
 import '../data/datasources/remote_place_search_datasource.dart';
 import '../data/repositories/place_search_repository_impl.dart';
 import '../domain/repositories/place_search_repository.dart';
-
-final Provider<http.Client> httpClientProvider = Provider<http.Client>((
-  Ref<http.Client> ref,
-) {
-  final http.Client client = http.Client();
-  ref.onDispose(() => client.close());
-  return client;
-});
 
 final Provider<RemotePlaceSearchDataSource>
 remotePlaceSearchDataSourceProvider = Provider<RemotePlaceSearchDataSource>((
@@ -21,10 +14,8 @@ remotePlaceSearchDataSourceProvider = Provider<RemotePlaceSearchDataSource>((
   final http.Client httpClient = ref.watch(httpClientProvider);
 
   final RemotePlaceSearchDataSource dataSource = RemotePlaceSearchDataSource(
-    httpClient: httpClient,
+    client: httpClient,
   );
-
-  ref.onDispose(() => dataSource.dispose());
 
   return dataSource;
 });

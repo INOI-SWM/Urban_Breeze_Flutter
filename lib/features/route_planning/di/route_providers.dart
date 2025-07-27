@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:ridingmate/core/di/core_providers.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/create_route_use_case.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/fit_map_to_routes_use_case.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/get_current_location_use_case.dart';
@@ -17,13 +18,6 @@ import 'package:ridingmate/features/route_planning/domain/repositories/location_
 import 'package:ridingmate/features/route_planning/domain/repositories/route_repository.dart';
 import 'package:ridingmate/features/route_planning/domain/repositories/route_segment_repository.dart';
 import 'package:ridingmate/features/route_planning/domain/services/bbox_service.dart';
-
-// Infrastructure Providers
-final Provider<http.Client> httpClientProvider = Provider<http.Client>((
-  Ref<http.Client> ref,
-) {
-  return http.Client();
-});
 
 // Domain Service Providers
 final Provider<BboxService> bboxServiceProvider = Provider<BboxService>((
