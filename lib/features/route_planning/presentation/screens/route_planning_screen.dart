@@ -301,9 +301,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       );
     } catch (e) {
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('경로 저장에 실패했습니다. 다시 시도해주세요.')),
-      );
+      showErrorMessage(context, '경로 저장에 실패했습니다. 다시 시도해주세요.');
     }
   }
 

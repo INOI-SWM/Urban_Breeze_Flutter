@@ -18,6 +18,7 @@ import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_butto
 import 'package:ridingmate/shared/design_system/widgets/info/info_item.dart';
 import 'package:ridingmate/shared/design_system/widgets/modal/modal_show.dart';
 import 'package:ridingmate/shared/design_system/widgets/text_field/inline_edit_text_field.dart';
+import 'package:ridingmate/shared/presentation/mixins/error_display_mixin.dart';
 import 'package:ridingmate/shared/utils/date_formatter.dart';
 import 'package:ridingmate/shared/utils/workout_formatter.dart';
 
@@ -36,7 +37,8 @@ class WorkoutDetailScreen extends ConsumerStatefulWidget {
       _WorkoutDetailScreenState();
 }
 
-class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
+class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
+    with ErrorDisplayMixin {
   // 상수 정의
   static const int _maxTitleLength = 60;
   static const String _emptyTitleMessage = '제목은 비어있을 수 없습니다';
@@ -51,14 +53,6 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
   void initState() {
     super.initState();
     _workoutTitle = '운동기록 ${widget.workoutIndex + 1}';
-  }
-
-  void _showSnackBar(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
-    }
   }
 
   bool _isValidTitle(String title) {
@@ -77,16 +71,20 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
 
   Future<void> _saveTitle(String newTitle) async {
     if (!_isValidTitle(newTitle)) {
-      _showSnackBar(_emptyTitleMessage);
+      showErrorMessage(context, _emptyTitleMessage);
       return;
     }
 
     try {
       await _performTitleUpdate(newTitle);
       _updateTitleState(newTitle);
-      _showSnackBar(_titleSavedMessage);
+      if (mounted) {
+        showSuccessMessage(context, _titleSavedMessage);
+      }
     } catch (e) {
-      _showSnackBar('$_unknownErrorMessage: ${e.toString()}');
+      if (mounted) {
+        showErrorMessage(context, '$_unknownErrorMessage: ${e.toString()}');
+      }
     }
   }
 
@@ -112,7 +110,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
 
   void _showSaveConfirmationDialog(String newTitle) {
     if (!_isValidTitle(newTitle)) {
-      _showSnackBar(_emptyTitleMessage);
+      showErrorMessage(context, _emptyTitleMessage);
       return;
     }
 

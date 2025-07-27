@@ -6,6 +6,7 @@ import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/features/profile/presentation/screens/profile_edit_screen.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/button_solid.dart';
+import 'package:ridingmate/shared/presentation/mixins/error_display_mixin.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key, required this.user});
@@ -177,7 +178,7 @@ class ProfileScreen extends ConsumerWidget {
                   child: const Text('취소'),
                 ),
                 TextButton(
-                  onPressed: () => _handleLogout(context, ref),
+                  onPressed: () => _handleSignOut(context, ref),
                   child: const Text(
                     '로그아웃',
                     style: TextStyle(color: Colors.red),
@@ -231,9 +232,8 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _handleLogout(BuildContext context, WidgetRef ref) async {
+  Future<void> _handleSignOut(BuildContext context, WidgetRef ref) async {
     try {
-      // 로그아웃 처리 (다이얼로그는 아직 열어둠)
       final AuthSignOutFacade authSignOutFacade = ref.read(
         authSignOutFacadeProvider,
       );
@@ -241,25 +241,12 @@ class ProfileScreen extends ConsumerWidget {
 
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('로그아웃되었습니다.'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
-        ),
-      );
+      ErrorDisplay.showSuccessMessage(context, '로그아웃되었습니다.');
       Navigator.of(context).pop();
     } catch (e) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('로그아웃 실패: ${e.toString()}'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-        ),
-      );
-
+      ErrorDisplay.showErrorMessage(context, '로그아웃 실패: ${e.toString()}');
       Navigator.of(context).pop();
     }
   }
@@ -273,25 +260,12 @@ class ProfileScreen extends ConsumerWidget {
 
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('탈퇴가 완료되었습니다.'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
-        ),
-      );
+      ErrorDisplay.showSuccessMessage(context, '탈퇴가 완료되었습니다.');
       Navigator.of(context).pop();
     } catch (e) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('탈퇴 실패: ${e.toString()}'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-        ),
-      );
-
+      ErrorDisplay.showErrorMessage(context, '탈퇴 실패: ${e.toString()}');
       Navigator.of(context).pop();
     }
   }
