@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/workout_history/application/use_cases/update_workout_title_use_case.dart';
+import 'package:ridingmate/features/workout_history/di/workout_statistics_providers.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/location_data.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/workout_record.dart';
 import 'package:ridingmate/features/workout_history/presentation/screens/workout_detail_route_screen.dart';
@@ -18,7 +21,7 @@ import 'package:ridingmate/shared/design_system/widgets/text_field/inline_edit_t
 import 'package:ridingmate/shared/utils/date_formatter.dart';
 import 'package:ridingmate/shared/utils/workout_formatter.dart';
 
-class WorkoutDetailScreen extends StatefulWidget {
+class WorkoutDetailScreen extends ConsumerStatefulWidget {
   const WorkoutDetailScreen({
     super.key,
     required this.workoutIndex,
@@ -29,10 +32,11 @@ class WorkoutDetailScreen extends StatefulWidget {
   final WorkoutRecord workoutRecord;
 
   @override
-  State<WorkoutDetailScreen> createState() => _WorkoutDetailScreenState();
+  ConsumerState<WorkoutDetailScreen> createState() =>
+      _WorkoutDetailScreenState();
 }
 
-class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
+class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
   bool _isEditingTitle = false;
   late String _workoutTitle;
 
@@ -48,14 +52,55 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
     });
   }
 
-  void _saveTitle(String newTitle) {
-    setState(() {
-      _workoutTitle = newTitle;
-      _isEditingTitle = false;
-    });
+  Future<void> _saveTitle(String newTitle) async {
+    if (newTitle.trim().isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('제목은 비어있을 수 없습니다')));
+      }
+      return;
+    }
+
+    try {
+      final UpdateWorkoutTitleUseCase useCase = ref.read(
+        updateWorkoutTitleUseCaseProvider,
+      );
+
+      await useCase.execute(
+        workoutId: widget.workoutRecord.id,
+        title: newTitle,
+      );
+
+      setState(() {
+        _workoutTitle = newTitle;
+        _isEditingTitle = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('제목이 저장되었습니다')));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('알 수 없는 오류가 발생했습니다: ${e.toString()}')),
+        );
+      }
+    }
   }
 
   void _showSaveConfirmationDialog(String newTitle) {
+    if (newTitle.trim().isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('제목은 비어있을 수 없습니다')));
+      }
+      return;
+    }
+
     ModalShow.show(
       context: context,
       content: Text(

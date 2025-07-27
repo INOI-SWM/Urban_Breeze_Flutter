@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 import 'package:ridingmate/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
 
@@ -17,18 +17,21 @@ class RemoteWorkoutHistoryDatasource extends BaseRemoteDataSource {
       final WorkoutTitleUpdateRequestModel requestModel =
           WorkoutTitleUpdateRequestModel(title: title);
 
-      final http.Response response = await patch(
-        '/api/activities/$workoutId/title',
-        body: requestModel.toJson(),
-      );
+      debugPrint(requestModel.toJson().toString());
+      // TODO: 서버 연동 후 주석 해제
+      // final http.Response response = await patch(
+      //   '/api/activities/$workoutId/title',
+      //   body: requestModel.toJson(),
+      // );
 
-      final int statusCode = response.statusCode;
+      // final int statusCode = response.statusCode;
 
-      if (statusCode == 200 || statusCode == 204) {
-        return;
-      }
+      // if (statusCode == 200 || statusCode == 204) {
+      //   return;
+      // }
+      return;
 
-      throw WorkoutTitleUpdateException('서버 오류 (${response.statusCode})');
+      // throw WorkoutTitleUpdateException('서버 오류 (${response.statusCode})');
     } on SocketException {
       throw const WorkoutHistoryNetworkException('인터넷 연결을 확인해주세요');
     } on FormatException {
