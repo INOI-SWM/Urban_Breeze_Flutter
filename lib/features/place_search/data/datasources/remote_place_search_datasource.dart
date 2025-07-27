@@ -1,11 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
+import 'package:ridingmate/shared/api/data/models/api_response_model.dart';
 
-import '../../../../shared/api/data/models/api_response_model.dart';
 import '../models/place_search_response_model.dart';
 
 class RemotePlaceSearchDataSource {
@@ -63,21 +62,14 @@ class RemotePlaceSearchDataSource {
           'API 요청 실패 (${response.statusCode}): $errorMessage',
         );
       }
-    } on SocketException {
-      throw const NetworkException('인터넷 연결을 확인해주세요');
-    } on HttpException catch (e) {
-      throw NetworkException('HTTP 요청 오류: ${e.message}');
-    } on http.ClientException catch (e) {
-      throw NetworkException('클라이언트 요청 오류: ${e.message}');
-    } on FormatException {
-      throw const ParsingException('응답 데이터 형식이 올바르지 않습니다');
+    } on ServerException {
+      rethrow;
+    } on BaseDomainException {
+      rethrow; // 이미 우리가 정의한 예외라면 그대로 전달
     } catch (e) {
-      // 예상하지 못한 에러
-      if (e is BaseDomainException) {
-        rethrow; // 이미 우리가 정의한 예외라면 그대로 전달
-      }
       throw ParsingException('알 수 없는 오류가 발생했습니다: ${e.toString()}');
     }
+    // BaseRemoteDataSource에서 NetworkException, basic ParsingException 처리
   }
 
   void dispose() {
