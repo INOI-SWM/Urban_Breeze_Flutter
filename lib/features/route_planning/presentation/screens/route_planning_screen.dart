@@ -17,7 +17,7 @@ import 'package:ridingmate/core/result/app_result.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/marker/route_pin_marker.dart';
-import 'package:ridingmate/shared/presentation/mixins/error_display_mixin.dart';
+import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
 
 class RoutePlanningScreen extends ConsumerStatefulWidget {
   const RoutePlanningScreen({super.key});

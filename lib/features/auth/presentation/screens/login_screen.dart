@@ -9,7 +9,7 @@ import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
 import 'package:ridingmate/features/auth/presentation/widgets/login_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
-import 'package:ridingmate/shared/presentation/mixins/error_display_mixin.dart';
+import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});

@@ -6,7 +6,7 @@ import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/features/profile/presentation/screens/profile_edit_screen.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/button_solid.dart';
-import 'package:ridingmate/shared/presentation/mixins/error_display_mixin.dart';
+import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key, required this.user});

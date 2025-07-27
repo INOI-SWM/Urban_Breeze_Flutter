@@ -18,7 +18,7 @@ import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_butto
 import 'package:ridingmate/shared/design_system/widgets/info/info_item.dart';
 import 'package:ridingmate/shared/design_system/widgets/modal/modal_show.dart';
 import 'package:ridingmate/shared/design_system/widgets/text_field/inline_edit_text_field.dart';
-import 'package:ridingmate/shared/presentation/mixins/error_display_mixin.dart';
+import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
 import 'package:ridingmate/shared/utils/date_formatter.dart';
 import 'package:ridingmate/shared/utils/workout_formatter.dart';
 
