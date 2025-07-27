@@ -69,12 +69,7 @@ class SortModal {
               ),
             ),
           ),
-          if (hasIcon)
-            Icon(
-              Icons.keyboard_arrow_down,
-              color: colors.labelAssistive,
-              size: 24,
-            ),
+          if (hasIcon) Icon(Icons.check, color: colors.primaryNormal, size: 24),
         ],
       ),
     );
