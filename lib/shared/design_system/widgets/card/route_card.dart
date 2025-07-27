@@ -35,7 +35,6 @@ class RouteCard extends StatelessWidget {
   static const double _thumbnailHeight = 124.0;
   static const double _borderRadius = 12.0;
   static const double _avatarSize = 24.0;
-  static const double _contentPadding = 16.0;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +43,6 @@ class RouteCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        // 가운데 정렬
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: colors.backgroundNormalNormal,
