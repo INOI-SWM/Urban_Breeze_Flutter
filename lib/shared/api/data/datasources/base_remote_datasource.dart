@@ -59,6 +59,24 @@ abstract class BaseRemoteDataSource {
     );
   }
 
+  Future<http.Response> patch(
+    String endpoint, {
+    Object? body,
+    Map<String, String>? headers,
+    Map<String, String>? queryParameters,
+  }) async {
+    final Uri uri = _buildUri(endpoint, queryParameters);
+    final String? encodedBody = body != null ? json.encode(body) : null;
+
+    return await _executeRequest(
+      () => _client.patch(
+        uri,
+        headers: _mergeHeaders(headers),
+        body: encodedBody,
+      ),
+    );
+  }
+
   Future<http.Response> delete(
     String endpoint, {
     Map<String, String>? headers,
