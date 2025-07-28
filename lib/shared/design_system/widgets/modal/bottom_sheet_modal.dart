@@ -106,7 +106,6 @@ class BottomSheetShow {
       isScrollControlled: true,
       isDismissible: isDismissible,
       enableDrag: enableDrag,
-      backgroundColor: context.semanticColor.backgroundNormalNormal,
       builder: (BuildContext context) {
         return Container(
           color: Colors.transparent,
