@@ -100,7 +100,7 @@ class AppleHealthKitDataSource {
           ]);
 
       if (preferredUnits.isEmpty) {
-        throw HealthKitDataException('심박수 단위를 가져올 수 없습니다');
+        throw const HealthKitDataException('심박수 단위를 가져올 수 없습니다');
       }
 
       final String unit = preferredUnits.first.unit;
@@ -137,7 +137,7 @@ class AppleHealthKitDataSource {
           ]);
 
       if (preferredUnits.isEmpty) {
-        throw HealthKitDataException('거리 단위를 가져올 수 없습니다');
+        throw const HealthKitDataException('거리 단위를 가져올 수 없습니다');
       }
 
       final String unit = preferredUnits.first.unit;

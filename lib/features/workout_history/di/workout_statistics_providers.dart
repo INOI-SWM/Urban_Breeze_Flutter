@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:ridingmate/core/di/core_providers.dart';
 
 import '../application/use_cases/get_workout_statistics_use_case.dart';
 import '../application/use_cases/update_workout_title_use_case.dart';
@@ -10,33 +11,21 @@ import '../data/repositories/workout_statistics_repository_impl.dart';
 import '../domain/repositories/workout_history_repository.dart';
 import '../domain/repositories/workout_statistics_repository.dart';
 
-// HTTP Client Provider
-final Provider<http.Client> httpClientProvider = Provider<http.Client>((
-  Ref<http.Client> ref,
+// Data Source Providers
+final Provider<WorkoutStatisticsDataSource>
+workoutStatisticsDataSourceProvider = Provider<WorkoutStatisticsDataSource>((
+  Ref<WorkoutStatisticsDataSource> ref,
 ) {
-  final http.Client client = http.Client();
-  ref.onDispose(() => client.close());
-  return client;
+  return WorkoutStatisticsDataSource();
 });
 
-// DataSource Providers
-final Provider<WorkoutStatisticsDatasource>
-workoutStatisticsDatasourceProvider = Provider<WorkoutStatisticsDatasource>((
-  Ref<WorkoutStatisticsDatasource> ref,
-) {
-  return WorkoutStatisticsDatasource();
-});
-
-final Provider<RemoteWorkoutHistoryDatasource>
-remoteWorkoutHistoryDatasourceProvider =
-    Provider<RemoteWorkoutHistoryDatasource>((
-      Ref<RemoteWorkoutHistoryDatasource> ref,
+final Provider<RemoteWorkoutHistoryDataSource>
+remoteWorkoutHistoryDataSourceProvider =
+    Provider<RemoteWorkoutHistoryDataSource>((
+      Ref<RemoteWorkoutHistoryDataSource> ref,
     ) {
       final http.Client client = ref.watch(httpClientProvider);
-      final RemoteWorkoutHistoryDatasource dataSource =
-          RemoteWorkoutHistoryDatasource(client: client);
-      ref.onDispose(() => dataSource.dispose());
-      return dataSource;
+      return RemoteWorkoutHistoryDataSource(client: client);
     });
 
 // Repository Providers
@@ -44,8 +33,8 @@ final Provider<WorkoutStatisticsRepository>
 workoutStatisticsRepositoryProvider = Provider<WorkoutStatisticsRepository>((
   Ref<WorkoutStatisticsRepository> ref,
 ) {
-  final WorkoutStatisticsDatasource dataSource = ref.watch(
-    workoutStatisticsDatasourceProvider,
+  final WorkoutStatisticsDataSource dataSource = ref.watch(
+    workoutStatisticsDataSourceProvider,
   );
 
   return WorkoutStatisticsRepositoryImpl(dataSource);
@@ -53,8 +42,8 @@ workoutStatisticsRepositoryProvider = Provider<WorkoutStatisticsRepository>((
 
 final Provider<WorkoutHistoryRepository> workoutHistoryRepositoryProvider =
     Provider<WorkoutHistoryRepository>((Ref<WorkoutHistoryRepository> ref) {
-      final RemoteWorkoutHistoryDatasource dataSource = ref.watch(
-        remoteWorkoutHistoryDatasourceProvider,
+      final RemoteWorkoutHistoryDataSource dataSource = ref.watch(
+        remoteWorkoutHistoryDataSourceProvider,
       );
 
       return WorkoutHistoryRepositoryImpl(remoteDataSource: dataSource);

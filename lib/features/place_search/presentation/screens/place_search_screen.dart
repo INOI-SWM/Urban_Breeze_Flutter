@@ -10,8 +10,10 @@ import 'package:ridingmate/features/place_search/domain/entities/place.dart';
 import 'package:ridingmate/features/place_search/domain/entities/search_result.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/get_current_location_use_case.dart';
 import 'package:ridingmate/features/route_planning/di/route_providers.dart';
+import 'package:ridingmate/core/result/app_result.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/search_app_bar.dart';
+import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
 
 class PlaceSearchScreen extends ConsumerStatefulWidget {
   const PlaceSearchScreen({super.key, this.initialLocation});
@@ -22,7 +24,8 @@ class PlaceSearchScreen extends ConsumerStatefulWidget {
   ConsumerState<PlaceSearchScreen> createState() => _PlaceSearchScreenState();
 }
 
-class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
+class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
+    with ErrorDisplayMixin {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
 
@@ -89,15 +92,6 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
     }
   }
 
-  void _showErrorSnackBar(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
-      );
-    }
-  }
-
   Future<void> _performSearch(String query) async {
     if (query.trim().isEmpty) {
       setState(() {
@@ -107,19 +101,17 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
       return;
     }
 
-    // 현재 위치 사용 (기본 위치 또는 실제 위치)
     final LatLng searchLocation = _currentLocation ?? _defaultLocation;
 
     setState(() {
       _isSearching = true;
     });
 
-    final PlaceSearchResult<SearchResult> result = await _searchPlacesUseCase
-        .call(
-          query: query,
-          longitude: searchLocation.longitude,
-          latitude: searchLocation.latitude,
-        );
+    final AppResult<SearchResult> result = await _searchPlacesUseCase.call(
+      query: query,
+      longitude: searchLocation.longitude,
+      latitude: searchLocation.latitude,
+    );
 
     if (mounted) {
       setState(() {
@@ -127,13 +119,13 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen> {
       });
 
       switch (result) {
-        case final PlaceSearchSuccess<SearchResult> success:
+        case final AppSuccess<SearchResult> success:
           setState(() {
-            _searchResults = success.searchResult.places;
-            _lastSearchResult = success.searchResult;
+            _searchResults = success.data.places;
+            _lastSearchResult = success.data;
           });
-        case final PlaceSearchFailure<SearchResult> failure:
-          _showErrorSnackBar(failure.message);
+        case final AppFailure<SearchResult> failure:
+          showErrorFromAppResult(context, failure);
       }
     }
   }
