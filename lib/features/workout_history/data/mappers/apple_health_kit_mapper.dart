@@ -74,7 +74,7 @@ class AppleHealthKitMapper {
   static HeartRateData toHeartRateData(Quantity quantity) {
     try {
       if (quantity.identifier != QuantityType.heartRate.identifier) {
-        throw HealthKitDataException('HEART_RATE 타입이 아닌 데이터입니다');
+        throw const HealthKitDataException('HEART_RATE 타입이 아닌 데이터입니다');
       }
 
       return HeartRateData(
@@ -92,7 +92,7 @@ class AppleHealthKitMapper {
   static DistanceData toDistanceData(Quantity quantity) {
     try {
       if (quantity.identifier != QuantityType.distanceCycling.identifier) {
-        throw HealthKitDataException('DISTANCE_CYCLING 타입이 아닌 데이터입니다');
+        throw const HealthKitDataException('DISTANCE_CYCLING 타입이 아닌 데이터입니다');
       }
 
       final double distance = quantity.harmonized.value.toDouble();

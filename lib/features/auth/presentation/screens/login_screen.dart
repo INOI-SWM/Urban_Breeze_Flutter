@@ -9,6 +9,7 @@ import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
 import 'package:ridingmate/features/auth/presentation/widgets/login_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -17,7 +18,8 @@ class LoginScreen extends ConsumerStatefulWidget {
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen>
+    with ErrorDisplayMixin {
   LoginProvider? _loadingProvider;
 
   bool _isLoading(LoginProvider provider) => _loadingProvider == provider;
@@ -38,12 +40,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             .read(userSessionNotifierProvider.notifier)
             .setUserSession(user);
         if (!mounted) return;
-        _showSuccessMessage(user);
+        showSuccessMessage(
+          context,
+          '환영합니다, ${user.displayName ?? user.email}님!',
+        );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
-        _showErrorMessage(provider);
+        final String providerName = switch (provider) {
+          LoginProvider.google => 'Google',
+          LoginProvider.apple => 'Apple',
+          LoginProvider.kakao => 'Kakao',
+        };
+        showErrorMessage(context, '$providerName 로그인에 실패했습니다.');
       }
     } finally {
       if (mounted) {
@@ -52,23 +62,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         });
       }
     }
-  }
-
-  void _showSuccessMessage(User user) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('환영합니다, ${user.displayName ?? user.email}님!')),
-    );
-  }
-
-  void _showErrorMessage(LoginProvider provider) {
-    final String providerName = switch (provider) {
-      LoginProvider.google => 'Google',
-      LoginProvider.apple => 'Apple',
-      LoginProvider.kakao => 'Kakao',
-    };
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('$providerName 로그인에 실패했습니다.')));
   }
 
   Widget _buildLoginButton({

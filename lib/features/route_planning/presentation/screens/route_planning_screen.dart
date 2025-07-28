@@ -7,16 +7,17 @@ import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/place_search/domain/entities/place.dart';
 import 'package:ridingmate/features/place_search/domain/entities/search_result.dart';
 import 'package:ridingmate/features/place_search/presentation/screens/place_search_screen.dart';
-import 'package:ridingmate/features/route_planning/application/use_cases/create_route_use_case.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/route_planning_facade.dart';
 import 'package:ridingmate/features/route_planning/di/route_providers.dart';
 import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
 import 'package:ridingmate/features/route_planning/presentation/screens/route_create_complete_screen.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
+import 'package:ridingmate/core/result/app_result.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/marker/route_pin_marker.dart';
+import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
 
 class RoutePlanningScreen extends ConsumerStatefulWidget {
   const RoutePlanningScreen({super.key});
@@ -26,7 +27,8 @@ class RoutePlanningScreen extends ConsumerStatefulWidget {
       _RoutePlanningScreenState();
 }
 
-class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
+class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
+    with ErrorDisplayMixin {
   static const LatLng _seoulCityHall = LatLng(37.5665, 126.9780);
   static const double _defaultZoom = 16.0;
 
@@ -147,7 +149,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
       _isRouteLoading = true;
     });
 
-    final RouteResult<RouteSegment> result = await _facade.createRoute.execute(
+    final AppResult<RouteSegment> result = await _facade.createRoute.execute(
       _pins[_pins.length - 2],
       _pins[_pins.length - 1],
     );
@@ -158,15 +160,15 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
       });
 
       switch (result) {
-        case final RouteSuccess<RouteSegment> success:
+        case final AppSuccess<RouteSegment> success:
           setState(() {
             _routeSegments.add(success.data);
             _pins[_pins.length - 2] = success.data.points.first;
             _pins[_pins.length - 1] = success.data.points.last;
           });
-        case final RouteFailure<RouteSegment> failure:
+        case final AppFailure<RouteSegment> failure:
           _removeLastPin(shouldRemoveRouteSegment: false);
-          _showErrorSnackBar(failure.message);
+          showErrorFromAppResult(context, failure);
       }
     }
   }
@@ -299,9 +301,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
       );
     } catch (e) {
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('경로 저장에 실패했습니다. 다시 시도해주세요.')),
-      );
+      showErrorMessage(context, '경로 저장에 실패했습니다. 다시 시도해주세요.');
     }
   }
 
@@ -333,15 +333,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen> {
       onBack: _exitSaveMode,
       onComplete: _completeRouteSave,
     );
-  }
-
-  void _showErrorSnackBar(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
-      );
-    }
   }
 
   void _onMarkerTap() {

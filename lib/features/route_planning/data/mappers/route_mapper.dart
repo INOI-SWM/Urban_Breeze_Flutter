@@ -1,8 +1,8 @@
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_segment_api_response_model.dart';
 import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
-import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 import 'package:ridingmate/features/route_planning/domain/services/elevation_calculate_service.dart';
+import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
 
 class RouteMapper {
   static const int _elevationIndex = 2;
@@ -29,15 +29,13 @@ class RouteMapper {
 
   static void validateRouteData(RouteApiResponseModel dto) {
     if (dto.geometry.length < 2) {
-      throw const RouteValidationException(
-        'Route must have at least 2 coordinates',
-      );
+      throw const ValidationException('Route must have at least 2 coordinates');
     }
     if (dto.totalDistance < 0) {
-      throw const RouteValidationException('Distance cannot be negative');
+      throw const ValidationException('Distance cannot be negative');
     }
     if (dto.totalDuration < 0) {
-      throw const RouteValidationException('Duration cannot be negative');
+      throw const ValidationException('Duration cannot be negative');
     }
   }
 

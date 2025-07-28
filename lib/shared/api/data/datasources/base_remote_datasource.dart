@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
 
 abstract class BaseRemoteDataSource {
   BaseRemoteDataSource({http.Client? client})
@@ -59,6 +60,24 @@ abstract class BaseRemoteDataSource {
     );
   }
 
+  Future<http.Response> patch(
+    String endpoint, {
+    Object? body,
+    Map<String, String>? headers,
+    Map<String, String>? queryParameters,
+  }) async {
+    final Uri uri = _buildUri(endpoint, queryParameters);
+    final String? encodedBody = body != null ? json.encode(body) : null;
+
+    return await _executeRequest(
+      () => _client.patch(
+        uri,
+        headers: _mergeHeaders(headers),
+        body: encodedBody,
+      ),
+    );
+  }
+
   Future<http.Response> delete(
     String endpoint, {
     Map<String, String>? headers,
@@ -75,23 +94,27 @@ abstract class BaseRemoteDataSource {
     try {
       return json.decode(response.body) as Map<String, dynamic>;
     } on FormatException {
-      throw const FormatException('서버 응답이 유효한 JSON 형식이 아닙니다');
+      throw const ParsingException('서버 응답이 유효한 JSON 형식이 아닙니다');
     }
   }
 
   /// HTTP 요청 실행 및 기본 예외 처리
-  /// 각 Feature별 구체적인 예외는 상속받은 클래스에서 처리
+  /// BaseDomainException을 사용하여 일관된 예외 처리 제공
   Future<http.Response> _executeRequest(
     Future<http.Response> Function() request,
   ) async {
     try {
       return await request();
     } on SocketException {
-      throw const SocketException('인터넷 연결을 확인해주세요');
+      throw const NetworkException('인터넷 연결을 확인해주세요');
     } on FormatException {
       rethrow;
+    } on http.ClientException catch (e) {
+      throw NetworkException('클라이언트 요청 오류: ${e.message}');
+    } on HttpException catch (e) {
+      throw NetworkException('HTTP 요청 오류: ${e.message}');
     } catch (e) {
-      throw Exception('네트워크 오류: ${e.toString()}');
+      throw NetworkException('네트워크 오류: ${e.toString()}');
     }
   }
 

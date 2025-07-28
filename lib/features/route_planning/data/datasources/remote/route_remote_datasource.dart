@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:http/http.dart' as http;
 import 'package:ridingmate/features/route_planning/data/models/route_save_request_model.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_save_response_model.dart';
@@ -7,8 +5,8 @@ import 'package:ridingmate/features/route_planning/domain/exceptions/route_domai
 import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
 import 'package:ridingmate/shared/api/data/models/api_response_model.dart';
 
-class RouteRemoteDatasource extends BaseRemoteDataSource {
-  RouteRemoteDatasource({super.client});
+class RouteRemoteDataSource extends BaseRemoteDataSource {
+  RouteRemoteDataSource({super.client});
 
   Future<RouteSaveResponseModel> saveRoute(
     RouteSaveRequestModel request,
@@ -33,15 +31,17 @@ class RouteRemoteDatasource extends BaseRemoteDataSource {
         return apiResp.data;
       }
 
-      throw RouteSaveException('서버 오류 (${response.statusCode})');
-    } on SocketException {
-      throw const RouteSaveException('인터넷 연결을 확인해주세요');
-    } on FormatException {
-      throw const RouteSaveException('서버 응답 데이터 형식이 잘못되었습니다');
+      // 서버에서 전달된 구체적인 에러 메시지 추출
+      final String errorMessage =
+          jsonMap['message'] as String? ??
+          jsonMap['error'] as String? ??
+          jsonMap['errorMessage'] as String? ??
+          '경로 저장에 실패했습니다';
+
+      throw RouteSaveException('서버 오류 (${response.statusCode}): $errorMessage');
     } on RouteSaveException {
       rethrow;
-    } catch (e) {
-      throw RouteSaveException('네트워크 오류: ${e.toString()}');
     }
+    // BaseRemoteDataSource에서 NetworkException, ParsingException 처리
   }
 }
