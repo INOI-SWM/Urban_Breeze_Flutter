@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
-import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 
 class BottomSheetModal extends StatelessWidget {
   const BottomSheetModal({
@@ -36,56 +36,24 @@ class BottomSheetModal extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          // 헤더
-          _buildHeader(colors),
-          // 구분선
-          Container(height: 1, color: colors.lineNormalAlternative),
+          // 헤더 - CustomAppBar 사용
+          CustomAppBar(
+            title: title,
+            actions:
+                showCloseButton
+                    ? <Widget>[
+                      GestureDetector(
+                        onTap: onClose ?? () => Navigator.of(context).pop(),
+                        child: const Icon(Icons.close),
+                      ),
+                    ]
+                    : null,
+            centerTitle: true,
+            titleTextSize: AppBarTitleSize.medium,
+          ),
           // 내용 영역
           Padding(padding: const EdgeInsets.all(20), child: content),
         ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(SemanticColors colors) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      child: Builder(
-        builder:
-            (BuildContext context) => SizedBox(
-              height: 24,
-              child: Stack(
-                children: <Widget>[
-                  // 제목 (가운데 정렬)
-                  if (title != null)
-                    Center(
-                      child: Text(
-                        title!,
-                        style: AppTextStyles.heading2.bold.copyWith(
-                          color: colors.labelNormal,
-                        ),
-                      ),
-                    ),
-                  // 닫기 버튼 (우측 정렬)
-                  if (showCloseButton)
-                    Positioned(
-                      right: 0,
-                      child: GestureDetector(
-                        onTap: onClose ?? () => Navigator.of(context).pop(),
-                        child: SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: Icon(
-                            Icons.close,
-                            size: 24,
-                            color: colors.labelNormal,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
       ),
     );
   }
