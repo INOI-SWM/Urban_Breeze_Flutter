@@ -23,27 +23,23 @@ class SortModal {
       title: '정렬',
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          ...sortOptions.asMap().entries.map((MapEntry<int, String> entry) {
-            final int index = entry.key;
-            final String option = entry.value;
-            return Column(
-              children: <Widget>[
-                _buildSortOption(
-                  context,
-                  option,
-                  isSelected: option == selectedOption,
-                  hasIcon: option == selectedOption,
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    onOptionSelected(option);
-                  },
-                ),
-                if (index < sortOptions.length - 1) const SizedBox(height: 20),
-              ],
-            );
-          }),
-        ],
+        children: List<Widget>.generate(sortOptions.length, (int i) {
+          return Column(
+            children: <Widget>[
+              _buildSortOption(
+                context,
+                sortOptions[i],
+                isSelected: sortOptions[i] == selectedOption,
+                hasIcon: sortOptions[i] == selectedOption,
+                onTap: () {
+                  Navigator.of(context).pop();
+                  onOptionSelected(sortOptions[i]);
+                },
+              ),
+              if (i < sortOptions.length - 1) const SizedBox(height: 20),
+            ],
+          );
+        }),
       ),
     );
   }
