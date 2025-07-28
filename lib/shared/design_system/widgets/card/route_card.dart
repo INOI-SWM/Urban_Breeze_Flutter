@@ -31,9 +31,9 @@ class RouteCard extends StatelessWidget {
   final String elevation;
   final VoidCallback? onTap;
 
-  static const double _thumbnailWidth = 176.0;
-  static const double _thumbnailHeight = 124.0;
-  static const double _borderRadius = 12.0;
+  static const double _thumbnailWidth = 180.0;
+  static const double _thumbnailHeight = 120.0;
+  static const double _thumbnailBorderRadius = 12.0;
   static const double _avatarSize = 24.0;
 
   @override
@@ -42,21 +42,16 @@ class RouteCard extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: colors.backgroundNormalNormal,
-          borderRadius: BorderRadius.circular(_borderRadius),
-          border: Border.all(color: colors.lineNormalAlternative, width: 1),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(_borderRadius),
-                bottomLeft: Radius.circular(_borderRadius),
-              ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(_thumbnailBorderRadius),
+              border: Border.all(color: colors.lineNormalAlternative, width: 1),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(_thumbnailBorderRadius),
               child: SizedBox(
                 width: _thumbnailWidth,
                 height: _thumbnailHeight,
@@ -68,38 +63,38 @@ class RouteCard extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  _buildUserInfo(colors),
-                  const SizedBox(height: 8),
-                  // 경로 제목
-                  Text(
-                    routeTitle,
-                    style: AppTextStyles.body2.normalBold.copyWith(
-                      color: colors.labelNormal,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                _buildUserInfo(colors),
+                const SizedBox(height: 8),
+                // 경로 제목
+                Text(
+                  routeTitle,
+                  style: AppTextStyles.body2.normalBold.copyWith(
+                    color: colors.labelNormal,
                   ),
-                  const SizedBox(height: 4),
-                  // 날짜
-                  Text(
-                    date,
-                    style: AppTextStyles.label2.medium.copyWith(
-                      color: colors.labelAssistive,
-                    ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                // 날짜
+                Text(
+                  date,
+                  style: AppTextStyles.label2.medium.copyWith(
+                    color: colors.labelAlternative,
                   ),
-                  const SizedBox(height: 8),
-                  // 하단 영역 (배지들)
-                  _buildBadges(colors),
-                ],
-              ),
+                ),
+                const SizedBox(height: 8),
+                // 하단 영역 (배지들)
+                _buildBadges(colors),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -114,6 +109,7 @@ class RouteCard extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(color: colors.lineNormalAlternative, width: 1),
+            color: colors.backgroundNormalAlternative,
           ),
           child: ClipOval(
             child: Image.network(
@@ -129,20 +125,20 @@ class RouteCard extends StatelessWidget {
                   child: Icon(
                     Icons.person,
                     size: 16,
-                    color: colors.labelAssistive,
+                    color: colors.backgroundNormalNormal,
                   ),
                 );
               },
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 4),
         // 사용자 이름
         Expanded(
           child: Text(
             userName,
             style: AppTextStyles.label2.medium.copyWith(
-              color: colors.labelAssistive,
+              color: colors.labelAlternative,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -161,7 +157,7 @@ class RouteCard extends StatelessWidget {
           size: ContentBadgeSize.xsmall,
           type: ContentBadgeType.solid,
           backgroundColor: colors.fillNormal,
-          textColor: colors.labelAssistive,
+          textColor: colors.labelAlternative,
         ),
         const SizedBox(width: 6),
         ContentBadge(
@@ -170,7 +166,7 @@ class RouteCard extends StatelessWidget {
           size: ContentBadgeSize.xsmall,
           type: ContentBadgeType.solid,
           backgroundColor: colors.fillNormal,
-          textColor: colors.labelAssistive,
+          textColor: colors.labelAlternative,
         ),
       ],
     );
