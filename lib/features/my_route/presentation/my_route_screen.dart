@@ -73,64 +73,69 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
             IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
           ],
         ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Row(
-            children: <Widget>[
-              ChipFilter(
-                text: selectedSortOption,
-                size: ChipFilterSize.xsmall,
-                type: ChipFilterType.outlined,
-                textColor: colors.labelAlternative,
-                iconColor: colors.labelAlternative,
-                borderColor: colors.lineNormalNeutral,
-                onPressed: _showSortModal,
-              ),
-              const SizedBox(width: 16),
-              ChipFilter(
-                text: '필터',
-                size: ChipFilterSize.xsmall,
-                type: ChipFilterType.outlined,
-                textColor: colors.labelAlternative,
-                iconColor: colors.labelAlternative,
-                borderColor: colors.lineNormalNeutral,
-                onPressed: _showFilterModal,
-              ),
-            ],
-          ),
-        ),
         Expanded(
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child:
-                isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : routeList.isEmpty
-                    ? const Center(child: Text('경로가 없습니다'))
-                    : ListView.builder(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: routeList.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        final Map<String, dynamic> route = routeList[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: RouteCard(
-                            thumbnailPath: route['thumbnailPath'],
-                            sourceType: route['sourceType'],
-                            userProfileImage: route['userProfileImage'],
-                            userName: route['userName'],
-                            routeTitle: route['title'],
-                            date: route['createDate'],
-                            distance: route['distance'],
-                            elevation: route['elevation'],
-                            onTap: () {
-                              // TODO: 경로 상세 화면으로 이동
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  spacing: 4,
+                  children: <Widget>[
+                    ChipFilter(
+                      text: selectedSortOption,
+                      size: ChipFilterSize.xsmall,
+                      type: ChipFilterType.outlined,
+                      textColor: colors.labelAlternative,
+                      iconColor: colors.labelAlternative,
+                      borderColor: colors.lineNormalNeutral,
+                      onPressed: _showSortModal,
+                    ),
+                    ChipFilter(
+                      text: '필터',
+                      size: ChipFilterSize.xsmall,
+                      type: ChipFilterType.outlined,
+                      textColor: colors.labelAlternative,
+                      iconColor: colors.labelAlternative,
+                      borderColor: colors.lineNormalNeutral,
+                      onPressed: _showFilterModal,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child:
+                      isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : routeList.isEmpty
+                          ? const Center(child: Text('경로가 없습니다'))
+                          : ListView.builder(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            itemCount: routeList.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final Map<String, dynamic> route =
+                                  routeList[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: RouteCard(
+                                  thumbnailPath: route['thumbnailPath'],
+                                  sourceType: route['sourceType'],
+                                  userProfileImage: route['userProfileImage'],
+                                  userName: route['userName'],
+                                  routeTitle: route['title'],
+                                  date: route['createDate'],
+                                  distance: route['distance'],
+                                  elevation: route['elevation'],
+                                  onTap: () {
+                                    // TODO: 경로 상세 화면으로 이동
+                                  },
+                                ),
+                              );
                             },
                           ),
-                        );
-                      },
-                    ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
