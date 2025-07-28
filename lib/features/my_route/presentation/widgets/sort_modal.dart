@@ -6,9 +6,9 @@ import 'package:ridingmate/shared/design_system/widgets/modal/bottom_sheet_modal
 
 class SortModal {
   static const List<String> sortOptions = <String>[
-    '가까운 순',
+    '최근 생성 순',
     '생성 오래된 순',
-    '생성 최근 순',
+    '가까운 순',
     '거리 긴 순',
     '거리 짧은 순',
   ];
