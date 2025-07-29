@@ -21,25 +21,28 @@ class SortModal {
     return BottomSheetShow.show<String>(
       context: context,
       title: '정렬',
-      content: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: List<Widget>.generate(sortOptions.length, (int i) {
-          return Column(
-            children: <Widget>[
-              _buildSortOption(
-                context,
-                sortOptions[i],
-                isSelected: sortOptions[i] == selectedOption,
-                hasIcon: sortOptions[i] == selectedOption,
-                onTap: () {
-                  Navigator.of(context).pop();
-                  onOptionSelected(sortOptions[i]);
-                },
-              ),
-              if (i < sortOptions.length - 1) const SizedBox(height: 20),
-            ],
-          );
-        }),
+      content: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: List<Widget>.generate(sortOptions.length, (int i) {
+            return Column(
+              children: <Widget>[
+                _buildSortOption(
+                  context,
+                  sortOptions[i],
+                  isSelected: sortOptions[i] == selectedOption,
+                  hasIcon: sortOptions[i] == selectedOption,
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    onOptionSelected(sortOptions[i]);
+                  },
+                ),
+                if (i < sortOptions.length - 1) const SizedBox(height: 20),
+              ],
+            );
+          }),
+        ),
       ),
     );
   }
