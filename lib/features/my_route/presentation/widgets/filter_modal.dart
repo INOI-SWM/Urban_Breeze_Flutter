@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/button_outlined.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/button_size.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/button_solid.dart';
 import 'package:ridingmate/shared/design_system/widgets/chip/chip_action.dart';
 import 'package:ridingmate/shared/design_system/widgets/modal/bottom_sheet_modal.dart';
 
@@ -338,56 +341,33 @@ class _FilterContentState extends State<_FilterContent> {
       padding: const EdgeInsets.all(20),
       child: Row(
         children: <Widget>[
-          // 초기화 버튼
           Expanded(
             flex: 1,
-            child: GestureDetector(
-              onTap: () {
+            child: ButtonOutlined(
+              text: '초기화',
+              textColor: colors.labelNormal,
+              borderColor: colors.lineNormalNeutral,
+              size: ButtonSize.large,
+              onPressed: () {
                 setState(() {
                   _currentData = FilterData(); // 기본값으로 초기화
                 });
                 widget.onReset();
               },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                decoration: BoxDecoration(
-                  border: Border.all(color: colors.lineNormalAlternative),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '초기화',
-                  style: AppTextStyles.body1.normalMedium.copyWith(
-                    color: colors.labelNormal,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
             ),
           ),
           const SizedBox(width: 12),
-
-          // 적용하기 버튼
           Expanded(
             flex: 2,
-            child: GestureDetector(
-              onTap: () {
+            child: ButtonSolid(
+              text: '적용하기',
+              textColor: colors.staticWhite,
+              backgroundColor: colors.primaryNormal,
+              size: ButtonSize.large,
+              onPressed: () {
                 Navigator.of(context).pop();
                 widget.onApply(_currentData);
               },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                decoration: BoxDecoration(
-                  color: colors.primaryNormal,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '적용하기',
-                  style: AppTextStyles.body1.normalMedium.copyWith(
-                    color: colors.staticWhite,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
             ),
           ),
         ],
