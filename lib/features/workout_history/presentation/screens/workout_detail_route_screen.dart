@@ -155,59 +155,89 @@ class _DraggableBottomSheet extends StatelessWidget {
 
   final WorkoutRecord workoutRecord;
 
+  static const double _initialChildSize = 0.5;
+  static const double _maxChildSize = 0.5;
+  static const double _minChildSizeLimit = 0.1;
+  static const double _maxChildSizeLimit = 0.3;
+
+  static const double _dragHandleWidth = 40.0;
+  static const double _dragHandleHeight = 4.0;
+  static const double _dragHandleTotalHeight = 24.0;
+
+  static const double _borderRadius = 12.0;
+
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
+    final MediaQueryData mediaQuery = MediaQuery.of(context);
+
+    final double bottomSafeArea = mediaQuery.viewPadding.bottom;
+    final double totalScreenHeight = mediaQuery.size.height;
+
+    const double minimumRequiredHeight =
+        _dragHandleTotalHeight + _InfoCard._cardHeight + 20;
+    final double minChildSize =
+        (minimumRequiredHeight + bottomSafeArea) / totalScreenHeight;
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.5,
-      minChildSize: 0.1,
-      maxChildSize: 0.5,
+      initialChildSize: _initialChildSize,
+      minChildSize: minChildSize.clamp(_minChildSizeLimit, _maxChildSizeLimit),
+      maxChildSize: _maxChildSize,
+      snap: false,
       builder: (BuildContext context, ScrollController scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: colors.backgroundNormalNormal,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(12),
-              topRight: Radius.circular(12),
-            ),
+        return ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(_borderRadius),
+            topRight: Radius.circular(_borderRadius),
           ),
-          child: Column(
-            children: <Widget>[
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(top: 12, bottom: 8),
-                decoration: BoxDecoration(
-                  color: colors.lineNormalNormal,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: colors.backgroundNormalNormal,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(_borderRadius),
+                topRight: Radius.circular(_borderRadius),
               ),
-
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: Row(
-                        children: <Widget>[
-                          _InfoCard(label: '평균 속도', value: '22.3 km/h'),
-                          SizedBox(width: 8),
-                          _InfoCard(label: '상승 고도', value: '124m'),
-                          SizedBox(width: 8),
-                          _InfoCard(label: '평균 심박수', value: '124bpm'),
-                          SizedBox(width: 8),
-                          _InfoCard(label: '평균 심박수', value: '124bpm'),
-                        ],
-                      ),
+            ),
+            child: Column(
+              children: <Widget>[
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    physics: const ClampingScrollPhysics(),
+                    child: Column(
+                      children: <Widget>[
+                        // 드래그 핸들
+                        Container(
+                          width: _dragHandleWidth,
+                          height: _dragHandleHeight,
+                          margin: const EdgeInsets.only(top: 12, bottom: 8),
+                          decoration: BoxDecoration(
+                            color: colors.lineNormalNormal,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        const SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: Row(
+                            children: <Widget>[
+                              _InfoCard(label: '평균 속도', value: '22.3 km/h'),
+                              SizedBox(width: 8),
+                              _InfoCard(label: '상승 고도', value: '124m'),
+                              SizedBox(width: 8),
+                              _InfoCard(label: '평균 심박수', value: '124bpm'),
+                              SizedBox(width: 8),
+                              _InfoCard(label: '평균 심박수', value: '124bpm'),
+                            ],
+                          ),
+                        ),
+                        // const SizedBox(height: 400),
+                      ],
                     ),
-                    SizedBox(height: 200),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -221,14 +251,18 @@ class _InfoCard extends StatelessWidget {
   final String label;
   final String value;
 
+  // 카드 관련 주요 상수들 (여러 곳에서 재사용됨)
+  static const double _cardWidth = 100.0;
+  static const double _cardHeight = 70.0;
+
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
 
     return Container(
       alignment: Alignment.centerLeft,
-      width: 100,
-      height: 70,
+      width: _cardWidth,
+      height: _cardHeight,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: colors.backgroundNormalNormal,
