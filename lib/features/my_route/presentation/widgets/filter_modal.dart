@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:ridingmate/shared/design_system/widgets/chip/chip_action.dart';
 import 'package:ridingmate/shared/design_system/widgets/modal/bottom_sheet_modal.dart';
 
 class FilterData {
@@ -98,14 +99,26 @@ class _FilterContentState extends State<_FilterContent> {
       children: <Widget>[
         // 탭 바
         _buildTabBar(colors),
-        const SizedBox(height: 20),
 
-        // 임시 컨텐츠 (다음 단계에서 구현)
-        Text(
-          '선택된 탭: ${_currentData.selectedTab}',
-          style: AppTextStyles.body1.normalMedium.copyWith(
-            color: colors.labelNormal,
-          ),
+        // 필터 컨텐츠
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            // 생성자 필터
+            _buildCourseTypeFilter(colors),
+            Container(color: colors.backgroundNormalAlternative, height: 8),
+
+            // 다른 필터들 (다음 단계에서 구현)
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                '상승 고도 및 거리 필터 (다음 단계 구현)',
+                style: AppTextStyles.body1.normalMedium.copyWith(
+                  color: colors.labelAssistive,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -152,6 +165,57 @@ class _FilterContentState extends State<_FilterContent> {
                 ),
               );
             }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildCourseTypeFilter(SemanticColors colors) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            '생성자',
+            style: AppTextStyles.heading2.bold.copyWith(
+              color: colors.labelStrong,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children:
+                FilterModal.courseTypes.map((String type) {
+                  final bool isSelected =
+                      type == _currentData.selectedCourseType;
+                  return ChipAction(
+                    text: type,
+                    size: ChipActionSize.small,
+                    type: ChipActionType.outlined,
+                    textColor:
+                        isSelected
+                            ? colors.primaryNormal
+                            : colors.labelAlternative,
+                    borderColor:
+                        isSelected
+                            ? colors.primaryNormal.withValues(alpha: 0.43)
+                            : colors.lineNormalNeutral,
+                    backgroundColor:
+                        isSelected
+                            ? colors.primaryNormal.withValues(alpha: 0.05)
+                            : null,
+                    onPressed: () {
+                      setState(() {
+                        _currentData = _currentData.copyWith(
+                          selectedCourseType: type,
+                        );
+                      });
+                    },
+                  );
+                }).toList(),
+          ),
+        ],
       ),
     );
   }
