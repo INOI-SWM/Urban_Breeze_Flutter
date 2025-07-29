@@ -8,7 +8,7 @@ import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/route_card.dart';
-import 'package:ridingmate/shared/design_system/widgets/chip/chip_filter.dart';
+import 'package:ridingmate/shared/design_system/widgets/category/category_filter.dart';
 
 class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
   const MyRouteScreen({super.key});
@@ -54,10 +54,57 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
     );
   }
 
-  void _showFilterModal() {
+  Future<void> _loadRouteList() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final List<Map<String, dynamic>> routes =
+        await RouteListService.fetchRouteList();
+    setState(() {
+      routeList = routes;
+      isLoading = false;
+    });
+  }
+
+  Set<String> _getSelectedCategories() {
+    final Set<String> selectedCategories = <String>{};
+
+    // 정렬이 기본값이 아닌 경우
+    if (selectedSortOption != SortModal.sortOptions.first) {
+      selectedCategories.add(selectedSortOption);
+    }
+
+    // 생성자 필터가 기본값이 아닌 경우
+    if (currentFilter.selectedCourseType != '전체') {
+      selectedCategories.add('생성자');
+    }
+
+    // 상승 고도 필터가 기본값이 아닌 경우
+    if (currentFilter.elevationRange.start != 0 ||
+        currentFilter.elevationRange.end != 122) {
+      selectedCategories.add('상승 고도');
+    }
+
+    // 거리 필터가 기본값이 아닌 경우
+    if (currentFilter.distanceRange.start != 0 ||
+        currentFilter.distanceRange.end != 999) {
+      selectedCategories.add('거리');
+    }
+
+    return selectedCategories;
+  }
+
+  void _showFilterModal({String? selectedTab}) {
+    // 특정 탭이 지정된 경우 필터 데이터의 선택된 탭 업데이트
+    final FilterData initialData =
+        selectedTab != null
+            ? currentFilter.copyWith(selectedTab: selectedTab)
+            : currentFilter;
+
     FilterModal.show(
       context: context,
-      initialData: currentFilter,
+      initialData: initialData,
       onApply: (FilterData newFilter) {
         setState(() {
           currentFilter = newFilter;
@@ -72,19 +119,6 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
     );
   }
 
-  Future<void> _loadRouteList() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    final List<Map<String, dynamic>> routes =
-        await RouteListService.fetchRouteList();
-    setState(() {
-      routeList = routes;
-      isLoading = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
@@ -97,23 +131,25 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             spacing: 4,
             children: <Widget>[
-              ChipFilter(
-                text: selectedSortOption,
-                size: ChipFilterSize.xsmall,
-                type: ChipFilterType.outlined,
-                textColor: colors.labelAlternative,
-                iconColor: colors.labelAlternative,
-                borderColor: colors.lineNormalNeutral,
-                onPressed: _showSortModal,
-              ),
-              ChipFilter(
-                text: '필터',
-                size: ChipFilterSize.xsmall,
-                type: ChipFilterType.outlined,
-                textColor: colors.labelAlternative,
-                iconColor: colors.labelAlternative,
-                borderColor: colors.lineNormalNeutral,
-                onPressed: _showFilterModal,
+              Expanded(
+                child: CategoryFilter(
+                  categories: <String>[
+                    selectedSortOption,
+                    '생성자',
+                    '상승 고도',
+                    '거리',
+                  ],
+                  selectedCategories: _getSelectedCategories(),
+                  onCategorySelected: (String category) {
+                    if (category == selectedSortOption) {
+                      _showSortModal();
+                    } else {
+                      _showFilterModal(selectedTab: category);
+                    }
+                  },
+                  size: CategoryFilterSize.small,
+                  mode: CategoryFilterMode.alternative,
+                ),
               ),
             ],
           ),
