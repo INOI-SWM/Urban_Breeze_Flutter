@@ -123,7 +123,7 @@ class _WorkoutDetailRouteMapWidget extends StatelessWidget {
     }
 
     final LatLngBounds bounds = _calculateLatLngBounds(routePoints);
-    return CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(20));
+    return CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(30));
   }
 
   LatLngBounds _calculateLatLngBounds(List<LatLng> points) {
@@ -143,10 +143,11 @@ class _WorkoutDetailRouteMapWidget extends StatelessWidget {
       if (point.longitude > maxLng) maxLng = point.longitude;
     }
 
-    return LatLngBounds(
-      LatLng(minLat, minLng), // southwest
-      LatLng(maxLat, maxLng), // northeast
-    );
+    final double latDiff = maxLat - minLat;
+
+    final double adjustedMinLat = minLat - (latDiff * 1.2);
+
+    return LatLngBounds(LatLng(adjustedMinLat, minLng), LatLng(maxLat, maxLng));
   }
 }
 
