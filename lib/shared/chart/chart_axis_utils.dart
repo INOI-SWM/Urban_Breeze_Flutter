@@ -3,37 +3,30 @@ class ChartAxisUtils {
 
   /// 데이터 범위에 따른 적절한 Y축 간격 계산
   ///
-  /// [range]: 데이터의 최댓값 - 최솟값
-  /// [maxValue]: 최댓값 (선택적, 더 정교한 계산을 위해)
-  static double calculateInterval(double range, {double? maxValue}) {
-    if (range < 10) return 2;
-    if (range < 20) return 5;
-    if (range < 50) return 10;
-    if (range < 100) return 20;
+  /// [range]: 데이터의 범위 (maxValue - minValue)
 
-    if (maxValue != null) {
-      if (maxValue <= 10) return 2;
-      if (maxValue <= 50) return 10;
-      if (maxValue <= 100) return 20;
-      if (maxValue <= 500) return 100;
-      if (maxValue <= 1000) return 200;
-      if (maxValue <= 5000) return 1000;
-      if (maxValue <= 10000) return 2000;
-      if (maxValue <= 50000) return 10000;
+  static double calculateInterval(double range) {
+    if (range <= 0) return 2; // 안전장치
 
-      // 매우 큰 값들은 적절한 10의 배수로 설정
-      final double baseInterval = (maxValue / 5).roundToDouble();
-      if (baseInterval >= 10000) {
-        return (baseInterval / 10000).round() * 10000.0;
-      } else if (baseInterval >= 1000) {
-        return (baseInterval / 1000).round() * 1000.0;
-      } else if (baseInterval >= 100) {
-        return (baseInterval / 100).round() * 100.0;
-      }
-      return baseInterval;
+    if (range <= 10) return 2;
+    if (range <= 50) return 10;
+    if (range <= 100) return 20;
+    if (range <= 500) return 100;
+    if (range <= 1000) return 200;
+    if (range <= 5000) return 1000;
+    if (range <= 10000) return 2000;
+    if (range <= 50000) return 10000;
+
+    // 매우 큰 값들은 적절한 10의 배수로 설정
+    final double baseInterval = (range / 5).roundToDouble();
+    if (baseInterval >= 10000) {
+      return (baseInterval / 10000).round() * 10000.0;
+    } else if (baseInterval >= 1000) {
+      return (baseInterval / 1000).round() * 1000.0;
+    } else if (baseInterval >= 100) {
+      return (baseInterval / 100).round() * 100.0;
     }
-
-    return 20;
+    return baseInterval;
   }
 
   /// 차트 Y축 최솟값 계산
