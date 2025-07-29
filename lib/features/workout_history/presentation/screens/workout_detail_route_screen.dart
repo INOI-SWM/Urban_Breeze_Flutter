@@ -184,7 +184,11 @@ class _DraggableBottomSheet extends StatelessWidget {
       initialChildSize: _initialChildSize,
       minChildSize: minChildSize.clamp(_minChildSizeLimit, _maxChildSizeLimit),
       maxChildSize: _maxChildSize,
-      snap: false,
+      snap: true,
+      snapSizes: <double>[
+        minChildSize.clamp(_minChildSizeLimit, _maxChildSizeLimit), // 최소치
+        _maxChildSize, // 최대치 (50%)
+      ],
       builder: (BuildContext context, ScrollController scrollController) {
         return ClipRRect(
           borderRadius: const BorderRadius.only(
