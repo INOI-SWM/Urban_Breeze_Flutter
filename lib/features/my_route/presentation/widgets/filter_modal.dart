@@ -108,11 +108,15 @@ class _FilterContentState extends State<_FilterContent> {
             _buildCourseTypeFilter(colors),
             Container(color: colors.backgroundNormalAlternative, height: 8),
 
-            // 다른 필터들 (다음 단계에서 구현)
+            // 상승 고도 필터
+            _buildElevationFilter(colors),
+            Container(color: colors.backgroundNormalAlternative, height: 8),
+
+            // 거리 필터 (다음 단계에서 구현)
             Padding(
               padding: const EdgeInsets.all(20),
               child: Text(
-                '상승 고도 및 거리 필터 (다음 단계 구현)',
+                '거리 필터 (다음 단계 구현)',
                 style: AppTextStyles.body1.normalMedium.copyWith(
                   color: colors.labelAssistive,
                 ),
@@ -217,6 +221,120 @@ class _FilterContentState extends State<_FilterContent> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildElevationFilter(SemanticColors colors) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            '상승 고도',
+            style: AppTextStyles.heading2.bold.copyWith(
+              color: colors.labelStrong,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildRangeSlider(
+            colors: colors,
+            values: _currentData.elevationRange,
+            min: FilterModal.minElevation,
+            max: FilterModal.maxElevation,
+            unit: 'm',
+            onChanged: (RangeValues values) {
+              setState(() {
+                _currentData = _currentData.copyWith(elevationRange: values);
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRangeSlider({
+    required SemanticColors colors,
+    required RangeValues values,
+    required double min,
+    required double max,
+    required String unit,
+    required Function(RangeValues) onChanged,
+  }) {
+    return Column(
+      children: <Widget>[
+        // 범위 표시
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              '${values.start.round()} $unit',
+              style: AppTextStyles.headline2.bold.copyWith(
+                color: colors.labelNormal,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              '~',
+              style: AppTextStyles.headline2.bold.copyWith(
+                color: colors.labelNormal,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              '${values.end.round()} $unit',
+              style: AppTextStyles.headline2.bold.copyWith(
+                color: colors.labelNormal,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+
+        // 슬라이더
+        Column(
+          children: <Widget>[
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                activeTrackColor: colors.primaryNormal,
+                inactiveTrackColor: colors.fillStrong,
+                thumbColor: colors.primaryNormal,
+                overlayColor: colors.primaryNormal.withValues(alpha: 0.2),
+                thumbShape: const RoundSliderThumbShape(
+                  enabledThumbRadius: 100,
+                ),
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
+              ),
+              child: RangeSlider(
+                values: values,
+                min: min,
+                max: max,
+                onChanged: onChanged,
+              ),
+            ),
+            const SizedBox(height: 8),
+            // 최소/최대값 표시
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  '${values.start.round()} $unit',
+                  style: AppTextStyles.label1.normalMedium.copyWith(
+                    color: colors.labelNormal,
+                  ),
+                ),
+                Text(
+                  '${values.end.round()} $unit',
+                  style: AppTextStyles.label1.normalMedium.copyWith(
+                    color: colors.labelNormal,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
