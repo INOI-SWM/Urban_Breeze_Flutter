@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/my_route/application/services/my_route_service.dart';
+import 'package:ridingmate/features/my_route/presentation/widgets/filter_modal.dart';
 import 'package:ridingmate/features/my_route/presentation/widgets/sort_modal.dart';
 import 'package:ridingmate/navigation/page_with_app_bar.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
@@ -29,6 +30,7 @@ class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
 
 class _MyRouteScreenState extends State<MyRouteScreen> {
   String selectedSortOption = SortModal.sortOptions.first;
+  FilterData currentFilter = FilterData();
 
   List<Map<String, dynamic>> routeList = <Map<String, dynamic>>[];
   bool isLoading = true;
@@ -53,7 +55,21 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
   }
 
   void _showFilterModal() {
-    // TODO: 필터 모달 구현
+    FilterModal.show(
+      context: context,
+      initialData: currentFilter,
+      onApply: (FilterData newFilter) {
+        setState(() {
+          currentFilter = newFilter;
+        });
+      },
+      onReset: () {
+        setState(() {
+          currentFilter = FilterData();
+        });
+      },
+      // TODO: 필터 로직 구현
+    );
   }
 
   Future<void> _loadRouteList() async {
