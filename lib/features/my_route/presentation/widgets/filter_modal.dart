@@ -112,16 +112,8 @@ class _FilterContentState extends State<_FilterContent> {
             _buildElevationFilter(colors),
             Container(color: colors.backgroundNormalAlternative, height: 8),
 
-            // 거리 필터 (다음 단계에서 구현)
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Text(
-                '거리 필터 (다음 단계 구현)',
-                style: AppTextStyles.body1.normalMedium.copyWith(
-                  color: colors.labelAssistive,
-                ),
-              ),
-            ),
+            // 거리 필터
+            _buildDistanceFilter(colors),
           ],
         ),
       ],
@@ -254,6 +246,36 @@ class _FilterContentState extends State<_FilterContent> {
     );
   }
 
+  Widget _buildDistanceFilter(SemanticColors colors) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            '거리',
+            style: AppTextStyles.heading2.bold.copyWith(
+              color: colors.labelStrong,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildRangeSlider(
+            colors: colors,
+            values: _currentData.distanceRange,
+            min: FilterModal.minDistance,
+            max: FilterModal.maxDistance,
+            unit: 'km',
+            onChanged: (RangeValues values) {
+              setState(() {
+                _currentData = _currentData.copyWith(distanceRange: values);
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildRangeSlider({
     required SemanticColors colors,
     required RangeValues values,
@@ -335,6 +357,36 @@ class _FilterContentState extends State<_FilterContent> {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildDistanceFilter(SemanticColors colors) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            '거리',
+            style: AppTextStyles.heading2.bold.copyWith(
+              color: colors.labelStrong,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildRangeSlider(
+            colors: colors,
+            values: _currentData.distanceRange,
+            min: FilterModal.minDistance,
+            max: FilterModal.maxDistance,
+            unit: 'km',
+            onChanged: (RangeValues values) {
+              setState(() {
+                _currentData = _currentData.copyWith(distanceRange: values);
+              });
+            },
+          ),
+        ],
+      ),
     );
   }
 }
