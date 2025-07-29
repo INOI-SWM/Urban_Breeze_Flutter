@@ -116,6 +116,9 @@ class _FilterContentState extends State<_FilterContent> {
             _buildDistanceFilter(colors),
           ],
         ),
+
+        // 액션 버튼
+        _buildActionButtons(colors),
       ],
     );
   }
@@ -246,36 +249,6 @@ class _FilterContentState extends State<_FilterContent> {
     );
   }
 
-  Widget _buildDistanceFilter(SemanticColors colors) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            '거리',
-            style: AppTextStyles.heading2.bold.copyWith(
-              color: colors.labelStrong,
-            ),
-          ),
-          const SizedBox(height: 16),
-          _buildRangeSlider(
-            colors: colors,
-            values: _currentData.distanceRange,
-            min: FilterModal.minDistance,
-            max: FilterModal.maxDistance,
-            unit: 'km',
-            onChanged: (RangeValues values) {
-              setState(() {
-                _currentData = _currentData.copyWith(distanceRange: values);
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildRangeSlider({
     required SemanticColors colors,
     required RangeValues values,
@@ -357,6 +330,68 @@ class _FilterContentState extends State<_FilterContent> {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildActionButtons(SemanticColors colors) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        children: <Widget>[
+          // 초기화 버튼
+          Expanded(
+            flex: 1,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _currentData = FilterData(); // 기본값으로 초기화
+                });
+                widget.onReset();
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                decoration: BoxDecoration(
+                  border: Border.all(color: colors.lineNormalAlternative),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '초기화',
+                  style: AppTextStyles.body1.normalMedium.copyWith(
+                    color: colors.labelNormal,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+
+          // 적용하기 버튼
+          Expanded(
+            flex: 2,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).pop();
+                widget.onApply(_currentData);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                decoration: BoxDecoration(
+                  color: colors.primaryNormal,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '적용하기',
+                  style: AppTextStyles.body1.normalMedium.copyWith(
+                    color: colors.staticWhite,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
