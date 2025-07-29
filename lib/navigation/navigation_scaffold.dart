@@ -54,19 +54,13 @@ class _NavigationScaffoldState extends State<NavigationScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      // 상단, 하단 SafeArea 바깥 영역 배경색
-      color: context.semanticColor.backgroundNormalNormal,
-      child: SafeArea(
-        child: Scaffold(
-          backgroundColor: context.semanticColor.backgroundNormalNormal,
-          appBar: _getAppBar(),
-          body: _pages[_currentIndex],
-          bottomNavigationBar: BottomNavigation(
-            currentIndex: _currentIndex,
-            onDestinationSelected: _onDestinationSelected,
-          ),
-        ),
+    return Scaffold(
+      backgroundColor: context.semanticColor.backgroundNormalNormal,
+      appBar: _getAppBar(),
+      body: SafeArea(child: _pages[_currentIndex]),
+      bottomNavigationBar: BottomNavigation(
+        currentIndex: _currentIndex,
+        onDestinationSelected: _onDestinationSelected,
       ),
     );
   }

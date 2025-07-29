@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 
 class BottomSheetModal extends StatelessWidget {
   const BottomSheetModal({
@@ -29,31 +30,34 @@ class BottomSheetModal extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.backgroundNormalNormal,
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
+          topLeft: Radius.circular(12),
+          topRight: Radius.circular(12),
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          // 헤더 - CustomAppBar 사용
-          CustomAppBar(
-            title: title,
-            actions:
-                showCloseButton
-                    ? <Widget>[
-                      GestureDetector(
-                        onTap: onClose ?? () => Navigator.of(context).pop(),
-                        child: const Icon(Icons.close),
-                      ),
-                    ]
-                    : null,
-            centerTitle: true,
-            titleTextSize: AppBarTitleSize.medium,
-          ),
-          // 내용 영역
-          Padding(padding: const EdgeInsets.all(20), child: content),
-        ],
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            // 헤더 - CustomAppBar 사용
+            CustomAppBar(
+              title: title,
+              actions:
+                  showCloseButton
+                      ? <Widget>[
+                        CustomIconButton(
+                          icon: Icons.close,
+                          onTap: onClose ?? () => Navigator.of(context).pop(),
+                        ),
+                      ]
+                      : null,
+              centerTitle: true,
+              titleTextSize: AppBarTitleSize.medium,
+              height: 64,
+            ),
+            // 내용 영역
+            Padding(padding: const EdgeInsets.all(20), child: content),
+          ],
+        ),
       ),
     );
   }
@@ -75,21 +79,13 @@ class BottomSheetShow {
       isDismissible: isDismissible,
       enableDrag: enableDrag,
       builder: (BuildContext context) {
-        return Container(
-          color: Colors.transparent,
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).padding.bottom,
-          ),
-          child: IntrinsicHeight(
-            child: BottomSheetModal(
-              title: title,
-              content: content,
-              showCloseButton: showCloseButton,
-              onClose: onClose,
-              isDismissible: isDismissible,
-              enableDrag: enableDrag,
-            ),
-          ),
+        return BottomSheetModal(
+          title: title,
+          content: content,
+          showCloseButton: showCloseButton,
+          onClose: onClose,
+          isDismissible: isDismissible,
+          enableDrag: enableDrag,
         );
       },
     );
