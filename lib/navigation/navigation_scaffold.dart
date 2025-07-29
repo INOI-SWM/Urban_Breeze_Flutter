@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/home/presentation/screens/home_screen.dart';
+import 'package:ridingmate/features/my_route/presentation/my_route_screen.dart';
 import 'package:ridingmate/features/profile/presentation/pages/profile_page.dart';
-import 'package:ridingmate/features/riding/presentation/screens/riding_screen.dart';
 import 'package:ridingmate/features/route_planning/presentation/screens/route_planning_screen.dart';
 import 'package:ridingmate/features/workout_history/presentation/pages/workout_history_page.dart';
 import 'package:ridingmate/navigation/bottom_navigation.dart';
@@ -29,7 +29,7 @@ class _NavigationScaffoldState extends State<NavigationScaffold> {
   static final List<Widget> _pages = <Widget>[
     const HomeScreen(),
     const RoutePlanningScreen(),
-    const RidingScreen(),
+    const MyRouteScreen(),
     const WorkoutHistoryPage(),
     const ProfilePage(),
   ];
@@ -54,13 +54,19 @@ class _NavigationScaffoldState extends State<NavigationScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.semanticColor.backgroundNormalNormal,
-      appBar: _getAppBar(),
-      body: SafeArea(child: _pages[_currentIndex]),
-      bottomNavigationBar: BottomNavigation(
-        currentIndex: _currentIndex,
-        onDestinationSelected: _onDestinationSelected,
+    return Container(
+      // 상단, 하단 SafeArea 바깥 영역 배경색
+      color: context.semanticColor.backgroundNormalNormal,
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: context.semanticColor.backgroundNormalNormal,
+          appBar: _getAppBar(),
+          body: _pages[_currentIndex],
+          bottomNavigationBar: BottomNavigation(
+            currentIndex: _currentIndex,
+            onDestinationSelected: _onDestinationSelected,
+          ),
+        ),
       ),
     );
   }
