@@ -350,7 +350,9 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                             MaterialPageRoute<void>(
                               builder:
                                   (BuildContext context) =>
-                                      const WorkoutDetailRouteScreen(),
+                                      WorkoutDetailRouteScreen(
+                                        workoutRecord: widget.workoutRecord,
+                                      ),
                             ),
                           );
                         },
