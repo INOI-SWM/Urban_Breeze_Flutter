@@ -1,7 +1,9 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/workout_history/domain/entities/heart_rate_data.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/location_data.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/workout_record.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
@@ -180,6 +182,7 @@ class _WorkoutDetailRouteMapWidget extends StatelessWidget {
     );
   }
 
+  //TODO: 디자인 수정 필요
   Marker _createMarker(LatLng point, Color color) {
     return Marker(
       point: point,
@@ -323,6 +326,11 @@ class _DraggableBottomSheetState extends State<_DraggableBottomSheet> {
                               ],
                             ),
                           ),
+                          const SizedBox(height: 40),
+                          _WorkoutChart(
+                            workoutRecord: widget.workoutRecord,
+                            selectedIndex: _selectedCardIndex,
+                          ),
                         ],
                       ),
                     ),
@@ -379,5 +387,371 @@ class _InfoCard extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _WorkoutChart extends StatelessWidget {
+  const _WorkoutChart({
+    required this.workoutRecord,
+    required this.selectedIndex,
+  });
+
+  final WorkoutRecord workoutRecord;
+  final int selectedIndex;
+
+  @override
+  Widget build(BuildContext context) {
+    final SemanticColors colors = context.semanticColor;
+
+    return Container(
+      height: 200,
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[Expanded(child: _buildChart(colors))],
+      ),
+    );
+  }
+
+  Widget _buildChart(SemanticColors colors) {
+    switch (selectedIndex) {
+      case 0:
+        return _buildSpeedChart(colors);
+      case 1:
+        return _buildAltitudeChart(colors);
+      case 2:
+        return _buildHeartRateChart(colors);
+      default:
+        return const Center(child: Text('데이터 없음'));
+    }
+  }
+
+  Widget _buildSpeedChart(SemanticColors colors) {
+    final List<FlSpot> speedSpots = _getSpeedData();
+
+    if (speedSpots.isEmpty) {
+      return const Center(child: Text('속도 데이터 없음'));
+    }
+
+    final double minValue = speedSpots
+        .map((FlSpot spot) => spot.y)
+        .reduce((double a, double b) => a < b ? a : b);
+    final double maxValue = speedSpots
+        .map((FlSpot spot) => spot.y)
+        .reduce((double a, double b) => a > b ? a : b);
+    final double interval = _getSpeedInterval(maxValue - minValue);
+    final double chartMinY = ((minValue / interval).floor()) * interval;
+    final double chartMaxY =
+        ((maxValue / interval).ceil()) * interval + (interval * 0.1);
+
+    return LineChart(
+      LineChartData(
+        minY: chartMinY,
+        maxY: chartMaxY,
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: interval,
+          getDrawingHorizontalLine: (double value) {
+            return FlLine(
+              color: colors.lineNormalNeutral.withValues(alpha: 0.3),
+              strokeWidth: 1,
+            );
+          },
+        ),
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 40,
+              getTitlesWidget: (double value, TitleMeta meta) {
+                if (value % interval != 0) {
+                  return const SizedBox.shrink();
+                }
+                return Text(
+                  '${value.toInt()}',
+                  style: TextStyle(
+                    color: colors.labelAlternative,
+                    fontSize: 12,
+                  ),
+                );
+              },
+            ),
+          ),
+          bottomTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        lineBarsData: <LineChartBarData>[
+          LineChartBarData(
+            spots: speedSpots,
+            isCurved: true,
+            color: colors.primaryNormal,
+            barWidth: 3,
+            isStrokeCapRound: true,
+            dotData: const FlDotData(show: false),
+            belowBarData: BarAreaData(
+              show: true,
+              color: colors.primaryNormal.withValues(alpha: 0.1),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAltitudeChart(SemanticColors colors) {
+    final List<FlSpot> altitudeSpots = _getAltitudeData();
+
+    if (altitudeSpots.isEmpty) {
+      return const Center(child: Text('고도 데이터 없음'));
+    }
+
+    final double minValue = altitudeSpots
+        .map((FlSpot spot) => spot.y)
+        .reduce((double a, double b) => a < b ? a : b);
+    final double maxValue = altitudeSpots
+        .map((FlSpot spot) => spot.y)
+        .reduce((double a, double b) => a > b ? a : b);
+    final double interval = _getAltitudeInterval(maxValue - minValue);
+    final double chartMinY = ((minValue / interval).floor()) * interval;
+    final double chartMaxY =
+        ((maxValue / interval).ceil()) * interval + (interval * 0.1);
+
+    return LineChart(
+      LineChartData(
+        minY: chartMinY,
+        maxY: chartMaxY,
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: interval,
+          getDrawingHorizontalLine: (double value) {
+            return FlLine(
+              color: colors.lineNormalNeutral.withValues(alpha: 0.3),
+              strokeWidth: 1,
+            );
+          },
+        ),
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 40,
+              getTitlesWidget: (double value, TitleMeta meta) {
+                if (value % interval != 0) {
+                  return const SizedBox.shrink();
+                }
+                return Text(
+                  '${value.toInt()}m',
+                  style: TextStyle(
+                    color: colors.labelAlternative,
+                    fontSize: 12,
+                  ),
+                );
+              },
+            ),
+          ),
+          bottomTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        lineBarsData: <LineChartBarData>[
+          LineChartBarData(
+            spots: altitudeSpots,
+            isCurved: true,
+            color: colors.statusCautionary,
+            barWidth: 3,
+            isStrokeCapRound: true,
+            dotData: const FlDotData(show: false),
+            belowBarData: BarAreaData(
+              show: true,
+              color: colors.statusCautionary.withValues(alpha: 0.1),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeartRateChart(SemanticColors colors) {
+    final List<FlSpot> heartRateSpots = _getHeartRateData();
+
+    if (heartRateSpots.isEmpty) {
+      return const Center(child: Text('심박수 데이터 없음'));
+    }
+
+    final double minValue = heartRateSpots
+        .map((FlSpot spot) => spot.y)
+        .reduce((double a, double b) => a < b ? a : b);
+    final double maxValue = heartRateSpots
+        .map((FlSpot spot) => spot.y)
+        .reduce((double a, double b) => a > b ? a : b);
+    final double interval = _getHeartRateInterval(maxValue - minValue);
+    final double chartMinY = ((minValue / interval).floor()) * interval;
+    final double chartMaxY =
+        ((maxValue / interval).ceil()) * interval + (interval * 0.1);
+
+    return LineChart(
+      LineChartData(
+        minY: chartMinY,
+        maxY: chartMaxY,
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: interval,
+          getDrawingHorizontalLine: (double value) {
+            return FlLine(
+              color: colors.lineNormalNeutral.withValues(alpha: 0.3),
+              strokeWidth: 1,
+            );
+          },
+        ),
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 40,
+              getTitlesWidget: (double value, TitleMeta meta) {
+                if (value % interval != 0) {
+                  return const SizedBox.shrink();
+                }
+                return Text(
+                  '${value.toInt()}',
+                  style: TextStyle(
+                    color: colors.labelAlternative,
+                    fontSize: 12,
+                  ),
+                );
+              },
+            ),
+          ),
+          bottomTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        lineBarsData: <LineChartBarData>[
+          LineChartBarData(
+            spots: heartRateSpots,
+            isCurved: true,
+            color: colors.statusNegative,
+            barWidth: 3,
+            isStrokeCapRound: true,
+            dotData: const FlDotData(show: false),
+            belowBarData: BarAreaData(
+              show: true,
+              color: colors.statusNegative.withValues(alpha: 0.1),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<FlSpot> _getSpeedData() {
+    final List<FlSpot> spots = <FlSpot>[];
+    final List<LocationData> locationData = workoutRecord.locationData;
+
+    if (locationData.isEmpty) return spots;
+
+    final DateTime startTime = locationData.first.timestamp;
+
+    for (int i = 0; i < locationData.length; i++) {
+      final LocationData location = locationData[i];
+      if (location.speed != null) {
+        final double timeInMinutes =
+            location.timestamp.difference(startTime).inMilliseconds /
+            (1000 * 60);
+        final double speedInKmh = location.speed! * 3.6; // m/s to km/h
+        spots.add(FlSpot(timeInMinutes, speedInKmh));
+      }
+    }
+
+    return spots;
+  }
+
+  List<FlSpot> _getAltitudeData() {
+    final List<FlSpot> spots = <FlSpot>[];
+    final List<LocationData> locationData = workoutRecord.locationData;
+
+    if (locationData.isEmpty) return spots;
+
+    final DateTime startTime = locationData.first.timestamp;
+
+    for (int i = 0; i < locationData.length; i++) {
+      final LocationData location = locationData[i];
+      if (location.altitude != null) {
+        final double timeInMinutes =
+            location.timestamp.difference(startTime).inMilliseconds /
+            (1000 * 60);
+        spots.add(FlSpot(timeInMinutes, location.altitude!));
+      }
+    }
+
+    return spots;
+  }
+
+  List<FlSpot> _getHeartRateData() {
+    final List<FlSpot> spots = <FlSpot>[];
+    final List<HeartRateData> heartRateData = workoutRecord.heartRateData;
+
+    if (heartRateData.isEmpty) return spots;
+
+    final DateTime startTime = heartRateData.first.timestamp;
+
+    for (int i = 0; i < heartRateData.length; i++) {
+      final HeartRateData heartRate = heartRateData[i];
+      final double timeInMinutes =
+          heartRate.timestamp.difference(startTime).inMilliseconds /
+          (1000 * 60);
+      spots.add(FlSpot(timeInMinutes, heartRate.heartRate.toDouble()));
+    }
+
+    return spots;
+  }
+
+  double _getSpeedInterval(double range) {
+    if (range < 10) return 2;
+    if (range < 20) return 5;
+    if (range < 50) return 10;
+    if (range < 100) return 20;
+    return 20;
+  }
+
+  double _getAltitudeInterval(double range) {
+    if (range < 10) return 2;
+    if (range < 20) return 5;
+    if (range < 50) return 10;
+    if (range < 100) return 20;
+    return 20;
+  }
+
+  double _getHeartRateInterval(double range) {
+    if (range < 10) return 2;
+    if (range < 20) return 5;
+    if (range < 50) return 10;
+    if (range < 100) return 20;
+    return 20;
   }
 }
