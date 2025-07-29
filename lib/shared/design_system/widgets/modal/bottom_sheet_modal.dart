@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 
 class BottomSheetModal extends StatelessWidget {
   const BottomSheetModal({
@@ -43,9 +44,9 @@ class BottomSheetModal extends StatelessWidget {
               actions:
                   showCloseButton
                       ? <Widget>[
-                        GestureDetector(
+                        CustomIconButton(
+                          icon: Icons.close,
                           onTap: onClose ?? () => Navigator.of(context).pop(),
-                          child: const Icon(Icons.close),
                         ),
                       ]
                       : null,
