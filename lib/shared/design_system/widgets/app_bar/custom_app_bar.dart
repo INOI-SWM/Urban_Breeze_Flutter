@@ -41,66 +41,61 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       }
     }
 
-    return SafeArea(
-      child: SizedBox(
-        height: kToolbarHeight,
-        child: Stack(
-          children: <Widget>[
-            if (title != null)
-              Align(
-                alignment:
-                    centerTitle ? Alignment.center : Alignment.centerLeft,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    left: centerTitle ? 0 : (leading != null ? 56 : 20),
-                    right:
-                        centerTitle
-                            ? 0
-                            : (actions != null && actions!.isNotEmpty
-                                ? 56
-                                : 16),
-                  ),
-                  child: Text(
-                    title!,
-                    style: getTitleStyle(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+    return SizedBox(
+      height: kToolbarHeight,
+      child: Stack(
+        children: <Widget>[
+          if (title != null)
+            Align(
+              alignment: centerTitle ? Alignment.center : Alignment.centerLeft,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: centerTitle ? 0 : (leading != null ? 56 : 20),
+                  right:
+                      centerTitle
+                          ? 0
+                          : (actions != null && actions!.isNotEmpty ? 56 : 16),
+                ),
+                child: Text(
+                  title!,
+                  style: getTitleStyle(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+            ),
 
-            if (leading != null)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 16),
-                  child: leading!,
-                ),
+          if (leading != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 16),
+                child: leading!,
               ),
+            ),
 
-            if (actions != null && actions!.isNotEmpty)
-              Align(
-                alignment: Alignment.centerRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 16),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children:
-                        actions!.asMap().entries.map((
-                          MapEntry<int, Widget> entry,
-                        ) {
-                          final Widget action = entry.value;
-                          final bool isLast = entry.key == actions!.length - 1;
-                          return Padding(
-                            padding: EdgeInsets.only(right: isLast ? 0 : 8),
-                            child: action,
-                          );
-                        }).toList(),
-                  ),
+          if (actions != null && actions!.isNotEmpty)
+            Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children:
+                      actions!.asMap().entries.map((
+                        MapEntry<int, Widget> entry,
+                      ) {
+                        final Widget action = entry.value;
+                        final bool isLast = entry.key == actions!.length - 1;
+                        return Padding(
+                          padding: EdgeInsets.only(right: isLast ? 0 : 8),
+                          child: action,
+                        );
+                      }).toList(),
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
