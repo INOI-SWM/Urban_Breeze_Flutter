@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/workout_history/domain/entities/heart_rate_data.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/location_data.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/workout_record.dart';
 import 'package:ridingmate/shared/chart/chart_axis_utils.dart';
 import 'package:ridingmate/shared/chart/chart_builders.dart';
+import 'package:ridingmate/shared/chart/workout_data_extractor.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
@@ -459,16 +459,21 @@ class _WorkoutChart extends StatelessWidget {
     final _ChartConfig config = _ChartConfig.configs[dataType]!;
 
     final List<FlSpot> spots = switch (dataType) {
-      WorkoutDataType.speed => _getSpeedData(),
-      WorkoutDataType.altitude => _getAltitudeData(),
-      WorkoutDataType.heartRate => _getHeartRateData(),
+      WorkoutDataType.speed => WorkoutDataExtractor.extractSpeedData(
+        workoutRecord,
+      ),
+      WorkoutDataType.altitude => WorkoutDataExtractor.extractAltitudeData(
+        workoutRecord,
+      ),
+      WorkoutDataType.heartRate => WorkoutDataExtractor.extractHeartRateData(
+        workoutRecord,
+      ),
     };
 
     if (spots.isEmpty) {
       return Center(child: Text(config.emptyMessage));
     }
 
-    // 공통 모듈을 사용한 축 계산
     final double minValue = ChartAxisUtils.getMinValue(
       spots,
       (FlSpot spot) => spot.y,
@@ -510,67 +515,5 @@ class _WorkoutChart extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  List<FlSpot> _getSpeedData() {
-    final List<FlSpot> spots = <FlSpot>[];
-    final List<LocationData> locationData = workoutRecord.locationData;
-
-    if (locationData.isEmpty) return spots;
-
-    final DateTime startTime = locationData.first.timestamp;
-
-    for (int i = 0; i < locationData.length; i++) {
-      final LocationData location = locationData[i];
-      if (location.speed != null) {
-        final double timeInMinutes =
-            location.timestamp.difference(startTime).inMilliseconds /
-            (1000 * 60);
-        final double speedInKmh = location.speed! * 3.6; // m/s to km/h
-        spots.add(FlSpot(timeInMinutes, speedInKmh));
-      }
-    }
-
-    return spots;
-  }
-
-  List<FlSpot> _getAltitudeData() {
-    final List<FlSpot> spots = <FlSpot>[];
-    final List<LocationData> locationData = workoutRecord.locationData;
-
-    if (locationData.isEmpty) return spots;
-
-    final DateTime startTime = locationData.first.timestamp;
-
-    for (int i = 0; i < locationData.length; i++) {
-      final LocationData location = locationData[i];
-      if (location.altitude != null) {
-        final double timeInMinutes =
-            location.timestamp.difference(startTime).inMilliseconds /
-            (1000 * 60);
-        spots.add(FlSpot(timeInMinutes, location.altitude!));
-      }
-    }
-
-    return spots;
-  }
-
-  List<FlSpot> _getHeartRateData() {
-    final List<FlSpot> spots = <FlSpot>[];
-    final List<HeartRateData> heartRateData = workoutRecord.heartRateData;
-
-    if (heartRateData.isEmpty) return spots;
-
-    final DateTime startTime = heartRateData.first.timestamp;
-
-    for (int i = 0; i < heartRateData.length; i++) {
-      final HeartRateData heartRate = heartRateData[i];
-      final double timeInMinutes =
-          heartRate.timestamp.difference(startTime).inMilliseconds /
-          (1000 * 60);
-      spots.add(FlSpot(timeInMinutes, heartRate.heartRate.toDouble()));
-    }
-
-    return spots;
   }
 }
