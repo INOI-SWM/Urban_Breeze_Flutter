@@ -9,11 +9,15 @@ class InfoItem extends StatelessWidget {
     required this.label,
     required this.value,
     this.alignment = CrossAxisAlignment.center,
+    this.labelColor,
+    this.valueColor,
   });
 
   final String label;
   final String value;
   final CrossAxisAlignment alignment;
+  final Color? labelColor;
+  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +29,13 @@ class InfoItem extends StatelessWidget {
         Text(
           label,
           style: AppTextStyles.label1.readingBold.copyWith(
-            color: colors.labelAlternative,
+            color: labelColor ?? colors.labelAlternative,
           ),
         ),
         Text(
           value,
           style: AppTextStyles.body1.readingBold.copyWith(
-            color: colors.labelNormal,
+            color: valueColor ?? colors.labelNormal,
           ),
         ),
       ],

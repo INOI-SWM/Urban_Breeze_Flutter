@@ -196,7 +196,7 @@ class _WorkoutDetailRouteMapWidget extends StatelessWidget {
   }
 }
 
-class _DraggableBottomSheet extends StatelessWidget {
+class _DraggableBottomSheet extends StatefulWidget {
   const _DraggableBottomSheet({
     required this.workoutRecord,
     required this.onSizeChanged,
@@ -204,6 +204,13 @@ class _DraggableBottomSheet extends StatelessWidget {
 
   final WorkoutRecord workoutRecord;
   final ValueChanged<double> onSizeChanged;
+
+  @override
+  State<_DraggableBottomSheet> createState() => _DraggableBottomSheetState();
+}
+
+class _DraggableBottomSheetState extends State<_DraggableBottomSheet> {
+  int _selectedCardIndex = 0;
 
   static const double _initialChildSize = 0.5;
   static const double _maxChildSize = 0.5;
@@ -232,7 +239,7 @@ class _DraggableBottomSheet extends StatelessWidget {
     return NotificationListener<DraggableScrollableNotification>(
       onNotification: (DraggableScrollableNotification notification) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          onSizeChanged(notification.extent);
+          widget.onSizeChanged(notification.extent);
         });
         return false;
       },
@@ -279,18 +286,40 @@ class _DraggableBottomSheet extends StatelessWidget {
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
-                          const SingleChildScrollView(
+                          SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
-                            padding: EdgeInsets.symmetric(horizontal: 20),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
                             child: Row(
                               children: <Widget>[
-                                _InfoCard(label: '평균 속도', value: '22.3 km/h'),
-                                SizedBox(width: 8),
-                                _InfoCard(label: '상승 고도', value: '124m'),
-                                SizedBox(width: 8),
-                                _InfoCard(label: '평균 심박수', value: '124bpm'),
-                                SizedBox(width: 8),
-                                _InfoCard(label: '최고 속도', value: '28.5 km/h'),
+                                _InfoCard(
+                                  label: '평균 속도',
+                                  value: '22.3 km/h',
+                                  isSelected: _selectedCardIndex == 0,
+                                  onTap:
+                                      () => setState(() {
+                                        _selectedCardIndex = 0;
+                                      }),
+                                ),
+                                const SizedBox(width: 8),
+                                _InfoCard(
+                                  label: '상승 고도',
+                                  value: '124m',
+                                  isSelected: _selectedCardIndex == 1,
+                                  onTap:
+                                      () => setState(() {
+                                        _selectedCardIndex = 1;
+                                      }),
+                                ),
+                                const SizedBox(width: 8),
+                                _InfoCard(
+                                  label: '평균 심박수',
+                                  value: '124bpm',
+                                  isSelected: _selectedCardIndex == 2,
+                                  onTap:
+                                      () => setState(() {
+                                        _selectedCardIndex = 2;
+                                      }),
+                                ),
                               ],
                             ),
                           ),
@@ -309,10 +338,17 @@ class _DraggableBottomSheet extends StatelessWidget {
 }
 
 class _InfoCard extends StatelessWidget {
-  const _InfoCard({required this.label, required this.value});
+  const _InfoCard({
+    required this.label,
+    required this.value,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   final String label;
   final String value;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   static const double _cardWidth = 100.0;
   static const double _cardHeight = 70.0;
@@ -321,20 +357,26 @@ class _InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
 
-    return Container(
-      alignment: Alignment.centerLeft,
-      width: _cardWidth,
-      height: _cardHeight,
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: colors.backgroundNormalNormal,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colors.lineNormalNeutral),
-      ),
-      child: InfoItem(
-        label: label,
-        value: value,
-        alignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        alignment: Alignment.centerLeft,
+        width: _cardWidth,
+        height: _cardHeight,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color:
+              isSelected ? colors.primaryNormal : colors.backgroundNormalNormal,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: colors.lineNormalNeutral),
+        ),
+        child: InfoItem(
+          label: label,
+          value: value,
+          alignment: CrossAxisAlignment.start,
+          labelColor: isSelected ? colors.staticWhite : null,
+          valueColor: isSelected ? colors.staticWhite : null,
+        ),
       ),
     );
   }
