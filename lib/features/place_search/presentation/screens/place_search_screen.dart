@@ -4,15 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/core/result/app_result.dart';
 import 'package:ridingmate/features/place_search/application/use_cases/search_places_use_case.dart';
 import 'package:ridingmate/features/place_search/di/place_search_providers.dart';
 import 'package:ridingmate/features/place_search/domain/entities/place.dart';
 import 'package:ridingmate/features/place_search/domain/entities/search_result.dart';
 import 'package:ridingmate/features/route_planning/application/use_cases/get_current_location_use_case.dart';
 import 'package:ridingmate/features/route_planning/di/route_providers.dart';
-import 'package:ridingmate/core/result/app_result.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/search_app_bar.dart';
+import 'package:ridingmate/shared/map/map_constants.dart';
 import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
 
 class PlaceSearchScreen extends ConsumerStatefulWidget {
@@ -38,7 +39,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
   late final GetCurrentLocationUseCase _getCurrentLocationUseCase;
 
   LatLng? _currentLocation;
-  static const LatLng _defaultLocation = LatLng(37.5665, 126.9780); // 서울시청
+  static const LatLng _defaultLocation = MapConstants.seoulCityHall;
 
   @override
   void initState() {

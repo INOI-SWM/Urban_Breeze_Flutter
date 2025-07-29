@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/core/result/app_result.dart';
 import 'package:ridingmate/features/place_search/domain/entities/place.dart';
 import 'package:ridingmate/features/place_search/domain/entities/search_result.dart';
 import 'package:ridingmate/features/place_search/presentation/screens/place_search_screen.dart';
@@ -13,10 +13,10 @@ import 'package:ridingmate/features/route_planning/domain/entities/route_segment
 import 'package:ridingmate/features/route_planning/presentation/screens/route_create_complete_screen.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
-import 'package:ridingmate/core/result/app_result.dart';
-import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/marker/route_pin_marker.dart';
+import 'package:ridingmate/shared/map/common_map_widgets.dart';
+import 'package:ridingmate/shared/map/map_constants.dart';
 import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
 
 class RoutePlanningScreen extends ConsumerStatefulWidget {
@@ -29,8 +29,8 @@ class RoutePlanningScreen extends ConsumerStatefulWidget {
 
 class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     with ErrorDisplayMixin {
-  static const LatLng _seoulCityHall = LatLng(37.5665, 126.9780);
-  static const double _defaultZoom = 16.0;
+  static const LatLng _seoulCityHall = MapConstants.seoulCityHall;
+  static const double _defaultZoom = MapConstants.routePlanningZoom;
 
   final LatLng initialCenter = _seoulCityHall;
   final double initialZoom = _defaultZoom;
@@ -346,10 +346,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
   @override
   Widget build(BuildContext context) {
-    final String baseUrl = dotenv.env['GEOAPIFY_BASE_URL'] ?? 'fallback_url';
-    final String apiKey = dotenv.env['GEOAPIFY_API_KEY'] ?? 'fallback_key';
-    final String fullUrlTemplate = '$baseUrl?&apiKey=$apiKey';
-
     if (_isLocationLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -370,21 +366,8 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                   onTap: (_, LatLng position) => _addPin(position),
                 ),
                 children: <Widget>[
-                  TileLayer(
-                    urlTemplate: fullUrlTemplate,
-                    userAgentPackageName: 'com.example.ridingmate',
-                    subdomains: const <String>['a', 'b', 'c'],
-                  ),
-                  RichAttributionWidget(
-                    alignment: AttributionAlignment.bottomLeft,
-                    showFlutterMapAttribution: false,
-                    attributions: <SourceAttribution>[
-                      TextSourceAttribution(
-                        'Powered by Geoapify | © OpenStreetMap contributors',
-                        textStyle: AppTextStyles.caption2.regular,
-                      ),
-                    ],
-                  ),
+                  CommonMapWidgets.createTileLayer(),
+                  CommonMapWidgets.createAttributionWidget(),
                   if (_currentPosition != null)
                     MarkerLayer(
                       markers: <Marker>[
@@ -405,7 +388,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                               (RouteSegment segment) => Polyline<LatLng>(
                                 points: segment.points,
                                 color: context.semanticColor.primaryNormal,
-                                strokeWidth: 4.0,
+                                strokeWidth: MapConstants.polylineStrokeWidth,
                               ),
                             )
                             .toList(),

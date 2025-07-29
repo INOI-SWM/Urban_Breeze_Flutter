@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/location_data.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/workout_record.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
-import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
+import 'package:ridingmate/shared/map/common_map_widgets.dart';
+import 'package:ridingmate/shared/map/map_constants.dart';
 
 class WorkoutDetailRouteScreen extends StatelessWidget {
   const WorkoutDetailRouteScreen({super.key, required this.workoutRecord});
@@ -37,15 +37,12 @@ class _WorkoutDetailRouteMapWidget extends StatelessWidget {
 
   final WorkoutRecord workoutRecord;
 
-  static const LatLng _defaultCenter = LatLng(37.5665, 126.9780);
-  static const double _defaultZoom = 13.0;
+  static const LatLng _defaultCenter = MapConstants.seoulCityHall;
+  static const double _defaultZoom = MapConstants.defaultZoom;
 
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-    final String baseUrl = dotenv.env['GEOAPIFY_BASE_URL'] ?? 'fallback_url';
-    final String apiKey = dotenv.env['GEOAPIFY_API_KEY'] ?? 'fallback_key';
-    final String fullUrlTemplate = '$baseUrl?&apiKey=$apiKey';
 
     final List<LatLng> routePoints = _convertLocationDataToLatLng(
       workoutRecord.locationData,
@@ -64,18 +61,14 @@ class _WorkoutDetailRouteMapWidget extends StatelessWidget {
         ),
       ),
       children: <Widget>[
-        TileLayer(
-          urlTemplate: fullUrlTemplate,
-          userAgentPackageName: 'com.example.ridingmate',
-          subdomains: const <String>['a', 'b', 'c'],
-        ),
+        CommonMapWidgets.createTileLayer(),
         if (routePoints.isNotEmpty)
           PolylineLayer<LatLng>(
             polylines: <Polyline<LatLng>>[
               Polyline<LatLng>(
                 points: routePoints,
                 color: colors.primaryNormal,
-                strokeWidth: 4.0,
+                strokeWidth: MapConstants.polylineStrokeWidth,
               ),
             ],
           ),
@@ -108,16 +101,7 @@ class _WorkoutDetailRouteMapWidget extends StatelessWidget {
               ),
             ],
           ),
-        RichAttributionWidget(
-          alignment: AttributionAlignment.bottomLeft,
-          showFlutterMapAttribution: false,
-          attributions: <SourceAttribution>[
-            TextSourceAttribution(
-              'Powered by Geoapify | © OpenStreetMap contributors',
-              textStyle: AppTextStyles.caption2.regular,
-            ),
-          ],
-        ),
+        CommonMapWidgets.createAttributionWidget(),
       ],
     );
   }

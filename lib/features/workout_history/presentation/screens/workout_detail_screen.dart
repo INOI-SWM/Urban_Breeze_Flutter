@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
@@ -18,6 +17,8 @@ import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_butto
 import 'package:ridingmate/shared/design_system/widgets/info/info_item.dart';
 import 'package:ridingmate/shared/design_system/widgets/modal/modal_show.dart';
 import 'package:ridingmate/shared/design_system/widgets/text_field/inline_edit_text_field.dart';
+import 'package:ridingmate/shared/map/common_map_widgets.dart';
+import 'package:ridingmate/shared/map/map_constants.dart';
 import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
 import 'package:ridingmate/shared/utils/date_formatter.dart';
 import 'package:ridingmate/shared/utils/workout_formatter.dart';
@@ -488,15 +489,12 @@ class _WorkoutDetailMapWidget extends StatelessWidget {
 
   final WorkoutRecord workoutRecord;
 
-  static const LatLng _defaultCenter = LatLng(37.5665, 126.9780);
-  static const double _defaultZoom = 13.0;
+  static const LatLng _defaultCenter = MapConstants.seoulCityHall;
+  static const double _defaultZoom = MapConstants.defaultZoom;
 
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-    final String baseUrl = dotenv.env['GEOAPIFY_BASE_URL'] ?? 'fallback_url';
-    final String apiKey = dotenv.env['GEOAPIFY_API_KEY'] ?? 'fallback_key';
-    final String fullUrlTemplate = '$baseUrl?&apiKey=$apiKey';
 
     final List<LatLng> routePoints = _convertLocationDataToLatLng(
       workoutRecord.locationData,
@@ -515,11 +513,7 @@ class _WorkoutDetailMapWidget extends StatelessWidget {
         ),
       ),
       children: <Widget>[
-        TileLayer(
-          urlTemplate: fullUrlTemplate,
-          userAgentPackageName: 'com.example.ridingmate',
-          subdomains: const <String>['a', 'b', 'c'],
-        ),
+        CommonMapWidgets.createTileLayer(),
         // 운동 경로 폴리라인
         if (routePoints.isNotEmpty)
           PolylineLayer<LatLng>(
@@ -527,20 +521,11 @@ class _WorkoutDetailMapWidget extends StatelessWidget {
               Polyline<LatLng>(
                 points: routePoints,
                 color: colors.primaryNormal,
-                strokeWidth: 4.0,
+                strokeWidth: MapConstants.polylineStrokeWidth,
               ),
             ],
           ),
-        RichAttributionWidget(
-          alignment: AttributionAlignment.bottomLeft,
-          showFlutterMapAttribution: false,
-          attributions: <SourceAttribution>[
-            TextSourceAttribution(
-              'Powered by Geoapify | © OpenStreetMap contributors',
-              textStyle: AppTextStyles.caption2.regular,
-            ),
-          ],
-        ),
+        CommonMapWidgets.createAttributionWidget(),
       ],
     );
   }
