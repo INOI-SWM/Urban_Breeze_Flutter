@@ -96,27 +96,63 @@ class _FilterContentState extends State<_FilterContent> {
 
     return Column(
       children: <Widget>[
-        // 임시 텍스트 (단계별로 대체될 예정)
-        Text(
-          'FilterModal 기본 구조',
-          style: AppTextStyles.heading2.bold.copyWith(
-            color: colors.labelNormal,
-          ),
-        ),
+        // 탭 바
+        _buildTabBar(colors),
         const SizedBox(height: 20),
+
+        // 임시 컨텐츠 (다음 단계에서 구현)
         Text(
-          '탭: ${_currentData.selectedTab}',
-          style: AppTextStyles.body1.normalMedium.copyWith(
-            color: colors.labelNormal,
-          ),
-        ),
-        Text(
-          '코스 타입: ${_currentData.selectedCourseType}',
+          '선택된 탭: ${_currentData.selectedTab}',
           style: AppTextStyles.body1.normalMedium.copyWith(
             color: colors.labelNormal,
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildTabBar(SemanticColors colors) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        spacing: 24,
+        children:
+            FilterModal.tabs.map((String tab) {
+              final bool isSelected = tab == _currentData.selectedTab;
+
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _currentData = _currentData.copyWith(selectedTab: tab);
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color:
+                            isSelected
+                                ? colors.labelNormal
+                                : Colors.transparent,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                  child: Text(
+                    tab,
+                    style: AppTextStyles.headline2.bold.copyWith(
+                      color:
+                          isSelected
+                              ? colors.labelNormal
+                              : colors.labelAssistive,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+      ),
     );
   }
 }
