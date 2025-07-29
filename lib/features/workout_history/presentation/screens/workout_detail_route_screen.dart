@@ -13,6 +13,45 @@ import 'package:ridingmate/shared/design_system/widgets/info/info_item.dart';
 import 'package:ridingmate/shared/map/common_map_widgets.dart';
 import 'package:ridingmate/shared/map/map_constants.dart';
 
+enum WorkoutDataType { speed, altitude, heartRate }
+
+class _ChartConfig {
+  const _ChartConfig({
+    required this.unit,
+    required this.emptyMessage,
+    required this.colorGetter,
+  });
+
+  final String unit;
+  final String emptyMessage;
+  final Color Function(SemanticColors colors) colorGetter;
+
+  static const Map<WorkoutDataType, _ChartConfig> configs =
+      <WorkoutDataType, _ChartConfig>{
+        WorkoutDataType.speed: _ChartConfig(
+          unit: '',
+          emptyMessage: '속도 데이터 없음',
+          colorGetter: _getSpeedColor,
+        ),
+        WorkoutDataType.altitude: _ChartConfig(
+          unit: 'm',
+          emptyMessage: '고도 데이터 없음',
+          colorGetter: _getAltitudeColor,
+        ),
+        WorkoutDataType.heartRate: _ChartConfig(
+          unit: '',
+          emptyMessage: '심박수 데이터 없음',
+          colorGetter: _getHeartRateColor,
+        ),
+      };
+
+  static Color _getSpeedColor(SemanticColors colors) => colors.primaryNormal;
+  static Color _getAltitudeColor(SemanticColors colors) =>
+      colors.statusCautionary;
+  static Color _getHeartRateColor(SemanticColors colors) =>
+      colors.statusNegative;
+}
+
 class WorkoutDetailRouteScreen extends StatefulWidget {
   const WorkoutDetailRouteScreen({super.key, required this.workoutRecord});
 
@@ -414,32 +453,26 @@ class _WorkoutChart extends StatelessWidget {
   }
 
   Widget _buildChart(SemanticColors colors) {
-    switch (selectedIndex) {
-      case 0:
-        return _buildSpeedChart(colors);
-      case 1:
-        return _buildAltitudeChart(colors);
-      case 2:
-        return _buildHeartRateChart(colors);
-      default:
-        return const Center(child: Text('데이터 없음'));
-    }
-  }
+    final WorkoutDataType dataType = WorkoutDataType.values[selectedIndex];
+    final _ChartConfig config = _ChartConfig.configs[dataType]!;
 
-  Widget _buildSpeedChart(SemanticColors colors) {
-    final List<FlSpot> speedSpots = _getSpeedData();
+    final List<FlSpot> spots = switch (dataType) {
+      WorkoutDataType.speed => _getSpeedData(),
+      WorkoutDataType.altitude => _getAltitudeData(),
+      WorkoutDataType.heartRate => _getHeartRateData(),
+    };
 
-    if (speedSpots.isEmpty) {
-      return const Center(child: Text('속도 데이터 없음'));
+    if (spots.isEmpty) {
+      return Center(child: Text(config.emptyMessage));
     }
 
-    final double minValue = speedSpots
+    final double minValue = spots
         .map((FlSpot spot) => spot.y)
         .reduce((double a, double b) => a < b ? a : b);
-    final double maxValue = speedSpots
+    final double maxValue = spots
         .map((FlSpot spot) => spot.y)
         .reduce((double a, double b) => a > b ? a : b);
-    final double interval = _getSpeedInterval(maxValue - minValue);
+    final double interval = _getInterval(maxValue - minValue);
     final double chartMinY = ((minValue / interval).floor()) * interval;
     final double chartMaxY =
         ((maxValue / interval).ceil()) * interval + (interval * 0.1);
@@ -469,7 +502,7 @@ class _WorkoutChart extends StatelessWidget {
                   return const SizedBox.shrink();
                 }
                 return Text(
-                  '${value.toInt()}',
+                  '${value.toInt()}${config.unit}',
                   style: TextStyle(
                     color: colors.labelAlternative,
                     fontSize: 12,
@@ -491,177 +524,15 @@ class _WorkoutChart extends StatelessWidget {
         borderData: FlBorderData(show: false),
         lineBarsData: <LineChartBarData>[
           LineChartBarData(
-            spots: speedSpots,
+            spots: spots,
             isCurved: true,
-            color: colors.primaryNormal,
+            color: config.colorGetter(colors),
             barWidth: 3,
             isStrokeCapRound: true,
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: colors.primaryNormal.withValues(alpha: 0.1),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAltitudeChart(SemanticColors colors) {
-    final List<FlSpot> altitudeSpots = _getAltitudeData();
-
-    if (altitudeSpots.isEmpty) {
-      return const Center(child: Text('고도 데이터 없음'));
-    }
-
-    final double minValue = altitudeSpots
-        .map((FlSpot spot) => spot.y)
-        .reduce((double a, double b) => a < b ? a : b);
-    final double maxValue = altitudeSpots
-        .map((FlSpot spot) => spot.y)
-        .reduce((double a, double b) => a > b ? a : b);
-    final double interval = _getAltitudeInterval(maxValue - minValue);
-    final double chartMinY = ((minValue / interval).floor()) * interval;
-    final double chartMaxY =
-        ((maxValue / interval).ceil()) * interval + (interval * 0.1);
-
-    return LineChart(
-      LineChartData(
-        minY: chartMinY,
-        maxY: chartMaxY,
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          horizontalInterval: interval,
-          getDrawingHorizontalLine: (double value) {
-            return FlLine(
-              color: colors.lineNormalNeutral.withValues(alpha: 0.3),
-              strokeWidth: 1,
-            );
-          },
-        ),
-        titlesData: FlTitlesData(
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 40,
-              getTitlesWidget: (double value, TitleMeta meta) {
-                if (value % interval != 0) {
-                  return const SizedBox.shrink();
-                }
-                return Text(
-                  '${value.toInt()}m',
-                  style: TextStyle(
-                    color: colors.labelAlternative,
-                    fontSize: 12,
-                  ),
-                );
-              },
-            ),
-          ),
-          bottomTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-        ),
-        borderData: FlBorderData(show: false),
-        lineBarsData: <LineChartBarData>[
-          LineChartBarData(
-            spots: altitudeSpots,
-            isCurved: true,
-            color: colors.statusCautionary,
-            barWidth: 3,
-            isStrokeCapRound: true,
-            dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(
-              show: true,
-              color: colors.statusCautionary.withValues(alpha: 0.1),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeartRateChart(SemanticColors colors) {
-    final List<FlSpot> heartRateSpots = _getHeartRateData();
-
-    if (heartRateSpots.isEmpty) {
-      return const Center(child: Text('심박수 데이터 없음'));
-    }
-
-    final double minValue = heartRateSpots
-        .map((FlSpot spot) => spot.y)
-        .reduce((double a, double b) => a < b ? a : b);
-    final double maxValue = heartRateSpots
-        .map((FlSpot spot) => spot.y)
-        .reduce((double a, double b) => a > b ? a : b);
-    final double interval = _getHeartRateInterval(maxValue - minValue);
-    final double chartMinY = ((minValue / interval).floor()) * interval;
-    final double chartMaxY =
-        ((maxValue / interval).ceil()) * interval + (interval * 0.1);
-
-    return LineChart(
-      LineChartData(
-        minY: chartMinY,
-        maxY: chartMaxY,
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          horizontalInterval: interval,
-          getDrawingHorizontalLine: (double value) {
-            return FlLine(
-              color: colors.lineNormalNeutral.withValues(alpha: 0.3),
-              strokeWidth: 1,
-            );
-          },
-        ),
-        titlesData: FlTitlesData(
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 40,
-              getTitlesWidget: (double value, TitleMeta meta) {
-                if (value % interval != 0) {
-                  return const SizedBox.shrink();
-                }
-                return Text(
-                  '${value.toInt()}',
-                  style: TextStyle(
-                    color: colors.labelAlternative,
-                    fontSize: 12,
-                  ),
-                );
-              },
-            ),
-          ),
-          bottomTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-        ),
-        borderData: FlBorderData(show: false),
-        lineBarsData: <LineChartBarData>[
-          LineChartBarData(
-            spots: heartRateSpots,
-            isCurved: true,
-            color: colors.statusNegative,
-            barWidth: 3,
-            isStrokeCapRound: true,
-            dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(
-              show: true,
-              color: colors.statusNegative.withValues(alpha: 0.1),
+              color: config.colorGetter(colors).withValues(alpha: 0.1),
             ),
           ),
         ],
@@ -731,23 +602,7 @@ class _WorkoutChart extends StatelessWidget {
     return spots;
   }
 
-  double _getSpeedInterval(double range) {
-    if (range < 10) return 2;
-    if (range < 20) return 5;
-    if (range < 50) return 10;
-    if (range < 100) return 20;
-    return 20;
-  }
-
-  double _getAltitudeInterval(double range) {
-    if (range < 10) return 2;
-    if (range < 20) return 5;
-    if (range < 50) return 10;
-    if (range < 100) return 20;
-    return 20;
-  }
-
-  double _getHeartRateInterval(double range) {
+  double _getInterval(double range) {
     if (range < 10) return 2;
     if (range < 20) return 5;
     if (range < 50) return 10;
