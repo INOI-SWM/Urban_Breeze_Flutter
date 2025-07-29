@@ -6,6 +6,8 @@ import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/heart_rate_data.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/location_data.dart';
 import 'package:ridingmate/features/workout_history/domain/entities/workout_record.dart';
+import 'package:ridingmate/shared/chart/chart_axis_utils.dart';
+import 'package:ridingmate/shared/chart/chart_builders.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
@@ -466,74 +468,44 @@ class _WorkoutChart extends StatelessWidget {
       return Center(child: Text(config.emptyMessage));
     }
 
-    final double minValue = spots
-        .map((FlSpot spot) => spot.y)
-        .reduce((double a, double b) => a < b ? a : b);
-    final double maxValue = spots
-        .map((FlSpot spot) => spot.y)
-        .reduce((double a, double b) => a > b ? a : b);
-    final double interval = _getInterval(maxValue - minValue);
-    final double chartMinY = ((minValue / interval).floor()) * interval;
-    final double chartMaxY =
-        ((maxValue / interval).ceil()) * interval + (interval * 0.1);
+    // 공통 모듈을 사용한 축 계산
+    final double minValue = ChartAxisUtils.getMinValue(
+      spots,
+      (FlSpot spot) => spot.y,
+    );
+    final double maxValue = ChartAxisUtils.getMaxValue(
+      spots,
+      (FlSpot spot) => spot.y,
+    );
+    final double range = maxValue - minValue;
+    final double interval = ChartAxisUtils.calculateInterval(range);
+    final double chartMinY = ChartAxisUtils.calculateChartMinY(
+      minValue,
+      interval,
+    );
+    final double chartMaxY = ChartAxisUtils.calculateChartMaxY(
+      maxValue,
+      interval,
+    );
 
     return LineChart(
       LineChartData(
         minY: chartMinY,
         maxY: chartMaxY,
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          horizontalInterval: interval,
-          getDrawingHorizontalLine: (double value) {
-            return FlLine(
-              color: colors.lineNormalNeutral.withValues(alpha: 0.3),
-              strokeWidth: 1,
-            );
-          },
+        gridData: ChartBuilders.buildGridData(
+          colors: colors,
+          interval: interval,
         ),
-        titlesData: FlTitlesData(
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 40,
-              getTitlesWidget: (double value, TitleMeta meta) {
-                if (value % interval != 0) {
-                  return const SizedBox.shrink();
-                }
-                return Text(
-                  '${value.toInt()}${config.unit}',
-                  style: TextStyle(
-                    color: colors.labelAlternative,
-                    fontSize: 12,
-                  ),
-                );
-              },
-            ),
-          ),
-          bottomTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
+        titlesData: ChartBuilders.buildTitlesData(
+          colors: colors,
+          interval: interval,
+          unit: config.unit,
         ),
-        borderData: FlBorderData(show: false),
+        borderData: ChartBuilders.buildBorderData(),
         lineBarsData: <LineChartBarData>[
-          LineChartBarData(
+          ChartBuilders.buildLineChartBarData(
             spots: spots,
-            isCurved: true,
             color: config.colorGetter(colors),
-            barWidth: 3,
-            isStrokeCapRound: true,
-            dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(
-              show: true,
-              color: config.colorGetter(colors).withValues(alpha: 0.1),
-            ),
           ),
         ],
       ),
@@ -600,13 +572,5 @@ class _WorkoutChart extends StatelessWidget {
     }
 
     return spots;
-  }
-
-  double _getInterval(double range) {
-    if (range < 10) return 2;
-    if (range < 20) return 5;
-    if (range < 50) return 10;
-    if (range < 100) return 20;
-    return 20;
   }
 }
