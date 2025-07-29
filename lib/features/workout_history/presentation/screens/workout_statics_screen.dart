@@ -120,18 +120,21 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        _buildPeriodSelector(),
-        const SizedBox(height: _UIConstants.defaultSpacing),
-        _buildPeriodTitle(),
-        const SizedBox(height: _UIConstants.defaultSpacing),
-        _buildDataTypeSelector(),
-        const SizedBox(height: _UIConstants.defaultSpacing),
-        _buildDataTypeLabel(),
-        _buildContentByState(),
-      ],
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _buildPeriodSelector(),
+          const SizedBox(height: _UIConstants.defaultSpacing),
+          _buildPeriodTitle(),
+          const SizedBox(height: _UIConstants.defaultSpacing),
+          _buildDataTypeSelector(),
+          const SizedBox(height: _UIConstants.defaultSpacing),
+          _buildDataTypeLabel(),
+          _buildContentByState(),
+        ],
+      ),
     );
   }
 
