@@ -51,6 +51,7 @@ class BottomSheetModal extends StatelessWidget {
                       : null,
               centerTitle: true,
               titleTextSize: AppBarTitleSize.medium,
+              height: 64,
             ),
             // 내용 영역
             Padding(padding: const EdgeInsets.all(20), child: content),
