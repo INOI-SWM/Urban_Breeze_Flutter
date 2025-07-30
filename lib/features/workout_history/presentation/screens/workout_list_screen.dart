@@ -3,6 +3,7 @@ import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/workout_history/presentation/screens/workout_detail_screen.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/card_list.dart';
 import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
 import 'package:ridingmate/shared/utils/date_formatter.dart';
@@ -19,9 +20,12 @@ class WorkoutListScreen extends StatefulWidget {
   State<WorkoutListScreen> createState() => _WorkoutListScreenState();
 }
 
+enum ViewMode { list, grid }
+
 class _WorkoutListScreenState extends State<WorkoutListScreen> {
   bool _isLoading = false;
   List<WorkoutRecord> _workouts = <WorkoutRecord>[];
+  ViewMode _viewMode = ViewMode.list;
 
   final AppleHealthKitSyncRepositoryImpl _repository =
       AppleHealthKitSyncRepositoryImpl();
@@ -142,6 +146,24 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         if (_workouts.isNotEmpty) ...<Widget>[
+          Row(
+            children: <Widget>[
+              const Spacer(),
+              CustomIconButton(
+                icon: _viewMode == ViewMode.list ? Icons.grid_view : Icons.list,
+                onTap: () {
+                  setState(() {
+                    _viewMode =
+                        _viewMode == ViewMode.list
+                            ? ViewMode.grid
+                            : ViewMode.list;
+                  });
+                },
+                color: colors.labelNormal,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.only(bottom: 12),
