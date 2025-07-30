@@ -167,6 +167,9 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
                     _getCategoryText('상승 고도'): Icons.trending_up,
                     _getCategoryText('거리'): Icons.route,
                   },
+                  categoryRightIcons: <String, IconData>{
+                    selectedSortOption: Icons.expand_more,
+                  },
                 ),
               ),
             ],
