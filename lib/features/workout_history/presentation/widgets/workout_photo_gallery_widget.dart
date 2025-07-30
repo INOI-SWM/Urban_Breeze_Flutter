@@ -48,21 +48,22 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
             color: colors.labelAlternative,
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 8),
         SizedBox(
-          height: 110,
+          height: 112,
           child: ListView(
             scrollDirection: Axis.horizontal,
             clipBehavior: Clip.none,
             children: <Widget>[
               Container(
-                width: 110,
-                height: 110,
+                width: 112,
+                height: 112,
+                margin: const EdgeInsets.only(right: 4),
                 color: Colors.transparent,
                 child: Stack(
                   children: <Widget>[
                     Positioned(
-                      top: 10,
+                      top: 12,
                       child: Container(
                         width: 100,
                         height: 100,
@@ -257,14 +258,15 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
   Widget _buildPhotoItem(BuildContext context, File imageFile, int index) {
     final SemanticColors colors = context.semanticColor;
     return Container(
-      width: 110,
-      height: 110,
+      width: 112,
+      height: 112,
+      margin: const EdgeInsets.only(right: 4),
       color: Colors.transparent,
       child: Stack(
         clipBehavior: Clip.none,
         children: <Widget>[
           Positioned(
-            top: 10,
+            top: 12,
             child: Container(
               width: 100, // 원본 크기 유지
               height: 100, // 원본 크기 유지
@@ -292,8 +294,8 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
               },
               behavior: HitTestBehavior.opaque,
               child: Container(
-                width: 20,
-                height: 20,
+                width: 24,
+                height: 24,
                 decoration: BoxDecoration(
                   color: colors.labelAlternative,
                   shape: BoxShape.circle,
