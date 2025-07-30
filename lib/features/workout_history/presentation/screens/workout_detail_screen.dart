@@ -163,15 +163,18 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
 
   Future<void> _pickImageFromGallery() async {
     try {
-      final XFile? pickedFile = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
+      final List<XFile> pickedFiles = await _imagePicker.pickMultiImage(
         maxWidth: 1920,
         maxHeight: 1920,
         imageQuality: 85,
+        limit:
+            _canAddMorePhotos() ? (_maxPhotoCount - _selectedImages.length) : 1,
       );
 
-      if (pickedFile != null) {
-        await _addSelectedImage(File(pickedFile.path));
+      if (pickedFiles.isNotEmpty) {
+        await _addSelectedImages(
+          pickedFiles.map((XFile file) => File(file.path)).toList(),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -180,15 +183,38 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
     }
   }
 
-  Future<void> _addSelectedImage(File imageFile) async {
-    if (!_canAddMorePhotos()) {
-      showErrorMessage(context, _maxPhotosMessage);
-      return;
+  Future<void> _addSelectedImages(List<File> imageFiles) async {
+    final List<File> validImages = <File>[];
+
+    for (final File imageFile in imageFiles) {
+      // 이미 선택된 사진인지 확인 (파일 경로로 비교)
+      final bool isDuplicate = _selectedImages.any(
+        (File existing) => existing.path == imageFile.path,
+      );
+
+      if (!isDuplicate &&
+          _selectedImages.length + validImages.length < _maxPhotoCount) {
+        validImages.add(imageFile);
+      }
     }
 
-    setState(() {
-      _selectedImages.add(imageFile);
-    });
+    if (validImages.isNotEmpty) {
+      setState(() {
+        _selectedImages.addAll(validImages);
+      });
+
+      // 추가된 사진 개수 알림
+      if (mounted) {
+        showSuccessMessage(context, '${validImages.length}장의 사진이 추가되었습니다.');
+      }
+    }
+
+    // 최대 개수 초과 시 알림
+    if (_selectedImages.length >= _maxPhotoCount) {
+      if (mounted) {
+        showErrorMessage(context, _maxPhotosMessage);
+      }
+    }
   }
 
   void _removeImage(int index) {
