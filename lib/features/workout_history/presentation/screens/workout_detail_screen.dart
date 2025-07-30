@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/workout_history/application/use_cases/update_workout_title_use_case.dart';
@@ -42,13 +45,19 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
     with ErrorDisplayMixin {
   // 상수 정의
   static const int _maxTitleLength = 60;
+  static const int _maxPhotoCount = 30;
   static const String _emptyTitleMessage = '제목은 비어있을 수 없습니다';
   static const String _titleSavedMessage = '제목이 저장되었습니다';
   static const String _unknownErrorMessage = '알 수 없는 오류가 발생했습니다';
   static const String _unsavedChangesMessage = '저장되지 않는 내용은 모두 사라집니다.';
+  static const String _maxPhotosMessage = '최대 30장까지만 추가할 수 있습니다.';
 
   bool _isEditingTitle = false;
   late String _workoutTitle;
+
+  // 사진 관련 상태 변수
+  final List<File> _selectedImages = <File>[];
+  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   void initState() {
@@ -62,6 +71,11 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
 
   bool _isTitleChanged(String newTitle) {
     return newTitle.trim() != _workoutTitle.trim();
+  }
+
+  // 사진 관련 검증 메서드
+  bool _canAddMorePhotos() {
+    return _selectedImages.length < _maxPhotoCount;
   }
 
   void _startEditing() {
@@ -134,6 +148,55 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
       },
       onSecondaryButtonPressed: _exitEditingMode,
     );
+  }
+
+  // 사진 관련 메서드들
+  Future<void> _addPhotoFromGallery() async {
+    if (!_canAddMorePhotos()) {
+      showErrorMessage(context, _maxPhotosMessage);
+      return;
+    }
+
+    // 바로 갤러리로 이동
+    await _pickImageFromGallery();
+  }
+
+  Future<void> _pickImageFromGallery() async {
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null) {
+        await _addSelectedImage(File(pickedFile.path));
+      }
+    } catch (e) {
+      if (mounted) {
+        showErrorMessage(context, '갤러리에서 이미지를 선택하는 중 오류가 발생했습니다.');
+      }
+    }
+  }
+
+  Future<void> _addSelectedImage(File imageFile) async {
+    if (!_canAddMorePhotos()) {
+      showErrorMessage(context, _maxPhotosMessage);
+      return;
+    }
+
+    setState(() {
+      _selectedImages.add(imageFile);
+    });
+  }
+
+  void _removeImage(int index) {
+    if (index >= 0 && index < _selectedImages.length) {
+      setState(() {
+        _selectedImages.removeAt(index);
+      });
+    }
   }
 
   @override
@@ -370,7 +433,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '최대 30장의 사진을 추가할 수 있습니다.',
+                      '${_selectedImages.length}/$_maxPhotoCount장 (최대 30장까지 추가 가능)',
                       style: AppTextStyles.label1.readingBold.copyWith(
                         color: colors.labelAlternative,
                       ),
@@ -402,27 +465,48 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: () {
-                            // TODO: 사진 추가 기능 구현
-                          },
+                          onTap:
+                              _canAddMorePhotos()
+                                  ? () {
+                                    _addPhotoFromGallery();
+                                  }
+                                  : null,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Icon(
                                 Icons.add_photo_alternate_outlined,
                                 size: 24,
-                                color: colors.labelAlternative,
+                                color:
+                                    _canAddMorePhotos()
+                                        ? colors.labelAlternative
+                                        : colors.labelAlternative.withValues(
+                                          alpha: 0.5,
+                                        ),
                               ),
                               const SizedBox(height: 4),
+                              if (!_canAddMorePhotos())
+                                Text(
+                                  '최대',
+                                  style: AppTextStyles.caption1.regular
+                                      .copyWith(
+                                        color: colors.labelAlternative
+                                            .withValues(alpha: 0.5),
+                                      ),
+                                ),
                             ],
                           ),
                         ),
                       ),
                     ),
-                    // 예시 사진들
-                    _buildPhotoItem(context, '1'),
-                    _buildPhotoItem(context, '2'),
-                    _buildPhotoItem(context, '3'),
+                    // 선택된 사진들 동적 생성
+                    ..._selectedImages.asMap().entries.map((
+                      MapEntry<int, File> entry,
+                    ) {
+                      final int index = entry.key;
+                      final File imageFile = entry.value;
+                      return _buildPhotoItem(context, imageFile, index);
+                    }),
                   ],
                 ),
               ),
@@ -435,8 +519,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
   }
 
   /// 사진 아이템 위젯 생성 TODO: stateless widget 으로 변경
-  Widget _buildPhotoItem(BuildContext context, String label) {
-    const String imagePath = 'assets/images/png/thumbnail_r1_1.png';
+  Widget _buildPhotoItem(BuildContext context, File imageFile, int index) {
     final SemanticColors colors = context.semanticColor;
     return Container(
       width: 100,
@@ -451,8 +534,8 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
         children: <Widget>[
           // 실제 PNG 이미지 표시
           ClipRRect(
-            child: Image.asset(
-              imagePath,
+            child: Image.file(
+              imageFile,
               width: double.infinity,
               height: double.infinity,
               fit: BoxFit.cover,
@@ -464,7 +547,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
             right: -8,
             child: GestureDetector(
               onTap: () {
-                // TODO: 사진 삭제 기능 구현
+                _removeImage(index);
               },
               child: Container(
                 width: 16,
