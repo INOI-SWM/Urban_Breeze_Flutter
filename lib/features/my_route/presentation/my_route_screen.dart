@@ -163,6 +163,10 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
                   },
                   size: CategoryFilterSize.small,
                   mode: CategoryFilterMode.alternative,
+                  categoryIcons: <String, IconData>{
+                    _getCategoryText('상승 고도'): Icons.trending_up,
+                    _getCategoryText('거리'): Icons.route,
+                  },
                 ),
               ),
             ],
