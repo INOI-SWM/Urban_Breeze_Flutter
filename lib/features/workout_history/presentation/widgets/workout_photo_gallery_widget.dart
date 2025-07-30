@@ -316,10 +316,10 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
                   shape: BoxShape.circle,
                   boxShadow: AppShadows.instance.normal,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.close,
                   size: _deleteIconSize,
-                  color: Colors.white,
+                  color: colors.staticWhite,
                 ),
               ),
             ),
