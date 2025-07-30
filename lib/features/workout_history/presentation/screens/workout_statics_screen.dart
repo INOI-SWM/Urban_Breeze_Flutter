@@ -2,6 +2,9 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/shared/chart/chart_axis_utils.dart';
+import 'package:ridingmate/shared/chart/chart_builders.dart';
+import 'package:ridingmate/shared/chart/chart_style_config.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/info/info_item.dart';
 import 'package:ridingmate/shared/design_system/widgets/segmented_control/segmented_control.dart';
@@ -19,9 +22,6 @@ class _UIConstants {
   static const double largeSpacing = 40.0;
   static const double chartHeight = 200.0;
   static const double barWidth = 20.0;
-  static const double gridLineWidth = 1.0;
-  static const double reservedSizePadding = 8.0;
-  static const double topPaddingRatio = 0.1;
   static const EdgeInsets loadingPadding = EdgeInsets.symmetric(vertical: 20);
 }
 
@@ -72,16 +72,13 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     _loadStatistics();
   }
 
-  TextStyle get _chartLabelStyle => AppTextStyles.caption2.regular.copyWith(
-    color: context.semanticColor.labelAlternative,
-  );
-
-  Color get _gridLineColor =>
-      context.semanticColor.lineNormalNormal.withValues(alpha: 0.3);
+  TextStyle get _chartLabelStyle =>
+      ChartStyleConfig.getAxisLabelStyle(context.semanticColor);
 
   Color get _barColor => context.semanticColor.primaryNormal;
 
-  Color get _tooltipTextColor => context.semanticColor.staticWhite;
+  Color get _tooltipTextColor =>
+      ChartStyleConfig.getTooltipTextColor(context.semanticColor);
 
   TextStyle get _titleStyle => AppTextStyles.title3.bold.copyWith(
     color: context.semanticColor.labelStrong,
@@ -123,18 +120,21 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        _buildPeriodSelector(),
-        const SizedBox(height: _UIConstants.defaultSpacing),
-        _buildPeriodTitle(),
-        const SizedBox(height: _UIConstants.defaultSpacing),
-        _buildDataTypeSelector(),
-        const SizedBox(height: _UIConstants.defaultSpacing),
-        _buildDataTypeLabel(),
-        _buildContentByState(),
-      ],
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          _buildPeriodSelector(),
+          const SizedBox(height: _UIConstants.defaultSpacing),
+          _buildPeriodTitle(),
+          const SizedBox(height: _UIConstants.defaultSpacing),
+          _buildDataTypeSelector(),
+          const SizedBox(height: _UIConstants.defaultSpacing),
+          _buildDataTypeLabel(),
+          _buildContentByState(),
+        ],
+      ),
     );
   }
 
@@ -289,13 +289,28 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
       availableWidth,
     );
 
+    final double maxValue = ChartAxisUtils.getMaxValue(
+      chartPoints,
+      (WorkoutStatisticsChartPoint point) => point.value,
+    );
+    final double interval = ChartAxisUtils.calculateInterval(maxValue);
+
     return BarChartData(
       barGroups: _buildBarGroups(chartPoints, barWidth),
-      titlesData: _buildTitlesData(chartPoints),
-      gridData: _buildGridData(chartPoints),
-      borderData: FlBorderData(show: false),
+      titlesData: _buildTitlesData(chartPoints, interval),
+      gridData: ChartBuilders.buildGridData(
+        colors: context.semanticColor,
+        interval: interval,
+      ),
+      borderData: ChartBuilders.buildBorderData(),
       minY: 0,
-      maxY: _calculateChartMaxY(chartPoints),
+      maxY: ChartAxisUtils.calculateChartMaxY(
+        ChartAxisUtils.getMaxValue(
+          chartPoints,
+          (WorkoutStatisticsChartPoint point) => point.value,
+        ),
+        interval,
+      ),
       barTouchData: _buildTouchData(chartPoints),
     );
   }
@@ -346,14 +361,16 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     return calculatedWidth.clamp(minWidth, maxWidth);
   }
 
-  FlTitlesData _buildTitlesData(List<WorkoutStatisticsChartPoint> chartPoints) {
+  FlTitlesData _buildTitlesData(
+    List<WorkoutStatisticsChartPoint> chartPoints,
+    double interval,
+  ) {
     return FlTitlesData(
       leftTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
           reservedSize: _calculateYAxisReservedSize(chartPoints),
           getTitlesWidget: (double value, TitleMeta meta) {
-            final double interval = _getYAxisInterval(chartPoints);
             if (value % interval != 0) {
               return const Text('');
             }
@@ -378,20 +395,6 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
       ),
       topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-    );
-  }
-
-  FlGridData _buildGridData(List<WorkoutStatisticsChartPoint> chartPoints) {
-    return FlGridData(
-      show: true,
-      drawHorizontalLine: true,
-      drawVerticalLine: false,
-      horizontalInterval: _getYAxisInterval(chartPoints),
-      getDrawingHorizontalLine:
-          (double value) => FlLine(
-            color: _gridLineColor,
-            strokeWidth: _UIConstants.gridLineWidth,
-          ),
     );
   }
 
@@ -438,38 +441,11 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     }
   }
 
-  double _getMaxYValue(List<WorkoutStatisticsChartPoint> points) {
-    if (points.isEmpty) return 100;
-    return points
-        .map((WorkoutStatisticsChartPoint p) => p.value)
-        .reduce((double a, double b) => a > b ? a : b);
-  }
-
-  double _getYAxisInterval(List<WorkoutStatisticsChartPoint> points) {
-    final double maxValue = _getMaxYValue(points);
-    if (maxValue <= 10) return 2;
-    if (maxValue <= 50) return 10;
-    if (maxValue <= 100) return 20;
-    if (maxValue <= 500) return 100;
-    if (maxValue <= 1000) return 200;
-    if (maxValue <= 5000) return 1000;
-    if (maxValue <= 10000) return 2000;
-    if (maxValue <= 50000) return 10000;
-
-    // 매우 큰 값들은 적절한 10의 배수로 설정
-    final double baseInterval = (maxValue / 5).roundToDouble();
-    if (baseInterval >= 10000) {
-      return (baseInterval / 10000).round() * 10000.0;
-    } else if (baseInterval >= 1000) {
-      return (baseInterval / 1000).round() * 1000.0;
-    } else if (baseInterval >= 100) {
-      return (baseInterval / 100).round() * 100.0;
-    }
-    return baseInterval;
-  }
-
   double _calculateYAxisReservedSize(List<WorkoutStatisticsChartPoint> points) {
-    final double maxValue = _getMaxYValue(points);
+    final double maxValue = ChartAxisUtils.getMaxValue(
+      points,
+      (WorkoutStatisticsChartPoint point) => point.value,
+    );
     final String formattedMaxValue = _formatYAxisLabel(maxValue);
 
     final TextPainter textPainter = TextPainter(
@@ -484,16 +460,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     );
     textPainter.layout();
 
-    return textPainter.size.width + _UIConstants.reservedSizePadding;
-  }
-
-  double _calculateChartMaxY(List<WorkoutStatisticsChartPoint> points) {
-    final double maxValue = _getMaxYValue(points);
-    final double interval = _getYAxisInterval(points);
-
-    // interval 단위로 올림 후 약간의 여유 공간 추가하여 상단 grid line 표시
-    return ((maxValue / interval).ceil()) * interval +
-        (interval * _UIConstants.topPaddingRatio);
+    return textPainter.size.width + ChartStyleConfig.reservedSizePadding;
   }
 
   //TODO : api 연동 후 변경 필요
