@@ -22,6 +22,135 @@ class WorkoutListScreen extends StatefulWidget {
 
 enum ViewMode { list, grid }
 
+class _ViewModeToggleButton extends StatelessWidget {
+  const _ViewModeToggleButton({required this.viewMode, required this.onToggle});
+
+  final ViewMode viewMode;
+  final VoidCallback onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final SemanticColors colors = context.semanticColor;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: <Widget>[
+          const Spacer(),
+          CustomIconButton(
+            icon: viewMode == ViewMode.list ? Icons.grid_view : Icons.list,
+            onTap: onToggle,
+            color: colors.labelNormal,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyWorkoutState extends StatelessWidget {
+  const _EmptyWorkoutState();
+
+  @override
+  Widget build(BuildContext context) {
+    final SemanticColors colors = context.semanticColor;
+
+    return Column(
+      children: <Widget>[
+        Icon(Icons.info_outline, size: 48, color: colors.labelAlternative),
+        const SizedBox(height: 8),
+        Text('운동 데이터가 없습니다', style: AppTextStyles.body2.normalBold),
+        const SizedBox(height: 4),
+        Text(
+          '먼저 권한을 요청하고 데이터를 불러오세요',
+          style: AppTextStyles.label2.medium.copyWith(
+            color: colors.labelAlternative,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _LoadingState extends StatelessWidget {
+  const _LoadingState();
+
+  @override
+  Widget build(BuildContext context) {
+    final SemanticColors colors = context.semanticColor;
+
+    return Center(
+      child: Text(
+        '데이터를 불러오는 중...',
+        style: AppTextStyles.label2.medium.copyWith(
+          color: colors.labelAlternative,
+        ),
+      ),
+    );
+  }
+}
+
+class _WorkoutListItem extends StatelessWidget {
+  const _WorkoutListItem({
+    required this.workout,
+    required this.index,
+    required this.onTap,
+  });
+
+  final WorkoutRecord workout;
+  final int index;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: CardList(
+        thumbnailPath: 'assets/images/png/thumbnail_r3_2.png',
+        sourceType: ThumbnailSourceType.asset,
+        title: '운동 ${index + 1}',
+        createDate: DateFormatter.formatKorean(workout.startTime),
+        badges: <BadgeData>[
+          BadgeData(
+            text: WorkoutFormatter.toKmText(workout.distance),
+            icon: Icons.route,
+          ),
+          BadgeData(
+            text: WorkoutFormatter.toDurationText(workout.duration),
+            icon: Icons.access_time,
+          ),
+        ],
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
+class _WorkoutGridItem extends StatelessWidget {
+  const _WorkoutGridItem({
+    required this.workout,
+    required this.index,
+    required this.onTap,
+  });
+
+  final WorkoutRecord workout;
+  final int index;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: const Thumbnail(
+        path: 'assets/images/png/thumbnail_r1_1.png',
+        ratio: ThumbnailRatio.square,
+        sourceType: ThumbnailSourceType.asset,
+        hasRadius: false,
+      ),
+    );
+  }
+}
+
 class _WorkoutListScreenState extends State<WorkoutListScreen> {
   bool _isLoading = false;
   List<WorkoutRecord> _workouts = <WorkoutRecord>[];
@@ -60,6 +189,19 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
     } catch (e) {
       // TODO : 권한 요청 실패 시 무시
     }
+  }
+
+  void _navigateToWorkoutDetail(WorkoutRecord workout, int index) {
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder:
+            (BuildContext context) => WorkoutDetailScreen(
+              workoutRecord: workout,
+              workoutIndex: index,
+            ),
+      ),
+    );
   }
 
   @override
@@ -121,48 +263,22 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
   }
 
   Widget _buildResultWidget() {
-    final SemanticColors colors = context.semanticColor;
     if (_workouts.isEmpty && !_isLoading) {
-      return Column(
-        children: <Widget>[
-          Icon(Icons.info_outline, size: 48, color: colors.labelAlternative),
-          const SizedBox(height: 8),
-          Text('운동 데이터가 없습니다', style: AppTextStyles.body2.normalBold),
-          const SizedBox(height: 4),
-          Text(
-            '먼저 권한을 요청하고 데이터를 불러오세요',
-            style: AppTextStyles.label2.medium.copyWith(
-              color: colors.labelAlternative,
-            ),
-          ),
-        ],
-      );
+      return const _EmptyWorkoutState();
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         if (_workouts.isNotEmpty) ...<Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: <Widget>[
-                const Spacer(),
-                CustomIconButton(
-                  icon:
-                      _viewMode == ViewMode.list ? Icons.grid_view : Icons.list,
-                  onTap: () {
-                    setState(() {
-                      _viewMode =
-                          _viewMode == ViewMode.list
-                              ? ViewMode.grid
-                              : ViewMode.list;
-                    });
-                  },
-                  color: colors.labelNormal,
-                ),
-              ],
-            ),
+          _ViewModeToggleButton(
+            viewMode: _viewMode,
+            onToggle: () {
+              setState(() {
+                _viewMode =
+                    _viewMode == ViewMode.list ? ViewMode.grid : ViewMode.list;
+              });
+            },
           ),
           const SizedBox(height: 12),
           Expanded(
@@ -173,45 +289,10 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
                       itemCount: _workouts.length,
                       itemBuilder: (BuildContext context, int index) {
                         final WorkoutRecord workout = _workouts[index];
-                        // TODO : 서버 저장 양식에 따라 데이터 파싱 변경
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: CardList(
-                            thumbnailPath:
-                                'assets/images/png/thumbnail_r3_2.png',
-                            sourceType: ThumbnailSourceType.asset,
-                            title: '운동 ${index + 1}',
-                            createDate: DateFormatter.formatKorean(
-                              workout.startTime,
-                            ),
-                            badges: <BadgeData>[
-                              BadgeData(
-                                text: WorkoutFormatter.toKmText(
-                                  workout.distance,
-                                ),
-                                icon: Icons.route,
-                              ),
-                              BadgeData(
-                                text: WorkoutFormatter.toDurationText(
-                                  workout.duration,
-                                ),
-                                icon: Icons.access_time,
-                              ),
-                            ],
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute<void>(
-                                  builder:
-                                      (BuildContext context) =>
-                                          WorkoutDetailScreen(
-                                            workoutRecord: workout,
-                                            workoutIndex: index,
-                                          ),
-                                ),
-                              );
-                            },
-                          ),
+                        return _WorkoutListItem(
+                          workout: workout,
+                          index: index,
+                          onTap: () => _navigateToWorkoutDetail(workout, index),
                         );
                       },
                     )
@@ -227,41 +308,15 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
                       itemCount: _workouts.length,
                       itemBuilder: (BuildContext context, int index) {
                         final WorkoutRecord workout = _workouts[index];
-                        // TODO : 서버 저장 양식에 따라 데이터 파싱 변경
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute<void>(
-                                builder:
-                                    (BuildContext context) =>
-                                        WorkoutDetailScreen(
-                                          workoutRecord: workout,
-                                          workoutIndex: index,
-                                        ),
-                              ),
-                            );
-                          },
-                          child: const Thumbnail(
-                            path: 'assets/images/png/thumbnail_r1_1.png',
-                            ratio: ThumbnailRatio.square,
-                            sourceType: ThumbnailSourceType.asset,
-                            hasRadius: false,
-                          ),
+                        return _WorkoutGridItem(
+                          workout: workout,
+                          index: index,
+                          onTap: () => _navigateToWorkoutDetail(workout, index),
                         );
                       },
                     ),
           ),
-        ] else ...<Widget>[
-          Center(
-            child: Text(
-              '데이터를 불러오는 중...',
-              style: AppTextStyles.label2.medium.copyWith(
-                color: colors.labelAlternative,
-              ),
-            ),
-          ),
-        ],
+        ] else ...<Widget>[const _LoadingState()],
       ],
     );
   }
