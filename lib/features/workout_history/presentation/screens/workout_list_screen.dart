@@ -64,20 +64,17 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          // TODO: 개발 완료 후 삭제 예정
-          _buildTestButtons(),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        // TODO: 개발 완료 후 삭제 예정
+        _buildTestButtons(),
 
-          const SizedBox(height: 16),
+        const SizedBox(height: 16),
 
-          // 결과 표시
-          Expanded(child: _buildResultWidget()),
-        ],
-      ),
+        // 결과 표시
+        Expanded(child: _buildResultWidget()),
+      ],
     );
   }
 
@@ -146,28 +143,33 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         if (_workouts.isNotEmpty) ...<Widget>[
-          Row(
-            children: <Widget>[
-              const Spacer(),
-              CustomIconButton(
-                icon: _viewMode == ViewMode.list ? Icons.grid_view : Icons.list,
-                onTap: () {
-                  setState(() {
-                    _viewMode =
-                        _viewMode == ViewMode.list
-                            ? ViewMode.grid
-                            : ViewMode.list;
-                  });
-                },
-                color: colors.labelNormal,
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: <Widget>[
+                const Spacer(),
+                CustomIconButton(
+                  icon:
+                      _viewMode == ViewMode.list ? Icons.grid_view : Icons.list,
+                  onTap: () {
+                    setState(() {
+                      _viewMode =
+                          _viewMode == ViewMode.list
+                              ? ViewMode.grid
+                              : ViewMode.list;
+                    });
+                  },
+                  color: colors.labelNormal,
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 12),
           Expanded(
             child:
                 _viewMode == ViewMode.list
                     ? ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       itemCount: _workouts.length,
                       itemBuilder: (BuildContext context, int index) {
                         final WorkoutRecord workout = _workouts[index];
