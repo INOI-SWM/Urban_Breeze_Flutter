@@ -50,58 +50,69 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
         ),
         const SizedBox(height: 20),
         SizedBox(
-          height: 100,
+          height: 110,
           child: ListView(
             scrollDirection: Axis.horizontal,
             clipBehavior: Clip.none,
             children: <Widget>[
               Container(
-                width: 100,
-                height: 100,
-                margin: const EdgeInsets.only(right: 8),
-                decoration: BoxDecoration(
-                  color: colors.fillNormal,
-                  border: Border.all(
-                    color: colors.lineNormalNormal,
-                    width: 1,
-                    style: BorderStyle.solid,
-                  ),
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap:
-                        _canAddMorePhotos()
-                            ? () {
-                              _addPhotoFromGallery();
-                            }
-                            : null,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Icon(
-                          Icons.add_photo_alternate_outlined,
-                          size: 24,
-                          color:
-                              _canAddMorePhotos()
-                                  ? colors.labelAlternative
-                                  : colors.labelAlternative.withValues(
-                                    alpha: 0.5,
-                                  ),
+                width: 110,
+                height: 110,
+                color: Colors.transparent,
+                child: Stack(
+                  children: <Widget>[
+                    Positioned(
+                      top: 10,
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: colors.fillNormal,
+                          border: Border.all(
+                            color: colors.lineNormalNormal,
+                            width: 1,
+                            style: BorderStyle.solid,
+                          ),
                         ),
-                        const SizedBox(height: 4),
-                        if (!_canAddMorePhotos())
-                          Text(
-                            '최대',
-                            style: AppTextStyles.caption1.regular.copyWith(
-                              color: colors.labelAlternative.withValues(
-                                alpha: 0.5,
-                              ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap:
+                                _canAddMorePhotos()
+                                    ? () {
+                                      _addPhotoFromGallery();
+                                    }
+                                    : null,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Icon(
+                                  Icons.add_photo_alternate_outlined,
+                                  size: 24,
+                                  color:
+                                      _canAddMorePhotos()
+                                          ? colors.labelAlternative
+                                          : colors.labelAlternative.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                ),
+                                const SizedBox(height: 4),
+                                if (!_canAddMorePhotos())
+                                  Text(
+                                    '최대',
+                                    style: AppTextStyles.caption1.regular
+                                        .copyWith(
+                                          color: colors.labelAlternative
+                                              .withValues(alpha: 0.5),
+                                        ),
+                                  ),
+                              ],
                             ),
                           ),
-                      ],
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
               ..._selectedImages.asMap().entries.map((
@@ -246,41 +257,55 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
   Widget _buildPhotoItem(BuildContext context, File imageFile, int index) {
     final SemanticColors colors = context.semanticColor;
     return Container(
-      width: 100,
-      height: 100,
-      margin: const EdgeInsets.only(right: 8),
-      decoration: BoxDecoration(
-        color: colors.fillAlternative,
-        border: Border.all(color: colors.lineNormalNormal, width: 1),
-      ),
+      width: 110,
+      height: 110,
+      color: Colors.transparent,
       child: Stack(
         clipBehavior: Clip.none,
         children: <Widget>[
-          // 실제 선택된 이미지 표시
-          ClipRRect(
-            child: Image.file(
-              imageFile,
-              width: double.infinity,
-              height: double.infinity,
-              fit: BoxFit.cover,
+          Positioned(
+            top: 10,
+            child: Container(
+              width: 100, // 원본 크기 유지
+              height: 100, // 원본 크기 유지
+              decoration: BoxDecoration(
+                color: colors.fillAlternative,
+                border: Border.all(color: colors.lineNormalNormal, width: 1),
+              ),
+              child: ClipRRect(
+                child: Image.file(
+                  imageFile,
+                  width: double.infinity,
+                  height: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
-          // 삭제 버튼
+          // 삭제 버튼 - 이미지 Container 밖으로 나가 보이지만 실제로는 바깥 Container 안에 있음
           Positioned(
-            top: -8,
-            right: -8,
+            top: 0,
+            right: 0,
             child: GestureDetector(
               onTap: () {
                 _removeImage(index);
               },
+              behavior: HitTestBehavior.opaque,
               child: Container(
-                width: 16,
-                height: 16,
+                width: 20,
+                height: 20,
                 decoration: BoxDecoration(
                   color: colors.labelAlternative,
                   shape: BoxShape.circle,
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 1,
+                      offset: const Offset(0, 0.5),
+                    ),
+                  ],
                 ),
-                child: const Icon(Icons.close, size: 12, color: Colors.white),
+                child: const Icon(Icons.close, size: 16, color: Colors.white),
               ),
             ),
           ),
