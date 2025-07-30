@@ -165,45 +165,90 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
           ),
           const SizedBox(height: 12),
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.only(bottom: 12),
-              itemCount: _workouts.length,
-              itemBuilder: (BuildContext context, int index) {
-                final WorkoutRecord workout = _workouts[index];
-                // TODO : 서버 저장 양식에 따라 데이터 파싱 변경
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: CardList(
-                    thumbnailPath: 'assets/images/png/thumbnail_r3_2.png',
-                    sourceType: ThumbnailSourceType.asset,
-                    title: '운동 ${index + 1}',
-                    createDate: DateFormatter.formatKorean(workout.startTime),
-                    badges: <BadgeData>[
-                      BadgeData(
-                        text: WorkoutFormatter.toKmText(workout.distance),
-                        icon: Icons.route,
-                      ),
-                      BadgeData(
-                        text: WorkoutFormatter.toDurationText(workout.duration),
-                        icon: Icons.access_time,
-                      ),
-                    ],
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder:
-                              (BuildContext context) => WorkoutDetailScreen(
-                                workoutRecord: workout,
-                                workoutIndex: index,
+            child:
+                _viewMode == ViewMode.list
+                    ? ListView.builder(
+                      itemCount: _workouts.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final WorkoutRecord workout = _workouts[index];
+                        // TODO : 서버 저장 양식에 따라 데이터 파싱 변경
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: CardList(
+                            thumbnailPath:
+                                'assets/images/png/thumbnail_r3_2.png',
+                            sourceType: ThumbnailSourceType.asset,
+                            title: '운동 ${index + 1}',
+                            createDate: DateFormatter.formatKorean(
+                              workout.startTime,
+                            ),
+                            badges: <BadgeData>[
+                              BadgeData(
+                                text: WorkoutFormatter.toKmText(
+                                  workout.distance,
+                                ),
+                                icon: Icons.route,
                               ),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
+                              BadgeData(
+                                text: WorkoutFormatter.toDurationText(
+                                  workout.duration,
+                                ),
+                                icon: Icons.access_time,
+                              ),
+                            ],
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder:
+                                      (BuildContext context) =>
+                                          WorkoutDetailScreen(
+                                            workoutRecord: workout,
+                                            workoutIndex: index,
+                                          ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    )
+                    : GridView.builder(
+                      padding: EdgeInsets.zero,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 1,
+                            mainAxisSpacing: 1,
+                            childAspectRatio: 1.0,
+                          ),
+                      itemCount: _workouts.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final WorkoutRecord workout = _workouts[index];
+                        // TODO : 서버 저장 양식에 따라 데이터 파싱 변경
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute<void>(
+                                builder:
+                                    (BuildContext context) =>
+                                        WorkoutDetailScreen(
+                                          workoutRecord: workout,
+                                          workoutIndex: index,
+                                        ),
+                              ),
+                            );
+                          },
+                          child: const Thumbnail(
+                            path: 'assets/images/png/thumbnail_r1_1.png',
+                            ratio: ThumbnailRatio.square,
+                            sourceType: ThumbnailSourceType.asset,
+                            hasRadius: false,
+                          ),
+                        );
+                      },
+                    ),
           ),
         ] else ...<Widget>[
           Center(
