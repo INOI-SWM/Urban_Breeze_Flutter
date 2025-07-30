@@ -137,8 +137,8 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
 
-    return Container(
-      padding: const EdgeInsets.all(20),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Column(
         children: <Widget>[
           Row(

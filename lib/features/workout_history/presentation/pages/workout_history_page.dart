@@ -53,12 +53,7 @@ class _WorkoutHistoryPageState extends State<WorkoutHistoryPage> {
           },
           labelExtractor: (WorkoutHistoryTab tab) => tab.label,
         ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: _buildContent(),
-          ),
-        ),
+        Expanded(child: _buildContent()),
       ],
     );
   }
