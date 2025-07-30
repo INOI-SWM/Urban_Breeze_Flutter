@@ -313,22 +313,25 @@ class _FilterContentState extends State<_FilterContent> {
             ),
             const SizedBox(height: 8),
             // 최소/최대값 표시
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  '${values.start.round()} $unit',
-                  style: AppTextStyles.label1.normalMedium.copyWith(
-                    color: colors.labelNormal,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    '${min.round()} $unit',
+                    style: AppTextStyles.label1.normalMedium.copyWith(
+                      color: colors.labelNormal,
+                    ),
                   ),
-                ),
-                Text(
-                  '${values.end.round()} $unit',
-                  style: AppTextStyles.label1.normalMedium.copyWith(
-                    color: colors.labelNormal,
+                  Text(
+                    '${max.round()} $unit',
+                    style: AppTextStyles.label1.normalMedium.copyWith(
+                      color: colors.labelNormal,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
