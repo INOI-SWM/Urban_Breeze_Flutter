@@ -16,6 +16,7 @@ class CategoryFilter extends StatelessWidget {
     this.size = CategoryFilterSize.medium,
     this.mode = CategoryFilterMode.alternative,
     this.categoryIcons,
+    this.categoryRightIcons,
   });
 
   final List<String> categories;
@@ -24,6 +25,7 @@ class CategoryFilter extends StatelessWidget {
   final CategoryFilterSize size;
   final CategoryFilterMode mode;
   final Map<String, IconData>? categoryIcons;
+  final Map<String, IconData>? categoryRightIcons;
 
   double get _spacing {
     switch (size) {
@@ -105,6 +107,7 @@ class CategoryFilter extends StatelessWidget {
                   key: ValueKey<String>(category),
                   text: category,
                   leftIcon: categoryIcons?[category],
+                  rightIcon: categoryRightIcons?[category],
                   size: _chipSize,
                   type: _getChipActionType(isSelected),
                   textColor: getChipActionTextColor(isSelected),
