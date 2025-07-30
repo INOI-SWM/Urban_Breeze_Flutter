@@ -77,5 +77,9 @@
 	<string>운동 기록, 심박수, 거리, 고도 데이터를 읽어 앱 내 통계를 제공합니다.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>운동 데이터를 HealthKit에 저장하여 다른 앱과 동기화합니다.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>운동 기록에 사진을 추가하기 위해 카메라에 접근합니다.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>운동 기록에 사진을 추가하기 위해 갤러리에 접근합니다.</string>
 </dict>
 </plist>
