@@ -156,8 +156,7 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
         maxWidth: 1920,
         maxHeight: 1920,
         imageQuality: 85,
-        limit:
-            _canAddMorePhotos() ? (_maxPhotoCount - _selectedImages.length) : 1,
+        limit: _maxPhotoCount - _selectedImages.length,
       );
 
       if (pickedFiles.isNotEmpty) {
