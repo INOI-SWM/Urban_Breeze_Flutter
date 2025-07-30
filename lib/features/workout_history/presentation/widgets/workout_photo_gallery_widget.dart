@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
@@ -34,6 +34,9 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
 
   final List<File> _selectedImages = <File>[];
   final ImagePicker _imagePicker = ImagePicker();
+
+  // 🔄 성능 최적화: 파일 해시 캐시 (메모리 효율적)
+  final Map<String, String> _fileHashCache = <String, String>{};
 
   bool _canAddMorePhotos() {
     return _selectedImages.length < _maxPhotoCount;
@@ -226,43 +229,46 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
   void _removeImage(int index) {
     if (index >= 0 && index < _selectedImages.length) {
       setState(() {
-        _selectedImages.removeAt(index);
+        final File removedFile = _selectedImages.removeAt(index);
+        _fileHashCache.remove(removedFile.path);
       });
+    }
+  }
+
+  Future<String> _calculateFileHash(File file) async {
+    final String filePath = file.path;
+
+    if (_fileHashCache.containsKey(filePath)) {
+      return _fileHashCache[filePath]!;
+    }
+
+    try {
+      final Stream<List<int>> fileStream = file.openRead();
+      final Digest digest = await sha256.bind(fileStream).first;
+      final String hash = digest.toString();
+
+      _fileHashCache[filePath] = hash;
+      return hash;
+    } catch (e) {
+      return filePath.hashCode.toString();
     }
   }
 
   Future<bool> _isDuplicateImage(File newFile) async {
     try {
-      final Uint8List newFileBytes = await newFile.readAsBytes();
+      final String newFileHash = await _calculateFileHash(newFile);
 
       for (final File existingFile in _selectedImages) {
-        // 파일 크기 먼저 비교 (성능 최적화)
-        final int newFileSize = newFileBytes.length;
-        final int existingFileSize = await existingFile.length();
-
-        if (newFileSize == existingFileSize) {
-          // 크기가 같으면 바이트 데이터 비교
-          final Uint8List existingFileBytes = await existingFile.readAsBytes();
-          if (_areByteListsEqual(newFileBytes, existingFileBytes)) {
-            return true; // 중복 발견
-          }
+        final String existingFileHash = await _calculateFileHash(existingFile);
+        if (newFileHash == existingFileHash) {
+          return true; // 중복 발견
         }
       }
 
       return false; // 중복 없음
     } catch (e) {
-      return false;
+      return false; // 오류 시 중복 없음으로 처리
     }
-  }
-
-  bool _areByteListsEqual(Uint8List list1, Uint8List list2) {
-    if (list1.length != list2.length) return false;
-
-    for (int i = 0; i < list1.length; i++) {
-      if (list1[i] != list2[i]) return false;
-    }
-
-    return true;
   }
 
   Widget _buildPhotoItem(BuildContext context, File imageFile, int index) {
