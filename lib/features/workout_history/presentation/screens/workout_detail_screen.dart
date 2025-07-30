@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data'; // Added for Uint8List
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -58,6 +59,43 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
   // 사진 관련 상태 변수
   final List<File> _selectedImages = <File>[];
   final ImagePicker _imagePicker = ImagePicker();
+
+  // 파일 내용 기반 중복 체크 메서드
+  Future<bool> _isDuplicateImage(File newFile) async {
+    try {
+      final Uint8List newFileBytes = await newFile.readAsBytes();
+
+      for (final File existingFile in _selectedImages) {
+        // 파일 크기 먼저 비교 (성능 최적화)
+        final int newFileSize = newFileBytes.length;
+        final int existingFileSize = await existingFile.length();
+
+        if (newFileSize == existingFileSize) {
+          // 크기가 같으면 바이트 데이터 비교
+          final Uint8List existingFileBytes = await existingFile.readAsBytes();
+          if (_areByteListsEqual(newFileBytes, existingFileBytes)) {
+            return true; // 중복 발견
+          }
+        }
+      }
+
+      return false; // 중복 없음
+    } catch (e) {
+      // 오류 발생 시 중복이 아닌 것으로 처리
+      return false;
+    }
+  }
+
+  // 두 바이트 리스트가 동일한지 비교
+  bool _areByteListsEqual(Uint8List list1, Uint8List list2) {
+    if (list1.length != list2.length) return false;
+
+    for (int i = 0; i < list1.length; i++) {
+      if (list1[i] != list2[i]) return false;
+    }
+
+    return true;
+  }
 
   @override
   void initState() {
@@ -185,34 +223,56 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
 
   Future<void> _addSelectedImages(List<File> imageFiles) async {
     final List<File> validImages = <File>[];
+    int duplicateCount = 0;
+    int overLimitCount = 0;
 
     for (final File imageFile in imageFiles) {
-      // 이미 선택된 사진인지 확인 (파일 경로로 비교)
-      final bool isDuplicate = _selectedImages.any(
-        (File existing) => existing.path == imageFile.path,
-      );
+      // 최대 개수 확인
+      if (_selectedImages.length + validImages.length >= _maxPhotoCount) {
+        overLimitCount++;
+        continue;
+      }
 
-      if (!isDuplicate &&
-          _selectedImages.length + validImages.length < _maxPhotoCount) {
+      // 파일 내용 기반 중복 확인
+      final bool isDuplicate = await _isDuplicateImage(imageFile);
+
+      if (isDuplicate) {
+        duplicateCount++;
+      } else {
         validImages.add(imageFile);
       }
     }
 
+    // 유효한 이미지들 추가
     if (validImages.isNotEmpty) {
       setState(() {
         _selectedImages.addAll(validImages);
       });
-
-      // 추가된 사진 개수 알림
-      if (mounted) {
-        showSuccessMessage(context, '${validImages.length}장의 사진이 추가되었습니다.');
-      }
     }
 
-    // 최대 개수 초과 시 알림
-    if (_selectedImages.length >= _maxPhotoCount) {
-      if (mounted) {
-        showErrorMessage(context, _maxPhotosMessage);
+    // 사용자 피드백 제공
+    if (mounted) {
+      final List<String> messages = <String>[];
+
+      if (validImages.isNotEmpty) {
+        messages.add('${validImages.length}장의 사진이 추가되었습니다.');
+      }
+
+      if (duplicateCount > 0) {
+        messages.add('$duplicateCount장은 이미 추가된 사진입니다.');
+      }
+
+      if (overLimitCount > 0) {
+        messages.add('$overLimitCount장은 최대 개수 초과로 추가되지 않았습니다.');
+      }
+
+      if (messages.isNotEmpty) {
+        final String combinedMessage = messages.join(' ');
+        if (validImages.isNotEmpty) {
+          showSuccessMessage(context, combinedMessage);
+        } else {
+          showErrorMessage(context, combinedMessage);
+        }
       }
     }
   }
