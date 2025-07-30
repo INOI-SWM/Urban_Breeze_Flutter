@@ -77,22 +77,36 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
 
     // 생성자 필터가 기본값이 아닌 경우
     if (currentFilter.selectedCourseType != '전체') {
-      selectedCategories.add('생성자');
+      selectedCategories.add(_getCategoryText('생성자'));
     }
 
     // 상승 고도 필터가 기본값이 아닌 경우
     if (currentFilter.elevationRange.start != 0 ||
         currentFilter.elevationRange.end != 122) {
-      selectedCategories.add('상승 고도');
+      selectedCategories.add(_getCategoryText('상승 고도'));
     }
 
     // 거리 필터가 기본값이 아닌 경우
     if (currentFilter.distanceRange.start != 0 ||
         currentFilter.distanceRange.end != 999) {
-      selectedCategories.add('거리');
+      selectedCategories.add(_getCategoryText('거리'));
     }
 
     return selectedCategories;
+  }
+
+  // 필터 카테고리 텍스트를 가져오는 메서드
+  String _getCategoryText(String category) {
+    switch (category) {
+      case '생성자':
+        return currentFilter.selectedCreatorValue;
+      case '상승 고도':
+        return currentFilter.selectedElevationValue;
+      case '거리':
+        return currentFilter.selectedDistanceValue;
+      default:
+        return category;
+    }
   }
 
   void _showFilterModal({String? selectedTab}) {
@@ -135,9 +149,9 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
                 child: CategoryFilter(
                   categories: <String>[
                     selectedSortOption,
-                    '생성자',
-                    '상승 고도',
-                    '거리',
+                    _getCategoryText('생성자'),
+                    _getCategoryText('상승 고도'),
+                    _getCategoryText('거리'),
                   ],
                   selectedCategories: _getSelectedCategories(),
                   onCategorySelected: (String category) {

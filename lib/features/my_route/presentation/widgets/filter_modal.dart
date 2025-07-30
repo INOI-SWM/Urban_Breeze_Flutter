@@ -34,6 +34,42 @@ class FilterData {
       distanceRange: distanceRange ?? this.distanceRange,
     );
   }
+
+  // 선택된 생성자 값 반환
+  String get selectedCreatorValue {
+    if (selectedCourseType == '전체') return '생성자';
+    return selectedCourseType;
+  }
+
+  // 선택된 상승 고도 값 반환
+  String get selectedElevationValue {
+    if (elevationRange.start == 0 && elevationRange.end == 122) {
+      return '상승 고도';
+    }
+    return '${elevationRange.start.round()} ~ ${elevationRange.end.round()} m';
+  }
+
+  // 선택된 거리 값 반환
+  String get selectedDistanceValue {
+    if (distanceRange.start == 0 && distanceRange.end == 999) {
+      return '거리';
+    }
+    return '${distanceRange.start.round()} ~ ${distanceRange.end.round()} km';
+  }
+
+  // 특정 탭의 선택된 값 반환
+  String getValueForTab(String tab) {
+    switch (tab) {
+      case '생성자':
+        return selectedCreatorValue;
+      case '상승 고도':
+        return selectedElevationValue;
+      case '거리':
+        return selectedDistanceValue;
+      default:
+        return tab;
+    }
+  }
 }
 
 class FilterModal {
