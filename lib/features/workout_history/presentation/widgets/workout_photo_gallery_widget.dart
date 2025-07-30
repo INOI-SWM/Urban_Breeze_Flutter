@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/shared/design_system/tokens/decorations/app_shadows.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
@@ -20,6 +21,16 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
     with ErrorDisplayMixin {
   static const int _maxPhotoCount = 30;
   static const String _maxPhotosMessage = '최대 30장까지만 추가할 수 있습니다.';
+
+  static const double _containerSize = 112.0; // 전체 컨테이너 크기
+  static const double _imageSize = 100.0; // 실제 이미지 크기
+  static const double _imageTopOffset = 12.0; // 이미지 위치 조정
+  static const double _itemSpacing = 4.0; // 아이템 간 간격
+  static const double _listViewHeight = 112.0; // ListView 높이
+  static const double _sectionSpacing = 8.0; // 섹션 간 간격
+
+  static const double _deleteButtonSize = 24.0; // 삭제 버튼 크기
+  static const double _deleteIconSize = 16.0; // 삭제 아이콘 크기
 
   final List<File> _selectedImages = <File>[];
   final ImagePicker _imagePicker = ImagePicker();
@@ -41,32 +52,32 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
             color: colors.labelNormal,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: _sectionSpacing),
         Text(
           '${_selectedImages.length}/$_maxPhotoCount장 (최대 30장까지 추가 가능)',
           style: AppTextStyles.label1.readingBold.copyWith(
             color: colors.labelAlternative,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: _sectionSpacing),
         SizedBox(
-          height: 112,
+          height: _listViewHeight,
           child: ListView(
             scrollDirection: Axis.horizontal,
             clipBehavior: Clip.none,
             children: <Widget>[
               Container(
-                width: 112,
-                height: 112,
-                margin: const EdgeInsets.only(right: 4),
+                width: _containerSize,
+                height: _containerSize,
+                margin: const EdgeInsets.only(right: _itemSpacing),
                 color: Colors.transparent,
                 child: Stack(
                   children: <Widget>[
                     Positioned(
-                      top: 12,
+                      top: _imageTopOffset,
                       child: Container(
-                        width: 100,
-                        height: 100,
+                        width: _imageSize,
+                        height: _imageSize,
                         decoration: BoxDecoration(
                           color: colors.fillNormal,
                           border: Border.all(
@@ -258,18 +269,18 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
   Widget _buildPhotoItem(BuildContext context, File imageFile, int index) {
     final SemanticColors colors = context.semanticColor;
     return Container(
-      width: 112,
-      height: 112,
-      margin: const EdgeInsets.only(right: 4),
+      width: _containerSize,
+      height: _containerSize,
+      margin: const EdgeInsets.only(right: _itemSpacing),
       color: Colors.transparent,
       child: Stack(
         clipBehavior: Clip.none,
         children: <Widget>[
           Positioned(
-            top: 12,
+            top: _imageTopOffset,
             child: Container(
-              width: 100, // 원본 크기 유지
-              height: 100, // 원본 크기 유지
+              width: _imageSize,
+              height: _imageSize,
               decoration: BoxDecoration(
                 color: colors.fillAlternative,
                 border: Border.all(color: colors.lineNormalNormal, width: 1),
@@ -284,7 +295,6 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
               ),
             ),
           ),
-          // 삭제 버튼 - 이미지 Container 밖으로 나가 보이지만 실제로는 바깥 Container 안에 있음
           Positioned(
             top: 0,
             right: 0,
@@ -294,20 +304,18 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
               },
               behavior: HitTestBehavior.opaque,
               child: Container(
-                width: 24,
-                height: 24,
+                width: _deleteButtonSize,
+                height: _deleteButtonSize,
                 decoration: BoxDecoration(
                   color: colors.labelAlternative,
                   shape: BoxShape.circle,
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      blurRadius: 1,
-                      offset: const Offset(0, 0.5),
-                    ),
-                  ],
+                  boxShadow: AppShadows.instance.normal,
                 ),
-                child: const Icon(Icons.close, size: 16, color: Colors.white),
+                child: const Icon(
+                  Icons.close,
+                  size: _deleteIconSize,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
