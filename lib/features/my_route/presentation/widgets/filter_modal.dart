@@ -166,11 +166,9 @@ class FilterModal {
     '공유 받은 경로',
   ];
 
-  // 상승 고도 범위 (미터)
   static const double minElevation = 0;
   static const double maxElevation = 122;
 
-  // 거리 범위 (킬로미터)
   static const double minDistance = 0;
   static const double maxDistance = 999;
 
@@ -235,6 +233,7 @@ class _FilterContentState extends State<_FilterContent> {
           children: <Widget>[
             ...widget.filters.map((FilterItem filter) {
               return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   _buildFilterWidget(filter, colors),
                   if (filter != widget.filters.last)
