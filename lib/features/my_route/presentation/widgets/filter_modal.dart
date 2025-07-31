@@ -50,9 +50,9 @@ class FilterItem {
   }
 }
 
-class GenericFilterData {
+class FilterData {
   // 기본값으로 초기화하는 팩토리 메서드
-  factory GenericFilterData.fromFilterItems(List<FilterItem> filters) {
+  factory FilterData.fromFilterItems(List<FilterItem> filters) {
     final Map<String, dynamic> initialValues = <String, dynamic>{};
 
     for (final FilterItem filter in filters) {
@@ -70,13 +70,13 @@ class GenericFilterData {
       }
     }
 
-    return GenericFilterData(
+    return FilterData(
       values: initialValues,
       selectedTab: filters.isNotEmpty ? filters.first.title : '',
     );
   }
 
-  const GenericFilterData({
+  const FilterData({
     this.values = const <String, dynamic>{},
     this.selectedTab = '',
   });
@@ -84,11 +84,8 @@ class GenericFilterData {
   final Map<String, dynamic> values;
   final String selectedTab;
 
-  GenericFilterData copyWith({
-    Map<String, dynamic>? values,
-    String? selectedTab,
-  }) {
-    return GenericFilterData(
+  FilterData copyWith({Map<String, dynamic>? values, String? selectedTab}) {
+    return FilterData(
       values: values ?? this.values,
       selectedTab: selectedTab ?? this.selectedTab,
     );
@@ -97,13 +94,13 @@ class GenericFilterData {
   String? getStringValue(String key) => values[key] as String?;
   RangeValues? getRangeValue(String key) => values[key] as RangeValues?;
 
-  GenericFilterData setStringValue(String key, String value) {
+  FilterData setStringValue(String key, String value) {
     final Map<String, dynamic> newValues = Map<String, dynamic>.from(values);
     newValues[key] = value;
     return copyWith(values: newValues);
   }
 
-  GenericFilterData setRangeValue(String key, RangeValues value) {
+  FilterData setRangeValue(String key, RangeValues value) {
     final Map<String, dynamic> newValues = Map<String, dynamic>.from(values);
     newValues[key] = value;
     return copyWith(values: newValues);
@@ -112,7 +109,7 @@ class GenericFilterData {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is GenericFilterData &&
+    return other is FilterData &&
         other.values.toString() == values.toString() &&
         other.selectedTab == selectedTab;
   }
@@ -124,71 +121,7 @@ class GenericFilterData {
 
   @override
   String toString() {
-    return 'GenericFilterData(values: $values, selectedTab: $selectedTab)';
-  }
-}
-
-class FilterData {
-  FilterData({
-    this.selectedTab = '생성자',
-    this.selectedCourseType = '전체',
-    this.elevationRange = const RangeValues(0, 122),
-    this.distanceRange = const RangeValues(0, 999),
-  });
-
-  String selectedTab;
-  String selectedCourseType;
-  RangeValues elevationRange;
-  RangeValues distanceRange;
-
-  FilterData copyWith({
-    String? selectedTab,
-    String? selectedCourseType,
-    RangeValues? elevationRange,
-    RangeValues? distanceRange,
-  }) {
-    return FilterData(
-      selectedTab: selectedTab ?? this.selectedTab,
-      selectedCourseType: selectedCourseType ?? this.selectedCourseType,
-      elevationRange: elevationRange ?? this.elevationRange,
-      distanceRange: distanceRange ?? this.distanceRange,
-    );
-  }
-
-  // 선택된 생성자 값 반환
-  String get selectedCreatorValue {
-    if (selectedCourseType == '전체') return '생성자';
-    return selectedCourseType;
-  }
-
-  // 선택된 상승 고도 값 반환
-  String get selectedElevationValue {
-    if (elevationRange.start == 0 && elevationRange.end == 122) {
-      return '상승 고도';
-    }
-    return '${elevationRange.start.round()} ~ ${elevationRange.end.round()} m';
-  }
-
-  // 선택된 거리 값 반환
-  String get selectedDistanceValue {
-    if (distanceRange.start == 0 && distanceRange.end == 999) {
-      return '거리';
-    }
-    return '${distanceRange.start.round()} ~ ${distanceRange.end.round()} km';
-  }
-
-  // 특정 탭의 선택된 값 반환
-  String getValueForTab(String tab) {
-    switch (tab) {
-      case '생성자':
-        return selectedCreatorValue;
-      case '상승 고도':
-        return selectedElevationValue;
-      case '거리':
-        return selectedDistanceValue;
-      default:
-        return tab;
-    }
+    return 'FilterData(values: $values, selectedTab: $selectedTab)';
   }
 }
 
@@ -210,31 +143,12 @@ class FilterModal {
 
   static Future<FilterData?> show({
     required BuildContext context,
+    required List<FilterItem> filters,
     required FilterData initialData,
     required Function(FilterData) onApply,
     required VoidCallback onReset,
   }) {
     return BottomSheetShow.show<FilterData>(
-      context: context,
-      title: '필터',
-      content: _FilterContent(
-        filters: const <FilterItem>[], // 기존 호환성을 위해 빈 리스트 전달
-        initialData: const GenericFilterData(), // 임시로 빈 데이터 전달
-        onApply: (GenericFilterData data) => onApply(FilterData()), // 임시 변환
-        onReset: onReset,
-      ),
-    );
-  }
-
-  // 4단계: 범용 show 메서드 추가
-  static Future<GenericFilterData?> showGeneric({
-    required BuildContext context,
-    required List<FilterItem> filters,
-    required GenericFilterData initialData,
-    required Function(GenericFilterData) onApply,
-    required VoidCallback onReset,
-  }) {
-    return BottomSheetShow.show<GenericFilterData>(
       context: context,
       title: '필터',
       content: _FilterContent(
@@ -256,8 +170,8 @@ class _FilterContent extends StatefulWidget {
   });
 
   final List<FilterItem> filters;
-  final GenericFilterData initialData;
-  final Function(GenericFilterData) onApply;
+  final FilterData initialData;
+  final Function(FilterData) onApply;
   final VoidCallback onReset;
 
   @override
@@ -265,7 +179,7 @@ class _FilterContent extends StatefulWidget {
 }
 
 class _FilterContentState extends State<_FilterContent> {
-  late GenericFilterData _currentData;
+  late FilterData _currentData;
 
   @override
   void initState() {
@@ -451,87 +365,6 @@ class _FilterContentState extends State<_FilterContent> {
     );
   }
 
-  Widget _buildCourseTypeFilter(SemanticColors colors) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            '생성자',
-            style: AppTextStyles.heading2.bold.copyWith(
-              color: colors.labelStrong,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children:
-                FilterModal.courseTypes.map((String type) {
-                  final bool isSelected =
-                      type == _currentData.selectedCourseType;
-                  return ChipAction(
-                    text: type,
-                    size: ChipActionSize.small,
-                    type: ChipActionType.outlined,
-                    textColor:
-                        isSelected
-                            ? colors.primaryNormal
-                            : colors.labelAlternative,
-                    borderColor:
-                        isSelected
-                            ? colors.primaryNormal.withValues(alpha: 0.43)
-                            : colors.lineNormalNeutral,
-                    backgroundColor:
-                        isSelected
-                            ? colors.primaryNormal.withValues(alpha: 0.05)
-                            : null,
-                    onPressed: () {
-                      setState(() {
-                        _currentData = _currentData.copyWith(
-                          selectedCourseType: type,
-                        );
-                      });
-                    },
-                  );
-                }).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildElevationFilter(SemanticColors colors) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            '상승 고도',
-            style: AppTextStyles.heading2.bold.copyWith(
-              color: colors.labelStrong,
-            ),
-          ),
-          const SizedBox(height: 16),
-          _buildRangeSlider(
-            colors: colors,
-            values: _currentData.elevationRange,
-            min: FilterModal.minElevation,
-            max: FilterModal.maxElevation,
-            unit: 'm',
-            onChanged: (RangeValues values) {
-              setState(() {
-                _currentData = _currentData.copyWith(elevationRange: values);
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildRangeSlider({
     required SemanticColors colors,
     required RangeValues values,
@@ -634,9 +467,7 @@ class _FilterContentState extends State<_FilterContent> {
               size: ButtonSize.large,
               onPressed: () {
                 setState(() {
-                  _currentData = GenericFilterData.fromFilterItems(
-                    widget.filters,
-                  );
+                  _currentData = FilterData.fromFilterItems(widget.filters);
                 });
                 widget.onReset();
               },
@@ -655,36 +486,6 @@ class _FilterContentState extends State<_FilterContent> {
                 widget.onApply(_currentData);
               },
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDistanceFilter(SemanticColors colors) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            '거리',
-            style: AppTextStyles.heading2.bold.copyWith(
-              color: colors.labelStrong,
-            ),
-          ),
-          const SizedBox(height: 16),
-          _buildRangeSlider(
-            colors: colors,
-            values: _currentData.distanceRange,
-            min: FilterModal.minDistance,
-            max: FilterModal.maxDistance,
-            unit: 'km',
-            onChanged: (RangeValues values) {
-              setState(() {
-                _currentData = _currentData.copyWith(distanceRange: values);
-              });
-            },
           ),
         ],
       ),

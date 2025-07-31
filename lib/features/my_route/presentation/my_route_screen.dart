@@ -27,7 +27,7 @@ class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
 
 class _MyRouteScreenState extends State<MyRouteScreen> {
   String selectedSortOption = SortModal.sortOptions.first;
-  GenericFilterData currentFilter = GenericFilterData.fromFilterItems(
+  FilterData currentFilter = FilterData.fromFilterItems(
     MyRouteFilterConfig.filters,
   );
 
@@ -157,23 +157,23 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
 
   void _showFilterModal({String? selectedTab}) {
     // 특정 탭이 지정된 경우 필터 데이터의 선택된 탭 업데이트
-    final GenericFilterData initialData =
+    final FilterData initialData =
         selectedTab != null
             ? currentFilter.copyWith(selectedTab: selectedTab)
             : currentFilter;
 
-    FilterModal.showGeneric(
+    FilterModal.show(
       context: context,
       filters: MyRouteFilterConfig.filters,
       initialData: initialData,
-      onApply: (GenericFilterData newFilter) {
+      onApply: (FilterData newFilter) {
         setState(() {
           currentFilter = newFilter;
         });
       },
       onReset: () {
         setState(() {
-          currentFilter = GenericFilterData.fromFilterItems(
+          currentFilter = FilterData.fromFilterItems(
             MyRouteFilterConfig.filters,
           );
         });
