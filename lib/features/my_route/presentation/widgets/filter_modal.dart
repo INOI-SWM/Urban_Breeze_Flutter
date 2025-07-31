@@ -335,8 +335,9 @@ class _FilterContentState extends State<_FilterContent> {
                 inactiveTrackColor: colors.fillStrong,
                 thumbColor: colors.primaryNormal,
                 overlayColor: colors.primaryNormal.withValues(alpha: 0.2),
-                thumbShape: const RoundSliderThumbShape(
-                  enabledThumbRadius: 100,
+                rangeThumbShape: const RoundRangeSliderThumbShape(
+                  enabledThumbRadius: 10,
+                  elevation: 2,
                 ),
                 overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
               ),
