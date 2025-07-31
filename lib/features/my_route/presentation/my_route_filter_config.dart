@@ -2,25 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/features/my_route/presentation/widgets/filter_modal.dart';
 
 class MyRouteFilterConfig {
-  static const List<FilterItem> filters = <FilterItem>[
-    FilterItem(
+  static final List<FilterItem> filters = <FilterItem>[
+    FilterItem.selection(
       id: 'creator',
       title: '생성자',
-      type: FilterType.selection,
-      options: <String>['전체', '내가 생성한 경로', '공유 받은 경로'],
+      options: const <String>['전체', '내가 생성한 경로', '공유 받은 경로'],
     ),
-    FilterItem(
+    FilterItem.range(
       id: 'elevation',
       title: '상승 고도',
-      type: FilterType.range,
-      range: RangeValues(0, 122),
+      range: const RangeValues(0, 122),
       unit: 'm',
     ),
-    FilterItem(
+    FilterItem.range(
       id: 'distance',
       title: '거리',
-      type: FilterType.range,
-      range: RangeValues(0, 999),
+      range: const RangeValues(0, 999),
       unit: 'km',
     ),
   ];

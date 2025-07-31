@@ -11,14 +11,47 @@ import 'package:ridingmate/shared/design_system/widgets/modal/bottom_sheet_modal
 enum FilterType { selection, range }
 
 class FilterItem {
-  const FilterItem({
+  const FilterItem._({
     required this.id,
     required this.title,
     required this.type,
-    this.options,
-    this.range,
-    this.unit,
+    required this.options,
+    required this.range,
+    required this.unit,
   });
+
+  // 선택형 필터 생성자
+  factory FilterItem.selection({
+    required String id,
+    required String title,
+    required List<String> options,
+  }) {
+    return FilterItem._(
+      id: id,
+      title: title,
+      type: FilterType.selection,
+      options: options,
+      range: null,
+      unit: null,
+    );
+  }
+
+  // 범위형 필터 생성자
+  factory FilterItem.range({
+    required String id,
+    required String title,
+    required RangeValues range,
+    required String unit,
+  }) {
+    return FilterItem._(
+      id: id,
+      title: title,
+      type: FilterType.range,
+      options: null,
+      range: range,
+      unit: unit,
+    );
+  }
 
   final String id;
   final String title;
