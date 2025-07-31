@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/my_route/application/services/my_route_service.dart';
 import 'package:ridingmate/features/my_route/presentation/widgets/filter_modal.dart';
 import 'package:ridingmate/features/my_route/presentation/widgets/sort_modal.dart';
 import 'package:ridingmate/navigation/page_with_app_bar.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/route_card.dart';
 import 'package:ridingmate/shared/design_system/widgets/category/category_filter.dart';
@@ -148,8 +146,6 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final SemanticColors colors = context.semanticColor;
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Column(
