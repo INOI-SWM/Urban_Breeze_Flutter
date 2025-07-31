@@ -15,6 +15,11 @@ class CategoryFilter extends StatelessWidget {
     required this.onCategorySelected,
     this.size = CategoryFilterSize.medium,
     this.mode = CategoryFilterMode.alternative,
+    this.categoryIcons,
+    this.categoryRightIcons,
+    this.showFilterIndicator = false,
+    this.filterCount = 0,
+    this.onFilterTap,
   });
 
   final List<String> categories;
@@ -22,6 +27,11 @@ class CategoryFilter extends StatelessWidget {
   final void Function(String category) onCategorySelected;
   final CategoryFilterSize size;
   final CategoryFilterMode mode;
+  final Map<String, IconData>? categoryIcons;
+  final Map<String, IconData>? categoryRightIcons;
+  final bool showFilterIndicator;
+  final int filterCount;
+  final VoidCallback? onFilterTap;
 
   double get _spacing {
     switch (size) {
@@ -92,25 +102,41 @@ class CategoryFilter extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children:
-            categories.map((String category) {
-              final bool isSelected = selectedCategories.contains(category);
-              return Padding(
-                padding: EdgeInsets.only(
-                  right: category == categories.last ? 0 : _spacing,
-                ),
-                child: ChipAction(
-                  key: ValueKey<String>(category),
-                  text: category,
-                  size: _chipSize,
-                  type: _getChipActionType(isSelected),
-                  textColor: getChipActionTextColor(isSelected),
-                  borderColor: getChipActionBorderColor(isSelected),
-                  backgroundColor: getChipActionBackgroundColor(isSelected),
-                  onPressed: () => onCategorySelected(category),
-                ),
-              );
-            }).toList(),
+        spacing: _spacing,
+        children: <Widget>[
+          if (showFilterIndicator) ...<Widget>[
+            ChipAction(
+              text: filterCount > 0 ? '$filterCount' : '',
+              leftIcon: Icons.tune,
+              size: _chipSize,
+              type: _getChipActionType(filterCount > 0),
+              textColor: getChipActionTextColor(filterCount > 0),
+              borderColor: getChipActionBorderColor(filterCount > 0),
+              backgroundColor: getChipActionBackgroundColor(filterCount > 0),
+              onPressed: onFilterTap,
+            ),
+          ],
+          ...categories.map((String category) {
+            final bool isSelected = selectedCategories.contains(category);
+            return Padding(
+              padding: EdgeInsets.only(
+                right: category == categories.last ? 0 : _spacing,
+              ),
+              child: ChipAction(
+                key: ValueKey<String>(category),
+                text: category,
+                leftIcon: categoryIcons?[category],
+                rightIcon: categoryRightIcons?[category],
+                size: _chipSize,
+                type: _getChipActionType(isSelected),
+                textColor: getChipActionTextColor(isSelected),
+                borderColor: getChipActionBorderColor(isSelected),
+                backgroundColor: getChipActionBackgroundColor(isSelected),
+                onPressed: () => onCategorySelected(category),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }

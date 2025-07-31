@@ -55,7 +55,7 @@ class BottomSheetModal extends StatelessWidget {
               height: 64,
             ),
             // 내용 영역
-            Padding(padding: const EdgeInsets.all(20), child: content),
+            content,
           ],
         ),
       ),
