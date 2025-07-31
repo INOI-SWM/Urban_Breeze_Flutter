@@ -199,6 +199,49 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
     );
   }
 
+  void _showSortModal() {
+    WorkoutSortModal.show(
+      context: context,
+      selectedOption: _sortType,
+      onOptionSelected: (WorkoutSortType sortType) {
+        setState(() {
+          _sortType = sortType;
+          _workouts = _sortWorkouts(_workouts);
+        });
+      },
+    );
+  }
+
+  // todo : api 개발 시 삭제 예정
+  List<WorkoutRecord> _sortWorkouts(List<WorkoutRecord> workouts) {
+    final List<WorkoutRecord> sortedWorkouts = List<WorkoutRecord>.from(
+      workouts,
+    );
+
+    switch (_sortType) {
+      case WorkoutSortType.newest:
+        sortedWorkouts.sort(
+          (WorkoutRecord a, WorkoutRecord b) =>
+              b.startTime.compareTo(a.startTime),
+        );
+        break;
+      case WorkoutSortType.oldest:
+        sortedWorkouts.sort(
+          (WorkoutRecord a, WorkoutRecord b) =>
+              a.startTime.compareTo(b.startTime),
+        );
+        break;
+      case WorkoutSortType.distance:
+        sortedWorkouts.sort(
+          (WorkoutRecord a, WorkoutRecord b) =>
+              b.distance.compareTo(a.distance),
+        );
+        break;
+    }
+
+    return sortedWorkouts;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
