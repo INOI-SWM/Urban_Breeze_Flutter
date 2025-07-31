@@ -218,6 +218,27 @@ class FilterModal {
       context: context,
       title: '필터',
       content: _FilterContent(
+        filters: const <FilterItem>[], // 기존 호환성을 위해 빈 리스트 전달
+        initialData: const GenericFilterData(), // 임시로 빈 데이터 전달
+        onApply: (GenericFilterData data) => onApply(FilterData()), // 임시 변환
+        onReset: onReset,
+      ),
+    );
+  }
+
+  // 4단계: 범용 show 메서드 추가
+  static Future<GenericFilterData?> showGeneric({
+    required BuildContext context,
+    required List<FilterItem> filters,
+    required GenericFilterData initialData,
+    required Function(GenericFilterData) onApply,
+    required VoidCallback onReset,
+  }) {
+    return BottomSheetShow.show<GenericFilterData>(
+      context: context,
+      title: '필터',
+      content: _FilterContent(
+        filters: filters,
         initialData: initialData,
         onApply: onApply,
         onReset: onReset,
@@ -228,13 +249,15 @@ class FilterModal {
 
 class _FilterContent extends StatefulWidget {
   const _FilterContent({
+    required this.filters,
     required this.initialData,
     required this.onApply,
     required this.onReset,
   });
 
-  final FilterData initialData;
-  final Function(FilterData) onApply;
+  final List<FilterItem> filters;
+  final GenericFilterData initialData;
+  final Function(GenericFilterData) onApply;
   final VoidCallback onReset;
 
   @override
@@ -242,7 +265,7 @@ class _FilterContent extends StatefulWidget {
 }
 
 class _FilterContentState extends State<_FilterContent> {
-  late FilterData _currentData;
+  late GenericFilterData _currentData;
 
   @override
   void initState() {
@@ -263,16 +286,18 @@ class _FilterContentState extends State<_FilterContent> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            // 생성자 필터
-            _buildCourseTypeFilter(colors),
-            Container(color: colors.backgroundNormalAlternative, height: 8),
-
-            // 상승 고도 필터
-            _buildElevationFilter(colors),
-            Container(color: colors.backgroundNormalAlternative, height: 8),
-
-            // 거리 필터
-            _buildDistanceFilter(colors),
+            ...widget.filters.map((FilterItem filter) {
+              return Column(
+                children: <Widget>[
+                  _buildFilterWidget(filter, colors),
+                  if (filter != widget.filters.last)
+                    Container(
+                      color: colors.backgroundNormalAlternative,
+                      height: 8,
+                    ),
+                ],
+              );
+            }),
           ],
         ),
 
@@ -289,13 +314,15 @@ class _FilterContentState extends State<_FilterContent> {
         mainAxisAlignment: MainAxisAlignment.start,
         spacing: 24,
         children:
-            FilterModal.tabs.map((String tab) {
-              final bool isSelected = tab == _currentData.selectedTab;
+            widget.filters.map((FilterItem filter) {
+              final bool isSelected = filter.title == _currentData.selectedTab;
 
               return GestureDetector(
                 onTap: () {
                   setState(() {
-                    _currentData = _currentData.copyWith(selectedTab: tab);
+                    _currentData = _currentData.copyWith(
+                      selectedTab: filter.title,
+                    );
                   });
                 },
                 child: Container(
@@ -312,7 +339,7 @@ class _FilterContentState extends State<_FilterContent> {
                     ),
                   ),
                   child: Text(
-                    tab,
+                    filter.title,
                     style: AppTextStyles.headline2.bold.copyWith(
                       color:
                           isSelected
@@ -323,6 +350,103 @@ class _FilterContentState extends State<_FilterContent> {
                 ),
               );
             }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildFilterWidget(FilterItem filter, SemanticColors colors) {
+    switch (filter.type) {
+      case FilterType.selection:
+        return _buildSelectionFilter(filter, colors);
+      case FilterType.range:
+        return _buildRangeFilter(filter, colors);
+    }
+  }
+
+  Widget _buildSelectionFilter(FilterItem filter, SemanticColors colors) {
+    final String? currentValue = _currentData.getStringValue(filter.id);
+    final List<String> options = filter.options ?? <String>[];
+
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            filter.title,
+            style: AppTextStyles.heading2.bold.copyWith(
+              color: colors.labelStrong,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children:
+                options.map((String option) {
+                  final bool isSelected = option == currentValue;
+                  return ChipAction(
+                    text: option,
+                    size: ChipActionSize.small,
+                    type: ChipActionType.outlined,
+                    textColor:
+                        isSelected
+                            ? colors.primaryNormal
+                            : colors.labelAlternative,
+                    borderColor:
+                        isSelected
+                            ? colors.primaryNormal.withValues(alpha: 0.43)
+                            : colors.lineNormalNeutral,
+                    backgroundColor:
+                        isSelected
+                            ? colors.primaryNormal.withValues(alpha: 0.05)
+                            : null,
+                    onPressed: () {
+                      setState(() {
+                        _currentData = _currentData.setStringValue(
+                          filter.id,
+                          option,
+                        );
+                      });
+                    },
+                  );
+                }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRangeFilter(FilterItem filter, SemanticColors colors) {
+    final RangeValues? currentValue = _currentData.getRangeValue(filter.id);
+    final RangeValues range = filter.range ?? const RangeValues(0, 100);
+    final String unit = filter.unit ?? '';
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            filter.title,
+            style: AppTextStyles.heading2.bold.copyWith(
+              color: colors.labelStrong,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildRangeSlider(
+            colors: colors,
+            values: currentValue ?? range,
+            min: range.start,
+            max: range.end,
+            unit: unit,
+            onChanged: (RangeValues values) {
+              setState(() {
+                _currentData = _currentData.setRangeValue(filter.id, values);
+              });
+            },
+          ),
+        ],
       ),
     );
   }
@@ -510,7 +634,9 @@ class _FilterContentState extends State<_FilterContent> {
               size: ButtonSize.large,
               onPressed: () {
                 setState(() {
-                  _currentData = FilterData(); // 기본값으로 초기화
+                  _currentData = GenericFilterData.fromFilterItems(
+                    widget.filters,
+                  );
                 });
                 widget.onReset();
               },
