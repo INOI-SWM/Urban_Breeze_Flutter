@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/features/my_route/application/services/my_route_service.dart';
+import 'package:ridingmate/features/my_route/presentation/my_route_filter_config.dart';
 import 'package:ridingmate/features/my_route/presentation/widgets/filter_modal.dart';
 import 'package:ridingmate/features/my_route/presentation/widgets/sort_modal.dart';
 import 'package:ridingmate/navigation/page_with_app_bar.dart';
@@ -26,7 +27,9 @@ class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
 
 class _MyRouteScreenState extends State<MyRouteScreen> {
   String selectedSortOption = SortModal.sortOptions.first;
-  FilterData currentFilter = FilterData();
+  GenericFilterData currentFilter = GenericFilterData.fromFilterItems(
+    MyRouteFilterConfig.filters,
+  );
 
   List<Map<String, dynamic>> routeList = <Map<String, dynamic>>[];
   bool isLoading = true;
@@ -70,51 +73,83 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
       selectedCategories.add(selectedSortOption);
     }
 
-    if (currentFilter.selectedCourseType != '전체') {
-      selectedCategories.add(_getCategoryText('생성자'));
-    }
-
-    if (currentFilter.elevationRange.start != 0 ||
-        currentFilter.elevationRange.end != 122) {
-      selectedCategories.add(_getCategoryText('상승 고도'));
-    }
-
-    if (currentFilter.distanceRange.start != 0 ||
-        currentFilter.distanceRange.end != 999) {
-      selectedCategories.add(_getCategoryText('거리'));
+    // 필터 설정에 따라 선택된 카테고리 추가
+    for (final FilterItem filter in MyRouteFilterConfig.filters) {
+      switch (filter.type) {
+        case FilterType.selection:
+          final String? value = currentFilter.getStringValue(filter.id);
+          if (value != null && value != filter.options?.first) {
+            selectedCategories.add(_getCategoryText(filter.title));
+          }
+          break;
+        case FilterType.range:
+          final RangeValues? value = currentFilter.getRangeValue(filter.id);
+          final RangeValues defaultRange =
+              filter.range ?? const RangeValues(0, 100);
+          if (value != null &&
+              (value.start != defaultRange.start ||
+                  value.end != defaultRange.end)) {
+            selectedCategories.add(_getCategoryText(filter.title));
+          }
+          break;
+      }
     }
 
     return selectedCategories;
   }
 
   String _getCategoryText(String category) {
-    switch (category) {
-      case '생성자':
-        return currentFilter.selectedCreatorValue;
-      case '상승 고도':
-        return currentFilter.selectedElevationValue;
-      case '거리':
-        return currentFilter.selectedDistanceValue;
-      default:
-        return category;
+    // 필터 설정에서 해당 카테고리 찾기
+    final FilterItem? filter =
+        MyRouteFilterConfig.filters
+            .where((FilterItem f) => f.title == category)
+            .firstOrNull;
+
+    if (filter == null) return category;
+
+    switch (filter.type) {
+      case FilterType.selection:
+        final String? value = currentFilter.getStringValue(filter.id);
+        if (value == null || value == filter.options?.first) {
+          return filter.title; // 기본값이면 제목 반환
+        }
+        return value; // 선택된 값 반환
+      case FilterType.range:
+        final RangeValues? value = currentFilter.getRangeValue(filter.id);
+        final RangeValues defaultRange =
+            filter.range ?? const RangeValues(0, 100);
+        if (value == null ||
+            (value.start == defaultRange.start &&
+                value.end == defaultRange.end)) {
+          return filter.title; // 기본값이면 제목 반환
+        }
+        return '${value.start.round()} ~ ${value.end.round()} ${filter.unit}'; // 범위 값 반환
     }
   }
 
   int _getAppliedFiltersCount() {
     int count = 0;
 
-    if (currentFilter.selectedCourseType != '전체') {
-      count++;
-    }
-
-    if (currentFilter.elevationRange.start != 0 ||
-        currentFilter.elevationRange.end != 122) {
-      count++;
-    }
-
-    if (currentFilter.distanceRange.start != 0 ||
-        currentFilter.distanceRange.end != 999) {
-      count++;
+    // 필터 설정에 따라 적용된 필터 개수 계산
+    for (final FilterItem filter in MyRouteFilterConfig.filters) {
+      switch (filter.type) {
+        case FilterType.selection:
+          final String? value = currentFilter.getStringValue(filter.id);
+          if (value != null && value != filter.options?.first) {
+            count++;
+          }
+          break;
+        case FilterType.range:
+          final RangeValues? value = currentFilter.getRangeValue(filter.id);
+          final RangeValues defaultRange =
+              filter.range ?? const RangeValues(0, 100);
+          if (value != null &&
+              (value.start != defaultRange.start ||
+                  value.end != defaultRange.end)) {
+            count++;
+          }
+          break;
+      }
     }
 
     return count;
@@ -122,25 +157,27 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
 
   void _showFilterModal({String? selectedTab}) {
     // 특정 탭이 지정된 경우 필터 데이터의 선택된 탭 업데이트
-    final FilterData initialData =
+    final GenericFilterData initialData =
         selectedTab != null
             ? currentFilter.copyWith(selectedTab: selectedTab)
             : currentFilter;
 
-    FilterModal.show(
+    FilterModal.showGeneric(
       context: context,
+      filters: MyRouteFilterConfig.filters,
       initialData: initialData,
-      onApply: (FilterData newFilter) {
+      onApply: (GenericFilterData newFilter) {
         setState(() {
           currentFilter = newFilter;
         });
       },
       onReset: () {
         setState(() {
-          currentFilter = FilterData();
+          currentFilter = GenericFilterData.fromFilterItems(
+            MyRouteFilterConfig.filters,
+          );
         });
       },
-      // TODO: 필터 로직 구현
     );
   }
 
