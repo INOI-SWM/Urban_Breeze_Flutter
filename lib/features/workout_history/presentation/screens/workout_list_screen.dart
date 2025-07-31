@@ -206,20 +206,17 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          // TODO: 개발 완료 후 삭제 예정
-          _buildTestButtons(),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        // TODO: 개발 완료 후 삭제 예정
+        _buildTestButtons(),
 
-          const SizedBox(height: 16),
+        const SizedBox(height: 16),
 
-          // 결과 표시
-          Expanded(child: _buildResultWidget()),
-        ],
-      ),
+        // 결과 표시
+        Expanded(child: _buildResultWidget()),
+      ],
     );
   }
 
