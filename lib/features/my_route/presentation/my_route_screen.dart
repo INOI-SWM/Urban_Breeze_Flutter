@@ -6,7 +6,6 @@ import 'package:ridingmate/features/my_route/presentation/widgets/sort_modal.dar
 import 'package:ridingmate/navigation/page_with_app_bar.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
-import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/route_card.dart';
 import 'package:ridingmate/shared/design_system/widgets/category/category_filter.dart';
 
@@ -19,7 +18,6 @@ class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
   @override
   PreferredSizeWidget getAppBar(BuildContext context) {
     return CustomAppBar(
-      leading: CustomIconButton(icon: Icons.arrow_back_ios_new, onTap: () {}),
       title: '나의 경로',
       actions: <Widget>[
         IconButton(onPressed: () {}, icon: const Icon(Icons.add)),
