@@ -8,6 +8,48 @@ import 'package:ridingmate/shared/design_system/widgets/button/button_solid.dart
 import 'package:ridingmate/shared/design_system/widgets/chip/chip_action.dart';
 import 'package:ridingmate/shared/design_system/widgets/modal/bottom_sheet_modal.dart';
 
+enum FilterType { selection, range }
+
+class FilterItem {
+  const FilterItem({
+    required this.id,
+    required this.title,
+    required this.type,
+    this.options,
+    this.range,
+    this.unit,
+  });
+
+  final String id;
+  final String title;
+  final FilterType type;
+  final List<String>? options; // selection 타입용
+  final RangeValues? range; // range 타입용
+  final String? unit; // range 타입용
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is FilterItem &&
+        other.id == id &&
+        other.title == title &&
+        other.type == type &&
+        other.options == options &&
+        other.range == range &&
+        other.unit == unit;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(id, title, type, options, range, unit);
+  }
+
+  @override
+  String toString() {
+    return 'FilterItem(id: $id, title: $title, type: $type, options: $options, range: $range, unit: $unit)';
+  }
+}
+
 class FilterData {
   FilterData({
     this.selectedTab = '생성자',
