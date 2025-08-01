@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/features/my_route/application/services/my_route_service.dart';
 import 'package:ridingmate/features/my_route/presentation/my_route_filter_config.dart';
-import 'package:ridingmate/features/my_route/presentation/widgets/filter_modal.dart';
-import 'package:ridingmate/features/my_route/presentation/widgets/sort_modal.dart';
 import 'package:ridingmate/navigation/page_with_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/route_card.dart';
 import 'package:ridingmate/shared/design_system/widgets/category/category_filter.dart';
+import 'package:ridingmate/shared/filter/models/filter_data.dart';
+import 'package:ridingmate/shared/filter/utils/filter_display_utils.dart';
+import 'package:ridingmate/shared/filter/widgets/filter_modal.dart';
+import 'package:ridingmate/shared/sort/widgets/sort_modal.dart';
 
 class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
   const MyRouteScreen({super.key});
@@ -66,95 +68,6 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
     });
   }
 
-  Set<String> _getSelectedCategories() {
-    final Set<String> selectedCategories = <String>{};
-
-    if (selectedSortOption != SortModal.sortOptions.first) {
-      selectedCategories.add(selectedSortOption);
-    }
-
-    // 필터 설정에 따라 선택된 카테고리 추가
-    for (final FilterItem filter in MyRouteFilterConfig.filters) {
-      switch (filter.type) {
-        case FilterType.selection:
-          final String? value = currentFilter.getStringValue(filter.id);
-          if (value != null && value != filter.options?.first) {
-            selectedCategories.add(_getCategoryText(filter.title));
-          }
-          break;
-        case FilterType.range:
-          final RangeValues? value = currentFilter.getRangeValue(filter.id);
-          final RangeValues defaultRange =
-              filter.range ?? const RangeValues(0, 100);
-          if (value != null &&
-              (value.start != defaultRange.start ||
-                  value.end != defaultRange.end)) {
-            selectedCategories.add(_getCategoryText(filter.title));
-          }
-          break;
-      }
-    }
-
-    return selectedCategories;
-  }
-
-  String _getCategoryText(String category) {
-    // 필터 설정에서 해당 카테고리 찾기
-    final FilterItem? filter =
-        MyRouteFilterConfig.filters
-            .where((FilterItem f) => f.title == category)
-            .firstOrNull;
-
-    if (filter == null) return category;
-
-    switch (filter.type) {
-      case FilterType.selection:
-        final String? value = currentFilter.getStringValue(filter.id);
-        if (value == null || value == filter.options?.first) {
-          return filter.title; // 기본값이면 제목 반환
-        }
-        return value; // 선택된 값 반환
-      case FilterType.range:
-        final RangeValues? value = currentFilter.getRangeValue(filter.id);
-        final RangeValues defaultRange =
-            filter.range ?? const RangeValues(0, 100);
-        if (value == null ||
-            (value.start == defaultRange.start &&
-                value.end == defaultRange.end)) {
-          return filter.title; // 기본값이면 제목 반환
-        }
-        return '${value.start.round()} ~ ${value.end.round()} ${filter.unit}'; // 범위 값 반환
-    }
-  }
-
-  int _getAppliedFiltersCount() {
-    int count = 0;
-
-    // 필터 설정에 따라 적용된 필터 개수 계산
-    for (final FilterItem filter in MyRouteFilterConfig.filters) {
-      switch (filter.type) {
-        case FilterType.selection:
-          final String? value = currentFilter.getStringValue(filter.id);
-          if (value != null && value != filter.options?.first) {
-            count++;
-          }
-          break;
-        case FilterType.range:
-          final RangeValues? value = currentFilter.getRangeValue(filter.id);
-          final RangeValues defaultRange =
-              filter.range ?? const RangeValues(0, 100);
-          if (value != null &&
-              (value.start != defaultRange.start ||
-                  value.end != defaultRange.end)) {
-            count++;
-          }
-          break;
-      }
-    }
-
-    return count;
-  }
-
   void _showFilterModal({String? selectedTab}) {
     // 특정 탭이 지정된 경우 필터 데이터의 선택된 탭 업데이트
     final FilterData initialData =
@@ -189,13 +102,18 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           CategoryFilter(
-            categories: <String>[
+            categories: FilterDisplayUtils.getDisplayCategories(
+              currentFilter,
+              MyRouteFilterConfig.filters,
               selectedSortOption,
-              _getCategoryText('생성자'),
-              _getCategoryText('상승 고도'),
-              _getCategoryText('거리'),
-            ],
-            selectedCategories: _getSelectedCategories(),
+            ),
+            selectedCategories: FilterDisplayUtils.getSelectedCategories(
+              currentFilter,
+              MyRouteFilterConfig.filters,
+              selectedSortOption != SortModal.sortOptions.first
+                  ? selectedSortOption
+                  : null,
+            ),
             onCategorySelected: (String category) {
               if (category == selectedSortOption) {
                 _showSortModal();
@@ -206,14 +124,27 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
             size: CategoryFilterSize.small,
             mode: CategoryFilterMode.alternative,
             categoryIcons: <String, IconData>{
-              _getCategoryText('상승 고도'): Icons.trending_up,
-              _getCategoryText('거리'): Icons.route,
+              FilterDisplayUtils.getCategoryText(
+                    currentFilter,
+                    MyRouteFilterConfig.filters,
+                    '상승 고도',
+                  ):
+                  Icons.trending_up,
+              FilterDisplayUtils.getCategoryText(
+                    currentFilter,
+                    MyRouteFilterConfig.filters,
+                    '거리',
+                  ):
+                  Icons.route,
             },
             categoryRightIcons: <String, IconData>{
               selectedSortOption: Icons.expand_more,
             },
             showFilterIndicator: true,
-            filterCount: _getAppliedFiltersCount(),
+            filterCount: FilterDisplayUtils.getAppliedFiltersCount(
+              currentFilter,
+              MyRouteFilterConfig.filters,
+            ),
             onFilterTap: () {
               _showFilterModal();
             },

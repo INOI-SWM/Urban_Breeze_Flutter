@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/features/my_route/presentation/widgets/filter_modal.dart';
+import 'package:ridingmate/shared/filter/models/filter_item.dart';
 
 class MyRouteFilterConfig {
   static final List<FilterItem> filters = <FilterItem>[
