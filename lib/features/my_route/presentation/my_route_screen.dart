@@ -42,19 +42,6 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
     _loadRouteList();
   }
 
-  void _showSortModal() {
-    SortModal.show(
-      context: context,
-      selectedOption: selectedSortOption,
-      onOptionSelected: (String option) {
-        setState(() {
-          selectedSortOption = option;
-        });
-        // TODO: 정렬 로직 구현
-      },
-    );
-  }
-
   Future<void> _loadRouteList() async {
     setState(() {
       isLoading = true;
@@ -68,8 +55,20 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
     });
   }
 
+  void _showSortModal() {
+    SortModal.show(
+      context: context,
+      selectedOption: selectedSortOption,
+      onOptionSelected: (String option) {
+        setState(() {
+          selectedSortOption = option;
+        });
+        // TODO: 정렬 로직 구현
+      },
+    );
+  }
+
   void _showFilterModal({String? selectedTab}) {
-    // 특정 탭이 지정된 경우 필터 데이터의 선택된 탭 업데이트
     final FilterData initialData =
         selectedTab != null
             ? currentFilter.copyWith(selectedTab: selectedTab)
@@ -91,6 +90,7 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
           );
         });
       },
+      // TODO: 필터 적용 로직 구현
     );
   }
 
