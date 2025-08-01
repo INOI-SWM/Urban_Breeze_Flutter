@@ -67,39 +67,41 @@ class _FilterContentState extends State<_FilterContent> {
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        // 탭 바 (가로 스크롤)
-        _buildTabBar(colors),
+    return IntrinsicHeight(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          // 탭 바
+          _buildTabBar(colors),
 
-        // 필터 컨텐츠 (세로 스크롤)
-        Flexible(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                ...widget.filters.map((FilterItem filter) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      _buildFilterWidget(filter, colors),
-                      if (filter != widget.filters.last)
-                        Container(
-                          color: colors.backgroundNormalAlternative,
-                          height: 8,
-                        ),
-                    ],
-                  );
-                }),
-              ],
+          // 필터 컨텐츠
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  ...widget.filters.map((FilterItem filter) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        _buildFilterWidget(filter, colors),
+                        if (filter != widget.filters.last)
+                          Container(
+                            color: colors.backgroundNormalAlternative,
+                            height: 8,
+                          ),
+                      ],
+                    );
+                  }),
+                ],
+              ),
             ),
           ),
-        ),
 
-        // 액션 버튼
-        _buildActionButtons(colors),
-      ],
+          // 액션 버튼
+          _buildActionButtons(colors),
+        ],
+      ),
     );
   }
 
