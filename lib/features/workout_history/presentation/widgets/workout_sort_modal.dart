@@ -39,7 +39,6 @@ class WorkoutSortModal {
                   context,
                   sortOptions[i].displayName,
                   isSelected: sortOptions[i] == selectedOption,
-                  hasIcon: sortOptions[i] == selectedOption,
                   onTap: () {
                     Navigator.of(context).pop();
                     onOptionSelected(sortOptions[i]);
@@ -58,7 +57,6 @@ class WorkoutSortModal {
     BuildContext context,
     String title, {
     required bool isSelected,
-    bool hasIcon = false,
     required VoidCallback onTap,
   }) {
     final SemanticColors colors = context.semanticColor;
@@ -75,7 +73,8 @@ class WorkoutSortModal {
               ),
             ),
           ),
-          if (hasIcon) Icon(Icons.check, color: colors.primaryNormal, size: 24),
+          if (isSelected)
+            Icon(Icons.check, color: colors.primaryNormal, size: 24),
         ],
       ),
     );

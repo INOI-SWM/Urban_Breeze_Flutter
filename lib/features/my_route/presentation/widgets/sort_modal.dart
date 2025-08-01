@@ -32,7 +32,6 @@ class SortModal {
                   context,
                   sortOptions[i],
                   isSelected: sortOptions[i] == selectedOption,
-                  hasIcon: sortOptions[i] == selectedOption,
                   onTap: () {
                     Navigator.of(context).pop();
                     onOptionSelected(sortOptions[i]);
@@ -51,7 +50,6 @@ class SortModal {
     BuildContext context,
     String title, {
     required bool isSelected,
-    bool hasIcon = false,
     required VoidCallback onTap,
   }) {
     final SemanticColors colors = context.semanticColor;
@@ -68,7 +66,8 @@ class SortModal {
               ),
             ),
           ),
-          if (hasIcon) Icon(Icons.check, color: colors.primaryNormal, size: 24),
+          if (isSelected)
+            Icon(Icons.check, color: colors.primaryNormal, size: 24),
         ],
       ),
     );
