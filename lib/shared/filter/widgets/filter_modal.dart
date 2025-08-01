@@ -12,18 +12,7 @@ import 'package:ridingmate/shared/filter/models/filter_item.dart';
 import 'package:ridingmate/shared/filter/models/filter_type.dart';
 
 class FilterModal {
-  static const List<String> tabs = <String>['생성자', '상승 고도', '거리'];
-  static const List<String> courseTypes = <String>[
-    '전체',
-    '내가 생성한 경로',
-    '공유 받은 경로',
-  ];
-
-  static const double minElevation = 0;
-  static const double maxElevation = 122;
-
-  static const double minDistance = 0;
-  static const double maxDistance = 999;
+  const FilterModal._();
 
   static Future<FilterData?> show({
     required BuildContext context,

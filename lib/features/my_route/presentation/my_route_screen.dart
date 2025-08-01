@@ -6,6 +6,7 @@ import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.d
 import 'package:ridingmate/shared/design_system/widgets/card/route_card.dart';
 import 'package:ridingmate/shared/design_system/widgets/category/category_filter.dart';
 import 'package:ridingmate/shared/filter/models/filter_data.dart';
+import 'package:ridingmate/shared/filter/models/filter_item.dart';
 import 'package:ridingmate/shared/filter/utils/filter_display_utils.dart';
 import 'package:ridingmate/shared/filter/widgets/filter_modal.dart';
 import 'package:ridingmate/shared/sort/widgets/sort_modal.dart';
@@ -29,9 +30,10 @@ class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
 
 class _MyRouteScreenState extends State<MyRouteScreen> {
   String selectedSortOption = SortModal.sortOptions.first;
-  FilterData currentFilter = FilterData.fromFilterItems(
-    MyRouteFilterConfig.filters,
-  );
+
+  List<FilterItem> get filters => MyRouteFilterConfig().filters;
+
+  late FilterData currentFilter;
 
   List<Map<String, dynamic>> routeList = <Map<String, dynamic>>[];
   bool isLoading = true;
@@ -39,6 +41,7 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
   @override
   void initState() {
     super.initState();
+    currentFilter = FilterData.fromFilterItems(filters);
     _loadRouteList();
   }
 
@@ -76,7 +79,7 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
 
     FilterModal.show(
       context: context,
-      filters: MyRouteFilterConfig.filters,
+      filters: filters,
       initialData: initialData,
       onApply: (FilterData newFilter) {
         setState(() {
@@ -85,9 +88,7 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
       },
       onReset: () {
         setState(() {
-          currentFilter = FilterData.fromFilterItems(
-            MyRouteFilterConfig.filters,
-          );
+          currentFilter = FilterData.fromFilterItems(filters);
         });
       },
       // TODO: 필터 적용 로직 구현
@@ -104,12 +105,12 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
           CategoryFilter(
             categories: FilterDisplayUtils.getDisplayCategories(
               currentFilter,
-              MyRouteFilterConfig.filters,
+              filters,
               selectedSortOption,
             ),
             selectedCategories: FilterDisplayUtils.getSelectedCategories(
               currentFilter,
-              MyRouteFilterConfig.filters,
+              filters,
               selectedSortOption != SortModal.sortOptions.first
                   ? selectedSortOption
                   : null,
@@ -126,15 +127,11 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
             categoryIcons: <String, IconData>{
               FilterDisplayUtils.getCategoryText(
                     currentFilter,
-                    MyRouteFilterConfig.filters,
+                    filters,
                     '상승 고도',
                   ):
                   Icons.trending_up,
-              FilterDisplayUtils.getCategoryText(
-                    currentFilter,
-                    MyRouteFilterConfig.filters,
-                    '거리',
-                  ):
+              FilterDisplayUtils.getCategoryText(currentFilter, filters, '거리'):
                   Icons.route,
             },
             categoryRightIcons: <String, IconData>{
@@ -143,7 +140,7 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
             showFilterIndicator: true,
             filterCount: FilterDisplayUtils.getAppliedFiltersCount(
               currentFilter,
-              MyRouteFilterConfig.filters,
+              filters,
             ),
             onFilterTap: () {
               _showFilterModal();
