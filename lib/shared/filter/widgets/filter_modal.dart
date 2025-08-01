@@ -21,6 +21,8 @@ class FilterModal {
     required Function(FilterData) onApply,
     required VoidCallback onReset,
   }) {
+    final double maxHeight = MediaQuery.of(context).size.height * 0.9;
+
     return BottomSheetShow.show<FilterData>(
       context: context,
       title: '필터',
@@ -30,6 +32,7 @@ class FilterModal {
         onApply: onApply,
         onReset: onReset,
       ),
+      constraints: BoxConstraints(maxHeight: maxHeight),
     );
   }
 }
@@ -65,28 +68,33 @@ class _FilterContentState extends State<_FilterContent> {
     final SemanticColors colors = context.semanticColor;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        // 탭 바
+        // 탭 바 (가로 스크롤)
         _buildTabBar(colors),
 
-        // 필터 컨텐츠
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            ...widget.filters.map((FilterItem filter) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  _buildFilterWidget(filter, colors),
-                  if (filter != widget.filters.last)
-                    Container(
-                      color: colors.backgroundNormalAlternative,
-                      height: 8,
-                    ),
-                ],
-              );
-            }),
-          ],
+        // 필터 컨텐츠 (세로 스크롤)
+        Flexible(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                ...widget.filters.map((FilterItem filter) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      _buildFilterWidget(filter, colors),
+                      if (filter != widget.filters.last)
+                        Container(
+                          color: colors.backgroundNormalAlternative,
+                          height: 8,
+                        ),
+                    ],
+                  );
+                }),
+              ],
+            ),
+          ),
         ),
 
         // 액션 버튼
@@ -96,43 +104,52 @@ class _FilterContentState extends State<_FilterContent> {
   }
 
   Widget _buildTabBar(SemanticColors colors) {
-    return Padding(
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
-        spacing: 24,
         children:
-            widget.filters.map((FilterItem filter) {
+            widget.filters.asMap().entries.map((
+              MapEntry<int, FilterItem> entry,
+            ) {
+              final int index = entry.key;
+              final FilterItem filter = entry.value;
               final bool isSelected = filter.title == _currentData.selectedTab;
 
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _currentData = _currentData.copyWith(
-                      selectedTab: filter.title,
-                    );
-                  });
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
+              return Padding(
+                padding: EdgeInsets.only(
+                  right: index < widget.filters.length - 1 ? 24 : 0,
+                ),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _currentData = _currentData.copyWith(
+                        selectedTab: filter.title,
+                      );
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color:
+                              isSelected
+                                  ? colors.labelNormal
+                                  : Colors.transparent,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      filter.title,
+                      style: AppTextStyles.headline2.bold.copyWith(
                         color:
                             isSelected
                                 ? colors.labelNormal
-                                : Colors.transparent,
-                        width: 2,
+                                : colors.labelAssistive,
                       ),
-                    ),
-                  ),
-                  child: Text(
-                    filter.title,
-                    style: AppTextStyles.headline2.bold.copyWith(
-                      color:
-                          isSelected
-                              ? colors.labelNormal
-                              : colors.labelAssistive,
                     ),
                   ),
                 ),
