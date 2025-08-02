@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/features/my_route/application/services/my_route_service.dart';
+import 'package:ridingmate/features/my_route/presentation/my_route_category_config.dart';
 import 'package:ridingmate/features/my_route/presentation/my_route_filter_config.dart';
 import 'package:ridingmate/navigation/page_with_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
@@ -104,7 +105,7 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           CategoryFilter(
-            categories: FilterDisplayUtils.getDisplayCategories(
+            categories: MyRouteCategoryConfig.buildCategoryInfos(
               currentFilter,
               filters,
               selectedSortOption,
@@ -116,28 +117,18 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
                   ? selectedSortOption
                   : null,
             ),
-            onCategorySelected: (String category) {
-              if (category == selectedSortOption) {
+            onCategorySelected: (String categoryId) {
+              if (categoryId == 'sort') {
                 _showSortModal();
               } else {
-                _showFilterModal(selectedTab: category);
+                final FilterItem filter = filters.firstWhere(
+                  (FilterItem f) => f.id == categoryId,
+                );
+                _showFilterModal(selectedTab: filter.title);
               }
             },
             size: CategoryFilterSize.small,
             mode: CategoryFilterMode.alternative,
-            categoryIcons: <String, IconData>{
-              FilterDisplayUtils.getCategoryText(
-                    currentFilter,
-                    filters,
-                    '상승 고도',
-                  ):
-                  Icons.trending_up,
-              FilterDisplayUtils.getCategoryText(currentFilter, filters, '거리'):
-                  Icons.route,
-            },
-            categoryRightIcons: <String, IconData>{
-              selectedSortOption: Icons.expand_more,
-            },
             showFilterIndicator: true,
             filterCount: FilterDisplayUtils.getAppliedFiltersCount(
               currentFilter,
