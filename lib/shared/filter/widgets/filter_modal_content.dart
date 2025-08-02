@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/filter/models/filter_data.dart';
 import 'package:ridingmate/shared/filter/models/filter_item.dart';
 import 'package:ridingmate/shared/filter/widgets/filter_action_buttons.dart';
+import 'package:ridingmate/shared/filter/widgets/filter_list.dart';
 import 'package:ridingmate/shared/filter/widgets/filter_tab_bar.dart';
-import 'package:ridingmate/shared/filter/widgets/filter_widgets.dart';
 
-class FilterContent extends StatefulWidget {
-  const FilterContent({
+class FilterModalContent extends StatefulWidget {
+  const FilterModalContent({
     super.key,
     required this.filters,
     required this.initialData,
@@ -22,10 +20,10 @@ class FilterContent extends StatefulWidget {
   final VoidCallback onReset;
 
   @override
-  State<FilterContent> createState() => _FilterContentState();
+  State<FilterModalContent> createState() => _FilterModalContentState();
 }
 
-class _FilterContentState extends State<FilterContent> {
+class _FilterModalContentState extends State<FilterModalContent> {
   late FilterData _currentData;
   final ScrollController _scrollController = ScrollController();
   final ScrollController _tabScrollController = ScrollController();
@@ -49,7 +47,7 @@ class _FilterContentState extends State<FilterContent> {
     super.dispose();
   }
 
-  void _scrollContentsToSelected() {
+  void _scrollListToSelected() {
     final String selectedTab = _currentData.selectedTab;
     final GlobalKey? key = _filterKeys[selectedTab];
 
@@ -66,14 +64,13 @@ class _FilterContentState extends State<FilterContent> {
           );
         } catch (e) {
           // 스크롤이 실패한 경우 탭 바를 스크롤
-          _scrollTabToSelected(selectedTab);
-          _showScrollLimitFeedback();
+          _scrollTabBarToSelected(selectedTab);
         }
       });
     }
   }
 
-  void _scrollTabToSelected(String selectedTab) {
+  void _scrollTabBarToSelected(String selectedTab) {
     final int selectedIndex = widget.filters.indexWhere(
       (FilterItem f) => f.title == selectedTab,
     );
@@ -107,26 +104,13 @@ class _FilterContentState extends State<FilterContent> {
     setState(() {
       _currentData = _currentData.copyWith(selectedTab: tabTitle);
     });
-    _scrollContentsToSelected();
+    _scrollListToSelected();
     // 탭바도 항상 스크롤하여 선택된 탭이 보이도록 함
-    _scrollTabToSelected(tabTitle);
-  }
-
-  void _showScrollLimitFeedback() {
-    // 스크롤 한계에 도달했을 때 시각적 피드백
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${_currentData.selectedTab} 필터가 선택되었습니다'),
-        duration: const Duration(seconds: 1),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    _scrollTabBarToSelected(tabTitle);
   }
 
   @override
   Widget build(BuildContext context) {
-    final SemanticColors colors = context.semanticColor;
-
     return IntrinsicHeight(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,41 +123,18 @@ class _FilterContentState extends State<FilterContent> {
             onTabChanged: _onTabChanged,
           ),
 
-          // 필터 컨텐츠
+          // 필터 리스트
           Expanded(
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  ...widget.filters.asMap().entries.map((
-                    MapEntry<int, FilterItem> entry,
-                  ) {
-                    final int index = entry.key;
-                    final FilterItem filter = entry.value;
-                    return Column(
-                      key: _filterKeys[filter.title],
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        FilterWidgets.buildFilterWidget(
-                          filter: filter,
-                          currentData: _currentData,
-                          onDataChanged: (FilterData newData) {
-                            setState(() {
-                              _currentData = newData;
-                            });
-                          },
-                        ),
-                        if (index < widget.filters.length - 1)
-                          Container(
-                            color: colors.backgroundNormalAlternative,
-                            height: 8,
-                          ),
-                      ],
-                    );
-                  }),
-                ],
-              ),
+            child: FilterList(
+              filters: widget.filters,
+              currentData: _currentData,
+              filterKeys: _filterKeys,
+              scrollController: _scrollController,
+              onDataChanged: (FilterData newData) {
+                setState(() {
+                  _currentData = newData;
+                });
+              },
             ),
           ),
 
