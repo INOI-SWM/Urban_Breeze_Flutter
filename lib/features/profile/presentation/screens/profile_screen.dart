@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_withdrawal_facade.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
@@ -69,18 +68,6 @@ class ProfileScreen extends ConsumerWidget {
           SizedBox(
             width: double.infinity,
             child: ButtonSolid(
-              text: '로그아웃',
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              onPressed: () => _showLogoutDialog(context, ref),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          SizedBox(
-            width: double.infinity,
-            child: ButtonSolid(
               text: '탈퇴하기',
               backgroundColor: Colors.grey[300]!,
               textColor: Colors.black87,
@@ -89,35 +76,6 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-
-  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              title: const Text('로그아웃'),
-              content: const Text('정말 로그아웃하시겠습니까?'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('취소'),
-                ),
-                TextButton(
-                  onPressed: () => _handleSignOut(context, ref),
-                  child: const Text(
-                    '로그아웃',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
     );
   }
 
@@ -159,25 +117,6 @@ class ProfileScreen extends ConsumerWidget {
         );
       },
     );
-  }
-
-  Future<void> _handleSignOut(BuildContext context, WidgetRef ref) async {
-    try {
-      final AuthSignOutFacade authSignOutFacade = ref.read(
-        authSignOutFacadeProvider,
-      );
-      await authSignOutFacade.execute(user.loginProvider);
-
-      if (!context.mounted) return;
-
-      ErrorDisplay.showSuccessMessage(context, '로그아웃되었습니다.');
-      Navigator.of(context).pop();
-    } catch (e) {
-      if (!context.mounted) return;
-
-      ErrorDisplay.showErrorMessage(context, '로그아웃 실패: ${e.toString()}');
-      Navigator.of(context).pop();
-    }
   }
 
   Future<void> _handleWithdrawal(BuildContext context, WidgetRef ref) async {

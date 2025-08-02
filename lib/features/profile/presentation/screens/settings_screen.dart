@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
+import 'package:ridingmate/features/auth/di/auth_providers.dart';
+import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
+import 'package:ridingmate/shared/design_system/widgets/modal/modal_show.dart';
+import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final SemanticColors colors = context.semanticColor;
 
     return Scaffold(
@@ -57,7 +63,7 @@ class SettingsScreen extends StatelessWidget {
               _buildSettingsItem(
                 context,
                 '로그아웃',
-                onPressed: () {},
+                onPressed: () => _showLogoutDialog(context, ref),
                 showArrow: false,
                 textColor: colors.statusNegative,
               ),
@@ -129,5 +135,41 @@ class SettingsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+    ModalShow.show(
+      context: context,
+      title: '로그아웃',
+      content: const Text('정말 로그아웃하시겠습니까?'),
+      primaryButtonText: '로그아웃',
+      secondaryButtonText: '취소',
+      onPrimaryButtonPressed: () => _handleSignOut(context, ref),
+      onSecondaryButtonPressed: () => Navigator.of(context).pop(),
+    );
+  }
+
+  Future<void> _handleSignOut(BuildContext context, WidgetRef ref) async {
+    try {
+      final User? user = ref.read(userSessionNotifierProvider);
+      if (user == null) return;
+
+      final AuthSignOutFacade authSignOutFacade = ref.read(
+        authSignOutFacadeProvider,
+      );
+      await authSignOutFacade.execute(user.loginProvider);
+
+      if (!context.mounted) return;
+
+      ErrorDisplay.showSuccessMessage(context, '로그아웃되었습니다.');
+
+      // 모든 화면을 제거하고 홈으로 이동 (임시 코드)
+      Navigator.of(context).popUntil((Route<dynamic> route) => route.isFirst);
+    } catch (e) {
+      if (!context.mounted) return;
+
+      ErrorDisplay.showErrorMessage(context, '로그아웃 실패: ${e.toString()}');
+      Navigator.of(context).pop();
+    }
   }
 }
