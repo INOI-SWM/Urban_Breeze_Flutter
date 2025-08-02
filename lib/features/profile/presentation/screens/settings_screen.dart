@@ -44,7 +44,7 @@ class SettingsScreen extends ConsumerWidget {
                 context,
                 '버전 정보',
                 rightWidget: Padding(
-                  padding: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.only(right: 6),
                   child: Text(
                     '1.0.0',
                     style: AppTextStyles.body2.normalRegular.copyWith(
@@ -78,7 +78,7 @@ class SettingsScreen extends ConsumerWidget {
     final SemanticColors colors = context.semanticColor;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 8, 0, 8),
+      padding: const EdgeInsets.fromLTRB(12, 12, 0, 12),
       decoration: BoxDecoration(
         color: colors.backgroundElevatedAlternative,
         borderRadius: BorderRadius.circular(12.0),
@@ -92,7 +92,7 @@ class SettingsScreen extends ConsumerWidget {
     for (int i = 0; i < items.length; i++) {
       result.add(items[i]);
       if (i < items.length - 1) {
-        result.add(Divider(color: colors.lineNormalNormal, height: 16));
+        result.add(Divider(color: colors.lineNormalNormal, height: 24));
       }
     }
     return result;
@@ -131,7 +131,8 @@ class SettingsScreen extends ConsumerWidget {
               color: textColor ?? colors.labelNormal,
             ),
           ),
-          if (trailing != null) trailing,
+          if (trailing != null)
+            Padding(padding: const EdgeInsets.only(right: 6), child: trailing),
         ],
       ),
     );
