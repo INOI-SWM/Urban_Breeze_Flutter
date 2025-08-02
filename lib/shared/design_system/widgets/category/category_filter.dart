@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
+import 'package:ridingmate/shared/design_system/widgets/category/category_info.dart';
 import 'package:ridingmate/shared/design_system/widgets/chip/chip_action.dart';
 
 enum CategoryFilterSize { small, medium, large, xlarge }
@@ -15,20 +16,16 @@ class CategoryFilter extends StatelessWidget {
     required this.onCategorySelected,
     this.size = CategoryFilterSize.medium,
     this.mode = CategoryFilterMode.alternative,
-    this.categoryIcons,
-    this.categoryRightIcons,
     this.showFilterIndicator = false,
     this.filterCount = 0,
     this.onFilterTap,
   });
 
-  final List<String> categories;
+  final List<CategoryInfo> categories;
   final Set<String> selectedCategories;
-  final void Function(String category) onCategorySelected;
+  final void Function(String categoryId) onCategorySelected;
   final CategoryFilterSize size;
   final CategoryFilterMode mode;
-  final Map<String, IconData>? categoryIcons;
-  final Map<String, IconData>? categoryRightIcons;
   final bool showFilterIndicator;
   final int filterCount;
   final VoidCallback? onFilterTap;
@@ -116,23 +113,25 @@ class CategoryFilter extends StatelessWidget {
               onPressed: onFilterTap,
             ),
           ],
-          ...categories.map((String category) {
-            final bool isSelected = selectedCategories.contains(category);
+          ...categories.map((CategoryInfo category) {
+            final bool isSelected = selectedCategories.contains(
+              category.displayText,
+            );
             return Padding(
               padding: EdgeInsets.only(
                 right: category == categories.last ? 0 : _spacing,
               ),
               child: ChipAction(
-                key: ValueKey<String>(category),
-                text: category,
-                leftIcon: categoryIcons?[category],
-                rightIcon: categoryRightIcons?[category],
+                key: ValueKey<String>(category.id),
+                text: category.displayText,
+                leftIcon: category.leftIcon,
+                rightIcon: category.rightIcon,
                 size: _chipSize,
                 type: _getChipActionType(isSelected),
                 textColor: getChipActionTextColor(isSelected),
                 borderColor: getChipActionBorderColor(isSelected),
                 backgroundColor: getChipActionBackgroundColor(isSelected),
-                onPressed: () => onCategorySelected(category),
+                onPressed: () => onCategorySelected(category.id),
               ),
             );
           }),
