@@ -5,10 +5,10 @@ import 'package:ridingmate/navigation/page_with_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/route_card.dart';
 import 'package:ridingmate/shared/design_system/widgets/category/category_filter.dart';
+import 'package:ridingmate/shared/filter/filter_modal.dart';
 import 'package:ridingmate/shared/filter/models/filter_data.dart';
 import 'package:ridingmate/shared/filter/models/filter_item.dart';
 import 'package:ridingmate/shared/filter/utils/filter_display_utils.dart';
-import 'package:ridingmate/shared/filter/widgets/filter_modal.dart';
 import 'package:ridingmate/shared/sort/widgets/sort_modal.dart';
 
 class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
@@ -91,6 +91,7 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
           currentFilter = FilterData.fromFilterItems(filters);
         });
       },
+      showTabBar: false,
       // TODO: 필터 적용 로직 구현
     );
   }

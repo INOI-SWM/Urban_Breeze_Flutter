@@ -13,6 +13,7 @@ class FilterModal {
     required FilterData initialData,
     required Function(FilterData) onApply,
     required VoidCallback onReset,
+    bool showTabBar = true,
   }) {
     final double maxHeight = MediaQuery.of(context).size.height * 0.9;
 
@@ -24,6 +25,7 @@ class FilterModal {
         initialData: initialData,
         onApply: onApply,
         onReset: onReset,
+        showTabBar: showTabBar,
       ),
       constraints: BoxConstraints(maxHeight: maxHeight),
     );

@@ -12,12 +12,14 @@ class FilterModalContent extends StatefulWidget {
     required this.initialData,
     required this.onApply,
     required this.onReset,
+    this.showTabBar = true,
   });
 
   final List<FilterItem> filters;
   final FilterData initialData;
   final Function(FilterData) onApply;
   final VoidCallback onReset;
+  final bool showTabBar;
 
   @override
   State<FilterModalContent> createState() => _FilterModalContentState();
@@ -115,13 +117,14 @@ class _FilterModalContentState extends State<FilterModalContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          // 탭 바
-          FilterTabBar(
-            filters: widget.filters,
-            selectedTab: _currentData.selectedTab,
-            scrollController: _tabScrollController,
-            onTabChanged: _onTabChanged,
-          ),
+          // 탭 바 (조건부 표시)
+          if (widget.showTabBar)
+            FilterTabBar(
+              filters: widget.filters,
+              selectedTab: _currentData.selectedTab,
+              scrollController: _tabScrollController,
+              onTabChanged: _onTabChanged,
+            ),
 
           // 필터 리스트
           Expanded(
