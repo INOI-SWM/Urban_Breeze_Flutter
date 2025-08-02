@@ -43,6 +43,18 @@ class _FilterModalContentState extends State<FilterModalContent> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 위젯이 렌더링된 후 자동 스크롤 실행
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_currentData.selectedTab.isNotEmpty) {
+        _scrollListToSelected();
+        _scrollTabBarToSelected(_currentData.selectedTab);
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _scrollController.dispose();
     _tabScrollController.dispose();
