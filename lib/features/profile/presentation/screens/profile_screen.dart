@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_withdrawal_facade.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/features/profile/presentation/screens/profile_edit_screen.dart';
+import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
+import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/button_outlined.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/button_size.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/button_solid.dart';
+import 'package:ridingmate/shared/design_system/widgets/info/info_item.dart';
 import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -15,77 +21,46 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final SemanticColors colors = context.semanticColor;
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Card(
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundImage:
-                            user.photoUrl != null
-                                ? NetworkImage(user.photoUrl!)
-                                : null,
-                        child:
-                            user.photoUrl == null
-                                ? Text(
-                                  _getInitials(user),
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
-                                : null,
-                      ),
-                      const SizedBox(width: 20),
-
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              user.displayName ?? '이름 없음',
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              user.email,
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(color: Colors.grey[600]),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // 프로필 수정 버튼
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () => _onProfileEditPressed(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text('프로필 수정'),
-                    ),
-                  ),
-                ],
+          Row(
+            children: <Widget>[
+              CircleAvatar(
+                radius: 40,
+                backgroundImage:
+                    user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
+                child:
+                    //TODO: 프로필 기본이미지 추가
+                    user.photoUrl == null
+                        ? const Icon(Icons.person, size: 40, color: Colors.grey)
+                        : null,
               ),
+              const Expanded(
+                child: InfoItem(label: '총 주행시간', value: '100시간 30분'),
+              ),
+              const Expanded(child: InfoItem(label: '총 주행거리', value: '1000km')),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+          Text(
+            user.displayName ?? '이름 없음',
+            style: AppTextStyles.body1.readingBold,
+          ),
+          Text('한줄소개입니다', style: AppTextStyles.body1.normalRegular),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ButtonOutlined(
+              textColor: colors.labelNormal,
+              borderColor: colors.lineNormalNeutral,
+              onPressed: () => _onProfileEditPressed(context),
+              text: '프로필 수정',
+              size: ButtonSize.medium,
             ),
           ),
 
@@ -276,12 +251,5 @@ class ProfileScreen extends ConsumerWidget {
         builder: (BuildContext context) => ProfileEditScreen(user: user),
       ),
     );
-  }
-
-  String _getInitials(User user) {
-    if (user.displayName?.isNotEmpty == true) {
-      return user.displayName![0].toUpperCase();
-    }
-    return user.email[0].toUpperCase();
   }
 }
