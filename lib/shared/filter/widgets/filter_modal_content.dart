@@ -48,8 +48,7 @@ class _FilterModalContentState extends State<FilterModalContent> {
     // 위젯이 렌더링된 후 자동 스크롤 실행
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_currentData.selectedTab.isNotEmpty) {
-        _scrollListToSelected();
-        _scrollTabBarToSelected(_currentData.selectedTab);
+        _scrollToSelectedTab(_currentData.selectedTab);
       }
     });
   }
@@ -61,15 +60,22 @@ class _FilterModalContentState extends State<FilterModalContent> {
     super.dispose();
   }
 
-  void _scrollListToSelected() {
-    final String selectedTab = _currentData.selectedTab;
+  /// 선택된 탭으로 필터 리스트와 탭바를 모두 스크롤
+  void _scrollToSelectedTab(String selectedTab) {
+    _scrollListToSelected(selectedTab);
+    // 탭바가 표시되는 경우에만 탭바 스크롤
+    if (widget.showTabBar) {
+      _scrollTabBarToSelected(selectedTab);
+    }
+  }
+
+  /// 필터 리스트를 선택된 탭으로 스크롤
+  void _scrollListToSelected(String selectedTab) {
     final GlobalKey? key = _filterKeys[selectedTab];
 
     if (key?.currentContext != null) {
-      // 위젯 렌더링이 완료된 후 스크롤 실행
       WidgetsBinding.instance.addPostFrameCallback((_) {
         try {
-          // 해당 위젯이 화면에 보이도록 스크롤
           Scrollable.ensureVisible(
             key!.currentContext!,
             duration: const Duration(milliseconds: 300),
@@ -77,23 +83,28 @@ class _FilterModalContentState extends State<FilterModalContent> {
             alignment: 0.0, // 상단에 정렬
           );
         } catch (e) {
-          // 스크롤이 실패한 경우 탭 바를 스크롤
+          // 스크롤이 실패한 경우 탭바만 스크롤
           _scrollTabBarToSelected(selectedTab);
         }
       });
     }
   }
 
+  /// 탭바를 선택된 탭으로 스크롤
   void _scrollTabBarToSelected(String selectedTab) {
+    // 탭바가 표시되지 않거나 스크롤 컨트롤러가 연결되지 않은 경우 스킵
+    if (!widget.showTabBar || !_tabScrollController.hasClients) {
+      return;
+    }
+
     final int selectedIndex = widget.filters.indexWhere(
       (FilterItem f) => f.title == selectedTab,
     );
+
     if (selectedIndex != -1) {
-      // 탭 바에서 해당 탭이 보이도록 스크롤
-      final double tabWidth = 120; // 탭 너비 + 패딩
+      final double tabWidth = 120;
       final double targetOffset = selectedIndex * tabWidth;
 
-      // 스크롤 가능한 범위 확인
       final double maxScrollExtent =
           _tabScrollController.position.maxScrollExtent;
       final double adjustedTargetOffset = targetOffset.clamp(
@@ -118,9 +129,7 @@ class _FilterModalContentState extends State<FilterModalContent> {
     setState(() {
       _currentData = _currentData.copyWith(selectedTab: tabTitle);
     });
-    _scrollListToSelected();
-    // 탭바도 항상 스크롤하여 선택된 탭이 보이도록 함
-    _scrollTabBarToSelected(tabTitle);
+    _scrollToSelectedTab(tabTitle);
   }
 
   @override
