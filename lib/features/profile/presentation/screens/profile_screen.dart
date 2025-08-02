@@ -66,35 +66,6 @@ class ProfileScreen extends ConsumerWidget {
 
           const SizedBox(height: 30),
 
-          Text(
-            '설정',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-
-          _buildMenuItem(
-            context,
-            icon: Icons.settings,
-            title: '앱 설정',
-            onTap: () {},
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.help_outline,
-            title: '도움말',
-            onTap: () {},
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.info_outline,
-            title: '앱 정보',
-            onTap: () {},
-          ),
-
-          const Spacer(),
-
           SizedBox(
             width: double.infinity,
             child: ButtonSolid(
@@ -117,23 +88,6 @@ class ProfileScreen extends ConsumerWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMenuItem(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: Icon(icon),
-        title: Text(title),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: onTap,
       ),
     );
   }
