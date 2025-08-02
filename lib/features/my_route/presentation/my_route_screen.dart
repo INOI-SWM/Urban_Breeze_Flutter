@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/features/my_route/application/services/my_route_service.dart';
-import 'package:ridingmate/features/my_route/presentation/my_route_category_config.dart';
-import 'package:ridingmate/features/my_route/presentation/my_route_filter_config.dart';
+import 'package:ridingmate/features/my_route/presentation/config/my_route_category_config.dart';
+import 'package:ridingmate/features/my_route/presentation/config/my_route_filter_config.dart';
 import 'package:ridingmate/navigation/page_with_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/route_card.dart';
