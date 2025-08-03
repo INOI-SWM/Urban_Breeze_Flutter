@@ -7,7 +7,7 @@ import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_butto
 import 'package:ridingmate/shared/design_system/widgets/card/card_list.dart';
 import 'package:ridingmate/shared/design_system/widgets/chip/chip_action.dart';
 import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
-import 'package:ridingmate/shared/sort/widgets/sort_modal.dart';
+import 'package:ridingmate/shared/sort/sort_modal.dart';
 import 'package:ridingmate/shared/utils/date_formatter.dart';
 import 'package:ridingmate/shared/utils/workout_formatter.dart';
 

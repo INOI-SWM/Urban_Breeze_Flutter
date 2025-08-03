@@ -12,7 +12,7 @@ import 'package:ridingmate/shared/filter/filter_modal.dart';
 import 'package:ridingmate/shared/filter/models/filter_data.dart';
 import 'package:ridingmate/shared/filter/models/filter_item.dart';
 import 'package:ridingmate/shared/filter/utils/filter_display_utils.dart';
-import 'package:ridingmate/shared/sort/widgets/sort_modal.dart';
+import 'package:ridingmate/shared/sort/sort_modal.dart';
 
 class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
   const MyRouteScreen({super.key});
