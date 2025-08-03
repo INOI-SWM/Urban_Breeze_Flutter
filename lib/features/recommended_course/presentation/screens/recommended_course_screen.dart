@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/features/recommended_course/application/services/recommended_course_service.dart';
+import 'package:ridingmate/features/recommended_course/domain/enums/course_sort_type.dart';
 import 'package:ridingmate/features/recommended_course/presentation/config/recommended_course_category_config.dart';
 import 'package:ridingmate/features/recommended_course/presentation/config/recommended_course_filter_config.dart';
 import 'package:ridingmate/navigation/page_with_app_bar.dart';
@@ -30,7 +31,7 @@ class RecommendedCourseScreen extends StatefulWidget implements PageWithAppBar {
 
 class _RecommendedCourseScreenState extends State<RecommendedCourseScreen> {
   // TODO: 추천 코스용 정렬 옵션으로 변경 필요 (가까운순, 거리, 난이도)
-  String selectedSortOption = SortModal.sortOptions.first;
+  CourseSortType selectedSortOption = CourseSortType.newest;
 
   // 필터 생성
   List<FilterItem> get filters => RecommendedCourseFilterConfig().filters;
@@ -61,15 +62,17 @@ class _RecommendedCourseScreenState extends State<RecommendedCourseScreen> {
   }
 
   void _showSortModal() {
-    SortModal.show(
+    SortModal.show<CourseSortType>(
       context: context,
+      options: CourseSortType.values,
       selectedOption: selectedSortOption,
-      onOptionSelected: (String option) {
+      onOptionSelected: (CourseSortType option) {
         setState(() {
           selectedSortOption = option;
         });
         // TODO: 정렬 로직 구현 (거리, 난이도 기준)
       },
+      getDisplayText: (CourseSortType option) => option.displayName,
     );
   }
 
@@ -109,13 +112,13 @@ class _RecommendedCourseScreenState extends State<RecommendedCourseScreen> {
             categories: RecommendedCourseCategoryConfig.buildCategoryInfos(
               currentFilter,
               filters,
-              selectedSortOption,
+              selectedSortOption.displayName,
             ),
             selectedCategories: FilterDisplayUtils.getSelectedCategories(
               currentFilter,
               filters,
-              selectedSortOption != SortModal.sortOptions.first
-                  ? selectedSortOption
+              selectedSortOption != CourseSortType.newest
+                  ? selectedSortOption.displayName
                   : null,
             ),
             onCategorySelected: (String categoryId) {
