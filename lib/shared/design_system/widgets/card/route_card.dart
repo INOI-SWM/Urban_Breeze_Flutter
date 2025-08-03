@@ -5,30 +5,39 @@ import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style
 import 'package:ridingmate/shared/design_system/widgets/badge/content_badge.dart';
 import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
 
+enum RouteCardType {
+  myRoute, // 나의 경로: 유저 프로필, 제목, 날짜, 뱃지
+  recommendedCourse, // 추천 코스: 지역, 제목, 뱃지
+}
+
 class RouteCard extends StatelessWidget {
   const RouteCard({
     super.key,
     required this.thumbnailPath,
     required this.sourceType,
-    required this.userProfileImage,
-    required this.userName,
     required this.routeTitle,
-    required this.date,
-    this.caption,
     required this.distance,
     required this.elevation,
+    required this.cardType,
+    this.userProfileImage,
+    this.userName,
+    this.date,
+    this.region,
+    this.caption,
     this.onTap,
   });
 
   final String thumbnailPath;
   final ThumbnailSourceType sourceType;
-  final String userProfileImage;
-  final String userName;
   final String routeTitle;
-  final String date;
-  final String? caption;
   final String distance;
   final String elevation;
+  final RouteCardType cardType;
+  final String? userProfileImage;
+  final String? userName;
+  final String? date;
+  final String? region;
+  final String? caption;
   final VoidCallback? onTap;
 
   static const double _thumbnailWidth = 180.0;
@@ -69,8 +78,8 @@ class RouteCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                _buildUserInfo(colors),
-                const SizedBox(height: 8),
+                // 상단 정보 (유저 프로필 or 지역)
+                _buildTopInfo(colors),
                 // 경로 제목
                 Text(
                   routeTitle,
@@ -80,14 +89,17 @@ class RouteCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
-                // 날짜
-                Text(
-                  date,
-                  style: AppTextStyles.label2.medium.copyWith(
-                    color: colors.labelAlternative,
+                if (cardType == RouteCardType.myRoute &&
+                    date != null) ...<Widget>[
+                  const SizedBox(height: 4),
+                  // 날짜 (나의 경로에서만 표시)
+                  Text(
+                    date!,
+                    style: AppTextStyles.label2.medium.copyWith(
+                      color: colors.labelAlternative,
+                    ),
                   ),
-                ),
+                ],
                 const SizedBox(height: 8),
                 // 하단 영역 (배지들)
                 _buildBadges(colors),
@@ -99,52 +111,84 @@ class RouteCard extends StatelessWidget {
     );
   }
 
+  Widget _buildTopInfo(SemanticColors colors) {
+    switch (cardType) {
+      case RouteCardType.myRoute:
+        return _buildUserInfo(colors);
+      case RouteCardType.recommendedCourse:
+        return _buildRegionInfo(colors);
+    }
+  }
+
   Widget _buildUserInfo(SemanticColors colors) {
-    return Row(
-      children: <Widget>[
-        // 사용자 프로필 이미지
-        Container(
-          width: _avatarSize,
-          height: _avatarSize,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: colors.lineNormalAlternative, width: 1),
-            color: colors.backgroundNormalAlternative,
-          ),
-          child: ClipOval(
-            child: Image.network(
-              userProfileImage,
-              fit: BoxFit.cover,
-              errorBuilder: (
-                BuildContext context,
-                Object error,
-                StackTrace? stackTrace,
-              ) {
-                return Container(
-                  color: colors.fillNormal,
-                  child: Icon(
-                    Icons.person,
-                    size: 16,
-                    color: colors.backgroundNormalNormal,
-                  ),
-                );
-              },
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: <Widget>[
+          // 사용자 프로필 이미지
+          Container(
+            width: _avatarSize,
+            height: _avatarSize,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: colors.lineNormalAlternative, width: 1),
+              color: colors.backgroundNormalAlternative,
+            ),
+            child: ClipOval(
+              child: Image.network(
+                userProfileImage ?? '',
+                fit: BoxFit.cover,
+                errorBuilder: (
+                  BuildContext context,
+                  Object error,
+                  StackTrace? stackTrace,
+                ) {
+                  return Container(
+                    color: colors.fillNormal,
+                    child: Icon(
+                      Icons.person,
+                      size: 16,
+                      color: colors.backgroundNormalNormal,
+                    ),
+                  );
+                },
+              ),
             ),
           ),
-        ),
-        const SizedBox(width: 4),
-        // 사용자 이름
-        Expanded(
-          child: Text(
-            userName,
-            style: AppTextStyles.label2.medium.copyWith(
-              color: colors.labelAlternative,
+          const SizedBox(width: 4),
+          // 사용자 이름
+          Expanded(
+            child: Text(
+              userName ?? '',
+              style: AppTextStyles.label2.medium.copyWith(
+                color: colors.labelAlternative,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRegionInfo(SemanticColors colors) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: Text(
+              region ?? '',
+              style: AppTextStyles.label2.medium.copyWith(
+                color: colors.labelAlternative,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
