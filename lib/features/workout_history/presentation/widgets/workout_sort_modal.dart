@@ -4,21 +4,28 @@ import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/modal/bottom_sheet_modal.dart';
 
-class SortModal {
-  static const List<String> sortOptions = <String>[
-    '최근 생성 순',
-    '생성 오래된 순',
-    '가까운 순',
-    '거리 긴 순',
-    '거리 짧은 순',
+enum WorkoutSortType {
+  newest('최신순'),
+  oldest('오래된 순'),
+  distance('거리순');
+
+  const WorkoutSortType(this.displayName);
+  final String displayName;
+}
+
+class WorkoutSortModal {
+  static const List<WorkoutSortType> sortOptions = <WorkoutSortType>[
+    WorkoutSortType.newest,
+    WorkoutSortType.oldest,
+    WorkoutSortType.distance,
   ];
 
-  static Future<String?> show({
+  static Future<WorkoutSortType?> show({
     required BuildContext context,
-    required String selectedOption,
-    required Function(String) onOptionSelected,
+    required WorkoutSortType selectedOption,
+    required Function(WorkoutSortType) onOptionSelected,
   }) {
-    return BottomSheetShow.show<String>(
+    return BottomSheetShow.show<WorkoutSortType>(
       context: context,
       title: '정렬',
       content: Padding(
@@ -30,7 +37,7 @@ class SortModal {
               children: <Widget>[
                 _buildSortOption(
                   context,
-                  sortOptions[i],
+                  sortOptions[i].displayName,
                   isSelected: sortOptions[i] == selectedOption,
                   onTap: () {
                     Navigator.of(context).pop();

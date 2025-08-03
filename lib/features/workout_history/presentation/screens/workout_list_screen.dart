@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/workout_history/presentation/screens/workout_detail_screen.dart';
+import 'package:ridingmate/features/workout_history/presentation/widgets/workout_sort_modal.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/card_list.dart';
+import 'package:ridingmate/shared/design_system/widgets/chip/chip_action.dart';
 import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
 import 'package:ridingmate/shared/utils/date_formatter.dart';
 import 'package:ridingmate/shared/utils/workout_formatter.dart';
@@ -32,18 +34,10 @@ class _ViewModeToggleButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: <Widget>[
-          const Spacer(),
-          CustomIconButton(
-            icon: viewMode == ViewMode.list ? Icons.grid_view : Icons.list,
-            onTap: onToggle,
-            color: colors.labelNormal,
-          ),
-        ],
-      ),
+    return CustomIconButton(
+      icon: viewMode == ViewMode.list ? Icons.grid_view : Icons.list,
+      onTap: onToggle,
+      color: colors.labelNormal,
     );
   }
 }
@@ -155,6 +149,7 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
   bool _isLoading = false;
   List<WorkoutRecord> _workouts = <WorkoutRecord>[];
   ViewMode _viewMode = ViewMode.list;
+  WorkoutSortType _sortType = WorkoutSortType.newest;
 
   final AppleHealthKitSyncRepositoryImpl _repository =
       AppleHealthKitSyncRepositoryImpl();
@@ -173,7 +168,7 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
           );
 
       setState(() {
-        _workouts = workouts;
+        _workouts = _sortWorkouts(workouts);
         _isLoading = false;
       });
     } catch (e) {
@@ -204,22 +199,62 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
     );
   }
 
+  void _showSortModal() {
+    WorkoutSortModal.show(
+      context: context,
+      selectedOption: _sortType,
+      onOptionSelected: (WorkoutSortType sortType) {
+        setState(() {
+          _sortType = sortType;
+          _workouts = _sortWorkouts(_workouts);
+        });
+      },
+    );
+  }
+
+  // todo : api 개발 시 삭제 예정
+  List<WorkoutRecord> _sortWorkouts(List<WorkoutRecord> workouts) {
+    final List<WorkoutRecord> sortedWorkouts = List<WorkoutRecord>.from(
+      workouts,
+    );
+
+    switch (_sortType) {
+      case WorkoutSortType.newest:
+        sortedWorkouts.sort(
+          (WorkoutRecord a, WorkoutRecord b) =>
+              b.startTime.compareTo(a.startTime),
+        );
+        break;
+      case WorkoutSortType.oldest:
+        sortedWorkouts.sort(
+          (WorkoutRecord a, WorkoutRecord b) =>
+              a.startTime.compareTo(b.startTime),
+        );
+        break;
+      case WorkoutSortType.distance:
+        sortedWorkouts.sort(
+          (WorkoutRecord a, WorkoutRecord b) =>
+              b.distance.compareTo(a.distance),
+        );
+        break;
+    }
+
+    return sortedWorkouts;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          // TODO: 개발 완료 후 삭제 예정
-          _buildTestButtons(),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        // TODO: 개발 완료 후 삭제 예정
+        _buildTestButtons(),
 
-          const SizedBox(height: 16),
+        const SizedBox(height: 16),
 
-          // 결과 표시
-          Expanded(child: _buildResultWidget()),
-        ],
-      ),
+        // 결과 표시
+        Expanded(child: _buildResultWidget()),
+      ],
     );
   }
 
@@ -274,14 +309,33 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         if (_workouts.isNotEmpty) ...<Widget>[
-          _ViewModeToggleButton(
-            viewMode: _viewMode,
-            onToggle: () {
-              setState(() {
-                _viewMode =
-                    _viewMode == ViewMode.list ? ViewMode.grid : ViewMode.list;
-              });
-            },
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                ChipAction(
+                  text: _sortType.displayName,
+                  rightIcon: Icons.expand_more,
+                  size: ChipActionSize.xsmall,
+                  type: ChipActionType.outlined,
+                  textColor: context.semanticColor.labelNormal,
+                  borderColor: context.semanticColor.lineNormalNormal,
+                  onPressed: _showSortModal,
+                ),
+                _ViewModeToggleButton(
+                  viewMode: _viewMode,
+                  onToggle: () {
+                    setState(() {
+                      _viewMode =
+                          _viewMode == ViewMode.list
+                              ? ViewMode.grid
+                              : ViewMode.list;
+                    });
+                  },
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 12),
           Expanded(
