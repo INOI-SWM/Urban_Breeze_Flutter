@@ -322,7 +322,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     } else if (_searchedPlaces.isNotEmpty && _lastSearchQuery != null) {
       return _lastSearchQuery!;
     } else {
-      return '장소, 위치 검색하기';
+      return '';
     }
   }
 
