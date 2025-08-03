@@ -30,7 +30,7 @@ class RouteListService {
         'elevation': '50m',
         'creatorId': 'user1',
         'userName': '라이더김',
-        'userProfileImage': 'https://via.placeholder.com/24',
+        'userProfileImage': '',
       },
       <String, dynamic>{
         'id': '2',
@@ -43,7 +43,7 @@ class RouteListService {
         'elevation': '200m',
         'creatorId': 'user1',
         'userName': '라이더김',
-        'userProfileImage': 'https://via.placeholder.com/24',
+        'userProfileImage': '',
       },
       <String, dynamic>{
         'id': '3',
@@ -56,7 +56,7 @@ class RouteListService {
         'elevation': '30m',
         'creatorId': 'user2',
         'userName': '노종빈',
-        'userProfileImage': 'https://via.placeholder.com/24',
+        'userProfileImage': '',
       },
       <String, dynamic>{
         'id': '4',
@@ -69,7 +69,7 @@ class RouteListService {
         'elevation': '20m',
         'creatorId': 'user3',
         'userName': '야간라이더',
-        'userProfileImage': 'https://via.placeholder.com/24',
+        'userProfileImage': '',
       },
       <String, dynamic>{
         'id': '5',
@@ -82,7 +82,7 @@ class RouteListService {
         'elevation': '10m',
         'creatorId': 'user4',
         'userName': '불광천러버',
-        'userProfileImage': 'https://via.placeholder.com/24',
+        'userProfileImage': '',
       },
     ];
 

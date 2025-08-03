@@ -139,24 +139,34 @@ class RouteCard extends StatelessWidget {
               color: colors.backgroundNormalAlternative,
             ),
             child: ClipOval(
-              child: Image.network(
-                userProfileImage ?? '',
-                fit: BoxFit.cover,
-                errorBuilder: (
-                  BuildContext context,
-                  Object error,
-                  StackTrace? stackTrace,
-                ) {
-                  return Container(
-                    color: colors.fillNormal,
-                    child: Icon(
-                      Icons.person,
-                      size: 16,
-                      color: colors.backgroundNormalNormal,
-                    ),
-                  );
-                },
-              ),
+              child:
+                  (userProfileImage?.isNotEmpty == true)
+                      ? Image.network(
+                        userProfileImage!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (
+                          BuildContext context,
+                          Object error,
+                          StackTrace? stackTrace,
+                        ) {
+                          return Container(
+                            color: colors.fillNormal,
+                            child: Icon(
+                              Icons.person,
+                              size: 16,
+                              color: colors.backgroundNormalNormal,
+                            ),
+                          );
+                        },
+                      )
+                      : Container(
+                        color: colors.fillNormal,
+                        child: Icon(
+                          Icons.person,
+                          size: 16,
+                          color: colors.backgroundNormalNormal,
+                        ),
+                      ),
             ),
           ),
           const SizedBox(width: 4),
