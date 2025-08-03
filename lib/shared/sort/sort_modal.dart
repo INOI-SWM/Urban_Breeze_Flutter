@@ -16,26 +16,28 @@ class SortModal {
     return BottomSheetShow.show<T>(
       context: context,
       title: title,
-      content: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: List<Widget>.generate(options.length, (int i) {
-            return Column(
-              children: <Widget>[
-                _buildSortOption(
-                  context,
-                  getDisplayText(options[i]),
-                  isSelected: options[i] == selectedOption,
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    onOptionSelected(options[i]);
-                  },
-                ),
-                if (i < options.length - 1) const SizedBox(height: 20),
-              ],
-            );
-          }),
+      content: IntrinsicHeight(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: List<Widget>.generate(options.length, (int i) {
+              return Column(
+                children: <Widget>[
+                  _buildSortOption(
+                    context,
+                    getDisplayText(options[i]),
+                    isSelected: options[i] == selectedOption,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      onOptionSelected(options[i]);
+                    },
+                  ),
+                  if (i < options.length - 1) const SizedBox(height: 20),
+                ],
+              );
+            }),
+          ),
         ),
       ),
     );
