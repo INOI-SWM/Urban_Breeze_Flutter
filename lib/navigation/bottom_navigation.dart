@@ -29,7 +29,7 @@ class BottomNavigation extends StatelessWidget {
     NavigationItem(
       icon: Icons.route,
       selectedIcon: Icons.route,
-      label: '경로 생성',
+      label: '추천 코스',
     ),
     NavigationItem(
       icon: Icons.directions_bike,
