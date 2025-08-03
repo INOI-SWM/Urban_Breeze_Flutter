@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
+import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_withdrawal_facade.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/features/profile/presentation/screens/profile_edit_screen.dart';
+import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
+import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/button_outlined.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/button_size.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/button_solid.dart';
+import 'package:ridingmate/shared/design_system/widgets/info/info_item.dart';
 import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -15,122 +20,50 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final SemanticColors colors = context.semanticColor;
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Card(
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundImage:
-                            user.photoUrl != null
-                                ? NetworkImage(user.photoUrl!)
-                                : null,
-                        child:
-                            user.photoUrl == null
-                                ? Text(
-                                  _getInitials(user),
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
-                                : null,
-                      ),
-                      const SizedBox(width: 20),
-
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              user.displayName ?? '이름 없음',
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              user.email,
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(color: Colors.grey[600]),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // 프로필 수정 버튼
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () => _onProfileEditPressed(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text('프로필 수정'),
-                    ),
-                  ),
-                ],
+          Row(
+            children: <Widget>[
+              CircleAvatar(
+                radius: 40,
+                backgroundImage:
+                    user.photoUrl != null ? NetworkImage(user.photoUrl!) : null,
+                child:
+                    //TODO: 프로필 기본이미지 추가
+                    user.photoUrl == null
+                        ? const Icon(Icons.person, size: 40, color: Colors.grey)
+                        : null,
               ),
+              const Expanded(
+                child: InfoItem(label: '총 주행시간', value: '100시간 30분'),
+              ),
+              const Expanded(child: InfoItem(label: '총 주행거리', value: '1000km')),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+          Text(
+            user.displayName ?? '이름 없음',
+            style: AppTextStyles.body1.readingBold,
+          ),
+          Text('한줄소개입니다', style: AppTextStyles.body1.normalRegular),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ButtonOutlined(
+              textColor: colors.labelNormal,
+              borderColor: colors.lineNormalNeutral,
+              onPressed: () => _onProfileEditPressed(context),
+              text: '프로필 수정',
+              size: ButtonSize.medium,
             ),
           ),
 
           const SizedBox(height: 30),
-
-          Text(
-            '설정',
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-
-          _buildMenuItem(
-            context,
-            icon: Icons.settings,
-            title: '앱 설정',
-            onTap: () {},
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.help_outline,
-            title: '도움말',
-            onTap: () {},
-          ),
-          _buildMenuItem(
-            context,
-            icon: Icons.info_outline,
-            title: '앱 정보',
-            onTap: () {},
-          ),
-
-          const Spacer(),
-
-          SizedBox(
-            width: double.infinity,
-            child: ButtonSolid(
-              text: '로그아웃',
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              onPressed: () => _showLogoutDialog(context, ref),
-            ),
-          ),
-
-          const SizedBox(height: 12),
 
           SizedBox(
             width: double.infinity,
@@ -143,52 +76,6 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildMenuItem(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: Icon(icon),
-        title: Text(title),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: onTap,
-      ),
-    );
-  }
-
-  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              title: const Text('로그아웃'),
-              content: const Text('정말 로그아웃하시겠습니까?'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('취소'),
-                ),
-                TextButton(
-                  onPressed: () => _handleSignOut(context, ref),
-                  child: const Text(
-                    '로그아웃',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
     );
   }
 
@@ -232,25 +119,6 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _handleSignOut(BuildContext context, WidgetRef ref) async {
-    try {
-      final AuthSignOutFacade authSignOutFacade = ref.read(
-        authSignOutFacadeProvider,
-      );
-      await authSignOutFacade.execute(user.loginProvider);
-
-      if (!context.mounted) return;
-
-      ErrorDisplay.showSuccessMessage(context, '로그아웃되었습니다.');
-      Navigator.of(context).pop();
-    } catch (e) {
-      if (!context.mounted) return;
-
-      ErrorDisplay.showErrorMessage(context, '로그아웃 실패: ${e.toString()}');
-      Navigator.of(context).pop();
-    }
-  }
-
   Future<void> _handleWithdrawal(BuildContext context, WidgetRef ref) async {
     try {
       final AuthWithdrawalFacade authWithdrawalFacade = ref.read(
@@ -276,12 +144,5 @@ class ProfileScreen extends ConsumerWidget {
         builder: (BuildContext context) => ProfileEditScreen(user: user),
       ),
     );
-  }
-
-  String _getInitials(User user) {
-    if (user.displayName?.isNotEmpty == true) {
-      return user.displayName![0].toUpperCase();
-    }
-    return user.email[0].toUpperCase();
   }
 }
