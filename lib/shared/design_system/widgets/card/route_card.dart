@@ -23,6 +23,8 @@ class RouteCard extends StatelessWidget {
     this.userName,
     this.date,
     this.region,
+    this.difficulty,
+    this.scenery,
     this.caption,
     this.onTap,
   });
@@ -37,6 +39,8 @@ class RouteCard extends StatelessWidget {
   final String? userName;
   final String? date;
   final String? region;
+  final String? difficulty;
+  final String? scenery;
   final String? caption;
   final VoidCallback? onTap;
 
@@ -193,26 +197,51 @@ class RouteCard extends StatelessWidget {
   }
 
   Widget _buildBadges(SemanticColors colors) {
-    return Row(
-      children: <Widget>[
-        ContentBadge(
-          text: distance,
-          leftIcon: Icons.route,
-          size: ContentBadgeSize.xsmall,
-          type: ContentBadgeType.solid,
-          backgroundColor: colors.fillNormal,
-          textColor: colors.labelAlternative,
-        ),
-        const SizedBox(width: 6),
-        ContentBadge(
-          text: elevation,
-          leftIcon: Icons.trending_up,
-          size: ContentBadgeSize.xsmall,
-          type: ContentBadgeType.solid,
-          backgroundColor: colors.fillNormal,
-          textColor: colors.labelAlternative,
-        ),
-      ],
-    );
+    final List<Widget> badges = <Widget>[
+      ContentBadge(
+        text: distance,
+        leftIcon: Icons.route,
+        size: ContentBadgeSize.xsmall,
+        type: ContentBadgeType.solid,
+        backgroundColor: colors.fillNormal,
+        textColor: colors.labelAlternative,
+      ),
+      ContentBadge(
+        text: elevation,
+        leftIcon: Icons.trending_up,
+        size: ContentBadgeSize.xsmall,
+        type: ContentBadgeType.solid,
+        backgroundColor: colors.fillNormal,
+        textColor: colors.labelAlternative,
+      ),
+    ];
+
+    if (cardType == RouteCardType.recommendedCourse) {
+      if (difficulty != null) {
+        badges.add(
+          ContentBadge(
+            text: difficulty!,
+            size: ContentBadgeSize.xsmall,
+            type: ContentBadgeType.solid,
+            backgroundColor: colors.fillNormal,
+            textColor: colors.labelAlternative,
+          ),
+        );
+      }
+
+      if (scenery != null) {
+        badges.add(
+          ContentBadge(
+            text: scenery!,
+            size: ContentBadgeSize.xsmall,
+            type: ContentBadgeType.solid,
+            backgroundColor: colors.fillNormal,
+            textColor: colors.labelAlternative,
+          ),
+        );
+      }
+    }
+
+    return Wrap(spacing: 6, runSpacing: 8, children: badges);
   }
 }
