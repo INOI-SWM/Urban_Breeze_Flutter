@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/features/my_route/application/services/my_route_service.dart';
-import 'package:ridingmate/features/my_route/presentation/widgets/filter_modal.dart';
-import 'package:ridingmate/features/my_route/presentation/widgets/sort_modal.dart';
+import 'package:ridingmate/features/my_route/presentation/config/my_route_category_config.dart';
+import 'package:ridingmate/features/my_route/presentation/config/my_route_filter_config.dart';
 import 'package:ridingmate/navigation/page_with_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/route_card.dart';
 import 'package:ridingmate/shared/design_system/widgets/category/category_filter.dart';
+import 'package:ridingmate/shared/filter/filter_modal.dart';
+import 'package:ridingmate/shared/filter/models/filter_data.dart';
+import 'package:ridingmate/shared/filter/models/filter_item.dart';
+import 'package:ridingmate/shared/filter/utils/filter_display_utils.dart';
+import 'package:ridingmate/shared/sort/widgets/sort_modal.dart';
 
 class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
   const MyRouteScreen({super.key});
@@ -26,7 +31,10 @@ class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
 
 class _MyRouteScreenState extends State<MyRouteScreen> {
   String selectedSortOption = SortModal.sortOptions.first;
-  FilterData currentFilter = FilterData();
+
+  List<FilterItem> get filters => MyRouteFilterConfig().filters;
+
+  late FilterData currentFilter;
 
   List<Map<String, dynamic>> routeList = <Map<String, dynamic>>[];
   bool isLoading = true;
@@ -34,20 +42,8 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
   @override
   void initState() {
     super.initState();
+    currentFilter = FilterData.fromFilterItems(filters);
     _loadRouteList();
-  }
-
-  void _showSortModal() {
-    SortModal.show(
-      context: context,
-      selectedOption: selectedSortOption,
-      onOptionSelected: (String option) {
-        setState(() {
-          selectedSortOption = option;
-        });
-        // TODO: 정렬 로직 구현
-      },
-    );
   }
 
   Future<void> _loadRouteList() async {
@@ -63,65 +59,20 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
     });
   }
 
-  Set<String> _getSelectedCategories() {
-    final Set<String> selectedCategories = <String>{};
-
-    if (selectedSortOption != SortModal.sortOptions.first) {
-      selectedCategories.add(selectedSortOption);
-    }
-
-    if (currentFilter.selectedCourseType != '전체') {
-      selectedCategories.add(_getCategoryText('생성자'));
-    }
-
-    if (currentFilter.elevationRange.start != 0 ||
-        currentFilter.elevationRange.end != 122) {
-      selectedCategories.add(_getCategoryText('상승 고도'));
-    }
-
-    if (currentFilter.distanceRange.start != 0 ||
-        currentFilter.distanceRange.end != 999) {
-      selectedCategories.add(_getCategoryText('거리'));
-    }
-
-    return selectedCategories;
-  }
-
-  String _getCategoryText(String category) {
-    switch (category) {
-      case '생성자':
-        return currentFilter.selectedCreatorValue;
-      case '상승 고도':
-        return currentFilter.selectedElevationValue;
-      case '거리':
-        return currentFilter.selectedDistanceValue;
-      default:
-        return category;
-    }
-  }
-
-  int _getAppliedFiltersCount() {
-    int count = 0;
-
-    if (currentFilter.selectedCourseType != '전체') {
-      count++;
-    }
-
-    if (currentFilter.elevationRange.start != 0 ||
-        currentFilter.elevationRange.end != 122) {
-      count++;
-    }
-
-    if (currentFilter.distanceRange.start != 0 ||
-        currentFilter.distanceRange.end != 999) {
-      count++;
-    }
-
-    return count;
+  void _showSortModal() {
+    SortModal.show(
+      context: context,
+      selectedOption: selectedSortOption,
+      onOptionSelected: (String option) {
+        setState(() {
+          selectedSortOption = option;
+        });
+        // TODO: 정렬 로직 구현
+      },
+    );
   }
 
   void _showFilterModal({String? selectedTab}) {
-    // 특정 탭이 지정된 경우 필터 데이터의 선택된 탭 업데이트
     final FilterData initialData =
         selectedTab != null
             ? currentFilter.copyWith(selectedTab: selectedTab)
@@ -129,6 +80,7 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
 
     FilterModal.show(
       context: context,
+      filters: filters,
       initialData: initialData,
       onApply: (FilterData newFilter) {
         setState(() {
@@ -137,10 +89,11 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
       },
       onReset: () {
         setState(() {
-          currentFilter = FilterData();
+          currentFilter = FilterData.fromFilterItems(filters);
         });
       },
-      // TODO: 필터 로직 구현
+      showTabBar: false,
+      // TODO: 필터 적용 로직 구현
     );
   }
 
@@ -152,31 +105,35 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           CategoryFilter(
-            categories: <String>[
+            categories: MyRouteCategoryConfig.buildCategoryInfos(
+              currentFilter,
+              filters,
               selectedSortOption,
-              _getCategoryText('생성자'),
-              _getCategoryText('상승 고도'),
-              _getCategoryText('거리'),
-            ],
-            selectedCategories: _getSelectedCategories(),
-            onCategorySelected: (String category) {
-              if (category == selectedSortOption) {
+            ),
+            selectedCategories: FilterDisplayUtils.getSelectedCategories(
+              currentFilter,
+              filters,
+              selectedSortOption != SortModal.sortOptions.first
+                  ? selectedSortOption
+                  : null,
+            ),
+            onCategorySelected: (String categoryId) {
+              if (categoryId == 'sort') {
                 _showSortModal();
               } else {
-                _showFilterModal(selectedTab: category);
+                final FilterItem filter = filters.firstWhere(
+                  (FilterItem f) => f.id == categoryId,
+                );
+                _showFilterModal(selectedTab: filter.title);
               }
             },
             size: CategoryFilterSize.small,
             mode: CategoryFilterMode.alternative,
-            categoryIcons: <String, IconData>{
-              _getCategoryText('상승 고도'): Icons.trending_up,
-              _getCategoryText('거리'): Icons.route,
-            },
-            categoryRightIcons: <String, IconData>{
-              selectedSortOption: Icons.expand_more,
-            },
             showFilterIndicator: true,
-            filterCount: _getAppliedFiltersCount(),
+            filterCount: FilterDisplayUtils.getAppliedFiltersCount(
+              currentFilter,
+              filters,
+            ),
             onFilterTap: () {
               _showFilterModal();
             },

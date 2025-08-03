@@ -55,7 +55,7 @@ class BottomSheetModal extends StatelessWidget {
               height: 64,
             ),
             // 내용 영역
-            content,
+            Flexible(child: content),
           ],
         ),
       ),
@@ -72,12 +72,14 @@ class BottomSheetShow {
     VoidCallback? onClose,
     bool isDismissible = true,
     bool enableDrag = true,
+    BoxConstraints? constraints,
   }) {
     return showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
       isDismissible: isDismissible,
       enableDrag: enableDrag,
+      constraints: constraints,
       builder: (BuildContext context) {
         return BottomSheetModal(
           title: title,
