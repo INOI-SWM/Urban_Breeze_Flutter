@@ -161,6 +161,7 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
                             date: route['createDate'],
                             distance: route['distance'],
                             elevation: route['elevation'],
+                            cardType: RouteCardType.myRoute,
                             onTap: () {
                               // TODO: 경로 상세 화면으로 이동
                             },
