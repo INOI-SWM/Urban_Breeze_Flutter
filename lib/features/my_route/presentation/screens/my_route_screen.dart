@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ridingmate/features/my_route/application/utils/filter_converter.dart';
-import 'package:ridingmate/features/my_route/data/models/route_filter_model.dart';
+import 'package:ridingmate/core/result/app_result.dart';
 import 'package:ridingmate/features/my_route/di/my_route_providers.dart';
 import 'package:ridingmate/features/my_route/domain/entities/route.dart';
+import 'package:ridingmate/features/my_route/domain/entities/route_list.dart';
 import 'package:ridingmate/features/my_route/domain/enums/route_sort_type.dart';
 import 'package:ridingmate/features/my_route/presentation/config/my_route_category_config.dart';
 import 'package:ridingmate/features/my_route/presentation/config/my_route_filter_config.dart';
@@ -52,8 +52,9 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
 
   late FilterData currentFilter;
 
-  List<Route> routeList = <Route>[];
+  MyRouteList routeList = MyRouteList.empty();
   bool isLoading = true;
+  String? errorMessage;
 
   @override
   void initState() {
@@ -65,20 +66,21 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
   Future<void> _loadRouteList() async {
     setState(() {
       isLoading = true;
+      errorMessage = null;
     });
 
-    final RouteFilterModel filter = FilterConverter.convertFilterToApiFilter(
-      currentFilter,
-      selectedSortOption,
-    );
-
-    final List<Route> routes = await ref
+    final AppResult<MyRouteList> result = await ref
         .read(getRouteListUseCaseProvider)
-        .execute(filter: filter);
+        .execute(filterData: currentFilter, sortType: selectedSortOption);
 
     setState(() {
-      routeList = routes;
       isLoading = false;
+      if (result.isSuccess) {
+        routeList = result.dataOrNull!;
+      } else {
+        errorMessage = result.exceptionOrNull?.message ?? '알 수 없는 오류가 발생했습니다';
+        routeList = MyRouteList.empty();
+      }
     });
   }
 
@@ -169,13 +171,15 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
             child:
                 isLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : routeList.isEmpty
+                    : errorMessage != null
+                    ? Center(child: Text('오류: $errorMessage'))
+                    : routeList.routes.isEmpty
                     ? const Center(child: Text('경로가 없습니다'))
                     : ListView.builder(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: routeList.length,
+                      itemCount: routeList.routes.length,
                       itemBuilder: (BuildContext context, int index) {
-                        final domain.Route route = routeList[index];
+                        final MyRoute route = routeList.routes[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: RouteCard(
@@ -186,7 +190,7 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
                             routeTitle: route.title,
                             date: route.createdAtDisplay,
                             distance: route.distanceDisplay,
-                            elevation: route.elevationDisplay,
+                            elevation: route.elevationGainDisplay,
                             cardType: RouteCardType.myRoute,
                             onTap: () {
                               // TODO: 경로 상세 화면으로 이동
