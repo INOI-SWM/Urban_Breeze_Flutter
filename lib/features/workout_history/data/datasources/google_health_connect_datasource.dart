@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../../domain/exceptions/google_health_connect_exceptions.dart';
@@ -12,10 +13,20 @@ class GoogleHealthConnectDataSource {
   Future<bool> requestPermissions() async {
     try {
       final String result = await _channel.invokeMethod('requestPermissions');
+      debugPrint('Permission request result: $result');
 
       // SUCCESS 또는 PLAY_STORE_REDIRECT는 권한 요청이 성공한 것으로 간주
       return result == 'SUCCESS' || result == 'PLAY_STORE_REDIRECT';
     } catch (e) {
+      debugPrint('Permission request error: $e');
+
+      // Android API 레벨이 낮은 경우 특별 처리
+      if (e.toString().contains('API_LEVEL_TOO_LOW')) {
+        throw const GoogleHealthConnectException(
+          'Health Connect는 Android 8.0(API 26) 이상이 필요합니다.',
+        );
+      }
+
       throw GoogleHealthConnectException('권한 요청 실패: $e');
     }
   }

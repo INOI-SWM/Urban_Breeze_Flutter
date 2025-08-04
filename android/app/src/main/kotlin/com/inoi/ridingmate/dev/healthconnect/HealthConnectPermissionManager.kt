@@ -35,6 +35,16 @@ class HealthConnectPermissionManager(
     fun requestPermissions(result: MethodChannel.Result) {
         coroutineScope.launch {
             try {
+                // Android API 레벨 체크
+                val apiLevel = android.os.Build.VERSION.SDK_INT
+                android.util.Log.d(TAG, "Checking permissions for Android API level: $apiLevel")
+                
+                if (apiLevel < 26) {
+                    android.util.Log.w(TAG, "Android API level too low for Health Connect")
+                    result.error("API_LEVEL_TOO_LOW", "Health Connect requires Android API 26+ (Android 8.0+)", null)
+                    return@launch
+                }
+                
                 if (!healthConnectManager.isHealthConnectAvailable()) {
                     result.error("NOT_AVAILABLE", "Health Connect is not available on this device", null)
                     return@launch
@@ -46,8 +56,18 @@ class HealthConnectPermissionManager(
                     return@launch
                 }
 
-                // Health Connect 1.1.0-alpha12에서는 권한 요청을 설정 화면으로 리다이렉트
-                android.util.Log.d(TAG, "Redirecting to Health Connect settings for permissions")
+                // 먼저 현재 권한 상태 확인
+                val hasPermissions = hasPermissions()
+                android.util.Log.d(TAG, "Current permission status: $hasPermissions")
+                
+                if (hasPermissions) {
+                    android.util.Log.d(TAG, "Permissions already granted")
+                    result.success("ALREADY_GRANTED")
+                    return@launch
+                }
+
+                // 권한이 없으면 설정 화면으로 리다이렉트 (Health Connect 1.1.0-alpha12 호환성)
+                android.util.Log.d(TAG, "No permissions granted, redirecting to Health Connect settings")
                 redirectToHealthConnectSettings(result)
                 
             } catch (e: Exception) {

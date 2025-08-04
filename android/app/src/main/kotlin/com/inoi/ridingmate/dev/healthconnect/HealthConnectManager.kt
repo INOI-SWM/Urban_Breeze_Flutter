@@ -64,13 +64,27 @@ class HealthConnectManager(private val context: Context) {
      */
     fun isHealthConnectAvailable(): Boolean {
         return try {
+            // Android API 레벨 체크 (Health Connect는 API 26+ 필요)
+            val apiLevel = android.os.Build.VERSION.SDK_INT
+            android.util.Log.d(TAG, "Android API level: $apiLevel")
+            
+            if (apiLevel < 26) {
+                android.util.Log.w(TAG, "Android API level too low for Health Connect (requires API 26+)")
+                return false
+            }
+            
             val sdkStatus = HealthConnectClient.getSdkStatus(context)
-            when (sdkStatus) {
+            android.util.Log.d(TAG, "Health Connect SDK status: $sdkStatus")
+            
+            val result = when (sdkStatus) {
                 SDK_AVAILABLE -> true
                 SDK_UNAVAILABLE -> false
                 SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED -> false
                 else -> false
             }
+            
+            android.util.Log.d(TAG, "Health Connect available: $result")
+            result
         } catch (e: Exception) {
             android.util.Log.e(TAG, "Error checking Health Connect availability: ${e.message}")
             false
@@ -102,14 +116,48 @@ class HealthConnectManager(private val context: Context) {
      */
     fun createHealthConnectSettingsIntent(): Intent? {
         return try {
-            healthConnectClient?.let { client ->
-                // Health Connect 1.1.0-alpha12에서는 다른 방식으로 설정 화면 접근
-                // 현재는 Play Store로 리다이렉트
-                createPlayStoreIntent()
+            // Android API 레벨 체크
+            val apiLevel = android.os.Build.VERSION.SDK_INT
+            if (apiLevel < 26) {
+                android.util.Log.w(TAG, "Android API level too low, redirecting to Play Store")
+                return createPlayStoreIntent()
             }
+            
+            // Health Connect 앱이 설치되어 있는지 확인
+            val packageName = "com.google.android.apps.healthdata"
+            val packageInfo = context.packageManager.getPackageInfo(packageName, 0)
+            
+            if (packageInfo != null) {
+                android.util.Log.d(TAG, "Health Connect app found, version: ${packageInfo.versionName}")
+                
+                // Health Connect 앱의 권한 설정 화면으로 직접 이동
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse("healthconnect://settings")
+                    setPackage(packageName)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                
+                // 권한 설정 화면으로 이동할 수 있는지 확인
+                if (context.packageManager.resolveActivity(intent, 0) != null) {
+                    android.util.Log.d(TAG, "Health Connect settings intent created successfully")
+                    return intent
+                } else {
+                    // 권한 설정 화면으로 이동할 수 없으면 앱 메인 화면으로 이동
+                    val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
+                    if (launchIntent != null) {
+                        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        android.util.Log.d(TAG, "Health Connect app found, launching main app")
+                        return launchIntent
+                    }
+                }
+            }
+            
+            // Health Connect 앱이 없으면 Play Store로 이동
+            android.util.Log.w(TAG, "Health Connect app not found, redirecting to Play Store")
+            createPlayStoreIntent()
         } catch (e: Exception) {
             android.util.Log.e(TAG, "Failed to create Health Connect settings intent: ${e.message}")
-            null
+            createPlayStoreIntent()
         }
     }
 
