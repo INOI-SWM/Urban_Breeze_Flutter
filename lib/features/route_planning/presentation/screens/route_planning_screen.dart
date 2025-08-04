@@ -13,6 +13,7 @@ import 'package:ridingmate/features/route_planning/domain/entities/route_segment
 import 'package:ridingmate/features/route_planning/presentation/screens/route_create_complete_screen.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
+import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/marker/route_pin_marker.dart';
 import 'package:ridingmate/shared/map/common_map_widgets.dart';
@@ -350,12 +351,13 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
   @override
   Widget build(BuildContext context) {
+    final SemanticColors colors = context.semanticColor;
     if (_isLocationLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
     return Scaffold(
-      backgroundColor: context.semanticColor.backgroundNormalNormal,
+      backgroundColor: colors.backgroundNormalNormal,
       body: SafeArea(
         child: Column(
           children: <Widget>[
@@ -394,7 +396,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                                 .map(
                                   (RouteSegment segment) => Polyline<LatLng>(
                                     points: segment.points,
-                                    color: context.semanticColor.primaryNormal,
+                                    color: colors.primaryNormal,
                                     strokeWidth:
                                         MapConstants.polylineStrokeWidth,
                                   ),
@@ -433,7 +435,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                                   onTap: _onMarkerTap,
                                   child: Icon(
                                     Icons.place,
-                                    color: context.semanticColor.primaryNormal,
+                                    color: colors.primaryNormal,
                                     size: 40,
                                   ),
                                 ),
@@ -448,7 +450,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                                   onTap: () => _onSearchResultMarkerTap(place),
                                   child: Icon(
                                     Icons.location_on,
-                                    color: context.semanticColor.primaryNormal,
+                                    color: colors.primaryNormal,
                                     size: 34,
                                   ),
                                 ),
