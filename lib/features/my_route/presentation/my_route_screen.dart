@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/features/my_route/application/services/my_route_service.dart';
+import 'package:ridingmate/features/my_route/domain/enums/route_sort_type.dart';
 import 'package:ridingmate/features/my_route/presentation/config/my_route_category_config.dart';
 import 'package:ridingmate/features/my_route/presentation/config/my_route_filter_config.dart';
 import 'package:ridingmate/features/route_planning/presentation/screens/route_planning_screen.dart';
@@ -11,7 +12,7 @@ import 'package:ridingmate/shared/filter/filter_modal.dart';
 import 'package:ridingmate/shared/filter/models/filter_data.dart';
 import 'package:ridingmate/shared/filter/models/filter_item.dart';
 import 'package:ridingmate/shared/filter/utils/filter_display_utils.dart';
-import 'package:ridingmate/shared/sort/widgets/sort_modal.dart';
+import 'package:ridingmate/shared/sort/sort_modal.dart';
 
 class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
   const MyRouteScreen({super.key});
@@ -40,7 +41,7 @@ class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
 }
 
 class _MyRouteScreenState extends State<MyRouteScreen> {
-  String selectedSortOption = SortModal.sortOptions.first;
+  RouteSortType selectedSortOption = RouteSortType.newest;
 
   List<FilterItem> get filters => MyRouteFilterConfig().filters;
 
@@ -70,15 +71,17 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
   }
 
   void _showSortModal() {
-    SortModal.show(
+    SortModal.show<RouteSortType>(
       context: context,
+      options: RouteSortType.values,
       selectedOption: selectedSortOption,
-      onOptionSelected: (String option) {
+      onOptionSelected: (RouteSortType option) {
         setState(() {
           selectedSortOption = option;
         });
         // TODO: 정렬 로직 구현
       },
+      getDisplayText: (RouteSortType option) => option.displayName,
     );
   }
 
@@ -118,13 +121,13 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
             categories: MyRouteCategoryConfig.buildCategoryInfos(
               currentFilter,
               filters,
-              selectedSortOption,
+              selectedSortOption.displayName,
             ),
             selectedCategories: FilterDisplayUtils.getSelectedCategories(
               currentFilter,
               filters,
-              selectedSortOption != SortModal.sortOptions.first
-                  ? selectedSortOption
+              selectedSortOption != RouteSortType.newest
+                  ? selectedSortOption.displayName
                   : null,
             ),
             onCategorySelected: (String categoryId) {

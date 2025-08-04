@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/workout_history/presentation/screens/workout_detail_screen.dart';
-import 'package:ridingmate/features/workout_history/presentation/widgets/workout_sort_modal.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/card_list.dart';
 import 'package:ridingmate/shared/design_system/widgets/chip/chip_action.dart';
 import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
+import 'package:ridingmate/shared/sort/sort_modal.dart';
 import 'package:ridingmate/shared/utils/date_formatter.dart';
 import 'package:ridingmate/shared/utils/workout_formatter.dart';
 
 import '../../data/repositories/apple_health_kit_sync_repository_impl.dart';
 import '../../domain/entities/workout_record.dart';
+import '../../domain/enums/workout_sort_type.dart';
 
 //TODO : 추후 api 개발 시 에러 처리 추가
 class WorkoutListScreen extends StatefulWidget {
@@ -200,8 +201,9 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
   }
 
   void _showSortModal() {
-    WorkoutSortModal.show(
+    SortModal.show<WorkoutSortType>(
       context: context,
+      options: WorkoutSortType.values,
       selectedOption: _sortType,
       onOptionSelected: (WorkoutSortType sortType) {
         setState(() {
@@ -209,6 +211,7 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
           _workouts = _sortWorkouts(_workouts);
         });
       },
+      getDisplayText: (WorkoutSortType option) => option.displayName,
     );
   }
 
