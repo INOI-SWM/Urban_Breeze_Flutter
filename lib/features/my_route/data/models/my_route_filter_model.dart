@@ -10,8 +10,8 @@ enum ApiRouteSortType {
   final String value;
 }
 
-class RouteFilterModel {
-  const RouteFilterModel({
+class MyRouteFilterModel {
+  const MyRouteFilterModel({
     this.page = 0,
     this.size = 10,
     this.sortType = ApiRouteSortType.createdAtDesc,
@@ -44,7 +44,7 @@ class RouteFilterModel {
     };
   }
 
-  RouteFilterModel copyWith({
+  MyRouteFilterModel copyWith({
     int? page,
     int? size,
     ApiRouteSortType? sortType,
@@ -54,7 +54,7 @@ class RouteFilterModel {
     double? minElevationGain,
     double? maxElevationGain,
   }) {
-    return RouteFilterModel(
+    return MyRouteFilterModel(
       page: page ?? this.page,
       size: size ?? this.size,
       sortType: sortType ?? this.sortType,

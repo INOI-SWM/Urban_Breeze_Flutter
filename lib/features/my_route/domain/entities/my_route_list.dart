@@ -1,4 +1,4 @@
-import 'package:ridingmate/features/my_route/domain/entities/route.dart';
+import 'package:ridingmate/features/my_route/domain/entities/my_route.dart';
 
 class MyRouteList {
   factory MyRouteList.empty() {

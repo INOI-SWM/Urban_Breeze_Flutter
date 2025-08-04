@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/result/app_result.dart';
 import 'package:ridingmate/features/my_route/di/my_route_providers.dart';
-import 'package:ridingmate/features/my_route/domain/entities/route.dart';
-import 'package:ridingmate/features/my_route/domain/entities/route_list.dart';
-import 'package:ridingmate/features/my_route/domain/enums/route_sort_type.dart';
+import 'package:ridingmate/features/my_route/domain/entities/my_route.dart';
+import 'package:ridingmate/features/my_route/domain/entities/my_route_list.dart';
+import 'package:ridingmate/features/my_route/domain/enums/my_route_sort_type.dart';
 import 'package:ridingmate/features/my_route/presentation/config/my_route_category_config.dart';
 import 'package:ridingmate/features/my_route/presentation/config/my_route_filter_config.dart';
 import 'package:ridingmate/features/route_planning/presentation/screens/route_planning_screen.dart';
@@ -46,7 +46,7 @@ class MyRouteScreen extends ConsumerStatefulWidget implements PageWithAppBar {
 }
 
 class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
-  RouteSortType selectedSortOption = RouteSortType.newest;
+  MyRouteSortType selectedSortOption = MyRouteSortType.newest;
 
   List<FilterItem> get filters => MyRouteFilterConfig().filters;
 
@@ -70,7 +70,7 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
     });
 
     final AppResult<MyRouteList> result = await ref
-        .read(getRouteListUseCaseProvider)
+        .read(getMyRouteListUseCaseProvider)
         .execute(filterData: currentFilter, sortType: selectedSortOption);
 
     setState(() {
@@ -85,17 +85,17 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
   }
 
   void _showSortModal() {
-    SortModal.show<RouteSortType>(
+    SortModal.show<MyRouteSortType>(
       context: context,
-      options: RouteSortType.values,
+      options: MyRouteSortType.values,
       selectedOption: selectedSortOption,
-      onOptionSelected: (RouteSortType option) {
+      onOptionSelected: (MyRouteSortType option) {
         setState(() {
           selectedSortOption = option;
         });
         _loadRouteList();
       },
-      getDisplayText: (RouteSortType option) => option.displayName,
+      getDisplayText: (MyRouteSortType option) => option.displayName,
     );
   }
 
@@ -141,7 +141,7 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
             selectedCategories: FilterDisplayUtils.getSelectedCategories(
               currentFilter,
               filters,
-              selectedSortOption != RouteSortType.newest
+              selectedSortOption != MyRouteSortType.newest
                   ? selectedSortOption.displayName
                   : null,
             ),

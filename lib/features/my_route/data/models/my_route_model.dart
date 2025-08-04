@@ -1,5 +1,5 @@
-class RouteModel {
-  const RouteModel({
+class MyRouteModel {
+  const MyRouteModel({
     required this.id,
     required this.title,
     required this.thumbnailUrl,
@@ -11,8 +11,8 @@ class RouteModel {
     required this.profileImageUrl,
   });
 
-  factory RouteModel.fromJson(Map<String, dynamic> json) {
-    return RouteModel(
+  factory MyRouteModel.fromJson(Map<String, dynamic> json) {
+    return MyRouteModel(
       id: json['id'] as int,
       title: json['title'] as String,
       thumbnailUrl: json['thumbnailUrl'] as String,

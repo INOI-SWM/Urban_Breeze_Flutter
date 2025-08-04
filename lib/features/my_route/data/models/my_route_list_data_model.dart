@@ -1,16 +1,16 @@
+import 'package:ridingmate/features/my_route/data/models/my_route_model.dart';
 import 'package:ridingmate/features/my_route/data/models/pagination_model.dart';
-import 'package:ridingmate/features/my_route/data/models/route_model.dart';
 
-class RouteListDataModel {
-  const RouteListDataModel({required this.routes, required this.pagination});
+class MyRouteListDataModel {
+  const MyRouteListDataModel({required this.routes, required this.pagination});
 
-  factory RouteListDataModel.fromJson(Map<String, dynamic> json) {
-    return RouteListDataModel(
+  factory MyRouteListDataModel.fromJson(Map<String, dynamic> json) {
+    return MyRouteListDataModel(
       routes:
           (json['routes'] as List<dynamic>)
               .map(
                 (dynamic item) =>
-                    RouteModel.fromJson(item as Map<String, dynamic>),
+                    MyRouteModel.fromJson(item as Map<String, dynamic>),
               )
               .toList(),
       pagination: PaginationModel.fromJson(
@@ -19,12 +19,12 @@ class RouteListDataModel {
     );
   }
 
-  final List<RouteModel> routes;
+  final List<MyRouteModel> routes;
   final PaginationModel pagination;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'routes': routes.map((RouteModel route) => route.toJson()).toList(),
+      'routes': routes.map((MyRouteModel route) => route.toJson()).toList(),
       'pagination': pagination.toJson(),
     };
   }

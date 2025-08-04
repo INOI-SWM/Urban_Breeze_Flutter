@@ -1,4 +1,4 @@
-import 'package:ridingmate/features/my_route/domain/enums/route_sort_type.dart';
+import 'package:ridingmate/features/my_route/domain/enums/my_route_sort_type.dart';
 
 class MyRouteFilter {
   factory MyRouteFilter.defaultFilter() {
@@ -7,7 +7,7 @@ class MyRouteFilter {
   const MyRouteFilter({
     this.page = 0,
     this.size = 10,
-    this.sortType = RouteSortType.newest,
+    this.sortType = MyRouteSortType.newest,
     this.relationTypes = '',
     this.minDistanceKm = 0,
     this.maxDistanceKm = 100,
@@ -17,7 +17,7 @@ class MyRouteFilter {
 
   final int page;
   final int size;
-  final RouteSortType sortType;
+  final MyRouteSortType sortType;
   final String relationTypes;
   final double minDistanceKm;
   final double maxDistanceKm;
@@ -28,7 +28,7 @@ class MyRouteFilter {
   MyRouteFilter copyWith({
     int? page,
     int? size,
-    RouteSortType? sortType,
+    MyRouteSortType? sortType,
     String? relationTypes,
     double? minDistanceKm,
     double? maxDistanceKm,

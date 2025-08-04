@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/features/my_route/data/models/route_filter_model.dart';
-import 'package:ridingmate/features/my_route/data/models/route_list_data_model.dart';
-import 'package:ridingmate/features/my_route/data/models/route_model.dart';
-import 'package:ridingmate/features/my_route/domain/entities/route.dart';
-import 'package:ridingmate/features/my_route/domain/entities/route_filter.dart';
-import 'package:ridingmate/features/my_route/domain/entities/route_list.dart';
-import 'package:ridingmate/features/my_route/domain/enums/route_sort_type.dart';
+import 'package:ridingmate/features/my_route/data/models/my_route_filter_model.dart';
+import 'package:ridingmate/features/my_route/data/models/my_route_list_data_model.dart';
+import 'package:ridingmate/features/my_route/data/models/my_route_model.dart';
+import 'package:ridingmate/features/my_route/domain/entities/my_route.dart';
+import 'package:ridingmate/features/my_route/domain/entities/my_route_filter.dart';
+import 'package:ridingmate/features/my_route/domain/entities/my_route_list.dart';
+import 'package:ridingmate/features/my_route/domain/enums/my_route_sort_type.dart';
 import 'package:ridingmate/shared/api/data/models/api_response_model.dart';
 import 'package:ridingmate/shared/filter/models/filter_data.dart';
 
-class RouteMapper {
-  /// RouteModel을 MyRoute 엔티티로 변환
-  static MyRoute fromModel(RouteModel model) {
+class MyRouteMapper {
+  /// MyRouteModel을 MyRoute 엔티티로 변환
+  static MyRoute fromModel(MyRouteModel model) {
     return MyRoute(
       id: model.id,
       title: model.title,
@@ -25,29 +25,29 @@ class RouteMapper {
     );
   }
 
-  /// MyRouteFilter를 RouteFilterModel로 변환
-  static RouteFilterModel toFilterModel(MyRouteFilter filter) {
+  /// MyRouteFilter를 MyRouteFilterModel로 변환
+  static MyRouteFilterModel toFilterModel(MyRouteFilter filter) {
     // 정렬 타입 변환
-    ApiRouteSortType apiSortType;
+    ApiRouteSortType apiSortType = ApiRouteSortType.createdAtDesc; // 기본값
     switch (filter.sortType) {
-      case RouteSortType.newest:
+      case MyRouteSortType.newest:
         apiSortType = ApiRouteSortType.createdAtDesc;
         break;
-      case RouteSortType.oldest:
+      case MyRouteSortType.oldest:
         apiSortType = ApiRouteSortType.createdAtAsc;
         break;
-      case RouteSortType.distanceLong:
+      case MyRouteSortType.distanceLong:
         apiSortType = ApiRouteSortType.distanceDesc;
         break;
-      case RouteSortType.distanceShort:
+      case MyRouteSortType.distanceShort:
         apiSortType = ApiRouteSortType.distanceAsc;
         break;
-      case RouteSortType.nearest:
+      case MyRouteSortType.nearest:
         apiSortType = ApiRouteSortType.createdAtDesc; // 기본값
         break;
     }
 
-    return RouteFilterModel(
+    return MyRouteFilterModel(
       page: filter.page,
       size: filter.size,
       sortType: apiSortType,
@@ -60,26 +60,26 @@ class RouteMapper {
   }
 
   /// UI의 필터 데이터를 API 필터 모델로 변환
-  static RouteFilterModel fromFilterData(
+  static MyRouteFilterModel fromFilterData(
     FilterData currentFilter,
-    RouteSortType selectedSortType,
+    MyRouteSortType selectedSortType,
   ) {
     // 정렬 타입 변환
-    ApiRouteSortType apiSortType;
+    ApiRouteSortType apiSortType = ApiRouteSortType.createdAtDesc; // 기본값
     switch (selectedSortType) {
-      case RouteSortType.newest:
+      case MyRouteSortType.newest:
         apiSortType = ApiRouteSortType.createdAtDesc;
         break;
-      case RouteSortType.oldest:
+      case MyRouteSortType.oldest:
         apiSortType = ApiRouteSortType.createdAtAsc;
         break;
-      case RouteSortType.distanceLong:
+      case MyRouteSortType.distanceLong:
         apiSortType = ApiRouteSortType.distanceDesc;
         break;
-      case RouteSortType.distanceShort:
+      case MyRouteSortType.distanceShort:
         apiSortType = ApiRouteSortType.distanceAsc;
         break;
-      case RouteSortType.nearest:
+      case MyRouteSortType.nearest:
         apiSortType = ApiRouteSortType.createdAtDesc; // 기본값
         break;
     }
@@ -126,7 +126,7 @@ class RouteMapper {
       }
     }
 
-    return RouteFilterModel(
+    return MyRouteFilterModel(
       page: 0,
       size: 10,
       sortType: apiSortType,
@@ -138,26 +138,26 @@ class RouteMapper {
     );
   }
 
-  /// RouteFilterModel을 MyRouteFilter로 변환
-  static MyRouteFilter fromFilterModel(RouteFilterModel model) {
+  /// MyRouteFilterModel을 MyRouteFilter로 변환
+  static MyRouteFilter fromFilterModel(MyRouteFilterModel model) {
     // 정렬 타입 변환
-    RouteSortType domainSortType;
+    MyRouteSortType domainSortType;
     switch (model.sortType) {
       case ApiRouteSortType.createdAtDesc:
-        domainSortType = RouteSortType.newest;
+        domainSortType = MyRouteSortType.newest;
         break;
       case ApiRouteSortType.createdAtAsc:
-        domainSortType = RouteSortType.oldest;
+        domainSortType = MyRouteSortType.oldest;
         break;
       case ApiRouteSortType.distanceDesc:
-        domainSortType = RouteSortType.distanceLong;
+        domainSortType = MyRouteSortType.distanceLong;
         break;
       case ApiRouteSortType.distanceAsc:
-        domainSortType = RouteSortType.distanceShort;
+        domainSortType = MyRouteSortType.distanceShort;
         break;
       case ApiRouteSortType.elevationGainDesc:
       case ApiRouteSortType.elevationGainAsc:
-        domainSortType = RouteSortType.newest; // 기본값
+        domainSortType = MyRouteSortType.newest; // 기본값
         break;
     }
 
@@ -175,12 +175,12 @@ class RouteMapper {
 
   /// ApiResponseModel을 MyRouteList 엔티티로 변환
   static MyRouteList fromApiResponse(
-    ApiResponseModel<RouteListDataModel> response,
+    ApiResponseModel<MyRouteListDataModel> response,
   ) {
-    final RouteListDataModel data = response.data;
+    final MyRouteListDataModel data = response.data;
 
     return MyRouteList(
-      routes: data.routes.map(RouteMapper.fromModel).toList(),
+      routes: data.routes.map(MyRouteMapper.fromModel).toList(),
       currentPage: data.pagination.currentPage,
       totalPages: data.pagination.totalPages,
       totalElements: data.pagination.totalElements,
