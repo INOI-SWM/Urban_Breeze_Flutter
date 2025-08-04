@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/features/my_route/application/services/my_route_service.dart';
-import 'package:ridingmate/features/my_route/presentation/config/my_route_category_config.dart';
-import 'package:ridingmate/features/my_route/presentation/config/my_route_filter_config.dart';
-import 'package:ridingmate/features/route_planning/presentation/screens/route_planning_screen.dart';
+import 'package:ridingmate/features/recommended_course/application/services/recommended_course_service.dart';
+import 'package:ridingmate/features/recommended_course/presentation/config/recommended_course_category_config.dart';
+import 'package:ridingmate/features/recommended_course/presentation/config/recommended_course_filter_config.dart';
 import 'package:ridingmate/navigation/page_with_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/route_card.dart';
@@ -13,58 +12,50 @@ import 'package:ridingmate/shared/filter/models/filter_item.dart';
 import 'package:ridingmate/shared/filter/utils/filter_display_utils.dart';
 import 'package:ridingmate/shared/sort/widgets/sort_modal.dart';
 
-class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
-  const MyRouteScreen({super.key});
+class RecommendedCourseScreen extends StatefulWidget implements PageWithAppBar {
+  const RecommendedCourseScreen({super.key});
 
   @override
-  State<MyRouteScreen> createState() => _MyRouteScreenState();
+  State<RecommendedCourseScreen> createState() =>
+      _RecommendedCourseScreenState();
 
   @override
   PreferredSizeWidget getAppBar(BuildContext context) {
-    return CustomAppBar(
-      title: '나의 경로',
-      actions: <Widget>[
-        IconButton(
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute<RoutePlanningScreen>(
-                builder: (BuildContext context) => const RoutePlanningScreen(),
-              ),
-            );
-          },
-          icon: const Icon(Icons.add),
-        ),
-      ],
+    return const CustomAppBar(
+      title: '추천 코스',
+      // 추천 코스는 사용자가 생성하는 것이 아니므로 추가 버튼 제거
     );
   }
 }
 
-class _MyRouteScreenState extends State<MyRouteScreen> {
+class _RecommendedCourseScreenState extends State<RecommendedCourseScreen> {
+  // TODO: 추천 코스용 정렬 옵션으로 변경 필요 (가까운순, 거리, 난이도)
   String selectedSortOption = SortModal.sortOptions.first;
 
-  List<FilterItem> get filters => MyRouteFilterConfig().filters;
+  // 필터 생성
+  List<FilterItem> get filters => RecommendedCourseFilterConfig().filters;
 
   late FilterData currentFilter;
 
-  List<Map<String, dynamic>> routeList = <Map<String, dynamic>>[];
+  List<Map<String, dynamic>> courseList = <Map<String, dynamic>>[];
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     currentFilter = FilterData.fromFilterItems(filters);
-    _loadRouteList();
+    _loadCourseList();
   }
 
-  Future<void> _loadRouteList() async {
+  Future<void> _loadCourseList() async {
     setState(() {
       isLoading = true;
     });
 
-    final List<Map<String, dynamic>> routes =
-        await RouteListService.fetchRouteList();
+    final List<Map<String, dynamic>> courses =
+        await RecommendedCourseService.fetchRecommendedCourseList();
     setState(() {
-      routeList = routes;
+      courseList = courses;
       isLoading = false;
     });
   }
@@ -77,7 +68,7 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
         setState(() {
           selectedSortOption = option;
         });
-        // TODO: 정렬 로직 구현
+        // TODO: 정렬 로직 구현 (거리, 난이도 기준)
       },
     );
   }
@@ -96,14 +87,14 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
         setState(() {
           currentFilter = newFilter;
         });
+        // TODO: 필터 적용 로직 구현
       },
       onReset: () {
         setState(() {
           currentFilter = FilterData.fromFilterItems(filters);
         });
+        // TODO: 초기화 후 데이터 새로고침
       },
-      showTabBar: false,
-      // TODO: 필터 적용 로직 구현
     );
   }
 
@@ -115,7 +106,7 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           CategoryFilter(
-            categories: MyRouteCategoryConfig.buildCategoryInfos(
+            categories: RecommendedCourseCategoryConfig.buildCategoryInfos(
               currentFilter,
               filters,
               selectedSortOption,
@@ -153,27 +144,27 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
             child:
                 isLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : routeList.isEmpty
-                    ? const Center(child: Text('경로가 없습니다'))
+                    : courseList.isEmpty
+                    ? const Center(child: Text('추천 코스가 없습니다'))
                     : ListView.builder(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: routeList.length,
+                      itemCount: courseList.length,
                       itemBuilder: (BuildContext context, int index) {
-                        final Map<String, dynamic> route = routeList[index];
+                        final Map<String, dynamic> course = courseList[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: RouteCard(
-                            thumbnailPath: route['thumbnailPath'],
-                            sourceType: route['sourceType'],
-                            userProfileImage: route['userProfileImage'],
-                            userName: route['userName'],
-                            routeTitle: route['title'],
-                            date: route['createDate'],
-                            distance: route['distance'],
-                            elevation: route['elevation'],
-                            cardType: RouteCardType.myRoute,
+                            thumbnailPath: course['thumbnailPath'],
+                            sourceType: course['sourceType'],
+                            routeTitle: course['title'],
+                            distance: course['distance'],
+                            elevation: course['elevation'],
+                            cardType: RouteCardType.recommendedCourse,
+                            region: course['region'],
+                            difficulty: course['difficulty'],
+                            scenery: course['scenery'],
                             onTap: () {
-                              // TODO: 경로 상세 화면으로 이동
+                              // TODO: 코스 상세 화면으로 이동
                             },
                           ),
                         );

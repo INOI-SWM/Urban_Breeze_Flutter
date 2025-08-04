@@ -12,12 +12,14 @@ class FloatingSearchAppBar extends StatelessWidget
     this.searchText,
     required this.onSearchTap,
     required this.onCloseTap,
+    required this.onClearTap,
     this.isSearchActive = false,
   });
 
   final String? searchText;
   final VoidCallback onSearchTap;
   final VoidCallback onCloseTap;
+  final VoidCallback onClearTap;
   final bool isSearchActive;
 
   @override
@@ -61,7 +63,7 @@ class FloatingSearchAppBar extends StatelessWidget
                       size: SearchFieldSize.small,
                       backgroundColor: colors.backgroundNormalNormal,
                       boxShadow: AppShadows.instance.emphasize,
-                      onClear: onCloseTap,
+                      onClear: onClearTap,
                       textColor:
                           isSearchActive
                               ? colors.labelNormal

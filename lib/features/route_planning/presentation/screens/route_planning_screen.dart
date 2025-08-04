@@ -84,6 +84,10 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   void _onCloseTap() {
+    Navigator.of(context).pop();
+  }
+
+  void _onClearTap() {
     setState(() {
       _selectedPlace = null;
       _searchedPlaces.clear();
@@ -318,7 +322,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     } else if (_searchedPlaces.isNotEmpty && _lastSearchQuery != null) {
       return _lastSearchQuery!;
     } else {
-      return '장소, 위치 검색하기';
+      return '';
     }
   }
 
@@ -463,6 +467,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                     searchText: _getSearchText(),
                     onSearchTap: _openSearchScreen,
                     onCloseTap: _onCloseTap,
+                    onClearTap: _onClearTap,
                     isSearchActive:
                         _selectedPlace != null || _searchedPlaces.isNotEmpty,
                   ),

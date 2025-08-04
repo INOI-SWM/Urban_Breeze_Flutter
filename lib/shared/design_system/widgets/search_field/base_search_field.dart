@@ -13,7 +13,7 @@ class BaseSearchField extends StatelessWidget {
     required this.backgroundColor,
     this.boxShadow,
     this.onClear,
-    this.hintText = '검색어를 입력해주세요',
+    this.hintText = '장소, 위치 검색하기',
     this.child,
     this.textColor,
     this.hintTextColor,
