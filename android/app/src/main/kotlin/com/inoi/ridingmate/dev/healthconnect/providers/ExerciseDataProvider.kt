@@ -59,9 +59,9 @@ class ExerciseDataProvider(
      * @param endTime 종료 시간
      * @return 운동 세션 데이터 목록
      */
-    suspend fun fetchExerciseSessionsFromHealthConnect(startTime: Long, endTime: Long): List<Map<String, Any>> {
+    suspend fun fetchExerciseSessionsFromHealthConnect(startTime: Long, endTime: Long): List<Map<String, Any?>> {
         return withContext(Dispatchers.IO) {
-            val exerciseSessions = mutableListOf<Map<String, Any>>()
+            val exerciseSessions = mutableListOf<Map<String, Any?>>()
             
             try {
                 val client = healthConnectManager.getClient()
@@ -113,16 +113,15 @@ class ExerciseDataProvider(
      * @param record 운동 세션 레코드
      * @return Flutter에서 사용할 Map 형태 데이터
      */
-    private fun convertExerciseSessionToMap(record: ExerciseSessionRecord): Map<String, Any> {
+    private fun convertExerciseSessionToMap(record: ExerciseSessionRecord): Map<String, Any?> {
         return mapOf(
             "id" to record.metadata.id,
             "startTime" to record.startTime.toEpochMilli(),
-            "endTime" to record.endTime.toEpochMilli(),
-            "duration" to (record.endTime.toEpochMilli() - record.startTime.toEpochMilli()),
+            "endTime" to record.endTime?.toEpochMilli(),
             "exerciseType" to record.exerciseType.toString(),
             "title" to (record.title ?: ""),
             "notes" to (record.notes ?: ""),
-            "source" to record.metadata.dataOrigin.packageName
+            "sessionId" to record.metadata.id
         )
     }
 

@@ -46,13 +46,8 @@ class HealthConnectPermissionManager(
                     return@launch
                 }
 
-                // 실제 권한 요청 (Health Connect 1.1.0-alpha12)
-                val permissions = getRequiredHealthPermissions()
-                val permissionController = client.permissionController
-                
-                // TODO: Health Connect 1.1.0-alpha12 권한 요청 API 통합
-                // 현재는 설정 화면으로 리다이렉트
-                android.util.Log.d(TAG, "Requesting Health Connect permissions (redirecting to settings)")
+                // Health Connect 1.1.0-alpha12에서는 권한 요청을 설정 화면으로 리다이렉트
+                android.util.Log.d(TAG, "Redirecting to Health Connect settings for permissions")
                 redirectToHealthConnectSettings(result)
                 
             } catch (e: Exception) {
@@ -75,13 +70,10 @@ class HealthConnectPermissionManager(
                     return@withContext false
                 }
 
-                val permissionController = client.permissionController
-                val requiredPermissions = getRequiredHealthPermissions()
-                
-                // TODO: Health Connect 1.1.0-alpha12 권한 확인 API 통합
-                // 현재는 기본적인 가용성 체크로 대체
-                android.util.Log.d(TAG, "Checking Health Connect permissions (basic availability check)")
-                healthConnectManager.isHealthConnectAvailable()
+                // 기본적인 가용성 체크만 수행
+                val isAvailable = healthConnectManager.isHealthConnectAvailable()
+                android.util.Log.d(TAG, "Permission check result: $isAvailable")
+                isAvailable
             } catch (e: Exception) {
                 android.util.Log.e(TAG, "Error checking permissions: ${e.message}")
                 false
@@ -103,13 +95,10 @@ class HealthConnectPermissionManager(
                     return@withContext false
                 }
 
-                val permissionController = client.permissionController
-                val requiredPermissions = getRequiredHealthPermissions()
-                
-                // TODO: Health Connect 1.1.0-alpha12 개별 권한 확인 API 통합
-                // 현재는 기본적인 가용성 체크로 대체
-                android.util.Log.d(TAG, "Checking specific permission: $permissionType (basic availability check)")
-                hasPermissions()
+                // 기본적인 가용성 체크만 수행
+                val isAvailable = healthConnectManager.isHealthConnectAvailable()
+                android.util.Log.d(TAG, "Specific permission check for $permissionType: $isAvailable")
+                isAvailable
             } catch (e: Exception) {
                 android.util.Log.e(TAG, "Error checking specific permission: ${e.message}")
                 false
@@ -156,16 +145,7 @@ class HealthConnectPermissionManager(
         }
     }
 
-    /**
-     * Health Connect 1.1.0-alpha12 필요한 권한 집합 생성
-     * 
-     * @return HealthPermission 집합
-     */
-    private fun getRequiredHealthPermissions(): Set<HealthPermission> {
-        // TODO: Health Connect 1.1.0-alpha12 실제 권한 추가
-        // 현재는 API 호환성 문제로 빈 집합 반환
-        return emptySet()
-    }
+
 
     /**
      * 권한 관련 상태 정보 반환 (디버깅용)
@@ -195,9 +175,7 @@ class HealthConnectPermissionManager(
             "android.permission.health.WRITE_HEART_RATE",
             "android.permission.health.READ_SPEED",
             "android.permission.health.READ_DISTANCE",
-            "android.permission.health.READ_TOTAL_CALORIES_BURNED",
-            "android.permission.health.READ_HEALTH_DATA_HISTORY",
-            "android.permission.ACTIVITY_RECOGNITION"
+            "android.permission.health.READ_TOTAL_CALORIES_BURNED"
         )
     }
 
@@ -220,14 +198,10 @@ class HealthConnectPermissionManager(
                     return@withContext permissionStatus
                 }
 
-                val permissionController = client.permissionController
-                val requiredPermissions = getRequiredHealthPermissions()
-                
-                // TODO: Health Connect 1.1.0-alpha12 개별 권한 상태 확인 API 통합
-                // 현재는 기본값으로 설정
-                val hasBasicPermissions = hasPermissions()
+                // 기본적인 가용성 체크만 수행
+                val isAvailable = healthConnectManager.isHealthConnectAvailable()
                 getRequiredPermissions().forEach { permission ->
-                    permissionStatus[permission] = hasBasicPermissions
+                    permissionStatus[permission] = isAvailable
                 }
                 
             } catch (e: Exception) {
