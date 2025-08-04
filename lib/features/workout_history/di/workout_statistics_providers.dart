@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:ridingmate/core/di/core_providers.dart';
 
 import '../application/use_cases/get_workout_statistics_use_case.dart';
+import '../application/use_cases/sync_google_health_connect_data_use_case.dart';
 import '../application/use_cases/update_workout_title_use_case.dart';
 import '../data/datasources/google_health_connect_datasource.dart';
 import '../data/datasources/remote_workout_history_datasource.dart';
@@ -90,4 +91,16 @@ final Provider<UpdateWorkoutTitleUseCase> updateWorkoutTitleUseCaseProvider =
       );
 
       return UpdateWorkoutTitleUseCase(workoutHistoryRepository: repository);
+    });
+
+final Provider<SyncGoogleHealthConnectDataUseCase>
+syncGoogleHealthConnectDataUseCaseProvider =
+    Provider<SyncGoogleHealthConnectDataUseCase>((
+      Ref<SyncGoogleHealthConnectDataUseCase> ref,
+    ) {
+      final GoogleHealthConnectSyncRepository repository = ref.watch(
+        googleHealthConnectSyncRepositoryProvider,
+      );
+
+      return SyncGoogleHealthConnectDataUseCase(repository);
     });
