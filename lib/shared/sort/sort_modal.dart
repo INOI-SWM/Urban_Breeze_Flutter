@@ -5,42 +5,39 @@ import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style
 import 'package:ridingmate/shared/design_system/widgets/modal/bottom_sheet_modal.dart';
 
 class SortModal {
-  static const List<String> sortOptions = <String>[
-    '최근 생성 순',
-    '생성 오래된 순',
-    '가까운 순',
-    '거리 긴 순',
-    '거리 짧은 순',
-  ];
-
-  static Future<String?> show({
+  static Future<T?> show<T>({
     required BuildContext context,
-    required String selectedOption,
-    required Function(String) onOptionSelected,
+    required List<T> options,
+    required T selectedOption,
+    required Function(T) onOptionSelected,
+    required String Function(T) getDisplayText,
+    String title = '정렬',
   }) {
-    return BottomSheetShow.show<String>(
+    return BottomSheetShow.show<T>(
       context: context,
-      title: '정렬',
-      content: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: List<Widget>.generate(sortOptions.length, (int i) {
-            return Column(
-              children: <Widget>[
-                _buildSortOption(
-                  context,
-                  sortOptions[i],
-                  isSelected: sortOptions[i] == selectedOption,
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    onOptionSelected(sortOptions[i]);
-                  },
-                ),
-                if (i < sortOptions.length - 1) const SizedBox(height: 20),
-              ],
-            );
-          }),
+      title: title,
+      content: IntrinsicHeight(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: List<Widget>.generate(options.length, (int i) {
+              return Column(
+                children: <Widget>[
+                  _buildSortOption(
+                    context,
+                    getDisplayText(options[i]),
+                    isSelected: options[i] == selectedOption,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      onOptionSelected(options[i]);
+                    },
+                  ),
+                  if (i < options.length - 1) const SizedBox(height: 20),
+                ],
+              );
+            }),
+          ),
         ),
       ),
     );
