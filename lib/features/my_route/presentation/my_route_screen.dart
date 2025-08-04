@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/features/my_route/application/services/my_route_service.dart';
+import 'package:ridingmate/features/my_route/application/usecases/get_route_list_usecase.dart';
+import 'package:ridingmate/features/my_route/application/utils/filter_converter.dart';
+import 'package:ridingmate/features/my_route/data/datasources/route_remote_datasource.dart';
+import 'package:ridingmate/features/my_route/data/models/route_filter_model.dart';
+import 'package:ridingmate/features/my_route/data/models/route_model.dart';
+import 'package:ridingmate/features/my_route/data/repositories/route_repository_impl.dart';
 import 'package:ridingmate/features/my_route/domain/enums/route_sort_type.dart';
 import 'package:ridingmate/features/my_route/presentation/config/my_route_category_config.dart';
 import 'package:ridingmate/features/my_route/presentation/config/my_route_filter_config.dart';
@@ -8,6 +13,7 @@ import 'package:ridingmate/navigation/page_with_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/route_card.dart';
 import 'package:ridingmate/shared/design_system/widgets/category/category_filter.dart';
+import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
 import 'package:ridingmate/shared/filter/filter_modal.dart';
 import 'package:ridingmate/shared/filter/models/filter_data.dart';
 import 'package:ridingmate/shared/filter/models/filter_item.dart';
@@ -47,13 +53,24 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
 
   late FilterData currentFilter;
 
-  List<Map<String, dynamic>> routeList = <Map<String, dynamic>>[];
+  List<RouteModel> routeList = <RouteModel>[];
   bool isLoading = true;
+
+  // UseCase 및 Repository 인스턴스
+  late final GetRouteListUseCase _getRouteListUseCase;
 
   @override
   void initState() {
     super.initState();
     currentFilter = FilterData.fromFilterItems(filters);
+
+    // UseCase 초기화
+    final RouteRemoteDataSource dataSource = RouteRemoteDataSource();
+    final RouteRepositoryImpl repository = RouteRepositoryImpl(
+      remoteDataSource: dataSource,
+    );
+    _getRouteListUseCase = GetRouteListUseCase(repository: repository);
+
     _loadRouteList();
   }
 
@@ -62,8 +79,15 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
       isLoading = true;
     });
 
-    final List<Map<String, dynamic>> routes =
-        await RouteListService.fetchRouteList();
+    final RouteFilterModel filter = FilterConverter.convertFilterToApiFilter(
+      currentFilter,
+      selectedSortOption,
+    );
+
+    final List<RouteModel> routes = await _getRouteListUseCase.execute(
+      filter: filter,
+    );
+
     setState(() {
       routeList = routes;
       isLoading = false;
@@ -79,7 +103,7 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
         setState(() {
           selectedSortOption = option;
         });
-        // TODO: 정렬 로직 구현
+        _loadRouteList();
       },
       getDisplayText: (RouteSortType option) => option.displayName,
     );
@@ -99,14 +123,15 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
         setState(() {
           currentFilter = newFilter;
         });
+        _loadRouteList();
       },
       onReset: () {
         setState(() {
           currentFilter = FilterData.fromFilterItems(filters);
         });
+        _loadRouteList();
       },
       showTabBar: false,
-      // TODO: 필터 적용 로직 구현
     );
   }
 
@@ -162,18 +187,18 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
                       physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: routeList.length,
                       itemBuilder: (BuildContext context, int index) {
-                        final Map<String, dynamic> route = routeList[index];
+                        final RouteModel route = routeList[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: RouteCard(
-                            thumbnailPath: route['thumbnailPath'],
-                            sourceType: route['sourceType'],
-                            userProfileImage: route['userProfileImage'],
-                            userName: route['userName'],
-                            routeTitle: route['title'],
-                            date: route['createDate'],
-                            distance: route['distance'],
-                            elevation: route['elevation'],
+                            thumbnailPath: route.thumbnailUrl,
+                            sourceType: ThumbnailSourceType.network,
+                            userProfileImage: route.profileImageUrl,
+                            userName: route.nickname,
+                            routeTitle: route.title,
+                            date: route.createdAt.split('T')[0],
+                            distance: '${route.distance}km',
+                            elevation: '${route.elevationGain}m',
                             cardType: RouteCardType.myRoute,
                             onTap: () {
                               // TODO: 경로 상세 화면으로 이동
