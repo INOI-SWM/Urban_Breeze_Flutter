@@ -1,5 +1,5 @@
-class Route {
-  const Route({
+class MyRoute {
+  const MyRoute({
     required this.id,
     required this.title,
     required this.thumbnailUrl,
@@ -21,6 +21,12 @@ class Route {
   final String nickname;
   final String profileImageUrl;
 
+  /// 거리 표시용 문자열 반환 km
+  String get distanceDisplay => '$distance km';
+
+  /// 상승 고도 표시용 문자열 반환 m
+  String get elevationGainDisplay => '$elevationGain m';
+
   /// 생성일 표시용 문자열 반환 (YYYY-MM-DD 형식)
   String get createdAtDisplay =>
       '${createdAt.year}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.day.toString().padLeft(2, '0')}';
@@ -28,7 +34,7 @@ class Route {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is Route && other.id == id;
+    return other is MyRoute && other.id == id;
   }
 
   @override
@@ -36,6 +42,6 @@ class Route {
 
   @override
   String toString() {
-    return 'Route(id: $id, title: $title, distance: $distance, elevationGain: $elevationGain)';
+    return 'MyRoute(id: $id, title: $title, distance: $distance, elevationGain: $elevationGain)';
   }
 }

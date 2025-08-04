@@ -1,10 +1,9 @@
 import 'package:ridingmate/features/my_route/domain/entities/route.dart';
 
-class RouteList {
-  /// 빈 경로 목록 생성
-  factory RouteList.empty() {
-    return const RouteList(
-      routes: <Route>[],
+class MyRouteList {
+  factory MyRouteList.empty() {
+    return const MyRouteList(
+      routes: <MyRoute>[],
       currentPage: 0,
       totalPages: 0,
       totalElements: 0,
@@ -13,7 +12,7 @@ class RouteList {
       hasPrevious: false,
     );
   }
-  const RouteList({
+  const MyRouteList({
     required this.routes,
     required this.currentPage,
     required this.totalPages,
@@ -23,7 +22,7 @@ class RouteList {
     required this.hasPrevious,
   });
 
-  final List<Route> routes;
+  final List<MyRoute> routes;
   final int currentPage;
   final int totalPages;
   final int totalElements;
@@ -34,7 +33,7 @@ class RouteList {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is RouteList &&
+    return other is MyRouteList &&
         other.currentPage == currentPage &&
         other.totalPages == totalPages &&
         other.totalElements == totalElements;
@@ -47,6 +46,6 @@ class RouteList {
 
   @override
   String toString() {
-    return 'RouteList(routes: ${routes.length}, currentPage: $currentPage, totalPages: $totalPages)';
+    return 'MyRouteList(routes: ${routes.length}, currentPage: $currentPage, totalPages: $totalPages)';
   }
 }

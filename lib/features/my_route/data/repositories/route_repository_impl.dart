@@ -14,7 +14,7 @@ class RouteRepositoryImpl implements RouteRepository {
   final RouteRemoteDataSource _remoteDataSource;
 
   @override
-  Future<RouteList> getRouteList(RouteFilter filter) async {
+  Future<MyRouteList> getRouteList(MyRouteFilter filter) async {
     // 도메인 엔티티를 data 모델로 변환
     final RouteFilterModel filterModel = RouteMapper.toFilterModel(filter);
 

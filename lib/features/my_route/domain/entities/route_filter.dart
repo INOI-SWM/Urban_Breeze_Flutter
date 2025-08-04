@@ -1,7 +1,10 @@
 import 'package:ridingmate/features/my_route/domain/enums/route_sort_type.dart';
 
-class RouteFilter {
-  const RouteFilter({
+class MyRouteFilter {
+  factory MyRouteFilter.defaultFilter() {
+    return const MyRouteFilter();
+  }
+  const MyRouteFilter({
     this.page = 0,
     this.size = 10,
     this.sortType = RouteSortType.newest,
@@ -22,7 +25,7 @@ class RouteFilter {
   final double maxElevationGain;
 
   /// 필터 업데이트
-  RouteFilter copyWith({
+  MyRouteFilter copyWith({
     int? page,
     int? size,
     RouteSortType? sortType,
@@ -32,7 +35,7 @@ class RouteFilter {
     double? minElevationGain,
     double? maxElevationGain,
   }) {
-    return RouteFilter(
+    return MyRouteFilter(
       page: page ?? this.page,
       size: size ?? this.size,
       sortType: sortType ?? this.sortType,
