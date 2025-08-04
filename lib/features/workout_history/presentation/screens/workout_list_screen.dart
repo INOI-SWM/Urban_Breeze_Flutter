@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/workout_history/application/use_cases/sync_apple_health_kit_data_use_case.dart';
+import 'package:ridingmate/features/workout_history/application/use_cases/sync_google_health_connect_data_use_case.dart';
 import 'package:ridingmate/features/workout_history/presentation/screens/workout_detail_screen.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
@@ -11,16 +14,16 @@ import 'package:ridingmate/shared/sort/sort_modal.dart';
 import 'package:ridingmate/shared/utils/date_formatter.dart';
 import 'package:ridingmate/shared/utils/workout_formatter.dart';
 
-import '../../data/repositories/apple_health_kit_sync_repository_impl.dart';
+import '../../di/workout_statistics_providers.dart';
 import '../../domain/entities/workout_record.dart';
 import '../../domain/enums/workout_sort_type.dart';
 
 //TODO : 추후 api 개발 시 에러 처리 추가
-class WorkoutListScreen extends StatefulWidget {
+class WorkoutListScreen extends ConsumerStatefulWidget {
   const WorkoutListScreen({super.key});
 
   @override
-  State<WorkoutListScreen> createState() => _WorkoutListScreenState();
+  ConsumerState<WorkoutListScreen> createState() => _WorkoutListScreenState();
 }
 
 enum ViewMode { list, grid }
@@ -146,27 +149,37 @@ class _WorkoutGridItem extends StatelessWidget {
   }
 }
 
-class _WorkoutListScreenState extends State<WorkoutListScreen> {
+class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   bool _isLoading = false;
   List<WorkoutRecord> _workouts = <WorkoutRecord>[];
   ViewMode _viewMode = ViewMode.list;
   WorkoutSortType _sortType = WorkoutSortType.newest;
 
-  final AppleHealthKitSyncRepositoryImpl _repository =
-      AppleHealthKitSyncRepositoryImpl();
+  // Apple Health Kit 관련 메서드들
+  Future<void> _requestAppleHealthKitPermissions() async {
+    try {
+      final SyncAppleHealthKitDataUseCase useCase = ref.read(
+        syncAppleHealthKitDataUseCaseProvider,
+      );
+      await useCase.requestPermissions();
+    } catch (e) {
+      // TODO : 권한 요청 실패 시 에러 처리
+    }
+  }
 
-  Future<void> _testGetCyclingWorkouts() async {
+  Future<void> _testGetAppleHealthKitWorkouts() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      // todo : 추후 서버 API 호출로 변경
-      final List<WorkoutRecord> workouts = await _repository
-          .fetchCyclingWorkoutsFromHealthKit(
-            startDate: DateTime.now().subtract(const Duration(days: 30)),
-            endDate: DateTime.now(),
-          );
+      final SyncAppleHealthKitDataUseCase useCase = ref.read(
+        syncAppleHealthKitDataUseCaseProvider,
+      );
+      final List<WorkoutRecord> workouts = await useCase.fetchBasicWorkoutData(
+        startDate: DateTime.now().subtract(const Duration(days: 30)),
+        endDate: DateTime.now(),
+      );
 
       setState(() {
         _workouts = _sortWorkouts(workouts);
@@ -179,12 +192,51 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
     }
   }
 
-  Future<void> _requestPermissions() async {
+  // Google Health Connect 관련 메서드들
+  Future<void> _requestGoogleHealthConnectPermissions() async {
     try {
-      await _repository.requestPermissions();
+      final SyncGoogleHealthConnectDataUseCase useCase = ref.read(
+        syncGoogleHealthConnectDataUseCaseProvider,
+      );
+      await useCase.requestPermissions();
     } catch (e) {
-      // TODO : 권한 요청 실패 시 무시
+      // TODO : 권한 요청 실패 시 에러 처리
+      // print('Google Health Connect 권한 요청 실패: $e');
     }
+  }
+
+  Future<void> _testGetGoogleHealthConnectWorkouts() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final SyncGoogleHealthConnectDataUseCase useCase = ref.read(
+        syncGoogleHealthConnectDataUseCaseProvider,
+      );
+      final List<WorkoutRecord> workouts = await useCase.fetchBasicWorkoutData(
+        startDate: DateTime.now().subtract(const Duration(days: 30)),
+        endDate: DateTime.now(),
+      );
+
+      setState(() {
+        _workouts = _sortWorkouts(workouts);
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      // print('Google Health Connect 데이터 조회 실패: $e');
+    }
+  }
+
+  Future<void> _testGetCyclingWorkouts() async {
+    await _testGetAppleHealthKitWorkouts();
+  }
+
+  Future<void> _requestPermissions() async {
+    await _requestAppleHealthKitPermissions();
   }
 
   void _navigateToWorkoutDetail(WorkoutRecord workout, int index) {
@@ -263,41 +315,93 @@ class _WorkoutListScreenState extends State<WorkoutListScreen> {
 
   // TODO: 개발 완료 후 이 메서드 전체 삭제 예정
   Widget _buildTestButtons() {
-    return Row(
+    return Column(
       children: <Widget>[
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: _requestPermissions,
-            icon: const Icon(Icons.security),
-            label: const Text('권한 요청'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
+        // Apple Health Kit 버튼들
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: _requestPermissions,
+                icon: const Icon(Icons.security),
+                label: const Text('Apple 권한'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
             ),
-          ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: _isLoading ? null : _testGetCyclingWorkouts,
+                icon:
+                    _isLoading
+                        ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                        : const Icon(Icons.directions_bike),
+                label: Text(_isLoading ? '로딩 중...' : 'Apple 데이터'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
+          ],
         ),
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: _isLoading ? null : _testGetCyclingWorkouts,
-            icon:
-                _isLoading
-                    ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                    : const Icon(Icons.directions_bike),
-            label: Text(_isLoading ? '로딩 중...' : ' 데이터 가져오기'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
+        const SizedBox(height: 8),
+        // Google Health Connect 버튼들
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: _requestGoogleHealthConnectPermissions,
+                icon: const Icon(Icons.security),
+                label: const Text('Google 권한'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
             ),
-          ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed:
+                    _isLoading ? null : _testGetGoogleHealthConnectWorkouts,
+                icon:
+                    _isLoading
+                        ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                        : const Icon(Icons.directions_bike),
+                label: Text(_isLoading ? '로딩 중...' : 'Google 데이터'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );

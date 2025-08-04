@@ -23,4 +23,20 @@ class SyncAppleHealthKitDataUseCase {
     //TODO: 서버 저장
     return completeData;
   }
+
+  /// 운동 기록만 조회 (상세 데이터 없이)
+  Future<List<WorkoutRecord>> fetchBasicWorkoutData({
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    try {
+      return await _repository.fetchCyclingWorkoutsFromHealthKit(
+        startDate: startDate,
+        endDate: endDate,
+      );
+    } catch (e) {
+      // TODO: 에러 처리 로직 추가
+      rethrow;
+    }
+  }
 }
