@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/features/my_route/application/usecases/get_route_list_usecase.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/features/my_route/application/utils/filter_converter.dart';
-import 'package:ridingmate/features/my_route/data/datasources/route_remote_datasource.dart';
 import 'package:ridingmate/features/my_route/data/models/route_filter_model.dart';
-import 'package:ridingmate/features/my_route/data/models/route_model.dart';
-import 'package:ridingmate/features/my_route/data/repositories/route_repository_impl.dart';
+import 'package:ridingmate/features/my_route/di/my_route_providers.dart';
+import 'package:ridingmate/features/my_route/domain/entities/route.dart';
 import 'package:ridingmate/features/my_route/domain/enums/route_sort_type.dart';
 import 'package:ridingmate/features/my_route/presentation/config/my_route_category_config.dart';
 import 'package:ridingmate/features/my_route/presentation/config/my_route_filter_config.dart';
@@ -20,11 +19,11 @@ import 'package:ridingmate/shared/filter/models/filter_item.dart';
 import 'package:ridingmate/shared/filter/utils/filter_display_utils.dart';
 import 'package:ridingmate/shared/sort/sort_modal.dart';
 
-class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
+class MyRouteScreen extends ConsumerStatefulWidget implements PageWithAppBar {
   const MyRouteScreen({super.key});
 
   @override
-  State<MyRouteScreen> createState() => _MyRouteScreenState();
+  ConsumerState<MyRouteScreen> createState() => _MyRouteScreenState();
 
   @override
   PreferredSizeWidget getAppBar(BuildContext context) {
@@ -46,31 +45,20 @@ class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
   }
 }
 
-class _MyRouteScreenState extends State<MyRouteScreen> {
+class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
   RouteSortType selectedSortOption = RouteSortType.newest;
 
   List<FilterItem> get filters => MyRouteFilterConfig().filters;
 
   late FilterData currentFilter;
 
-  List<RouteModel> routeList = <RouteModel>[];
+  List<Route> routeList = <Route>[];
   bool isLoading = true;
-
-  // UseCase 및 Repository 인스턴스
-  late final GetRouteListUseCase _getRouteListUseCase;
 
   @override
   void initState() {
     super.initState();
     currentFilter = FilterData.fromFilterItems(filters);
-
-    // UseCase 초기화
-    final RouteRemoteDataSource dataSource = RouteRemoteDataSource();
-    final RouteRepositoryImpl repository = RouteRepositoryImpl(
-      remoteDataSource: dataSource,
-    );
-    _getRouteListUseCase = GetRouteListUseCase(repository: repository);
-
     _loadRouteList();
   }
 
@@ -84,9 +72,9 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
       selectedSortOption,
     );
 
-    final List<RouteModel> routes = await _getRouteListUseCase.execute(
-      filter: filter,
-    );
+    final List<Route> routes = await ref
+        .read(getRouteListUseCaseProvider)
+        .execute(filter: filter);
 
     setState(() {
       routeList = routes;
@@ -187,7 +175,7 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
                       physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: routeList.length,
                       itemBuilder: (BuildContext context, int index) {
-                        final RouteModel route = routeList[index];
+                        final domain.Route route = routeList[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: RouteCard(
@@ -196,9 +184,9 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
                             userProfileImage: route.profileImageUrl,
                             userName: route.nickname,
                             routeTitle: route.title,
-                            date: route.createdAt.split('T')[0],
-                            distance: '${route.distance}km',
-                            elevation: '${route.elevationGain}m',
+                            date: route.createdAtDisplay,
+                            distance: route.distanceDisplay,
+                            elevation: route.elevationDisplay,
                             cardType: RouteCardType.myRoute,
                             onTap: () {
                               // TODO: 경로 상세 화면으로 이동
