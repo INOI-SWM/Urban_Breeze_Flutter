@@ -1,8 +1,7 @@
-import 'package:ridingmate/features/my_route/data/models/route_filter_model.dart';
-import 'package:ridingmate/features/my_route/data/models/route_list_data_model.dart';
-import 'package:ridingmate/features/my_route/data/models/route_model.dart';
+import 'package:ridingmate/features/my_route/domain/entities/route.dart';
+import 'package:ridingmate/features/my_route/domain/entities/route_filter.dart';
+import 'package:ridingmate/features/my_route/domain/entities/route_list.dart';
 import 'package:ridingmate/features/my_route/domain/repositories/route_repository.dart';
-import 'package:ridingmate/shared/api/data/models/api_response_model.dart';
 
 class GetRouteListUseCase {
   const GetRouteListUseCase({required RouteRepository repository})
@@ -10,15 +9,14 @@ class GetRouteListUseCase {
 
   final RouteRepository _repository;
 
-  Future<List<RouteModel>> execute({RouteFilterModel? filter}) async {
+  Future<List<Route>> execute({RouteFilter? filter}) async {
     try {
-      final RouteFilterModel filterModel = filter ?? const RouteFilterModel();
-      final ApiResponseModel<RouteListDataModel> response = await _repository
-          .getRouteList(filterModel);
-      return response.data.routes;
+      final RouteFilter filterModel = filter ?? const RouteFilter();
+      final RouteList routeList = await _repository.getRouteList(filterModel);
+      return routeList.routes;
     } catch (e) {
       // 에러 발생 시 빈 리스트 반환
-      return <RouteModel>[];
+      return <Route>[];
     }
   }
 }
