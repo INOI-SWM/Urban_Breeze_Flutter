@@ -54,7 +54,7 @@ class GoogleHealthConnectMapper {
         timestamp: DateTime.fromMillisecondsSinceEpoch(
           data['timestamp'] as int,
         ),
-        distance: (data['distance'] as num).toDouble(),
+        distance: (data['distanceMeters'] as num).toDouble(), // 미터 단위 사용
       );
     }).toList();
   }

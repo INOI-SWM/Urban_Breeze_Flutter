@@ -214,10 +214,14 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
       final SyncGoogleHealthConnectDataUseCase useCase = ref.read(
         syncGoogleHealthConnectDataUseCaseProvider,
       );
-      final List<WorkoutRecord> workouts = await useCase.fetchBasicWorkoutData(
-        startDate: DateTime.now().subtract(const Duration(days: 30)),
-        endDate: DateTime.now(),
-      );
+      final Map<WorkoutRecord, Map<String, dynamic>> completeData =
+          await useCase.syncCompleteWorkoutData(
+            startDate: DateTime.now().subtract(const Duration(days: 365)), // 1년
+            endDate: DateTime.now(),
+          );
+
+      // WorkoutRecord만 추출하여 리스트로 변환
+      final List<WorkoutRecord> workouts = completeData.keys.toList();
 
       setState(() {
         _workouts = _sortWorkouts(workouts);
