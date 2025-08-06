@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/features/my_route/application/services/my_route_service.dart';
-import 'package:ridingmate/features/my_route/domain/enums/route_sort_type.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ridingmate/core/result/app_result.dart';
+import 'package:ridingmate/features/my_route/di/my_route_providers.dart';
+import 'package:ridingmate/features/my_route/domain/entities/my_route.dart';
+import 'package:ridingmate/features/my_route/domain/entities/my_route_list.dart';
+import 'package:ridingmate/features/my_route/domain/enums/my_route_sort_type.dart';
 import 'package:ridingmate/features/my_route/presentation/config/my_route_category_config.dart';
 import 'package:ridingmate/features/my_route/presentation/config/my_route_filter_config.dart';
 import 'package:ridingmate/features/route_planning/presentation/screens/route_planning_screen.dart';
@@ -8,17 +12,18 @@ import 'package:ridingmate/navigation/page_with_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/route_card.dart';
 import 'package:ridingmate/shared/design_system/widgets/category/category_filter.dart';
+import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
 import 'package:ridingmate/shared/filter/filter_modal.dart';
 import 'package:ridingmate/shared/filter/models/filter_data.dart';
 import 'package:ridingmate/shared/filter/models/filter_item.dart';
 import 'package:ridingmate/shared/filter/utils/filter_display_utils.dart';
 import 'package:ridingmate/shared/sort/sort_modal.dart';
 
-class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
+class MyRouteScreen extends ConsumerStatefulWidget implements PageWithAppBar {
   const MyRouteScreen({super.key});
 
   @override
-  State<MyRouteScreen> createState() => _MyRouteScreenState();
+  ConsumerState<MyRouteScreen> createState() => _MyRouteScreenState();
 
   @override
   PreferredSizeWidget getAppBar(BuildContext context) {
@@ -40,15 +45,16 @@ class MyRouteScreen extends StatefulWidget implements PageWithAppBar {
   }
 }
 
-class _MyRouteScreenState extends State<MyRouteScreen> {
-  RouteSortType selectedSortOption = RouteSortType.newest;
+class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
+  MyRouteSortType selectedSortOption = MyRouteSortType.newest;
 
   List<FilterItem> get filters => MyRouteFilterConfig().filters;
 
   late FilterData currentFilter;
 
-  List<Map<String, dynamic>> routeList = <Map<String, dynamic>>[];
+  MyRouteList routeList = MyRouteList.empty();
   bool isLoading = true;
+  String? errorMessage;
 
   @override
   void initState() {
@@ -60,28 +66,36 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
   Future<void> _loadRouteList() async {
     setState(() {
       isLoading = true;
+      errorMessage = null;
     });
 
-    final List<Map<String, dynamic>> routes =
-        await RouteListService.fetchRouteList();
+    final AppResult<MyRouteList> result = await ref
+        .read(getMyRouteListUseCaseProvider)
+        .execute(filterData: currentFilter, sortType: selectedSortOption);
+
     setState(() {
-      routeList = routes;
       isLoading = false;
+      if (result.isSuccess) {
+        routeList = result.dataOrNull!;
+      } else {
+        errorMessage = result.exceptionOrNull?.message ?? '알 수 없는 오류가 발생했습니다';
+        routeList = MyRouteList.empty();
+      }
     });
   }
 
   void _showSortModal() {
-    SortModal.show<RouteSortType>(
+    SortModal.show<MyRouteSortType>(
       context: context,
-      options: RouteSortType.values,
+      options: MyRouteSortType.values,
       selectedOption: selectedSortOption,
-      onOptionSelected: (RouteSortType option) {
+      onOptionSelected: (MyRouteSortType option) {
         setState(() {
           selectedSortOption = option;
         });
-        // TODO: 정렬 로직 구현
+        _loadRouteList();
       },
-      getDisplayText: (RouteSortType option) => option.displayName,
+      getDisplayText: (MyRouteSortType option) => option.displayName,
     );
   }
 
@@ -99,14 +113,15 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
         setState(() {
           currentFilter = newFilter;
         });
+        _loadRouteList();
       },
       onReset: () {
         setState(() {
           currentFilter = FilterData.fromFilterItems(filters);
         });
+        _loadRouteList();
       },
       showTabBar: false,
-      // TODO: 필터 적용 로직 구현
     );
   }
 
@@ -126,7 +141,7 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
             selectedCategories: FilterDisplayUtils.getSelectedCategories(
               currentFilter,
               filters,
-              selectedSortOption != RouteSortType.newest
+              selectedSortOption != MyRouteSortType.newest
                   ? selectedSortOption.displayName
                   : null,
             ),
@@ -156,24 +171,26 @@ class _MyRouteScreenState extends State<MyRouteScreen> {
             child:
                 isLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : routeList.isEmpty
+                    : errorMessage != null
+                    ? Center(child: Text('오류: $errorMessage'))
+                    : routeList.routes.isEmpty
                     ? const Center(child: Text('경로가 없습니다'))
                     : ListView.builder(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: routeList.length,
+                      itemCount: routeList.routes.length,
                       itemBuilder: (BuildContext context, int index) {
-                        final Map<String, dynamic> route = routeList[index];
+                        final MyRoute route = routeList.routes[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: RouteCard(
-                            thumbnailPath: route['thumbnailPath'],
-                            sourceType: route['sourceType'],
-                            userProfileImage: route['userProfileImage'],
-                            userName: route['userName'],
-                            routeTitle: route['title'],
-                            date: route['createDate'],
-                            distance: route['distance'],
-                            elevation: route['elevation'],
+                            thumbnailPath: route.thumbnailUrl,
+                            sourceType: ThumbnailSourceType.network,
+                            userProfileImage: route.profileImageUrl,
+                            userName: route.nickname,
+                            routeTitle: route.title,
+                            date: route.createdAtDisplay,
+                            distance: route.distanceDisplay,
+                            elevation: route.elevationGainDisplay,
                             cardType: RouteCardType.myRoute,
                             onTap: () {
                               // TODO: 경로 상세 화면으로 이동
