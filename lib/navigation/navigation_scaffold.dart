@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/home/presentation/screens/home_screen.dart';
-import 'package:ridingmate/features/my_route/presentation/my_route_screen.dart';
+import 'package:ridingmate/features/my_route/presentation/screens/my_route_screen.dart';
 import 'package:ridingmate/features/profile/presentation/pages/profile_page.dart';
 import 'package:ridingmate/features/recommended_course/presentation/screens/recommended_course_screen.dart';
 import 'package:ridingmate/features/workout_history/presentation/pages/workout_history_page.dart';

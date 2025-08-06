@@ -13,6 +13,7 @@ import 'package:ridingmate/features/route_planning/domain/entities/route_segment
 import 'package:ridingmate/features/route_planning/presentation/screens/route_create_complete_screen.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_creation_actions.dart';
+import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/marker/route_pin_marker.dart';
 import 'package:ridingmate/shared/map/common_map_widgets.dart';
@@ -350,145 +351,153 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
   @override
   Widget build(BuildContext context) {
+    final SemanticColors colors = context.semanticColor;
     if (_isLocationLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    return Column(
-      children: <Widget>[
-        Expanded(
-          child: Stack(
-            children: <Widget>[
-              FlutterMap(
-                mapController: _mapController,
-                options: MapOptions(
-                  initialCenter: _currentPosition ?? initialCenter,
-                  initialZoom: initialZoom,
-                  interactionOptions: const InteractionOptions(
-                    flags: InteractiveFlag.all,
-                  ),
-                  onTap: (_, LatLng position) => _addPin(position),
-                ),
+    return Scaffold(
+      backgroundColor: colors.backgroundNormalNormal,
+      body: SafeArea(
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: Stack(
                 children: <Widget>[
-                  CommonMapWidgets.createTileLayer(),
-                  CommonMapWidgets.createAttributionWidget(),
-                  if (_currentPosition != null)
-                    MarkerLayer(
-                      markers: <Marker>[
-                        Marker(
-                          point: _currentPosition!,
-                          width: 32,
-                          height: 32,
-                          child: Image.asset(
-                            'assets/icons/png/current_location_pin.png',
-                          ),
-                        ),
-                      ],
+                  FlutterMap(
+                    mapController: _mapController,
+                    options: MapOptions(
+                      initialCenter: _currentPosition ?? initialCenter,
+                      initialZoom: initialZoom,
+                      interactionOptions: const InteractionOptions(
+                        flags: InteractiveFlag.all,
+                      ),
+                      onTap: (_, LatLng position) => _addPin(position),
                     ),
-                  PolylineLayer<LatLng>(
-                    polylines:
-                        _routeSegments
-                            .map(
-                              (RouteSegment segment) => Polyline<LatLng>(
-                                points: segment.points,
-                                color: context.semanticColor.primaryNormal,
-                                strokeWidth: MapConstants.polylineStrokeWidth,
-                              ),
-                            )
-                            .toList(),
-                  ),
-                  MarkerLayer(
-                    markers:
-                        _pins.asMap().entries.map((
-                          MapEntry<int, LatLng> entry,
-                        ) {
-                          final int index = entry.key;
-                          final LatLng position = entry.value;
-                          return Marker(
-                            point: position,
-                            width: 24,
-                            height: 24,
-                            child: RoutePinMarker(index: index),
-                          );
-                        }).toList(),
-                  ),
-                  // 검색된 장소 마커
-                  if (_selectedPlace != null || _searchedPlaces.isNotEmpty)
-                    MarkerLayer(
-                      markers: <Marker>[
-                        // 단일 선택된 장소 마커
-                        if (_selectedPlace != null)
-                          Marker(
-                            point: LatLng(
-                              _selectedPlace!.latitude,
-                              _selectedPlace!.longitude,
-                            ),
-                            width: 34,
-                            height: 34,
-                            child: GestureDetector(
-                              onTap: _onMarkerTap,
-                              child: Icon(
-                                Icons.place,
-                                color: context.semanticColor.primaryNormal,
-                                size: 40,
+                    children: <Widget>[
+                      CommonMapWidgets.createTileLayer(),
+                      CommonMapWidgets.createAttributionWidget(),
+                      if (_currentPosition != null)
+                        MarkerLayer(
+                          markers: <Marker>[
+                            Marker(
+                              point: _currentPosition!,
+                              width: 32,
+                              height: 32,
+                              child: Image.asset(
+                                'assets/icons/png/current_location_pin.png',
                               ),
                             ),
-                          ),
-                        // 검색 결과 전체 장소 마커들
-                        ..._searchedPlaces.map(
-                          (Place place) => Marker(
-                            point: LatLng(place.latitude, place.longitude),
-                            width: 34,
-                            height: 34,
-                            child: GestureDetector(
-                              onTap: () => _onSearchResultMarkerTap(place),
-                              child: Icon(
-                                Icons.location_on,
-                                color: context.semanticColor.primaryNormal,
-                                size: 34,
-                              ),
-                            ),
-                          ),
+                          ],
                         ),
-                      ],
+                      PolylineLayer<LatLng>(
+                        polylines:
+                            _routeSegments
+                                .map(
+                                  (RouteSegment segment) => Polyline<LatLng>(
+                                    points: segment.points,
+                                    color: colors.primaryNormal,
+                                    strokeWidth:
+                                        MapConstants.polylineStrokeWidth,
+                                  ),
+                                )
+                                .toList(),
+                      ),
+                      MarkerLayer(
+                        markers:
+                            _pins.asMap().entries.map((
+                              MapEntry<int, LatLng> entry,
+                            ) {
+                              final int index = entry.key;
+                              final LatLng position = entry.value;
+                              return Marker(
+                                point: position,
+                                width: 24,
+                                height: 24,
+                                child: RoutePinMarker(index: index),
+                              );
+                            }).toList(),
+                      ),
+                      // 검색된 장소 마커
+                      if (_selectedPlace != null || _searchedPlaces.isNotEmpty)
+                        MarkerLayer(
+                          markers: <Marker>[
+                            // 단일 선택된 장소 마커
+                            if (_selectedPlace != null)
+                              Marker(
+                                point: LatLng(
+                                  _selectedPlace!.latitude,
+                                  _selectedPlace!.longitude,
+                                ),
+                                width: 34,
+                                height: 34,
+                                child: GestureDetector(
+                                  onTap: _onMarkerTap,
+                                  child: Icon(
+                                    Icons.place,
+                                    color: colors.primaryNormal,
+                                    size: 40,
+                                  ),
+                                ),
+                              ),
+                            // 검색 결과 전체 장소 마커들
+                            ..._searchedPlaces.map(
+                              (Place place) => Marker(
+                                point: LatLng(place.latitude, place.longitude),
+                                width: 34,
+                                height: 34,
+                                child: GestureDetector(
+                                  onTap: () => _onSearchResultMarkerTap(place),
+                                  child: Icon(
+                                    Icons.location_on,
+                                    color: colors.primaryNormal,
+                                    size: 34,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                  if (_isRouteLoading)
+                    const Positioned.fill(
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  if (!_isSaveMode)
+                    Positioned(
+                      top: 30,
+                      left: 0,
+                      right: 0,
+                      child: FloatingSearchAppBar(
+                        searchText: _getSearchText(),
+                        onSearchTap: _openSearchScreen,
+                        onCloseTap: _onCloseTap,
+                        onClearTap: _onClearTap,
+                        isSearchActive:
+                            _selectedPlace != null ||
+                            _searchedPlaces.isNotEmpty,
+                      ),
+                    ),
+                  if (!_isSaveMode)
+                    Positioned(
+                      right: 16,
+                      bottom: 16,
+                      child: RouteCreationActionButtons(
+                        isPinButtonPressed: _isButtonPressed,
+                        onTogglePinButton: _toggleButtonState,
+                        onRemoveLastPin: _removeLastPin,
+                        onMoveToCurrentLocation: _moveToCurrentLocation,
+                        hasPins: _pins.isNotEmpty,
+                      ),
                     ),
                 ],
               ),
-              if (_isRouteLoading)
-                const Positioned.fill(
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-              if (!_isSaveMode)
-                Positioned(
-                  top: 30,
-                  left: 0,
-                  right: 0,
-                  child: FloatingSearchAppBar(
-                    searchText: _getSearchText(),
-                    onSearchTap: _openSearchScreen,
-                    onCloseTap: _onCloseTap,
-                    onClearTap: _onClearTap,
-                    isSearchActive:
-                        _selectedPlace != null || _searchedPlaces.isNotEmpty,
-                  ),
-                ),
-              if (!_isSaveMode)
-                Positioned(
-                  right: 16,
-                  bottom: 16,
-                  child: RouteCreationActionButtons(
-                    isPinButtonPressed: _isButtonPressed,
-                    onTogglePinButton: _toggleButtonState,
-                    onRemoveLastPin: _removeLastPin,
-                    onMoveToCurrentLocation: _moveToCurrentLocation,
-                    hasPins: _pins.isNotEmpty,
-                  ),
-                ),
-            ],
-          ),
+            ),
+            _buildBottomBar(),
+          ],
         ),
-        _buildBottomBar(),
-      ],
+      ),
     );
   }
 }
