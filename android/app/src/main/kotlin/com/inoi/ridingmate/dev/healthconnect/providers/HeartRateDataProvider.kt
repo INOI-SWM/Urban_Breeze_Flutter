@@ -27,9 +27,7 @@ class HeartRateDataProvider(
     private val TAG = "HeartRateDataProvider"
     private val coroutineScope = healthConnectManager.getCoroutineScope()
 
-    init {
-        android.util.Log.d(TAG, "HeartRateDataProvider initialized")
-    }
+
 
     /**
      * 심박수 데이터 조회
@@ -39,8 +37,6 @@ class HeartRateDataProvider(
      * @param result Flutter 결과 콜백
      */
     fun getHeartRateData(startTime: Long, endTime: Long, result: MethodChannel.Result) {
-        android.util.Log.d(TAG, "Getting heart rate data from $startTime to $endTime")
-        
         coroutineScope.launch {
             try {
                 val data = fetchHeartRateDataFromHealthConnect(startTime, endTime)
@@ -71,8 +67,7 @@ class HeartRateDataProvider(
                     return@withContext heartRateData
                 }
 
-                // Health Connect 1.1.0-alpha12 실제 API 호출
-                android.util.Log.d(TAG, "Fetching heart rate data from Health Connect")
+
                 
                 // 시간 범위 필터 생성
                 val timeFilter = TimeRangeFilter.between(
@@ -90,7 +85,7 @@ class HeartRateDataProvider(
                 val response: ReadRecordsResponse<HeartRateRecord> = client.readRecords(request)
                 val records = response.records
                 
-                android.util.Log.d(TAG, "Found ${records.size} heart rate records")
+
                 
                 // 각 레코드를 Flutter 형식으로 변환
                 records.forEach { record ->
@@ -133,7 +128,6 @@ class HeartRateDataProvider(
      * @param result Flutter 결과 콜백
      */
     fun getHeartRateStatistics(startTime: Long, endTime: Long, result: MethodChannel.Result) {
-        android.util.Log.d(TAG, "Getting heart rate statistics")
         
         coroutineScope.launch {
             try {
@@ -187,8 +181,6 @@ class HeartRateDataProvider(
         // 심박수 구간 분석
         val zones = calculateHeartRateZones(heartRateData)
         statistics["zones"] = zones
-        
-        android.util.Log.d(TAG, "Heart rate statistics: avg=${average}, min=$min, max=$max, count=$count")
         
         return statistics
     }

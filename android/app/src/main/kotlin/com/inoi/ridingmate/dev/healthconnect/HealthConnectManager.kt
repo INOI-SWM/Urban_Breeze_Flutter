@@ -141,14 +141,26 @@ class HealthConnectManager(private val context: Context) {
                 if (context.packageManager.resolveActivity(intent, 0) != null) {
                     android.util.Log.d(TAG, "Health Connect settings intent created successfully")
                     return intent
-                } else {
-                    // 권한 설정 화면으로 이동할 수 없으면 앱 메인 화면으로 이동
-                    val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
-                    if (launchIntent != null) {
-                        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        android.util.Log.d(TAG, "Health Connect app found, launching main app")
-                        return launchIntent
-                    }
+                }
+                
+                // 권한 설정 화면으로 이동할 수 없으면 다른 방법 시도
+                val settingsIntent = Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse("healthconnect://permissions")
+                    setPackage(packageName)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                
+                if (context.packageManager.resolveActivity(settingsIntent, 0) != null) {
+                    android.util.Log.d(TAG, "Health Connect permissions intent created successfully")
+                    return settingsIntent
+                }
+                
+                // 그래도 안 되면 앱 메인 화면으로 이동
+                val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
+                if (launchIntent != null) {
+                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    android.util.Log.d(TAG, "Health Connect app found, launching main app")
+                    return launchIntent
                 }
             }
             

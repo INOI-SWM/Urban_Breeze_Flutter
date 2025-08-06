@@ -27,10 +27,6 @@ class ExerciseDataProvider(
     private val TAG = "ExerciseDataProvider"
     private val coroutineScope = healthConnectManager.getCoroutineScope()
 
-    init {
-        android.util.Log.d(TAG, "ExerciseDataProvider initialized")
-    }
-
     /**
      * 운동 세션 데이터 조회
      * 
@@ -90,12 +86,19 @@ class ExerciseDataProvider(
                 val response: ReadRecordsResponse<ExerciseSessionRecord> = client.readRecords(request)
                 val records = response.records
                 
-                android.util.Log.d(TAG, "Found ${records.size} exercise session records")
+                android.util.Log.d(TAG, "Found ${records.size} exercise session records, filtering cycling types")
                 
-                // 각 레코드를 Flutter 형식으로 변환
-                records.forEach { record ->
-                    val sessionMap = convertExerciseSessionToMap(record)
-                    exerciseSessions.add(sessionMap)
+                // 각 레코드를 Flutter 형식으로 변환 (자전거 타입만 필터링)
+                records.forEachIndexed { index, record ->
+                    try {
+                        // 자전거 타입만 필터링 (8: BIKING, 9: BIKING_STATIONARY)
+                        if (record.exerciseType == 8 || record.exerciseType == 9) {
+                            val sessionMap = convertExerciseSessionToMap(record)
+                            exerciseSessions.add(sessionMap)
+                        }
+                    } catch (e: Exception) {
+                        android.util.Log.e(TAG, "Error converting record $index: ${e.message}")
+                    }
                 }
                 
             } catch (e: Exception) {
@@ -113,80 +116,17 @@ class ExerciseDataProvider(
      * @param record 운동 세션 레코드
      * @return Flutter에서 사용할 Map 형태 데이터
      */
-    private fun convertExerciseSessionToMap(record: ExerciseSessionRecord): Map<String, Any?> {
+        private fun convertExerciseSessionToMap(record: ExerciseSessionRecord): Map<String, Any?> {
         return mapOf(
             "id" to record.metadata.id,
             "startTime" to record.startTime.toEpochMilli(),
-            "endTime" to record.endTime?.toEpochMilli(),
-            "exerciseType" to record.exerciseType.toString(),
+            "endTime" to record.endTime.toEpochMilli(),
+            "exerciseType" to record.exerciseType,
             "title" to (record.title ?: ""),
             "notes" to (record.notes ?: ""),
             "sessionId" to record.metadata.id
         )
     }
 
-    /**
-     * 특정 운동 세션의 상세 데이터 조회 (경로 포함)
-     * 
-     * @param sessionId 운동 세션 ID
-     * @param result Flutter 결과 콜백
-     */
-    fun getExerciseSessionDetail(sessionId: String, result: MethodChannel.Result) {
-        android.util.Log.d(TAG, "Getting exercise session detail for: $sessionId")
-        
-        coroutineScope.launch {
-            try {
-                val detail = fetchExerciseSessionDetail(sessionId)
-                result.success(detail)
-            } catch (e: Exception) {
-                android.util.Log.e(TAG, "Error fetching exercise session detail: ${e.message}")
-                result.error("EXERCISE_DETAIL_ERROR", e.message, null)
-            }
-        }
-    }
 
-    /**
-     * 운동 세션 상세 데이터 조회 (실제 구현)
-     * 
-     * @param sessionId 세션 ID
-     * @return 상세 운동 데이터
-     */
-    private suspend fun fetchExerciseSessionDetail(sessionId: String): Map<String, Any> {
-        return withContext(Dispatchers.IO) {
-            val detail = mutableMapOf<String, Any>()
-            
-            try {
-                val client = healthConnectManager.getClient()
-                
-                if (client == null) {
-                    throw RuntimeException("Health Connect client not available")
-                }
-
-                // TODO: Health Connect 1.1.0-alpha12에서 운동 경로 조회
-                // 현재는 기본 정보만 반환
-                detail["id"] = sessionId
-                detail["status"] = "Health Connect API integration pending"
-                
-                android.util.Log.d(TAG, "Exercise session detail API integration pending")
-                
-            } catch (e: Exception) {
-                android.util.Log.e(TAG, "Error fetching exercise session detail: ${e.message}")
-                throw RuntimeException("Failed to fetch exercise session detail", e)
-            }
-            
-            detail
-        }
-    }
-
-    /**
-     * 운동 타입별 필터링 (향후 확장용)
-     * 
-     * @param exerciseType 운동 타입
-     * @return 지원 여부
-     */
-    fun isSupportedExerciseType(exerciseType: String): Boolean {
-        // 현재는 자전거 운동만 지원
-        return exerciseType.equals("CYCLING", ignoreCase = true) || 
-               exerciseType.equals("BIKING", ignoreCase = true)
-    }
 } 

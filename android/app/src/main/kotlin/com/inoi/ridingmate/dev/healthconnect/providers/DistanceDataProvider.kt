@@ -26,9 +26,7 @@ class DistanceDataProvider(
     private val TAG = "DistanceDataProvider"
     private val coroutineScope = healthConnectManager.getCoroutineScope()
 
-    init {
-        android.util.Log.d(TAG, "DistanceDataProvider initialized")
-    }
+
 
     /**
      * 거리 데이터 조회
@@ -38,8 +36,6 @@ class DistanceDataProvider(
      * @param result Flutter 결과 콜백
      */
     fun getDistanceData(startTime: Long, endTime: Long, result: MethodChannel.Result) {
-        android.util.Log.d(TAG, "Getting distance data from $startTime to $endTime")
-        
         coroutineScope.launch {
             try {
                 val data = fetchDistanceDataFromHealthConnect(startTime, endTime)
@@ -70,8 +66,7 @@ class DistanceDataProvider(
                     return@withContext distanceData
                 }
 
-                // Health Connect 1.1.0-alpha12 실제 API 호출
-                android.util.Log.d(TAG, "Fetching distance data from Health Connect")
+
                 
                 // 시간 범위 필터 생성
                 val timeFilter = TimeRangeFilter.between(
@@ -89,7 +84,7 @@ class DistanceDataProvider(
                 val response: ReadRecordsResponse<DistanceRecord> = client.readRecords(request)
                 val records = response.records
                 
-                android.util.Log.d(TAG, "Found ${records.size} distance records")
+
                 
                 // 각 레코드를 Flutter 형식으로 변환
                 records.forEach { record ->

@@ -45,11 +45,8 @@ class HealthConnectPlugin : FlutterPlugin, MethodCallHandler {
                 "hasPermissions" -> handleHasPermissions(result)
                 "getExerciseSessions" -> handleGetExerciseSessions(call, result)
                 "getHeartRateData" -> handleGetHeartRateData(call, result)
-                "getSpeedData" -> handleGetSpeedData(call, result)
                 "getDistanceData" -> handleGetDistanceData(call, result)
                 "getLocationData" -> handleGetLocationData(call, result)
-                "getLocationDataForSession" -> handleGetLocationDataForSession(call, result)
-                "getStatusInfo" -> handleGetStatusInfo(result)
                 else -> result.notImplemented()
             }
         } catch (e: Exception) {
@@ -114,17 +111,7 @@ class HealthConnectPlugin : FlutterPlugin, MethodCallHandler {
         dataProvider.getHeartRateData(startTime, endTime, result)
     }
 
-    private fun handleGetSpeedData(call: MethodCall, result: Result) {
-        val startTime = call.argument<Long>("startTime")
-        val endTime = call.argument<Long>("endTime")
-        
-        if (startTime == null || endTime == null) {
-            result.error("INVALID_ARGUMENTS", "startTime and endTime are required", null)
-            return
-        }
-        
-        dataProvider.getSpeedData(startTime, endTime, result)
-    }
+
 
     private fun handleGetDistanceData(call: MethodCall, result: Result) {
         val startTime = call.argument<Long>("startTime")
@@ -150,19 +137,5 @@ class HealthConnectPlugin : FlutterPlugin, MethodCallHandler {
         dataProvider.getLocationData(startTime, endTime, result)
     }
 
-    private fun handleGetLocationDataForSession(call: MethodCall, result: Result) {
-        val sessionId = call.argument<String>("sessionId")
-        
-        if (sessionId.isNullOrEmpty()) {
-            result.error("INVALID_ARGUMENTS", "sessionId is required", null)
-            return
-        }
-        
-        dataProvider.getLocationDataForSession(sessionId, result)
-    }
 
-    private fun handleGetStatusInfo(result: Result) {
-        val statusInfo = healthConnectManager.getStatusInfo()
-        result.success(statusInfo)
-    }
 } 

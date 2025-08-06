@@ -2,6 +2,7 @@ package com.inoi.ridingmate.dev.healthconnect
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
@@ -66,9 +67,25 @@ class HealthConnectPermissionManager(
                     return@launch
                 }
 
-                // 권한이 없으면 설정 화면으로 리다이렉트 (Health Connect 1.1.0-alpha12 호환성)
-                android.util.Log.d(TAG, "No permissions granted, redirecting to Health Connect settings")
-                redirectToHealthConnectSettings(result)
+                // 권한이 없으면 권한 요청 시도
+                try {
+                    // Health Connect 권한 요청을 위한 Intent 생성
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        data = Uri.parse("healthconnect://permissions")
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    
+                    // 권한 요청 화면으로 이동할 수 있는지 확인
+                    if (context.packageManager.resolveActivity(intent, 0) != null) {
+                        context.startActivity(intent)
+                        result.success("PERMISSIONS_REQUESTED")
+                    } else {
+                        // 권한 요청 화면으로 이동할 수 없으면 설정 화면으로 이동
+                        redirectToHealthConnectSettings(result)
+                    }
+                } catch (e: Exception) {
+                    redirectToHealthConnectSettings(result)
+                }
                 
             } catch (e: Exception) {
                 android.util.Log.e(TAG, "Failed to request Health Connect permissions: ${e.message}")
@@ -90,10 +107,18 @@ class HealthConnectPermissionManager(
                     return@withContext false
                 }
 
-                // 기본적인 가용성 체크만 수행
-                val isAvailable = healthConnectManager.isHealthConnectAvailable()
-                android.util.Log.d(TAG, "Permission check result: $isAvailable")
-                isAvailable
+                // 실제 권한 상태 확인
+                try {
+                    val permissionController = client.permissionController
+                    val grantedPermissions = permissionController.getGrantedPermissions()
+                    
+                    // 운동 관련 권한이 있는지 확인
+                    val hasExercisePermission = grantedPermissions.contains("android.permission.health.READ_EXERCISE")
+                    
+                    return@withContext hasExercisePermission
+                } catch (e: Exception) {
+                    return@withContext false
+                }
             } catch (e: Exception) {
                 android.util.Log.e(TAG, "Error checking permissions: ${e.message}")
                 false

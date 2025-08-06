@@ -24,13 +24,8 @@ class HealthConnectDataProvider(
     // 개별 데이터 프로바이더들
     private val exerciseDataProvider = ExerciseDataProvider(context, healthConnectManager)
     private val heartRateDataProvider = HeartRateDataProvider(context, healthConnectManager)
-    private val speedDataProvider = SpeedDataProvider(context, healthConnectManager)
     private val distanceDataProvider = DistanceDataProvider(context, healthConnectManager)
     private val locationDataProvider = LocationDataProvider(context, healthConnectManager)
-
-    init {
-        android.util.Log.d(TAG, "HealthConnectDataProvider initialized")
-    }
 
     /**
      * 운동 세션 데이터 조회
@@ -70,30 +65,10 @@ class HealthConnectDataProvider(
             return
         }
 
-        android.util.Log.d(TAG, "Getting heart rate data from $startTime to $endTime")
         heartRateDataProvider.getHeartRateData(startTime, endTime, result)
     }
 
-    /**
-     * 속도 데이터 조회
-     * 
-     * @param startTime 시작 시간 (밀리초)
-     * @param endTime 종료 시간 (밀리초)
-     * @param result Flutter 결과 콜백
-     */
-    fun getSpeedData(startTime: Long, endTime: Long, result: MethodChannel.Result) {
-        if (!validateTimeRange(startTime, endTime, result)) {
-            return
-        }
-        
-        if (!healthConnectManager.isInitialized()) {
-            result.error("NOT_INITIALIZED", "Health Connect not initialized", null)
-            return
-        }
 
-        android.util.Log.d(TAG, "Getting speed data from $startTime to $endTime")
-        speedDataProvider.getSpeedData(startTime, endTime, result)
-    }
 
     /**
      * 거리 데이터 조회
@@ -112,7 +87,6 @@ class HealthConnectDataProvider(
             return
         }
 
-        android.util.Log.d(TAG, "Getting distance data from $startTime to $endTime")
         distanceDataProvider.getDistanceData(startTime, endTime, result)
     }
 
@@ -133,75 +107,10 @@ class HealthConnectDataProvider(
             return
         }
 
-        android.util.Log.d(TAG, "Getting location data from $startTime to $endTime")
         locationDataProvider.getLocationData(startTime, endTime, result)
     }
 
-    /**
-     * 특정 운동 세션의 GPS 경로 데이터 조회
-     * 
-     * @param sessionId 운동 세션 ID
-     * @param result Flutter 결과 콜백
-     */
-    fun getLocationDataForSession(sessionId: String, result: MethodChannel.Result) {
-        if (sessionId.isBlank()) {
-            result.error("INVALID_ARGUMENTS", "sessionId cannot be empty", null)
-            return
-        }
-        
-        if (!healthConnectManager.isInitialized()) {
-            result.error("NOT_INITIALIZED", "Health Connect not initialized", null)
-            return
-        }
 
-        android.util.Log.d(TAG, "Getting location data for session: $sessionId")
-        locationDataProvider.getLocationDataForSession(sessionId, result)
-    }
-
-    /**
-     * 통합 운동 데이터 조회 (모든 데이터를 한 번에)
-     * 
-     * @param startTime 시작 시간 (밀리초)
-     * @param endTime 종료 시간 (밀리초)
-     * @param result Flutter 결과 콜백
-     */
-    fun getAllWorkoutData(startTime: Long, endTime: Long, result: MethodChannel.Result) {
-        if (!validateTimeRange(startTime, endTime, result)) {
-            return
-        }
-        
-        if (!healthConnectManager.isInitialized()) {
-            result.error("NOT_INITIALIZED", "Health Connect not initialized", null)
-            return
-        }
-
-        android.util.Log.d(TAG, "Getting all workout data from $startTime to $endTime")
-        
-        coroutineScope.launch {
-            try {
-                // 모든 데이터를 병렬로 조회하여 통합
-                val exerciseSessions = exerciseDataProvider.fetchExerciseSessionsFromHealthConnect(startTime, endTime)
-                // TODO: 다른 데이터 프로바이더들의 private 메서드 호출 문제 해결 필요
-                val heartRateData = emptyList<Map<String, Any>>()
-                val speedData = emptyList<Map<String, Any>>()
-                val distanceData = emptyList<Map<String, Any>>()
-                val locationData = emptyList<Map<String, Any>>()
-                
-                val combinedData = mapOf(
-                    "exerciseSessions" to exerciseSessions,
-                    "heartRateData" to heartRateData,
-                    "speedData" to speedData,
-                    "distanceData" to distanceData,
-                    "locationData" to locationData
-                )
-                
-                result.success(combinedData)
-            } catch (e: Exception) {
-                android.util.Log.e(TAG, "Error getting all workout data: ${e.message}")
-                result.error("DATA_ERROR", "Failed to get all workout data: ${e.message}", null)
-            }
-        }
-    }
 
     /**
      * 시간 범위 유효성 검사
