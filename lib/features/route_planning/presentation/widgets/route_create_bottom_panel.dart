@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/place_search/presentation/widgets/poi_setting_modal.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_bar_layout.dart';
 import 'package:ridingmate/features/route_planning/presentation/widgets/route_stats_row.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
@@ -103,7 +104,9 @@ class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
               size: ButtonSize.small,
               backgroundColor: colors.fillNormal,
               textColor: colors.labelNeutral,
-              onPressed: () {},
+              onPressed: () {
+                PoiSettingModal.show(context: context);
+              },
             ),
             ButtonSolid(
               text: '저장',
