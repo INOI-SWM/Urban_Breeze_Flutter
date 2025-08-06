@@ -52,7 +52,6 @@ class BottomSheetModal extends StatelessWidget {
                       : null,
               centerTitle: true,
               titleTextSize: AppBarTitleSize.medium,
-              height: 64,
             ),
             // 내용 영역
             Flexible(child: content),
