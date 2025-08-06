@@ -23,10 +23,20 @@ class PoiSettingModal extends StatefulWidget {
 }
 
 class _PoiSettingModalState extends State<PoiSettingModal> {
+  final Set<String> _selectedPois = <String>{};
+
+  void _togglePoi(String label) {
+    setState(() {
+      if (_selectedPois.contains(label)) {
+        _selectedPois.remove(label);
+      } else {
+        _selectedPois.add(label);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final SemanticColors colors = context.semanticColor;
-
     return Padding(
       padding: const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 0),
       child: Column(
@@ -40,61 +50,25 @@ class _PoiSettingModalState extends State<PoiSettingModal> {
             crossAxisSpacing: 10,
             childAspectRatio: 1.0,
             children: <Widget>[
-              _buildPoiButton(
-                context,
-                icon: Icons.restaurant,
-                label: '음식점',
-                color: colors.primaryNormal,
-                onTap: () {},
-              ),
-              _buildPoiButton(
-                context,
-                icon: Icons.local_cafe,
-                label: '카페',
-                color: colors.primaryNormal,
-                onTap: () {},
-              ),
+              _buildPoiButton(context, icon: Icons.restaurant, label: '음식점'),
+              _buildPoiButton(context, icon: Icons.local_cafe, label: '카페'),
               _buildPoiButton(
                 context,
                 icon: Icons.local_convenience_store,
                 label: '편의점',
-                color: colors.primaryNormal,
-                onTap: () {},
               ),
-              _buildPoiButton(
-                context,
-                icon: Icons.local_pharmacy,
-                label: '약국',
-                color: colors.primaryNormal,
-                onTap: () {},
-              ),
-              _buildPoiButton(
-                context,
-                icon: Icons.wc,
-                label: '화장실',
-                color: colors.primaryNormal,
-                onTap: () {},
-              ),
+              _buildPoiButton(context, icon: Icons.local_pharmacy, label: '약국'),
+              _buildPoiButton(context, icon: Icons.wc, label: '화장실'),
               _buildPoiButton(
                 context,
                 icon: Icons.local_parking,
                 label: '주차 시설',
-                color: colors.primaryNormal,
-                onTap: () {},
               ),
-              _buildPoiButton(
-                context,
-                icon: Icons.build,
-                label: '수리 시설',
-                color: colors.primaryNormal,
-                onTap: () {},
-              ),
+              _buildPoiButton(context, icon: Icons.build, label: '수리 시설'),
               _buildPoiButton(
                 context,
                 icon: Icons.local_gas_station,
                 label: '공기 주입기',
-                color: colors.primaryNormal,
-                onTap: () {},
               ),
             ],
           ),
@@ -107,10 +81,9 @@ class _PoiSettingModalState extends State<PoiSettingModal> {
     BuildContext context, {
     required IconData icon,
     required String label,
-    required Color color,
-    required VoidCallback onTap,
   }) {
     final SemanticColors colors = context.semanticColor;
+    final bool isSelected = _selectedPois.contains(label);
 
     return Padding(
       padding: const EdgeInsets.all(4),
@@ -119,17 +92,18 @@ class _PoiSettingModalState extends State<PoiSettingModal> {
         children: <Widget>[
           IconButtonSolid(
             icon: icon,
-            onPressed: onTap,
+            onPressed: () => _togglePoi(label),
             iconSize: IconSize.xlarge,
-            backgroundColor: colors.primaryNormal,
-            iconColor: colors.staticWhite,
+            backgroundColor:
+                isSelected ? colors.primaryNormal : colors.fillNormal,
+            iconColor: isSelected ? colors.staticWhite : colors.labelDisable,
             customButtonSize: 48,
           ),
           const SizedBox(height: 4),
           Text(
             label,
             style: AppTextStyles.caption2.medium.copyWith(
-              color: colors.primaryNormal,
+              color: isSelected ? colors.primaryNormal : colors.labelAssistive,
             ),
             textAlign: TextAlign.center,
           ),
