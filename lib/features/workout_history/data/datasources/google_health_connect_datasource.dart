@@ -64,25 +64,12 @@ class GoogleHealthConnectDataSource {
             'startTime': start.millisecondsSinceEpoch,
             'endTime': end.millisecondsSinceEpoch,
           });
-
       final List<Map<String, dynamic>> workouts =
           sessions
               .map((dynamic session) => Map<String, dynamic>.from(session))
               .toList();
 
-      final List<Map<String, dynamic>> cyclingWorkouts =
-          workouts.where((Map<String, dynamic> workout) {
-            final String? exerciseType = workout['exerciseType'] as String?;
-            return exerciseType == 'CYCLING' || exerciseType == 'BIKING';
-          }).toList();
-
-      cyclingWorkouts.sort((Map<String, dynamic> a, Map<String, dynamic> b) {
-        final int aStartTime = a['startTime'] as int;
-        final int bStartTime = b['startTime'] as int;
-        return bStartTime.compareTo(aStartTime);
-      });
-
-      return cyclingWorkouts;
+      return workouts;
     } catch (e) {
       throw GoogleHealthConnectException('자전거 운동 데이터 조회 실패: $e');
     }
@@ -98,6 +85,8 @@ class GoogleHealthConnectDataSource {
             'startTime': workoutStartTime.millisecondsSinceEpoch,
             'endTime': workoutEndTime.millisecondsSinceEpoch,
           });
+
+      debugPrint('heartRateData: $heartRateData');
 
       final List<Map<String, dynamic>> data =
           heartRateData
@@ -137,6 +126,7 @@ class GoogleHealthConnectDataSource {
         final int bTime = b['timestamp'] as int;
         return aTime.compareTo(bTime);
       });
+      debugPrint('distanceData: $data');
 
       return data;
     } catch (e) {
@@ -155,6 +145,8 @@ class GoogleHealthConnectDataSource {
             'endTime': workoutEndTime.millisecondsSinceEpoch,
           });
 
+      debugPrint('locationData: $locationData');
+
       final List<Map<String, dynamic>> data =
           locationData
               .map((dynamic item) => Map<String, dynamic>.from(item))
@@ -169,41 +161,6 @@ class GoogleHealthConnectDataSource {
       return data;
     } catch (e) {
       throw GoogleHealthConnectException('위치 데이터 조회 실패: $e');
-    }
-  }
-
-  Future<List<Map<String, dynamic>>> getLocationDataForSession({
-    required String sessionId,
-  }) async {
-    try {
-      final List<dynamic> locationData = await _channel.invokeMethod(
-        'getLocationDataForSession',
-        <String, String>{'sessionId': sessionId},
-      );
-
-      final List<Map<String, dynamic>> data =
-          locationData
-              .map((dynamic item) => Map<String, dynamic>.from(item))
-              .toList();
-
-      data.sort((Map<String, dynamic> a, Map<String, dynamic> b) {
-        final int aTime = a['timestamp'] as int;
-        final int bTime = b['timestamp'] as int;
-        return aTime.compareTo(bTime);
-      });
-
-      return data;
-    } catch (e) {
-      throw GoogleHealthConnectException('세션 위치 데이터 조회 실패: $e');
-    }
-  }
-
-  Future<String> getStatusInfo() async {
-    try {
-      final String statusInfo = await _channel.invokeMethod('getStatusInfo');
-      return statusInfo;
-    } catch (e) {
-      throw GoogleHealthConnectException('상태 정보 조회 실패: $e');
     }
   }
 }

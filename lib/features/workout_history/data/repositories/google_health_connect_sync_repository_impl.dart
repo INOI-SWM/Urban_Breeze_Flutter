@@ -71,15 +71,76 @@ class GoogleHealthConnectSyncRepositoryImpl
       final List<LocationData> locationDataList =
           GoogleHealthConnectMapper.toLocationDataList(locationData);
 
+      // 거리와 칼로리 계산
+      final double totalDistance = _calculateTotalDistance(distanceDataList);
+      final double totalCalories = _calculateCalories(
+        duration: record.duration,
+        distance: totalDistance,
+        averageHeartRate: _calculateAverageHeartRate(heartRateDataList),
+      );
+
       record = record.copyWith(
         heartRateData: heartRateDataList,
         distanceData: distanceDataList,
         locationData: locationDataList,
       );
 
-      enrichedWorkouts.add(record);
+      // 거리와 칼로리를 포함한 완전한 WorkoutRecord 생성
+      final WorkoutRecord completeRecord = WorkoutRecord(
+        id: record.id,
+        startTime: record.startTime,
+        endTime: record.endTime,
+        duration: record.duration,
+        distance: totalDistance,
+        calories: totalCalories,
+        heartRateData: record.heartRateData,
+        distanceData: record.distanceData,
+        locationData: record.locationData,
+      );
+
+      enrichedWorkouts.add(completeRecord);
     }
 
     return enrichedWorkouts;
+  }
+
+  /// 총 거리 계산
+  double _calculateTotalDistance(List<DistanceData> distanceDataList) {
+    if (distanceDataList.isEmpty) return 0.0;
+
+    double totalDistance = 0.0;
+    for (final DistanceData data in distanceDataList) {
+      totalDistance += data.distance;
+    }
+    return totalDistance;
+  }
+
+  /// 평균 심박수 계산
+  double _calculateAverageHeartRate(List<HeartRateData> heartRateDataList) {
+    if (heartRateDataList.isEmpty) return 0.0;
+
+    double totalHeartRate = 0.0;
+    for (final HeartRateData data in heartRateDataList) {
+      totalHeartRate += data.heartRate;
+    }
+    return totalHeartRate / heartRateDataList.length;
+  }
+
+  /// 칼로리 계산 (간단한 공식)
+  double _calculateCalories({
+    required Duration duration,
+    required double distance,
+    required double averageHeartRate,
+  }) {
+    // 기본 칼로리 계산 공식 (자전거)
+    // MET 값: 자전거 8.0 (중간 강도)
+    // 체중: 70kg (기본값)
+    const double weight = 70.0; // kg
+    const double met = 8.0; // 자전거 MET 값
+
+    final double hours = duration.inMinutes / 60.0;
+    final double calories = met * weight * hours;
+
+    return calories;
   }
 }

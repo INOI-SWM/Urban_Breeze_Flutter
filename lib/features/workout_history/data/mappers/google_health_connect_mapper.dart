@@ -37,7 +37,10 @@ class GoogleHealthConnectMapper {
         timestamp: DateTime.fromMillisecondsSinceEpoch(
           data['timestamp'] as int,
         ),
-        heartRate: (data['value'] as num).toInt(),
+        heartRate:
+            (data['heartRate'] as num?)?.toInt() ??
+            (data['value'] as num?)?.toInt() ??
+            0,
       );
     }).toList();
   }
@@ -51,7 +54,7 @@ class GoogleHealthConnectMapper {
         timestamp: DateTime.fromMillisecondsSinceEpoch(
           data['timestamp'] as int,
         ),
-        distance: (data['value'] as num).toDouble(),
+        distance: (data['distance'] as num).toDouble(),
       );
     }).toList();
   }
