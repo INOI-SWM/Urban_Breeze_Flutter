@@ -46,7 +46,7 @@ class HealthConnectPlugin : FlutterPlugin, MethodCallHandler {
                 "getExerciseSessions" -> handleGetExerciseSessions(call, result)
                 "getHeartRateData" -> handleGetHeartRateData(call, result)
                 "getDistanceData" -> handleGetDistanceData(call, result)
-                "getLocationData" -> handleGetLocationData(call, result)
+                "getLocationDataForSession" -> handleGetLocationDataForSession(call, result)
                 else -> result.notImplemented()
             }
         } catch (e: Exception) {
@@ -125,16 +125,17 @@ class HealthConnectPlugin : FlutterPlugin, MethodCallHandler {
         dataProvider.getDistanceData(startTime, endTime, result)
     }
 
-    private fun handleGetLocationData(call: MethodCall, result: Result) {
-        val startTime = call.argument<Long>("startTime")
-        val endTime = call.argument<Long>("endTime")
+
+
+    private fun handleGetLocationDataForSession(call: MethodCall, result: Result) {
+        val sessionId = call.argument<String>("sessionId")
         
-        if (startTime == null || endTime == null) {
-            result.error("INVALID_ARGUMENTS", "startTime and endTime are required", null)
+        if (sessionId.isNullOrEmpty()) {
+            result.error("INVALID_ARGUMENTS", "sessionId is required", null)
             return
         }
         
-        dataProvider.getLocationData(startTime, endTime, result)
+        dataProvider.getLocationDataForSession(sessionId, result)
     }
 
 

@@ -91,14 +91,14 @@ class HealthConnectDataProvider(
     }
 
     /**
-     * GPS 위치 데이터 조회
+     * 특정 운동 세션의 GPS 경로 데이터 조회
      * 
-     * @param startTime 시작 시간 (밀리초)
-     * @param endTime 종료 시간 (밀리초)
+     * @param sessionId 운동 세션 ID
      * @param result Flutter 결과 콜백
      */
-    fun getLocationData(startTime: Long, endTime: Long, result: MethodChannel.Result) {
-        if (!validateTimeRange(startTime, endTime, result)) {
+    fun getLocationDataForSession(sessionId: String, result: MethodChannel.Result) {
+        if (sessionId.isBlank()) {
+            result.error("INVALID_ARGUMENTS", "sessionId cannot be empty", null)
             return
         }
         
@@ -107,8 +107,10 @@ class HealthConnectDataProvider(
             return
         }
 
-        locationDataProvider.getLocationData(startTime, endTime, result)
+        locationDataProvider.getLocationDataForSession(sessionId, result)
     }
+
+
 
 
 
@@ -123,13 +125,6 @@ class HealthConnectDataProvider(
     private fun validateTimeRange(startTime: Long, endTime: Long, result: MethodChannel.Result): Boolean {
         if (startTime >= endTime) {
             result.error("INVALID_TIME_RANGE", "startTime must be before endTime", null)
-            return false
-        }
-        
-        // 최대 1년 범위로 제한 (필요에 따라 조정)
-        val maxRangeMillis = 365L * 24 * 60 * 60 * 1000 // 1년
-        if (endTime - startTime > maxRangeMillis) {
-            result.error("TIME_RANGE_TOO_LARGE", "Time range cannot exceed 1 year", null)
             return false
         }
         
