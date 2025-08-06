@@ -53,7 +53,8 @@ class ExerciseDataProvider(
 
             for (record in records) {
                 try {
-                    if (record.exerciseType == 8 || record.exerciseType == 9) {
+                    //8 : 실외자전거
+                    if (record.exerciseType == 8 ) {
                         // 🔥 칼로리 데이터 가져오기
                         val calories = fetchCaloriesForSession(client, record.startTime.toEpochMilli(), record.endTime.toEpochMilli())
 
