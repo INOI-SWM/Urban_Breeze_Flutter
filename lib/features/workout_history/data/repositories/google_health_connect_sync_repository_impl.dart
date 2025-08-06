@@ -49,10 +49,7 @@ class GoogleHealthConnectSyncRepositoryImpl
           workoutStartTime: record.startTime,
           workoutEndTime: record.endTime,
         ),
-        _dataSource.getLocationDataForWorkout(
-          workoutStartTime: record.startTime,
-          workoutEndTime: record.endTime,
-        ),
+        _dataSource.getLocationDataForSession(sessionId: record.id),
       ];
 
       final List<dynamic> results = await Future.wait(futures);

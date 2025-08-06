@@ -216,7 +216,9 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
       );
       final Map<WorkoutRecord, Map<String, dynamic>> completeData =
           await useCase.syncCompleteWorkoutData(
-            startDate: DateTime.now().subtract(const Duration(days: 365)), // 1년
+            startDate: DateTime.now().subtract(
+              const Duration(days: 1000),
+            ), // 1년
             endDate: DateTime.now(),
           );
 

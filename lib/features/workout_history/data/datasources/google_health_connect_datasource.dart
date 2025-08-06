@@ -126,7 +126,6 @@ class GoogleHealthConnectDataSource {
         final int bTime = b['timestamp'] as int;
         return aTime.compareTo(bTime);
       });
-      debugPrint('distanceData: $data');
 
       return data;
     } catch (e) {
@@ -134,18 +133,16 @@ class GoogleHealthConnectDataSource {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getLocationDataForWorkout({
-    required DateTime workoutStartTime,
-    required DateTime workoutEndTime,
+  Future<List<Map<String, dynamic>>> getLocationDataForSession({
+    required String sessionId,
   }) async {
     try {
-      final List<dynamic> locationData = await _channel
-          .invokeMethod('getLocationData', <String, int>{
-            'startTime': workoutStartTime.millisecondsSinceEpoch,
-            'endTime': workoutEndTime.millisecondsSinceEpoch,
-          });
+      final List<dynamic> locationData = await _channel.invokeMethod(
+        'getLocationDataForSession',
+        <String, String>{'sessionId': sessionId},
+      );
 
-      debugPrint('locationData: $locationData');
+      debugPrint('locationData for session $sessionId: $locationData');
 
       final List<Map<String, dynamic>> data =
           locationData
@@ -160,7 +157,15 @@ class GoogleHealthConnectDataSource {
 
       return data;
     } catch (e) {
-      throw GoogleHealthConnectException('위치 데이터 조회 실패: $e');
+      // 권한 관련 에러인지 확인
+      if (e.toString().contains('ConsentRequired') ||
+          e.toString().contains('permission') ||
+          e.toString().contains('consent')) {
+        debugPrint('Location data consent required for session $sessionId');
+        // 권한이 필요한 경우 빈 리스트 반환 (에러가 아님)
+        return <Map<String, dynamic>>[];
+      }
+      throw GoogleHealthConnectException('세션별 위치 데이터 조회 실패: $e');
     }
   }
 }
