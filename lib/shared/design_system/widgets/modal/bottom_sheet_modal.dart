@@ -72,6 +72,7 @@ class BottomSheetShow {
     bool isDismissible = true,
     bool enableDrag = true,
     BoxConstraints? constraints,
+    bool useBarrier = true,
   }) {
     return showModalBottomSheet<T>(
       context: context,
@@ -79,6 +80,7 @@ class BottomSheetShow {
       isDismissible: isDismissible,
       enableDrag: enableDrag,
       constraints: constraints,
+      barrierColor: useBarrier ? Colors.black54 : Colors.transparent,
       builder: (BuildContext context) {
         return BottomSheetModal(
           title: title,

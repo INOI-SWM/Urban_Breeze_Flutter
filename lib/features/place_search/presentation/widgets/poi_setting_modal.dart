@@ -15,6 +15,8 @@ class PoiSettingModal extends StatefulWidget {
       title: '지도 설정',
       content: const PoiSettingModal(),
       showCloseButton: true,
+      isDismissible: false,
+      useBarrier: false,
     );
   }
 
