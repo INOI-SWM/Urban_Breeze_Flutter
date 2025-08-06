@@ -6,14 +6,14 @@
     
     <!-- Health Connect 권한 -->
     <uses-permission android:name="android.permission.health.READ_EXERCISE"/>
-    <uses-permission android:name="android.permission.health.WRITE_EXERCISE"/>
     <uses-permission android:name="android.permission.health.READ_HEART_RATE"/>
-    <uses-permission android:name="android.permission.health.WRITE_HEART_RATE"/>
     <uses-permission android:name="android.permission.health.READ_SPEED"/>
     <uses-permission android:name="android.permission.health.READ_DISTANCE"/>
+    <uses-permission android:name="android.permission.health.READ_LOCATION"/>
     <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED"/>
     <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_HISTORY"/>
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+    <uses-permission android:name="android.permission.health.READ_EXERCISE_ROUTE" />
     
     <application
         android:label="ridingmate"
@@ -47,6 +47,7 @@
                 <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
             </intent-filter>
         </activity>
+        
         
         <!-- Health Connect 개인정보 처리방침 연결 -->
         <activity-alias
