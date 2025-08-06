@@ -3,6 +3,7 @@ package com.inoi.ridingmate.dev.healthconnect.providers
 import android.content.Context
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.connect.client.time.TimeRangeFilter
@@ -14,12 +15,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
 
-/**
- * 운동 세션 데이터 전용 프로바이더
- * 
- * Health Connect에서 운동 세션(ExerciseSessionRecord) 데이터만을 전담하여 처리
- * 자전거 운동에 특화된 로직 포함
- */
 class ExerciseDataProvider(
     private val context: Context,
     private val healthConnectManager: HealthConnectManager
@@ -27,13 +22,6 @@ class ExerciseDataProvider(
     private val TAG = "ExerciseDataProvider"
     private val coroutineScope = healthConnectManager.getCoroutineScope()
 
-    /**
-     * 운동 세션 데이터 조회
-     * 
-     * @param startTime 시작 시간 (밀리초)
-     * @param endTime 종료 시간 (밀리초)
-     * @param result Flutter 결과 콜백
-     */
     fun getExerciseSessions(startTime: Long, endTime: Long, result: MethodChannel.Result) {
         coroutineScope.launch {
             try {
@@ -45,67 +33,70 @@ class ExerciseDataProvider(
         }
     }
 
-    /**
-     * Health Connect에서 실제 운동 세션 데이터 조회
-     * 
-     * @param startTime 시작 시간
-     * @param endTime 종료 시간
-     * @return 운동 세션 데이터 목록
-     */
     suspend fun fetchExerciseSessionsFromHealthConnect(startTime: Long, endTime: Long): List<Map<String, Any?>> {
         return withContext(Dispatchers.IO) {
             val exerciseSessions = mutableListOf<Map<String, Any?>>()
-            
-            try {
-                val client = healthConnectManager.getClient()
-                
-                if (client == null) {
-                    return@withContext exerciseSessions
-                }
+            val client = healthConnectManager.getClient() ?: return@withContext exerciseSessions
 
-                // 시간 범위 필터 생성
-                val timeFilter = TimeRangeFilter.between(
-                    Instant.ofEpochMilli(startTime),
-                    Instant.ofEpochMilli(endTime)
-                )
-                
-                // 운동 세션 데이터 조회 요청
-                val request = ReadRecordsRequest(
-                    recordType = ExerciseSessionRecord::class,
-                    timeRangeFilter = timeFilter
-                )
-                
-                // 데이터 조회 실행 (Kotlin suspend 함수 사용)
-                val response: ReadRecordsResponse<ExerciseSessionRecord> = client.readRecords(request)
-                val records = response.records
-                
-                // 각 레코드를 Flutter 형식으로 변환 (자전거 타입만 필터링)
-                records.forEachIndexed { index, record ->
-                    try {
-                        // 자전거 타입만 필터링 (8: BIKING, 9: BIKING_STATIONARY)
-                        if (record.exerciseType == 8 || record.exerciseType == 9) {
-                            val sessionMap = convertExerciseSessionToMap(record)
-                            exerciseSessions.add(sessionMap)
-                        }
-                    } catch (e: Exception) {
+            val timeFilter = TimeRangeFilter.between(
+                Instant.ofEpochMilli(startTime),
+                Instant.ofEpochMilli(endTime)
+            )
+
+            val request = ReadRecordsRequest(
+                recordType = ExerciseSessionRecord::class,
+                timeRangeFilter = timeFilter
+            )
+
+            val response: ReadRecordsResponse<ExerciseSessionRecord> = client.readRecords(request)
+            val records = response.records
+
+            for (record in records) {
+                try {
+                    if (record.exerciseType == 8 || record.exerciseType == 9) {
+                        // 🔥 칼로리 데이터 가져오기
+                        val calories = fetchCaloriesForSession(client, record.startTime.toEpochMilli(), record.endTime.toEpochMilli())
+
+                        val sessionMap = convertExerciseSessionToMap(record, calories)
+                        exerciseSessions.add(sessionMap)
                     }
-                }
-                
-            } catch (e: Exception) {
-                // 에러 발생 시 빈 리스트 반환
+                } catch (_: Exception) { }
             }
-            
+
             exerciseSessions
         }
     }
 
     /**
-     * ExerciseSessionRecord를 Map으로 변환
-     * 
-     * @param record 운동 세션 레코드
-     * @return Flutter에서 사용할 Map 형태 데이터
+     * 🧠 운동 세션 시간에 해당하는 칼로리 데이터 조회
      */
-        private fun convertExerciseSessionToMap(record: ExerciseSessionRecord): Map<String, Any?> {
+    private suspend fun fetchCaloriesForSession(
+        client: HealthConnectClient,
+        startTimeMillis: Long,
+        endTimeMillis: Long
+    ): Double {
+        val timeFilter = TimeRangeFilter.between(
+            Instant.ofEpochMilli(startTimeMillis),
+            Instant.ofEpochMilli(endTimeMillis)
+        )
+
+        val request = ReadRecordsRequest(
+            recordType = TotalCaloriesBurnedRecord::class,
+            timeRangeFilter = timeFilter
+        )
+
+        return try {
+            val response = client.readRecords(request)
+            response.records.sumOf { it.energy.inKilocalories }
+        } catch (e: Exception) {
+            0.0
+        }
+    }
+
+    /**
+     * 🧱 운동 세션 + 칼로리 포함된 Map 생성
+     */
+    private fun convertExerciseSessionToMap(record: ExerciseSessionRecord, calories: Double): Map<String, Any?> {
         return mapOf(
             "id" to record.metadata.id,
             "startTime" to record.startTime.toEpochMilli(),
@@ -113,9 +104,8 @@ class ExerciseDataProvider(
             "exerciseType" to record.exerciseType,
             "title" to (record.title ?: ""),
             "notes" to (record.notes ?: ""),
-            "sessionId" to record.metadata.id
+            "sessionId" to record.metadata.id,
+            "calories" to calories // 👈 추가된 칼로리 값
         )
     }
-
-
-} 
+}

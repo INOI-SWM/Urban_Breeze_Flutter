@@ -7,21 +7,16 @@ class GoogleHealthConnectMapper {
   /// 기본 운동 기록을 WorkoutRecord로 변환
   static WorkoutRecord basicWorkoutRecord(Map<String, dynamic> workout) {
     final int startTime = workout['startTime'] as int;
-    final int? endTime = workout['endTime'] as int?;
+    final int endTime = workout['endTime'] as int;
+    final double calories = (workout['calories'] as num?)?.toDouble() ?? 0.0;
 
     return WorkoutRecord(
       id: workout['id'] as String? ?? '',
       startTime: DateTime.fromMillisecondsSinceEpoch(startTime),
-      endTime:
-          endTime != null
-              ? DateTime.fromMillisecondsSinceEpoch(endTime)
-              : DateTime.fromMillisecondsSinceEpoch(startTime),
-      duration:
-          endTime != null
-              ? Duration(milliseconds: endTime - startTime)
-              : Duration.zero,
+      endTime: DateTime.fromMillisecondsSinceEpoch(endTime),
+      duration: Duration(milliseconds: endTime - startTime),
       distance: 0.0, // Health Connect에서 별도로 조회
-      calories: 0.0, // Health Connect에서 별도로 조회
+      calories: calories, // 운동 세션에서 제공되는 칼로리 사용
       heartRateData: <HeartRateData>[],
       distanceData: <DistanceData>[],
       locationData: <LocationData>[],

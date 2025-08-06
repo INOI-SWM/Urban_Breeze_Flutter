@@ -64,6 +64,7 @@ class GoogleHealthConnectDataSource {
             'startTime': start.millisecondsSinceEpoch,
             'endTime': end.millisecondsSinceEpoch,
           });
+
       final List<Map<String, dynamic>> workouts =
           sessions
               .map((dynamic session) => Map<String, dynamic>.from(session))

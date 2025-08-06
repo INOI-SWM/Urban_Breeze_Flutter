@@ -68,13 +68,8 @@ class GoogleHealthConnectSyncRepositoryImpl
       final List<LocationData> locationDataList =
           GoogleHealthConnectMapper.toLocationDataList(locationData);
 
-      // 거리와 칼로리 계산
+      // 거리 계산 (칼로리는 이미 운동 세션에서 제공됨)
       final double totalDistance = _calculateTotalDistance(distanceDataList);
-      final double totalCalories = _calculateCalories(
-        duration: record.duration,
-        distance: totalDistance,
-        averageHeartRate: _calculateAverageHeartRate(heartRateDataList),
-      );
 
       record = record.copyWith(
         heartRateData: heartRateDataList,
@@ -89,7 +84,7 @@ class GoogleHealthConnectSyncRepositoryImpl
         endTime: record.endTime,
         duration: record.duration,
         distance: totalDistance,
-        calories: totalCalories,
+        calories: record.calories, // 이미 매핑된 칼로리 사용
         heartRateData: record.heartRateData,
         distanceData: record.distanceData,
         locationData: record.locationData,
@@ -110,34 +105,5 @@ class GoogleHealthConnectSyncRepositoryImpl
       totalDistance += data.distance;
     }
     return totalDistance;
-  }
-
-  /// 평균 심박수 계산
-  double _calculateAverageHeartRate(List<HeartRateData> heartRateDataList) {
-    if (heartRateDataList.isEmpty) return 0.0;
-
-    double totalHeartRate = 0.0;
-    for (final HeartRateData data in heartRateDataList) {
-      totalHeartRate += data.heartRate;
-    }
-    return totalHeartRate / heartRateDataList.length;
-  }
-
-  /// 칼로리 계산 (간단한 공식)
-  double _calculateCalories({
-    required Duration duration,
-    required double distance,
-    required double averageHeartRate,
-  }) {
-    // 기본 칼로리 계산 공식 (자전거)
-    // MET 값: 자전거 8.0 (중간 강도)
-    // 체중: 70kg (기본값)
-    const double weight = 70.0; // kg
-    const double met = 8.0; // 자전거 MET 값
-
-    final double hours = duration.inMinutes / 60.0;
-    final double calories = met * weight * hours;
-
-    return calories;
   }
 }
