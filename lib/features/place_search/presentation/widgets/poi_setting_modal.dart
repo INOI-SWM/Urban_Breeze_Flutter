@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/button/icon_button_solid.dart';
 import 'package:ridingmate/shared/design_system/widgets/icon/icon_size.dart';
 import 'package:ridingmate/shared/design_system/widgets/modal/bottom_sheet_modal.dart';
@@ -12,9 +14,15 @@ class PoiSettingModal extends StatefulWidget {
   static Future<void> show({required BuildContext context}) {
     return BottomSheetShow.show(
       context: context,
-      title: '지도 설정',
+      appBar: CustomAppBar(
+        title: '지도 설정',
+        centerTitle: true,
+        leading: CustomIconButton(
+          icon: Icons.chevron_left_sharp,
+          onTap: () => Navigator.of(context).pop(),
+        ),
+      ),
       content: const PoiSettingModal(),
-      showCloseButton: true,
       isDismissible: false,
       useBarrier: false,
     );
