@@ -99,6 +99,13 @@ class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
           titleTextSize: AppBarTitleSize.large,
           actions: <Widget>[
             ButtonSolid(
+              text: '지도 설정',
+              size: ButtonSize.small,
+              backgroundColor: colors.fillNormal,
+              textColor: colors.labelNeutral,
+              onPressed: () {},
+            ),
+            ButtonSolid(
               text: '저장',
               size: ButtonSize.small,
               backgroundColor:
