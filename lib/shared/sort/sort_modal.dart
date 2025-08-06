@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:ridingmate/shared/design_system/widgets/modal/bottom_sheet_modal.dart';
 
 class SortModal {
@@ -15,7 +17,16 @@ class SortModal {
   }) {
     return BottomSheetShow.show<T>(
       context: context,
-      title: title,
+      appBar: CustomAppBar(
+        title: title,
+        centerTitle: true,
+        actions: <Widget>[
+          CustomIconButton(
+            icon: Icons.close,
+            onTap: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
       content: IntrinsicHeight(
         child: Padding(
           padding: const EdgeInsets.all(20),
