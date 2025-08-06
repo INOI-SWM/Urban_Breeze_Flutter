@@ -166,8 +166,13 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
                           child: InfoItem(
                             label: '평균 심박수',
                             value: WorkoutFormatter.toHeartRateText(
-                              widget.workoutRecord.heartRateData.first.heartRate
-                                  .toDouble(),
+                              widget
+                                      .workoutRecord
+                                      .heartRateData
+                                      ?.firstOrNull
+                                      ?.heartRate
+                                      .toDouble() ??
+                                  0,
                             ),
                             alignment: CrossAxisAlignment.start,
                           ),

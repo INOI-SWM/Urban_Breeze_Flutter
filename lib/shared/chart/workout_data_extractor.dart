@@ -42,7 +42,7 @@ class WorkoutDataExtractor {
   /// 속도 데이터 추출 (LocationData → FlSpot, m/s → km/h 변환)
   static List<FlSpot> extractSpeedData(WorkoutRecord workoutRecord) {
     return extractTimeSeriesData<LocationData>(
-      data: workoutRecord.locationData,
+      data: workoutRecord.locationData ?? <LocationData>[],
       timestampExtractor: (LocationData location) => location.timestamp,
       valueExtractor: (LocationData location) => location.speed,
       valueTransformer: (double mPerSec) => mPerSec * 3.6, // m/s to km/h
@@ -52,7 +52,7 @@ class WorkoutDataExtractor {
   /// 고도 데이터 추출 (LocationData → FlSpot)
   static List<FlSpot> extractAltitudeData(WorkoutRecord workoutRecord) {
     return extractTimeSeriesData<LocationData>(
-      data: workoutRecord.locationData,
+      data: workoutRecord.locationData ?? <LocationData>[],
       timestampExtractor: (LocationData location) => location.timestamp,
       valueExtractor: (LocationData location) => location.altitude,
     );
@@ -61,7 +61,7 @@ class WorkoutDataExtractor {
   /// 심박수 데이터 추출 (HeartRateData → FlSpot)
   static List<FlSpot> extractHeartRateData(WorkoutRecord workoutRecord) {
     return extractTimeSeriesData<HeartRateData>(
-      data: workoutRecord.heartRateData,
+      data: workoutRecord.heartRateData ?? <HeartRateData>[],
       timestampExtractor: (HeartRateData heartRate) => heartRate.timestamp,
       valueExtractor:
           (HeartRateData heartRate) => heartRate.heartRate.toDouble(),
