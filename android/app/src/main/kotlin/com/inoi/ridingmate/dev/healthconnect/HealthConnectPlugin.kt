@@ -33,8 +33,6 @@ class HealthConnectPlugin : FlutterPlugin, MethodCallHandler {
         healthConnectManager = HealthConnectManager(context)
         permissionManager = HealthConnectPermissionManager(context, healthConnectManager)
         dataProvider = HealthConnectDataProvider(context, healthConnectManager)
-        
-        android.util.Log.d("HealthConnectPlugin", "Health Connect plugin attached to engine")
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
@@ -57,7 +55,6 @@ class HealthConnectPlugin : FlutterPlugin, MethodCallHandler {
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
         healthConnectManager.cleanup()
-        android.util.Log.d("HealthConnectPlugin", "Health Connect plugin detached from engine")
     }
 
     // ===========================================

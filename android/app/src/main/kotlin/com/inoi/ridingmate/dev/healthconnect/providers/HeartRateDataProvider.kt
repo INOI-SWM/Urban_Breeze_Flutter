@@ -41,8 +41,7 @@ class HeartRateDataProvider(
             try {
                 val data = fetchHeartRateDataFromHealthConnect(startTime, endTime)
                 result.success(data)
-            } catch (e: Exception) {
-                android.util.Log.e(TAG, "Error fetching heart rate data: ${e.message}")
+            } catch (e: Exception) {    
                 result.error("HEART_RATE_DATA_ERROR", e.message, null)
             }
         }
@@ -63,7 +62,6 @@ class HeartRateDataProvider(
                 val client = healthConnectManager.getClient()
                 
                 if (client == null) {
-                    android.util.Log.w(TAG, "Health Connect client not available")
                     return@withContext heartRateData
                 }
 
@@ -96,7 +94,6 @@ class HeartRateDataProvider(
                 }
                 
             } catch (e: Exception) {
-                android.util.Log.e(TAG, "Error in fetchHeartRateDataFromHealthConnect: ${e.message}")
                 // 에러 발생 시 빈 리스트 반환
             }
             
@@ -135,7 +132,6 @@ class HeartRateDataProvider(
                 val stats = calculateHeartRateStatistics(heartRateData)
                 result.success(stats)
             } catch (e: Exception) {
-                android.util.Log.e(TAG, "Error calculating heart rate statistics: ${e.message}")
                 result.error("HEART_RATE_STATS_ERROR", e.message, null)
             }
         }

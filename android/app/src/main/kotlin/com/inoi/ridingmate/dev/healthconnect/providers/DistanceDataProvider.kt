@@ -41,7 +41,6 @@ class DistanceDataProvider(
                 val data = fetchDistanceDataFromHealthConnect(startTime, endTime)
                 result.success(data)
             } catch (e: Exception) {
-                android.util.Log.e(TAG, "Error fetching distance data: ${e.message}")
                 result.error("DISTANCE_DATA_ERROR", e.message, null)
             }
         }
@@ -62,7 +61,6 @@ class DistanceDataProvider(
                 val client = healthConnectManager.getClient()
                 
                 if (client == null) {
-                    android.util.Log.w(TAG, "Health Connect client not available")
                     return@withContext distanceData
                 }
 
@@ -93,7 +91,6 @@ class DistanceDataProvider(
                 }
                 
             } catch (e: Exception) {
-                android.util.Log.e(TAG, "Error in fetchDistanceDataFromHealthConnect: ${e.message}")
                 // 에러 발생 시 빈 리스트 반환
             }
             
@@ -131,7 +128,6 @@ class DistanceDataProvider(
      * @param result Flutter 결과 콜백
      */
     fun getDistanceStatistics(startTime: Long, endTime: Long, result: MethodChannel.Result) {
-        android.util.Log.d(TAG, "Getting distance statistics")
         
         coroutineScope.launch {
             try {
@@ -139,7 +135,6 @@ class DistanceDataProvider(
                 val stats = calculateDistanceStatistics(distanceData)
                 result.success(stats)
             } catch (e: Exception) {
-                android.util.Log.e(TAG, "Error calculating distance statistics: ${e.message}")
                 result.error("DISTANCE_STATS_ERROR", e.message, null)
             }
         }
@@ -199,8 +194,6 @@ class DistanceDataProvider(
         // 거리 구간 분석
         val zones = calculateDistanceZones(distanceData)
         statistics["zones"] = zones
-        
-        android.util.Log.d(TAG, "Distance statistics: total=$totalDistance, avg=$averageDistance, count=$count")
         
         return statistics
     }

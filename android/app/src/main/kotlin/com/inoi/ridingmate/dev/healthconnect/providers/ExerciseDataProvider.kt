@@ -35,14 +35,11 @@ class ExerciseDataProvider(
      * @param result Flutter 결과 콜백
      */
     fun getExerciseSessions(startTime: Long, endTime: Long, result: MethodChannel.Result) {
-        android.util.Log.d(TAG, "Getting exercise sessions from $startTime to $endTime")
-        
         coroutineScope.launch {
             try {
                 val data = fetchExerciseSessionsFromHealthConnect(startTime, endTime)
                 result.success(data)
             } catch (e: Exception) {
-                android.util.Log.e(TAG, "Error fetching exercise sessions: ${e.message}")
                 result.error("EXERCISE_DATA_ERROR", e.message, null)
             }
         }
@@ -63,13 +60,9 @@ class ExerciseDataProvider(
                 val client = healthConnectManager.getClient()
                 
                 if (client == null) {
-                    android.util.Log.w(TAG, "Health Connect client not available")
                     return@withContext exerciseSessions
                 }
 
-                // Health Connect 1.1.0-alpha12 실제 API 호출
-                android.util.Log.d(TAG, "Fetching exercise sessions from Health Connect")
-                
                 // 시간 범위 필터 생성
                 val timeFilter = TimeRangeFilter.between(
                     Instant.ofEpochMilli(startTime),
@@ -86,8 +79,6 @@ class ExerciseDataProvider(
                 val response: ReadRecordsResponse<ExerciseSessionRecord> = client.readRecords(request)
                 val records = response.records
                 
-                android.util.Log.d(TAG, "Found ${records.size} exercise session records, filtering cycling types")
-                
                 // 각 레코드를 Flutter 형식으로 변환 (자전거 타입만 필터링)
                 records.forEachIndexed { index, record ->
                     try {
@@ -97,12 +88,10 @@ class ExerciseDataProvider(
                             exerciseSessions.add(sessionMap)
                         }
                     } catch (e: Exception) {
-                        android.util.Log.e(TAG, "Error converting record $index: ${e.message}")
                     }
                 }
                 
             } catch (e: Exception) {
-                android.util.Log.e(TAG, "Error in fetchExerciseSessionsFromHealthConnect: ${e.message}")
                 // 에러 발생 시 빈 리스트 반환
             }
             

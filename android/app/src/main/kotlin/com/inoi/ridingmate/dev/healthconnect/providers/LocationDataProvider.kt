@@ -36,7 +36,6 @@ class LocationDataProvider(
                 val data = fetchLocationDataForSession(sessionId)
                 result.success(data)
             } catch (e: Exception) {
-                android.util.Log.e(TAG, "Error fetching location data for session: ${e.message}")
                 result.error("SESSION_LOCATION_ERROR", e.message, null)
             }
         }
@@ -69,19 +68,15 @@ class LocationDataProvider(
                         }
                     }
                     is ExerciseRouteResult.ConsentRequired -> {
-                        android.util.Log.d(TAG, "Consent required for route data in session ${exerciseRecord.metadata.id}")
                         // TODO: 사용자에게 경로 데이터 접근 권한 요청 UI 표시
                         // 현재는 로그만 출력하고 빈 데이터 반환
                     }
                     is ExerciseRouteResult.NoData -> {
-                        android.util.Log.d(TAG, "No route data for session ${exerciseRecord.metadata.id}")
                     }
                     else -> {
-                        android.util.Log.d(TAG, "Unknown route result type for session ${exerciseRecord.metadata.id}")
                     }
                 }
         } catch (e: Exception) {
-            android.util.Log.e(TAG, "Error extracting route from exercise session: ${e.message}")
         }
         
         return routeLocations
@@ -100,7 +95,6 @@ class LocationDataProvider(
             val client = healthConnectManager.getClient()
             
             if (client == null) {
-                android.util.Log.w(TAG, "Health Connect client not available")
                 return routeLocations
             }
 
@@ -108,19 +102,16 @@ class LocationDataProvider(
             try {
                 val grantedPermissions = client.permissionController.getGrantedPermissions()
             } catch (e: Exception) {
-                android.util.Log.w(TAG, "Permission check failed: ${e.message}")
             }
 
             // 특정 세션 ID로 운동 세션 조회
             val exerciseRecord = client.readRecord(ExerciseSessionRecord::class, sessionId)
-            android.util.Log.d(TAG, "Exercise record: ${exerciseRecord.record}")
             
             // 해당 세션의 경로 데이터 추출
             val sessionRouteLocations = extractRouteFromExerciseSession(client, exerciseRecord.record)
             routeLocations.addAll(sessionRouteLocations)
             
         } catch (e: Exception) {
-            android.util.Log.e(TAG, "Error fetching location data for session $sessionId: ${e.message}")
         }
         
         return routeLocations

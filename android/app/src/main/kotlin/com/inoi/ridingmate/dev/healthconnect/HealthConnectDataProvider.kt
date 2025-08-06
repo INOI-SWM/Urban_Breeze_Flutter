@@ -161,9 +161,7 @@ class HealthConnectDataProvider(
     fun cleanup() {
         try {
             // 개별 프로바이더들의 정리 작업이 필요한 경우 여기에 추가
-            android.util.Log.d(TAG, "Health Connect data provider cleaned up")
         } catch (e: Exception) {
-            android.util.Log.e(TAG, "Error during cleanup: ${e.message}")
         }
     }
 } 

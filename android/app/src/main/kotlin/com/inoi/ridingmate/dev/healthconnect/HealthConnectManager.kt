@@ -45,9 +45,7 @@ class HealthConnectManager(private val context: Context) {
             if (isHealthConnectAvailable()) {
                 healthConnectClient = HealthConnectClient.getOrCreate(context)
                 isInitialized = true
-                android.util.Log.d(TAG, "Health Connect client initialized successfully")
             } else {
-                android.util.Log.w(TAG, "Health Connect not available on this device")
                 isInitialized = false
             }
         } catch (e: Exception) {
@@ -66,15 +64,12 @@ class HealthConnectManager(private val context: Context) {
         return try {
             // Android API 레벨 체크 (Health Connect는 API 26+ 필요)
             val apiLevel = android.os.Build.VERSION.SDK_INT
-            android.util.Log.d(TAG, "Android API level: $apiLevel")
             
             if (apiLevel < 26) {
-                android.util.Log.w(TAG, "Android API level too low for Health Connect (requires API 26+)")
                 return false
             }
             
             val sdkStatus = HealthConnectClient.getSdkStatus(context)
-            android.util.Log.d(TAG, "Health Connect SDK status: $sdkStatus")
             
             val result = when (sdkStatus) {
                 SDK_AVAILABLE -> true
@@ -83,10 +78,8 @@ class HealthConnectManager(private val context: Context) {
                 else -> false
             }
             
-            android.util.Log.d(TAG, "Health Connect available: $result")
             result
         } catch (e: Exception) {
-            android.util.Log.e(TAG, "Error checking Health Connect availability: ${e.message}")
             false
         }
     }
@@ -119,7 +112,6 @@ class HealthConnectManager(private val context: Context) {
             // Android API 레벨 체크
             val apiLevel = android.os.Build.VERSION.SDK_INT
             if (apiLevel < 26) {
-                android.util.Log.w(TAG, "Android API level too low, redirecting to Play Store")
                 return createPlayStoreIntent()
             }
             
@@ -128,7 +120,6 @@ class HealthConnectManager(private val context: Context) {
             val packageInfo = context.packageManager.getPackageInfo(packageName, 0)
             
             if (packageInfo != null) {
-                android.util.Log.d(TAG, "Health Connect app found, version: ${packageInfo.versionName}")
                 
                 // Health Connect 앱의 권한 설정 화면으로 직접 이동
                 val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -139,7 +130,6 @@ class HealthConnectManager(private val context: Context) {
                 
                 // 권한 설정 화면으로 이동할 수 있는지 확인
                 if (context.packageManager.resolveActivity(intent, 0) != null) {
-                    android.util.Log.d(TAG, "Health Connect settings intent created successfully")
                     return intent
                 }
                 
@@ -151,7 +141,6 @@ class HealthConnectManager(private val context: Context) {
                 }
                 
                 if (context.packageManager.resolveActivity(settingsIntent, 0) != null) {
-                    android.util.Log.d(TAG, "Health Connect permissions intent created successfully")
                     return settingsIntent
                 }
                 
@@ -159,16 +148,13 @@ class HealthConnectManager(private val context: Context) {
                 val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
                 if (launchIntent != null) {
                     launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    android.util.Log.d(TAG, "Health Connect app found, launching main app")
                     return launchIntent
                 }
             }
             
             // Health Connect 앱이 없으면 Play Store로 이동
-            android.util.Log.w(TAG, "Health Connect app not found, redirecting to Play Store")
             createPlayStoreIntent()
         } catch (e: Exception) {
-            android.util.Log.e(TAG, "Failed to create Health Connect settings intent: ${e.message}")
             createPlayStoreIntent()
         }
     }
@@ -214,9 +200,7 @@ class HealthConnectManager(private val context: Context) {
             }
             healthConnectClient = null
             isInitialized = false
-            android.util.Log.d(TAG, "Health Connect manager cleaned up")
         } catch (e: Exception) {
-            android.util.Log.e(TAG, "Error during cleanup: ${e.message}")
         }
     }
 

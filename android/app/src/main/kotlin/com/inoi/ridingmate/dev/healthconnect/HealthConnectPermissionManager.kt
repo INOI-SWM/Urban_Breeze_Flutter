@@ -38,10 +38,8 @@ class HealthConnectPermissionManager(
             try {
                 // Android API 레벨 체크
                 val apiLevel = android.os.Build.VERSION.SDK_INT
-                android.util.Log.d(TAG, "Checking permissions for Android API level: $apiLevel")
                 
                 if (apiLevel < 26) {
-                    android.util.Log.w(TAG, "Android API level too low for Health Connect")
                     result.error("API_LEVEL_TOO_LOW", "Health Connect requires Android API 26+ (Android 8.0+)", null)
                     return@launch
                 }
@@ -59,10 +57,8 @@ class HealthConnectPermissionManager(
 
                 // 먼저 현재 권한 상태 확인
                 val hasPermissions = hasPermissions()
-                android.util.Log.d(TAG, "Current permission status: $hasPermissions")
                 
                 if (hasPermissions) {
-                    android.util.Log.d(TAG, "Permissions already granted")
                     result.success("ALREADY_GRANTED")
                     return@launch
                 }
@@ -88,7 +84,6 @@ class HealthConnectPermissionManager(
                 }
                 
             } catch (e: Exception) {
-                android.util.Log.e(TAG, "Failed to request Health Connect permissions: ${e.message}")
                 result.error("PERMISSION_ERROR", "Failed to request permissions: ${e.message}", null)
             }
         }
@@ -120,7 +115,6 @@ class HealthConnectPermissionManager(
                     return@withContext false
                 }
             } catch (e: Exception) {
-                android.util.Log.e(TAG, "Error checking permissions: ${e.message}")
                 false
             }
         }
@@ -142,10 +136,8 @@ class HealthConnectPermissionManager(
 
                 // 기본적인 가용성 체크만 수행
                 val isAvailable = healthConnectManager.isHealthConnectAvailable()
-                android.util.Log.d(TAG, "Specific permission check for $permissionType: $isAvailable")
                 isAvailable
             } catch (e: Exception) {
-                android.util.Log.e(TAG, "Error checking specific permission: ${e.message}")
                 false
             }
         }
@@ -164,14 +156,12 @@ class HealthConnectPermissionManager(
                 if (intent != null) {
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(intent)
-                    android.util.Log.d(TAG, "Redirected to Health Connect settings")
                     result.success("SUCCESS")
                 } else {
                     redirectToPlayStore()
                     result.success("PLAY_STORE_REDIRECT")
                 }
             } catch (e: Exception) {
-                android.util.Log.e(TAG, "Failed to redirect to Health Connect settings: ${e.message}")
                 result.error("REDIRECT_ERROR", "Failed to redirect: ${e.message}", null)
             }
         }
@@ -184,9 +174,7 @@ class HealthConnectPermissionManager(
         try {
             val intent = healthConnectManager.createPlayStoreIntent()
             context.startActivity(intent)
-            android.util.Log.d(TAG, "Redirected to Play Store for Health Connect")
         } catch (e: Exception) {
-            android.util.Log.e(TAG, "Failed to redirect to Play Store: ${e.message}")
         }
     }
 
@@ -250,7 +238,6 @@ class HealthConnectPermissionManager(
                 }
                 
             } catch (e: Exception) {
-                android.util.Log.e(TAG, "Error getting detailed permission status: ${e.message}")
                 getRequiredPermissions().forEach { permission ->
                     permissionStatus[permission] = false
                 }
