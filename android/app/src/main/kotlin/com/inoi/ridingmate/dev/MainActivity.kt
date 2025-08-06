@@ -15,6 +15,7 @@ class MainActivity : FlutterFragmentActivity() {
 
     private lateinit var healthConnectManager: HealthConnectManager
     private lateinit var permissionLauncher: ActivityResultLauncher<Set<String>>
+    private var permissionResultCallback: ((Boolean) -> Unit)? = null
 
     // 요청할 Health Connect 권한 목록
     private val permissions = setOf(
@@ -32,13 +33,9 @@ class MainActivity : FlutterFragmentActivity() {
         permissionLauncher = registerForActivityResult(
             PermissionController.createRequestPermissionResultContract()
         ) { granted ->
-            if (granted.containsAll(permissions)) {
-                // ✅ 권한 허용됨
-                healthConnectManager.onPermissionGranted()
-            } else {
-                // ❌ 권한 일부 또는 전체 거부됨
-                healthConnectManager.onPermissionDenied()
-            }
+            val allGranted = granted.containsAll(permissions)
+            permissionResultCallback?.invoke(allGranted)
+            permissionResultCallback = null
         }
     }
 
@@ -59,16 +56,9 @@ class MainActivity : FlutterFragmentActivity() {
     /**
      * 외부에서 권한 요청을 트리거할 수 있게 함수 제공
      */
-    suspend fun requestHealthConnectPermissions(client: HealthConnectClient) {
-        // Coroutine 필요 → 이 함수는 코루틴 내에서 호출되어야 함
-        client.permissionController.getGrantedPermissions().let { granted ->
-            if (!granted.containsAll(permissions)) {
-                permissionLauncher.launch(permissions)
-            } else {
-                // 이미 권한 있음
-                healthConnectManager.onPermissionGranted()
-            }
-        }
+    fun requestHealthConnectPermissions(callback: (Boolean) -> Unit) {
+        permissionResultCallback = callback
+        permissionLauncher.launch(permissions)
     }
 
     fun getHealthConnectManager(): HealthConnectManager {

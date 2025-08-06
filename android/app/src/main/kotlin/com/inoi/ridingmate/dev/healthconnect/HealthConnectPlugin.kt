@@ -1,5 +1,6 @@
 package com.inoi.ridingmate.dev.healthconnect
 
+import android.app.Activity
 import android.content.Context
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
@@ -13,7 +14,7 @@ import com.inoi.ridingmate.dev.healthconnect.providers.*
  * 
  * Flutter와 Health Connect 간의 MethodChannel 통신을 담당
  */
-class HealthConnectPlugin : FlutterPlugin, MethodCallHandler {
+class HealthConnectPlugin(private var activity: Activity? = null) : FlutterPlugin, MethodCallHandler {
     private val CHANNEL = "health_connect"
     private lateinit var channel: MethodChannel
     private lateinit var context: Context
@@ -33,6 +34,13 @@ class HealthConnectPlugin : FlutterPlugin, MethodCallHandler {
         healthConnectManager = HealthConnectManager(context)
         permissionManager = HealthConnectPermissionManager(context, healthConnectManager)
         dataProvider = HealthConnectDataProvider(context, healthConnectManager)
+    }
+    
+    /**
+     * Activity 참조 설정
+     */
+    fun setActivity(activity: Activity) {
+        this.activity = activity
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
@@ -67,7 +75,20 @@ class HealthConnectPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     private fun handleRequestPermissions(result: Result) {
-        permissionManager.requestPermissions(result)
+        val mainActivity = activity as? com.inoi.ridingmate.dev.MainActivity
+        if (mainActivity != null) {
+            // MainActivity의 권한 요청 사용
+            mainActivity.requestHealthConnectPermissions { granted ->
+                if (granted) {
+                    result.success("ALL_PERMISSIONS_GRANTED")
+                } else {
+                    result.success("PERMISSIONS_DENIED")
+                }
+            }
+        } else {
+            // Activity가 없으면 기존 방식 사용
+            permissionManager.requestPermissions(result)
+        }
     }
 
     private fun handleHasPermissions(result: Result) {

@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  * Health Connect 권한 관리자
- * 
+ *
  * Health Connect 앱의 권한 요청, 상태 확인, 설정 화면 연결을 담당
  * Health Connect 1.1.0-alpha12 버전 기준
  */
@@ -30,7 +30,7 @@ class HealthConnectPermissionManager(
 
     /**
      * Health Connect 권한 요청
-     * 
+     *
      * @param result Flutter 결과 콜백
      */
     fun requestPermissions(result: MethodChannel.Result) {
@@ -38,12 +38,12 @@ class HealthConnectPermissionManager(
             try {
                 // Android API 레벨 체크
                 val apiLevel = android.os.Build.VERSION.SDK_INT
-                
+
                 if (apiLevel < 26) {
                     result.error("API_LEVEL_TOO_LOW", "Health Connect requires Android API 26+ (Android 8.0+)", null)
                     return@launch
                 }
-                
+
                 if (!healthConnectManager.isHealthConnectAvailable()) {
                     result.error("NOT_AVAILABLE", "Health Connect is not available on this device", null)
                     return@launch
@@ -57,32 +57,15 @@ class HealthConnectPermissionManager(
 
                 // 먼저 현재 권한 상태 확인
                 val hasPermissions = hasPermissions()
-                
+
                 if (hasPermissions) {
                     result.success("ALREADY_GRANTED")
                     return@launch
                 }
 
-                // 권한이 없으면 권한 요청 시도
-                try {
-                    // Health Connect 권한 요청을 위한 Intent 생성
-                    val intent = Intent(Intent.ACTION_VIEW).apply {
-                        data = Uri.parse("healthconnect://permissions")
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    }
-                    
-                    // 권한 요청 화면으로 이동할 수 있는지 확인
-                    if (context.packageManager.resolveActivity(intent, 0) != null) {
-                        context.startActivity(intent)
-                        result.success("PERMISSIONS_REQUESTED")
-                    } else {
-                        // 권한 요청 화면으로 이동할 수 없으면 설정 화면으로 이동
-                        redirectToHealthConnectSettings(result)
-                    }
-                } catch (e: Exception) {
-                    redirectToHealthConnectSettings(result)
-                }
-                
+                // 권한이 없으면 설정 화면으로 이동 (MainActivity에서 직접 권한 요청 처리)
+                redirectToHealthConnectSettings(result)
+
             } catch (e: Exception) {
                 result.error("PERMISSION_ERROR", "Failed to request permissions: ${e.message}", null)
             }
@@ -91,7 +74,7 @@ class HealthConnectPermissionManager(
 
     /**
      * Health Connect 권한 상태 확인
-     * 
+     *
      * @return 권한 보유 여부
      */
     suspend fun hasPermissions(): Boolean {
@@ -106,11 +89,21 @@ class HealthConnectPermissionManager(
                 try {
                     val permissionController = client.permissionController
                     val grantedPermissions = permissionController.getGrantedPermissions()
-                    
-                    // 운동 관련 권한이 있는지 확인
-                    val hasExercisePermission = grantedPermissions.contains("android.permission.health.READ_EXERCISE")
-                    
-                    return@withContext hasExercisePermission
+
+                    // 필요한 권한들 확인
+                    val requiredPermissions = setOf(
+                        "android.permission.health.READ_EXERCISE",
+                        "android.permission.health.READ_HEART_RATE",
+                        "android.permission.health.READ_DISTANCE",
+                        "android.permission.health.READ_TOTAL_CALORIES_BURNED"
+                    )
+
+                    // 모든 필요한 권한이 있는지 확인
+                    val hasAllPermissions = requiredPermissions.all { permission ->
+                        grantedPermissions.contains(permission)
+                    }
+
+                    return@withContext hasAllPermissions
                 } catch (e: Exception) {
                     return@withContext false
                 }
@@ -122,7 +115,7 @@ class HealthConnectPermissionManager(
 
     /**
      * 특정 권한 확인
-     * 
+     *
      * @param permissionType 권한 타입
      * @return 권한 보유 여부
      */
@@ -145,14 +138,14 @@ class HealthConnectPermissionManager(
 
     /**
      * Health Connect 설정 화면으로 리다이렉트
-     * 
+     *
      * @param result Flutter 결과 콜백
      */
     fun redirectToHealthConnectSettings(result: MethodChannel.Result) {
         coroutineScope.launch {
             try {
                 val intent = healthConnectManager.createHealthConnectSettingsIntent()
-                
+
                 if (intent != null) {
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     context.startActivity(intent)
@@ -182,7 +175,7 @@ class HealthConnectPermissionManager(
 
     /**
      * 권한 관련 상태 정보 반환 (디버깅용)
-     * 
+     *
      * @return 권한 상태 정보 문자열
      */
     suspend fun getPermissionStatusInfo(): String {
@@ -197,13 +190,13 @@ class HealthConnectPermissionManager(
 
     /**
      * 필요한 권한 목록 반환 (참고용)
-     * 
+     *
      * @return Health Connect에서 필요한 권한들
      */
     fun getRequiredPermissions(): Array<String> {
         return arrayOf(
             "android.permission.health.READ_EXERCISE",
-            "android.permission.health.WRITE_EXERCISE", 
+            "android.permission.health.WRITE_EXERCISE",
             "android.permission.health.READ_HEART_RATE",
             "android.permission.health.WRITE_HEART_RATE",
             "android.permission.health.READ_SPEED",
@@ -214,13 +207,13 @@ class HealthConnectPermissionManager(
 
     /**
      * 권한 상태 자세히 확인
-     * 
+     *
      * @return 각 권한별 상태 맵
      */
     suspend fun getDetailedPermissionStatus(): Map<String, Boolean> {
         return withContext(Dispatchers.IO) {
             val permissionStatus = mutableMapOf<String, Boolean>()
-            
+
             try {
                 val client = healthConnectManager.getClient()
                 if (client == null) {
@@ -236,14 +229,14 @@ class HealthConnectPermissionManager(
                 getRequiredPermissions().forEach { permission ->
                     permissionStatus[permission] = isAvailable
                 }
-                
+
             } catch (e: Exception) {
                 getRequiredPermissions().forEach { permission ->
                     permissionStatus[permission] = false
                 }
             }
-            
+
             permissionStatus
         }
     }
-} 
+}
