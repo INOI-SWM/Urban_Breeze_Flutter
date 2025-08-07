@@ -50,7 +50,7 @@ android {
         applicationId = "com.inoi.ridingmate.dev"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        minSdk = 26  // Health Connect 요구사항 (API 26+)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -68,4 +68,12 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Health Connect 의존성 - 운동 경로 기능 포함 버전
+    implementation("androidx.health.connect:connect-client:1.1.0-alpha12")
+    implementation("androidx.activity:activity-compose:1.7.2")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    implementation ("androidx.activity:activity-ktx:1.10.1")
 }

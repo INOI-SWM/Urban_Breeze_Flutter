@@ -3,11 +3,18 @@ import 'package:http/http.dart' as http;
 import 'package:ridingmate/core/di/core_providers.dart';
 
 import '../application/use_cases/get_workout_statistics_use_case.dart';
+import '../application/use_cases/sync_apple_health_kit_data_use_case.dart';
+import '../application/use_cases/sync_google_health_connect_data_use_case.dart';
 import '../application/use_cases/update_workout_title_use_case.dart';
+import '../data/datasources/google_health_connect_datasource.dart';
 import '../data/datasources/remote_workout_history_datasource.dart';
 import '../data/datasources/workout_statistics_datasource.dart';
+import '../data/repositories/apple_health_kit_sync_repository_impl.dart';
+import '../data/repositories/google_health_connect_sync_repository_impl.dart';
 import '../data/repositories/workout_history_repository_impl.dart';
 import '../data/repositories/workout_statistics_repository_impl.dart';
+import '../domain/repositories/google_health_connect_sync_repository.dart';
+import '../domain/repositories/health_kit_sync_repository.dart';
 import '../domain/repositories/workout_history_repository.dart';
 import '../domain/repositories/workout_statistics_repository.dart';
 
@@ -28,6 +35,13 @@ remoteWorkoutHistoryDataSourceProvider =
       return RemoteWorkoutHistoryDataSource(client: client);
     });
 
+final Provider<GoogleHealthConnectDataSource>
+googleHealthConnectDataSourceProvider = Provider<GoogleHealthConnectDataSource>(
+  (Ref<GoogleHealthConnectDataSource> ref) {
+    return GoogleHealthConnectDataSource();
+  },
+);
+
 // Repository Providers
 final Provider<WorkoutStatisticsRepository>
 workoutStatisticsRepositoryProvider = Provider<WorkoutStatisticsRepository>((
@@ -42,11 +56,28 @@ workoutStatisticsRepositoryProvider = Provider<WorkoutStatisticsRepository>((
 
 final Provider<WorkoutHistoryRepository> workoutHistoryRepositoryProvider =
     Provider<WorkoutHistoryRepository>((Ref<WorkoutHistoryRepository> ref) {
-      final RemoteWorkoutHistoryDataSource dataSource = ref.watch(
+      final RemoteWorkoutHistoryDataSource remoteDataSource = ref.watch(
         remoteWorkoutHistoryDataSourceProvider,
       );
 
-      return WorkoutHistoryRepositoryImpl(remoteDataSource: dataSource);
+      return WorkoutHistoryRepositoryImpl(remoteDataSource: remoteDataSource);
+    });
+
+final Provider<HealthKitSyncRepository> healthKitSyncRepositoryProvider =
+    Provider<HealthKitSyncRepository>((Ref<HealthKitSyncRepository> ref) {
+      return AppleHealthKitSyncRepositoryImpl();
+    });
+
+final Provider<GoogleHealthConnectSyncRepository>
+googleHealthConnectSyncRepositoryProvider =
+    Provider<GoogleHealthConnectSyncRepository>((
+      Ref<GoogleHealthConnectSyncRepository> ref,
+    ) {
+      final GoogleHealthConnectDataSource dataSource = ref.watch(
+        googleHealthConnectDataSourceProvider,
+      );
+
+      return GoogleHealthConnectSyncRepositoryImpl(dataSource: dataSource);
     });
 
 // Use Case Providers
@@ -68,4 +99,27 @@ final Provider<UpdateWorkoutTitleUseCase> updateWorkoutTitleUseCaseProvider =
       );
 
       return UpdateWorkoutTitleUseCase(workoutHistoryRepository: repository);
+    });
+
+final Provider<SyncAppleHealthKitDataUseCase>
+syncAppleHealthKitDataUseCaseProvider = Provider<SyncAppleHealthKitDataUseCase>(
+  (Ref<SyncAppleHealthKitDataUseCase> ref) {
+    final HealthKitSyncRepository repository = ref.watch(
+      healthKitSyncRepositoryProvider,
+    );
+
+    return SyncAppleHealthKitDataUseCase(repository);
+  },
+);
+
+final Provider<SyncGoogleHealthConnectDataUseCase>
+syncGoogleHealthConnectDataUseCaseProvider =
+    Provider<SyncGoogleHealthConnectDataUseCase>((
+      Ref<SyncGoogleHealthConnectDataUseCase> ref,
+    ) {
+      final GoogleHealthConnectSyncRepository repository = ref.watch(
+        googleHealthConnectSyncRepositoryProvider,
+      );
+
+      return SyncGoogleHealthConnectDataUseCase(repository);
     });

@@ -1,9 +1,9 @@
 import '../../domain/entities/workout_record.dart';
-import '../../domain/repositories/health_kit_sync_repository.dart';
+import '../../domain/repositories/google_health_connect_sync_repository.dart';
 
-class SyncAppleHealthKitDataUseCase {
-  const SyncAppleHealthKitDataUseCase(this._repository);
-  final HealthKitSyncRepository _repository;
+class SyncGoogleHealthConnectDataUseCase {
+  const SyncGoogleHealthConnectDataUseCase(this._repository);
+  final GoogleHealthConnectSyncRepository _repository;
 
   Future<bool> requestPermissions() async {
     return await _repository.requestPermissions();
@@ -20,7 +20,27 @@ class SyncAppleHealthKitDataUseCase {
   }) async {
     final Map<WorkoutRecord, Map<String, dynamic>> completeData =
         <WorkoutRecord, Map<String, dynamic>>{};
-    //TODO: 서버 저장
+
+    try {
+      final List<WorkoutRecord> workouts = await _repository
+          .fetchCyclingWorkoutsFromHealthConnect(
+            startDate: startDate,
+            endDate: endDate,
+          );
+
+      for (final WorkoutRecord workout in workouts) {
+        completeData[workout] = <String, dynamic>{
+          'heartRateData': workout.heartRateData,
+          'distanceData': workout.distanceData,
+          'locationData': workout.locationData,
+        };
+      }
+    } catch (e) {
+      // TODO: 에러 처리 로직 추가
+      rethrow;
+    }
+
+    // TODO: 서버 저장
     return completeData;
   }
 
@@ -30,7 +50,7 @@ class SyncAppleHealthKitDataUseCase {
     DateTime? endDate,
   }) async {
     try {
-      return await _repository.fetchCyclingWorkoutsFromHealthKit(
+      return await _repository.fetchCyclingWorkoutsFromHealthConnect(
         startDate: startDate,
         endDate: endDate,
       );

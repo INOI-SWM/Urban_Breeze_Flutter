@@ -73,8 +73,9 @@ class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen> {
 
     final List<LatLng> routePoints =
         widget.workoutRecord.locationData
-            .map((LocationData data) => LatLng(data.latitude, data.longitude))
-            .toList();
+            ?.map((LocationData data) => LatLng(data.latitude, data.longitude))
+            .toList() ??
+        <LatLng>[];
 
     if (routePoints.isNotEmpty) {
       final LatLngBounds bounds = _calculateLatLngBounds(
@@ -172,8 +173,9 @@ class _WorkoutDetailRouteMapWidget extends StatelessWidget {
     final SemanticColors colors = context.semanticColor;
     final List<LatLng> routePoints =
         workoutRecord.locationData
-            .map((LocationData data) => LatLng(data.latitude, data.longitude))
-            .toList();
+            ?.map((LocationData data) => LatLng(data.latitude, data.longitude))
+            .toList() ??
+        <LatLng>[];
 
     CameraFit? initialCameraFit;
     if (routePoints.isNotEmpty) {

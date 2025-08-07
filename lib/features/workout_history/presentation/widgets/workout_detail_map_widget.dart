@@ -22,7 +22,7 @@ class WorkoutDetailMapWidget extends StatelessWidget {
     final SemanticColors colors = context.semanticColor;
 
     final List<LatLng> routePoints = _convertLocationDataToLatLng(
-      workoutRecord.locationData,
+      workoutRecord.locationData ?? <LocationData>[],
     );
 
     // LatLngBounds를 사용한 카메라 설정

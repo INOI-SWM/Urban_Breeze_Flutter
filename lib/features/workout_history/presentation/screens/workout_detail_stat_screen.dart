@@ -108,13 +108,13 @@ class WorkoutDetailStatScreen extends StatelessWidget {
       <String, String>{
         'label': '평균 심박수',
         'value': WorkoutFormatter.toHeartRateText(
-          workoutRecord.heartRateData.first.heartRate.toDouble(),
+          workoutRecord.heartRateData?.first.heartRate.toDouble(),
         ),
       },
       <String, String>{
         'label': '최대 심박수',
         'value': WorkoutFormatter.toHeartRateText(
-          workoutRecord.heartRateData.last.heartRate.toDouble(),
+          workoutRecord.heartRateData?.last.heartRate.toDouble(),
         ),
       },
       <String, String>{

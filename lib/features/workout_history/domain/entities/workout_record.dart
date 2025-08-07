@@ -10,9 +10,9 @@ class WorkoutRecord {
     required this.duration,
     required this.distance,
     required this.calories,
-    required this.heartRateData,
-    required this.distanceData,
-    required this.locationData,
+    this.heartRateData,
+    this.distanceData,
+    this.locationData,
   });
 
   final String id;
@@ -21,9 +21,9 @@ class WorkoutRecord {
   final Duration duration;
   final double distance; // 1m 단위
   final double calories; // kcal 단위
-  final List<HeartRateData> heartRateData; // 원시 심박수 데이터
-  final List<DistanceData> distanceData; // 원시 거리 데이터
-  final List<LocationData> locationData; // 원시 GPS 위치 데이터
+  final List<HeartRateData>? heartRateData; // 원시 심박수 데이터
+  final List<DistanceData>? distanceData; // 원시 거리 데이터
+  final List<LocationData>? locationData; // 원시 GPS 위치 데이터
 
   /// 기존 객체의 일부 필드만 변경한 새로운 객체를 생성
   WorkoutRecord copyWith({
@@ -60,9 +60,9 @@ class WorkoutRecord {
         'duration: $duration, '
         'distance: $distance m, '
         'calories: ${calories}kcal, '
-        'heartRateData: ${heartRateData.length}개, '
-        'distanceData: ${distanceData.length}개, '
-        'locationData: ${locationData.length}개 포인트'
+        'heartRateData: ${heartRateData?.length}개, '
+        'distanceData: ${distanceData?.length}개, '
+        'locationData: ${locationData?.length}개 포인트'
         '}';
   }
 }
