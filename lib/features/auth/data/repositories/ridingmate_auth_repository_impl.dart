@@ -18,4 +18,13 @@ class RidingMateAuthRepositoryImpl implements RidingMateAuthRepository {
         .loginWithGoogleIdToken(idToken: idToken);
     return model.toDomain();
   }
+
+  @override
+  Future<AuthLoginResult> loginWithKakaoAccessToken({
+    required String accessToken,
+  }) async {
+    final RidingMateLoginResponseModel model = await _remoteDataSource
+        .loginWithKakaoAccessToken(accessToken: accessToken);
+    return model.toDomain();
+  }
 }
