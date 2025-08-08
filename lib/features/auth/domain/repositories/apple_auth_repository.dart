@@ -6,4 +6,5 @@ abstract class AppleAuthRepository {
   Future<void> withdraw();
   Future<User?> getCurrentUser();
   bool get isSignedIn;
+  Future<String?> getIdToken();
 }
