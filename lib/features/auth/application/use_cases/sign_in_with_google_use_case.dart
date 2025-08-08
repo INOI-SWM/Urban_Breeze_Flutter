@@ -10,4 +10,6 @@ class SignInWithGoogleUseCase {
   Future<User?> execute() async {
     return await _repository.signIn();
   }
+
+  Future<String?> getIdToken() async => _repository.getIdToken();
 }
