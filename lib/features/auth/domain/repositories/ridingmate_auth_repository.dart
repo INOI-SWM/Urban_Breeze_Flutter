@@ -5,4 +5,5 @@ abstract class RidingMateAuthRepository {
   Future<AuthLoginResult> loginWithKakaoAccessToken({
     required String accessToken,
   });
+  Future<AuthLoginResult> loginWithAppleIdToken({required String idToken});
 }

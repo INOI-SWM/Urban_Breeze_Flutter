@@ -27,4 +27,13 @@ class RidingMateAuthRepositoryImpl implements RidingMateAuthRepository {
         .loginWithKakaoAccessToken(accessToken: accessToken);
     return model.toDomain();
   }
+
+  @override
+  Future<AuthLoginResult> loginWithAppleIdToken({
+    required String idToken,
+  }) async {
+    final RidingMateLoginResponseModel model = await _remoteDataSource
+        .loginWithAppleIdToken(idToken: idToken);
+    return model.toDomain();
+  }
 }
