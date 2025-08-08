@@ -56,6 +56,7 @@ class KakaoAuthDataSourceImpl implements KakaoAuthDataSource {
     } catch (error) {
       // 연결끊기 실패 시에도 로컬 상태는 초기화
       _currentUser = null;
+      _currentToken = null;
       rethrow;
     }
   }
