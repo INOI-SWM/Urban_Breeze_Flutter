@@ -1,14 +1,17 @@
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
+import 'package:ridingmate/features/auth/data/models/ridingmate_login_response_model.dart';
 import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
 
 class RidingMateAuthRemoteDataSource extends BaseRemoteDataSource {
   RidingMateAuthRemoteDataSource({super.client});
 
-  Future<Map<String, dynamic>> loginWithGoogleIdToken({
+  Future<RidingMateLoginResponseModel> loginWithGoogleIdToken({
     required String idToken,
   }) async {
     try {
+      debugPrint('idToken: $idToken');
       final http.Response response = await post(
         '/api/auth/google/login',
         body: <String, dynamic>{'idtoken': idToken},
@@ -18,7 +21,7 @@ class RidingMateAuthRemoteDataSource extends BaseRemoteDataSource {
       final Map<String, dynamic> jsonMap = decodeResponse(response);
 
       if (statusCode == 200 || statusCode == 201) {
-        return jsonMap;
+        return RidingMateLoginResponseModel.fromApi(jsonMap);
       } else {
         final String errorMessage =
             (jsonMap['errorMessage'] ?? jsonMap['message'] ?? 'API 요청 실패')
