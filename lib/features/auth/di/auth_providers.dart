@@ -204,12 +204,15 @@ final Provider<AuthSignInFacade> authSignInFacadeProvider =
       final SignInWithKakaoUseCase signInWithKakaoUseCase = ref.watch(
         signInWithKakaoUseCaseProvider,
       );
+      final LoginWithKakaoAccessTokenUseCase loginWithKakaoAccessTokenUseCase =
+          ref.watch(loginWithKakaoAccessTokenUseCaseProvider);
 
       return AuthSignInFacade(
         signInWithGoogleUseCase: signInWithGoogleUseCase,
         loginWithGoogleIdTokenUseCase: loginWithGoogleIdTokenUseCase,
         signInWithAppleUseCase: signInWithAppleUseCase,
         signInWithKakaoUseCase: signInWithKakaoUseCase,
+        loginWithKakaoAccessTokenUseCase: loginWithKakaoAccessTokenUseCase,
       );
     });
 

@@ -1,4 +1,5 @@
 import 'package:ridingmate/features/auth/application/use_cases/login_with_google_idtoken_use_case.dart';
+import 'package:ridingmate/features/auth/application/use_cases/login_with_kakao_access_token_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_apple_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_google_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_kakao_use_case.dart';
@@ -12,15 +13,18 @@ class AuthSignInFacade {
     required SignInWithAppleUseCase signInWithAppleUseCase,
     required SignInWithKakaoUseCase signInWithKakaoUseCase,
     required LoginWithGoogleIdTokenUseCase loginWithGoogleIdTokenUseCase,
+    required LoginWithKakaoAccessTokenUseCase loginWithKakaoAccessTokenUseCase,
   }) : _signInWithGoogleUseCase = signInWithGoogleUseCase,
        _signInWithAppleUseCase = signInWithAppleUseCase,
        _signInWithKakaoUseCase = signInWithKakaoUseCase,
-       _loginWithGoogleIdTokenUseCase = loginWithGoogleIdTokenUseCase;
+       _loginWithGoogleIdTokenUseCase = loginWithGoogleIdTokenUseCase,
+       _loginWithKakaoAccessTokenUseCase = loginWithKakaoAccessTokenUseCase;
 
   final SignInWithGoogleUseCase _signInWithGoogleUseCase;
   final SignInWithAppleUseCase _signInWithAppleUseCase;
   final SignInWithKakaoUseCase _signInWithKakaoUseCase;
   final LoginWithGoogleIdTokenUseCase _loginWithGoogleIdTokenUseCase;
+  final LoginWithKakaoAccessTokenUseCase _loginWithKakaoAccessTokenUseCase;
 
   Future<User?> signIn(LoginProvider provider) async {
     switch (provider) {
@@ -40,7 +44,21 @@ class AuthSignInFacade {
       case LoginProvider.apple:
         return await _signInWithAppleUseCase.execute();
       case LoginProvider.kakao:
-        return await _signInWithKakaoUseCase.execute();
+        final User? user = await _signInWithKakaoUseCase.execute();
+        if (user != null) {
+          final String? accessToken =
+              await _signInWithKakaoUseCase.getAccessToken();
+          if (accessToken != null && accessToken.isNotEmpty) {
+            final AuthLoginResult result =
+                await _loginWithKakaoAccessTokenUseCase.execute(
+                  accessToken: accessToken,
+                );
+            // TODO: 토큰 저장
+            // TODO: 첫 로그인 처리 분기
+            return result.user;
+          }
+        }
+        return user;
     }
   }
 }
