@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
 import 'package:ridingmate/features/auth/data/models/ridingmate_login_response_model.dart';
@@ -11,7 +10,6 @@ class RidingMateAuthRemoteDataSource extends BaseRemoteDataSource {
     required String idToken,
   }) async {
     try {
-      debugPrint('idToken: $idToken');
       final http.Response response = await post(
         '/api/auth/google/login',
         body: <String, dynamic>{'idtoken': idToken},
