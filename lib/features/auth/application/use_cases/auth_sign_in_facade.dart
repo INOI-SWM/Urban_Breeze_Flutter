@@ -1,3 +1,4 @@
+import 'package:ridingmate/features/auth/application/use_cases/login_with_google_idtoken_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_apple_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_google_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_kakao_use_case.dart';
@@ -9,18 +10,28 @@ class AuthSignInFacade {
     required SignInWithGoogleUseCase signInWithGoogleUseCase,
     required SignInWithAppleUseCase signInWithAppleUseCase,
     required SignInWithKakaoUseCase signInWithKakaoUseCase,
+    required LoginWithGoogleIdTokenUseCase loginWithGoogleIdTokenUseCase,
   }) : _signInWithGoogleUseCase = signInWithGoogleUseCase,
        _signInWithAppleUseCase = signInWithAppleUseCase,
-       _signInWithKakaoUseCase = signInWithKakaoUseCase;
+       _signInWithKakaoUseCase = signInWithKakaoUseCase,
+       _loginWithGoogleIdTokenUseCase = loginWithGoogleIdTokenUseCase;
 
   final SignInWithGoogleUseCase _signInWithGoogleUseCase;
   final SignInWithAppleUseCase _signInWithAppleUseCase;
   final SignInWithKakaoUseCase _signInWithKakaoUseCase;
+  final LoginWithGoogleIdTokenUseCase _loginWithGoogleIdTokenUseCase;
 
   Future<User?> signIn(LoginProvider provider) async {
     switch (provider) {
       case LoginProvider.google:
-        return await _signInWithGoogleUseCase.execute();
+        final User? user = await _signInWithGoogleUseCase.execute();
+        if (user != null) {
+          final String? idToken = await _signInWithGoogleUseCase.getIdToken();
+          if (idToken != null && idToken.isNotEmpty) {
+            await _loginWithGoogleIdTokenUseCase.execute(idToken: idToken);
+          }
+        }
+        return user;
       case LoginProvider.apple:
         return await _signInWithAppleUseCase.execute();
       case LoginProvider.kakao:
