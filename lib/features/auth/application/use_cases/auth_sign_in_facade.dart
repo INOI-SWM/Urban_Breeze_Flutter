@@ -2,6 +2,7 @@ import 'package:ridingmate/features/auth/application/use_cases/login_with_google
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_apple_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_google_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_kakao_use_case.dart';
+import 'package:ridingmate/features/auth/domain/entities/auth_login_result.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
 
@@ -28,7 +29,9 @@ class AuthSignInFacade {
         if (user != null) {
           final String? idToken = await _signInWithGoogleUseCase.getIdToken();
           if (idToken != null && idToken.isNotEmpty) {
-            await _loginWithGoogleIdTokenUseCase.execute(idToken: idToken);
+            final AuthLoginResult result = await _loginWithGoogleIdTokenUseCase
+                .execute(idToken: idToken);
+            return result.user;
           }
         }
         return user;

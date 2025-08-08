@@ -1,4 +1,6 @@
 import 'package:ridingmate/features/auth/data/datasources/ridingmate_auth_remote_datasource.dart';
+import 'package:ridingmate/features/auth/data/models/ridingmate_login_response_model.dart';
+import 'package:ridingmate/features/auth/domain/entities/auth_login_result.dart';
 import 'package:ridingmate/features/auth/domain/repositories/ridingmate_auth_repository.dart';
 
 class RidingMateAuthRepositoryImpl implements RidingMateAuthRepository {
@@ -9,9 +11,11 @@ class RidingMateAuthRepositoryImpl implements RidingMateAuthRepository {
   final RidingMateAuthRemoteDataSource _remoteDataSource;
 
   @override
-  Future<Map<String, dynamic>> loginWithGoogleIdToken({
+  Future<AuthLoginResult> loginWithGoogleIdToken({
     required String idToken,
   }) async {
-    return _remoteDataSource.loginWithGoogleIdToken(idToken: idToken);
+    final RidingMateLoginResponseModel model = await _remoteDataSource
+        .loginWithGoogleIdToken(idToken: idToken);
+    return model.toDomain();
   }
 }

@@ -1,5 +1,5 @@
+import 'package:ridingmate/features/auth/domain/entities/auth_login_result.dart';
+
 abstract class RidingMateAuthRepository {
-  Future<Map<String, dynamic>> loginWithGoogleIdToken({
-    required String idToken,
-  });
+  Future<AuthLoginResult> loginWithGoogleIdToken({required String idToken});
 }

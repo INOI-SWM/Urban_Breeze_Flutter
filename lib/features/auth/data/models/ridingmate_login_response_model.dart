@@ -1,3 +1,4 @@
+import 'package:ridingmate/features/auth/domain/entities/auth_login_result.dart';
 import 'package:ridingmate/features/auth/domain/entities/auth_tokens.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
@@ -36,4 +37,6 @@ class RidingMateLoginResponseModel {
 
   final AuthTokens tokens;
   final User user;
+
+  AuthLoginResult toDomain() => AuthLoginResult(tokens: tokens, user: user);
 }
