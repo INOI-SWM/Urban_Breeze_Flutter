@@ -5,6 +5,8 @@ import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.da
 import 'package:ridingmate/shared/api/data/models/api_response_model.dart';
 
 class MyRouteRemoteDataSource extends BaseRemoteDataSource {
+  MyRouteRemoteDataSource({super.client});
+
   Future<ApiResponseModel<MyRouteListDataModel>> getRouteList(
     MyRouteFilterModel filter,
   ) async {

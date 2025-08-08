@@ -38,7 +38,7 @@ final Provider<RouteSegmentRemoteDataSource>
 routeSegmentRemoteDataSourceProvider = Provider<RouteSegmentRemoteDataSource>((
   Ref<RouteSegmentRemoteDataSource> ref,
 ) {
-  final http.Client client = ref.watch(httpClientProvider);
+  final http.Client client = ref.watch(authorizedHttpClientProvider);
   return RouteSegmentRemoteDataSource(client: client);
 });
 
