@@ -18,7 +18,7 @@ class RouteSaveResponseModel {
 
   final int routeId;
   final String title;
-  final int totalDuration;
-  final int totalDistance;
-  final int totalElevationGain;
+  final int totalDuration; // 분
+  final double totalDistance; //km
+  final double totalElevationGain; //m
 }
