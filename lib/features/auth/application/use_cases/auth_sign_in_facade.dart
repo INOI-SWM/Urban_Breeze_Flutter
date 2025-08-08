@@ -31,6 +31,8 @@ class AuthSignInFacade {
           if (idToken != null && idToken.isNotEmpty) {
             final AuthLoginResult result = await _loginWithGoogleIdTokenUseCase
                 .execute(idToken: idToken);
+            // TODO: 토큰 저장
+            // TODO: 첫 로그인인지, 두번쨰 로그인 인지 판단하여 다른화면 띄우기
             return result.user;
           }
         }
