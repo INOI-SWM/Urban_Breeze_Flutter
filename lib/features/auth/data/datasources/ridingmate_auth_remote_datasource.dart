@@ -13,7 +13,7 @@ class RidingMateAuthRemoteDataSource extends BaseRemoteDataSource {
     try {
       final http.Response response = await post(
         '/api/auth/google/login',
-        body: <String, dynamic>{'idtoken': idToken},
+        body: <String, dynamic>{'idToken': idToken},
       );
 
       final int statusCode = response.statusCode;
