@@ -28,4 +28,12 @@ class SignInWithAppleUseCase {
     }
     return user;
   }
+
+  Future<String?> getIdToken() async {
+    try {
+      return await _repository.getIdToken();
+    } catch (_) {
+      return null;
+    }
+  }
 }
