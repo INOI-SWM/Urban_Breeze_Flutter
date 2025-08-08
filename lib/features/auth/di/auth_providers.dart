@@ -23,12 +23,14 @@ import 'package:ridingmate/features/auth/data/repositories/apple_auth_repository
 import 'package:ridingmate/features/auth/data/repositories/google_auth_repository_impl.dart';
 import 'package:ridingmate/features/auth/data/repositories/kakao_auth_repository_impl.dart';
 import 'package:ridingmate/features/auth/data/repositories/ridingmate_auth_repository_impl.dart';
+import 'package:ridingmate/features/auth/data/repositories/token_repository_impl.dart';
 import 'package:ridingmate/features/auth/data/repositories/user_session_repository_impl.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/features/auth/domain/repositories/apple_auth_repository.dart';
 import 'package:ridingmate/features/auth/domain/repositories/google_auth_repository.dart';
 import 'package:ridingmate/features/auth/domain/repositories/kakao_auth_repository.dart';
 import 'package:ridingmate/features/auth/domain/repositories/ridingmate_auth_repository.dart';
+import 'package:ridingmate/features/auth/domain/repositories/token_repository.dart';
 import 'package:ridingmate/features/auth/domain/repositories/user_session_repository.dart';
 
 // User Session Repository Provider
@@ -93,6 +95,11 @@ final Provider<RidingMateAuthRepository> authRepositoryProvider =
         authRemoteDataSourceProvider,
       );
       return RidingMateAuthRepositoryImpl(remoteDataSource: remoteDataSource);
+    });
+
+final Provider<TokenRepository> tokenRepositoryProvider =
+    Provider<TokenRepository>((Ref<TokenRepository> ref) {
+      return TokenRepositoryImpl();
     });
 
 // Sign In Use Case Providers
@@ -219,6 +226,9 @@ final Provider<AuthSignInFacade> authSignInFacadeProvider =
           ref.watch(loginWithKakaoAccessTokenUseCaseProvider);
       final LoginWithAppleIdTokenUseCase loginWithAppleIdTokenUseCase = ref
           .watch(loginWithAppleIdTokenUseCaseProvider);
+      final TokenRepository tokenRepository = ref.watch(
+        tokenRepositoryProvider,
+      );
 
       return AuthSignInFacade(
         signInWithGoogleUseCase: signInWithGoogleUseCase,
@@ -227,6 +237,7 @@ final Provider<AuthSignInFacade> authSignInFacadeProvider =
         signInWithKakaoUseCase: signInWithKakaoUseCase,
         loginWithKakaoAccessTokenUseCase: loginWithKakaoAccessTokenUseCase,
         loginWithAppleIdTokenUseCase: loginWithAppleIdTokenUseCase,
+        tokenRepository: tokenRepository,
       );
     });
 
