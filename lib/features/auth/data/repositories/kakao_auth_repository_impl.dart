@@ -39,6 +39,9 @@ class KakaoAuthRepositoryImpl implements KakaoAuthRepository {
   @override
   bool get isSignedIn => _kakaoAuthDataSource.isSignedIn;
 
+  @override
+  Future<String?> getAccessToken() => _kakaoAuthDataSource.getAccessToken();
+
   User _mapKakaoUserToUser(kakao.User kakaoUser) {
     return User(
       id: kakaoUser.id.toString(),
