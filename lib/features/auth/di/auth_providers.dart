@@ -3,6 +3,7 @@ import 'package:ridingmate/features/auth/application/providers/user_session_noti
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_in_facade.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_withdrawal_facade.dart';
+import 'package:ridingmate/features/auth/application/use_cases/login_with_apple_idtoken_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/login_with_google_idtoken_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/login_with_kakao_access_token_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_apple_use_case.dart';
@@ -124,6 +125,16 @@ loginWithKakaoAccessTokenUseCaseProvider =
       return LoginWithKakaoAccessTokenUseCase(repository: authRepository);
     });
 
+final Provider<LoginWithAppleIdTokenUseCase>
+loginWithAppleIdTokenUseCaseProvider = Provider<LoginWithAppleIdTokenUseCase>((
+  Ref<LoginWithAppleIdTokenUseCase> ref,
+) {
+  final RidingMateAuthRepository authRepository = ref.watch(
+    authRepositoryProvider,
+  );
+  return LoginWithAppleIdTokenUseCase(repository: authRepository);
+});
+
 final Provider<SignInWithAppleUseCase> signInWithAppleUseCaseProvider =
     Provider<SignInWithAppleUseCase>((Ref<SignInWithAppleUseCase> ref) {
       final AppleAuthRepository appleAuthRepository = ref.watch(
@@ -206,6 +217,8 @@ final Provider<AuthSignInFacade> authSignInFacadeProvider =
       );
       final LoginWithKakaoAccessTokenUseCase loginWithKakaoAccessTokenUseCase =
           ref.watch(loginWithKakaoAccessTokenUseCaseProvider);
+      final LoginWithAppleIdTokenUseCase loginWithAppleIdTokenUseCase = ref
+          .watch(loginWithAppleIdTokenUseCaseProvider);
 
       return AuthSignInFacade(
         signInWithGoogleUseCase: signInWithGoogleUseCase,
@@ -213,6 +226,7 @@ final Provider<AuthSignInFacade> authSignInFacadeProvider =
         signInWithAppleUseCase: signInWithAppleUseCase,
         signInWithKakaoUseCase: signInWithKakaoUseCase,
         loginWithKakaoAccessTokenUseCase: loginWithKakaoAccessTokenUseCase,
+        loginWithAppleIdTokenUseCase: loginWithAppleIdTokenUseCase,
       );
     });
 
