@@ -6,4 +6,5 @@ abstract class KakaoAuthRepository {
   Future<void> withdraw();
   Future<User?> getCurrentUser();
   bool get isSignedIn;
+  Future<String?> getAccessToken();
 }

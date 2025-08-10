@@ -10,4 +10,12 @@ class SignInWithKakaoUseCase {
   Future<User?> execute() async {
     return await _repository.signIn();
   }
+
+  Future<String?> getAccessToken() async {
+    try {
+      return await _repository.getAccessToken();
+    } catch (_) {
+      return null;
+    }
+  }
 }

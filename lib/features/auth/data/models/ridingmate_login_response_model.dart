@@ -9,7 +9,10 @@ class RidingMateLoginResponseModel {
     required this.user,
   });
 
-  factory RidingMateLoginResponseModel.fromApi(Map<String, dynamic> json) {
+  factory RidingMateLoginResponseModel.fromApi(
+    Map<String, dynamic> json,
+    LoginProvider provider,
+  ) {
     final Map<String, dynamic> data =
         json['data'] as Map<String, dynamic>? ?? json;
     final Map<String, dynamic> tokenInfo =
@@ -29,7 +32,7 @@ class RidingMateLoginResponseModel {
       email: (userInfo['email'] ?? '').toString(),
       displayName: (userInfo['nickname'] as String?)?.trim(),
       photoUrl: (userInfo['profileImageUrl'] as String?)?.trim(),
-      loginProvider: LoginProvider.google,
+      loginProvider: provider,
     );
 
     return RidingMateLoginResponseModel(tokens: tokens, user: user);

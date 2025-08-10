@@ -6,12 +6,14 @@ abstract class KakaoAuthDataSource {
   Future<void> unlink();
   Future<User?> getCurrentUser();
   bool get isSignedIn;
+  Future<String?> getAccessToken();
 }
 
 class KakaoAuthDataSourceImpl implements KakaoAuthDataSource {
   KakaoAuthDataSourceImpl();
 
   User? _currentUser;
+  OAuthToken? _currentToken;
 
   User? get currentUser => _currentUser;
 
@@ -20,12 +22,12 @@ class KakaoAuthDataSourceImpl implements KakaoAuthDataSource {
     try {
       if (await isKakaoTalkInstalled()) {
         try {
-          await UserApi.instance.loginWithKakaoTalk();
+          _currentToken = await UserApi.instance.loginWithKakaoTalk();
         } catch (error) {
-          await UserApi.instance.loginWithKakaoAccount();
+          _currentToken = await UserApi.instance.loginWithKakaoAccount();
         }
       } else {
-        await UserApi.instance.loginWithKakaoAccount();
+        _currentToken = await UserApi.instance.loginWithKakaoAccount();
       }
 
       return await _getUserInfo();
@@ -39,6 +41,7 @@ class KakaoAuthDataSourceImpl implements KakaoAuthDataSource {
     try {
       await UserApi.instance.logout();
       _currentUser = null;
+      _currentToken = null;
     } catch (error) {
       return;
     }
@@ -49,9 +52,11 @@ class KakaoAuthDataSourceImpl implements KakaoAuthDataSource {
     try {
       await UserApi.instance.unlink();
       _currentUser = null;
+      _currentToken = null;
     } catch (error) {
       // 연결끊기 실패 시에도 로컬 상태는 초기화
       _currentUser = null;
+      _currentToken = null;
       rethrow;
     }
   }
@@ -76,6 +81,19 @@ class KakaoAuthDataSourceImpl implements KakaoAuthDataSource {
     try {
       _currentUser = await UserApi.instance.me();
       return _currentUser;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  @override
+  Future<String?> getAccessToken() async {
+    try {
+      if (_currentToken != null) return _currentToken!.accessToken;
+      final OAuthToken? token =
+          await TokenManagerProvider.instance.manager.getToken();
+      _currentToken = token;
+      return token?.accessToken;
     } catch (error) {
       return null;
     }
