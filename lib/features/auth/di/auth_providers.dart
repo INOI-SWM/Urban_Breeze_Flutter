@@ -3,6 +3,7 @@ import 'package:ridingmate/features/auth/application/providers/user_session_noti
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_in_facade.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_withdrawal_facade.dart';
+import 'package:ridingmate/features/auth/application/use_cases/login_with_google_idtoken_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_apple_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_google_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_kakao_use_case.dart';
@@ -15,14 +16,17 @@ import 'package:ridingmate/features/auth/application/use_cases/withdraw_with_kak
 import 'package:ridingmate/features/auth/data/datasources/apple_auth_datasource.dart';
 import 'package:ridingmate/features/auth/data/datasources/google_auth_datasource.dart';
 import 'package:ridingmate/features/auth/data/datasources/kakao_auth_datasource.dart';
+import 'package:ridingmate/features/auth/data/datasources/ridingmate_auth_remote_datasource.dart';
 import 'package:ridingmate/features/auth/data/repositories/apple_auth_repository_impl.dart';
 import 'package:ridingmate/features/auth/data/repositories/google_auth_repository_impl.dart';
 import 'package:ridingmate/features/auth/data/repositories/kakao_auth_repository_impl.dart';
+import 'package:ridingmate/features/auth/data/repositories/ridingmate_auth_repository_impl.dart';
 import 'package:ridingmate/features/auth/data/repositories/user_session_repository_impl.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/features/auth/domain/repositories/apple_auth_repository.dart';
 import 'package:ridingmate/features/auth/domain/repositories/google_auth_repository.dart';
 import 'package:ridingmate/features/auth/domain/repositories/kakao_auth_repository.dart';
+import 'package:ridingmate/features/auth/domain/repositories/ridingmate_auth_repository.dart';
 import 'package:ridingmate/features/auth/domain/repositories/user_session_repository.dart';
 
 // User Session Repository Provider
@@ -45,6 +49,13 @@ final Provider<AppleAuthDataSource> appleAuthDataSourceProvider =
 final Provider<KakaoAuthDataSource> kakaoAuthDataSourceProvider =
     Provider<KakaoAuthDataSource>((Ref<KakaoAuthDataSource> ref) {
       return KakaoAuthDataSourceImpl();
+    });
+
+final Provider<RidingMateAuthRemoteDataSource> authRemoteDataSourceProvider =
+    Provider<RidingMateAuthRemoteDataSource>((
+      Ref<RidingMateAuthRemoteDataSource> ref,
+    ) {
+      return RidingMateAuthRemoteDataSource();
     });
 
 // Repository Providers
@@ -74,6 +85,14 @@ final Provider<KakaoAuthRepository> kakaoAuthRepositoryProvider =
       return KakaoAuthRepositoryImpl(kakaoAuthDataSource: kakaoAuthDataSource);
     });
 
+final Provider<RidingMateAuthRepository> authRepositoryProvider =
+    Provider<RidingMateAuthRepository>((Ref<RidingMateAuthRepository> ref) {
+      final RidingMateAuthRemoteDataSource remoteDataSource = ref.watch(
+        authRemoteDataSourceProvider,
+      );
+      return RidingMateAuthRepositoryImpl(remoteDataSource: remoteDataSource);
+    });
+
 // Sign In Use Case Providers
 final Provider<SignInWithGoogleUseCase> signInWithGoogleUseCaseProvider =
     Provider<SignInWithGoogleUseCase>((Ref<SignInWithGoogleUseCase> ref) {
@@ -82,6 +101,16 @@ final Provider<SignInWithGoogleUseCase> signInWithGoogleUseCaseProvider =
       );
       return SignInWithGoogleUseCase(repository: googleAuthRepository);
     });
+
+final Provider<LoginWithGoogleIdTokenUseCase>
+loginWithGoogleIdTokenUseCaseProvider = Provider<LoginWithGoogleIdTokenUseCase>(
+  (Ref<LoginWithGoogleIdTokenUseCase> ref) {
+    final RidingMateAuthRepository authRepository = ref.watch(
+      authRepositoryProvider,
+    );
+    return LoginWithGoogleIdTokenUseCase(repository: authRepository);
+  },
+);
 
 final Provider<SignInWithAppleUseCase> signInWithAppleUseCaseProvider =
     Provider<SignInWithAppleUseCase>((Ref<SignInWithAppleUseCase> ref) {
@@ -155,6 +184,8 @@ final Provider<AuthSignInFacade> authSignInFacadeProvider =
       final SignInWithGoogleUseCase signInWithGoogleUseCase = ref.watch(
         signInWithGoogleUseCaseProvider,
       );
+      final LoginWithGoogleIdTokenUseCase loginWithGoogleIdTokenUseCase = ref
+          .watch(loginWithGoogleIdTokenUseCaseProvider);
       final SignInWithAppleUseCase signInWithAppleUseCase = ref.watch(
         signInWithAppleUseCaseProvider,
       );
@@ -164,6 +195,7 @@ final Provider<AuthSignInFacade> authSignInFacadeProvider =
 
       return AuthSignInFacade(
         signInWithGoogleUseCase: signInWithGoogleUseCase,
+        loginWithGoogleIdTokenUseCase: loginWithGoogleIdTokenUseCase,
         signInWithAppleUseCase: signInWithAppleUseCase,
         signInWithKakaoUseCase: signInWithKakaoUseCase,
       );

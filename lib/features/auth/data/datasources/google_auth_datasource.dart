@@ -7,6 +7,7 @@ abstract class GoogleAuthDataSource {
   GoogleSignInAccount? get currentUser;
   bool get isSignedIn;
   Future<void> disconnect();
+  Future<String?> getIdToken();
 }
 
 class GoogleAuthDataSourceImpl implements GoogleAuthDataSource {
@@ -59,6 +60,20 @@ class GoogleAuthDataSourceImpl implements GoogleAuthDataSource {
       _currentUser = null;
     } catch (error) {
       return;
+    }
+  }
+
+  @override
+  Future<String?> getIdToken() async {
+    try {
+      GoogleSignInAccount? user = _currentUser;
+      user ??= await _googleSignIn.signInSilently();
+      if (user == null) return null;
+
+      final GoogleSignInAuthentication auth = await user.authentication;
+      return auth.idToken;
+    } catch (error) {
+      return null;
     }
   }
 }

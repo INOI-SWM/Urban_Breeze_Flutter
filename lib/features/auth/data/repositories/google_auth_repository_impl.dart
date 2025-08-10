@@ -50,4 +50,7 @@ class GoogleAuthRepositoryImpl implements GoogleAuthRepository {
 
   @override
   bool get isSignedIn => _googleAuthDataSource.isSignedIn;
+
+  @override
+  Future<String?> getIdToken() => _googleAuthDataSource.getIdToken();
 }
