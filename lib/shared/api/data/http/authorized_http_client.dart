@@ -18,23 +18,19 @@ class AuthorizedHttpClient extends http.BaseClient {
 
   static Future<bool>? _ongoingRefresh;
   static const String _retryHeader = 'X-Auth-Retry';
-  static const String _skipAuthHeader = 'X-Skip-Auth';
   static const String _refreshEndpoint = '/api/auth/refresh';
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
-    // 스킵 플래그가 있으면 인증 주입/리프레시 모두 건너뜀
-    final bool skipAuth = request.headers[_skipAuthHeader] == 'true';
-    if (!skipAuth) {
-      final AuthTokens? tokens = await _tokenRepository.loadTokens();
-      final String? accessToken = tokens?.accessToken;
-      final String tokenType = tokens?.tokenType ?? 'Bearer';
-      if (accessToken != null && accessToken.isNotEmpty) {
-        request.headers.putIfAbsent(
-          'Authorization',
-          () => '$tokenType $accessToken',
-        );
-      }
+    // 인증 헤더 자동 주입
+    final AuthTokens? tokens = await _tokenRepository.loadTokens();
+    final String? accessToken = tokens?.accessToken;
+    final String tokenType = tokens?.tokenType ?? 'Bearer';
+    if (accessToken != null && accessToken.isNotEmpty) {
+      request.headers.putIfAbsent(
+        'Authorization',
+        () => '$tokenType $accessToken',
+      );
     }
 
     // 원본 요청을 복제할 수 있도록 사전 스냅샷 생성
@@ -45,10 +41,7 @@ class AuthorizedHttpClient extends http.BaseClient {
     // 이미 재시도한 요청은 더 이상 리프레시 시도하지 않음
     final bool alreadyRetried = request.headers[_retryHeader] == '1';
 
-    if (!skipAuth &&
-        !alreadyRetried &&
-        response.statusCode == 401 &&
-        cloneBuilder != null) {
+    if (!alreadyRetried && response.statusCode == 401 && cloneBuilder != null) {
       final bool refreshed = await _refreshTokens();
       if (refreshed) {
         final http.BaseRequest retryReq = cloneBuilder();
@@ -111,7 +104,6 @@ class AuthorizedHttpClient extends http.BaseClient {
       );
       final http.Request req = http.Request('POST', uri);
       req.headers['Content-Type'] = 'application/json; charset=utf-8';
-      req.headers[_skipAuthHeader] = 'true';
       req.body = jsonEncode(<String, dynamic>{'refreshToken': refreshToken});
 
       final http.StreamedResponse streamed = await _inner.send(req);
