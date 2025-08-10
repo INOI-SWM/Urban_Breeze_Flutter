@@ -255,12 +255,16 @@ final Provider<AuthSignOutFacade> authSignOutFacadeProvider =
       final UserSessionNotifier userSessionNotifier = ref.watch(
         userSessionNotifierProvider.notifier,
       );
+      final TokenRepository tokenRepository = ref.watch(
+        tokenRepositoryProvider,
+      );
 
       return AuthSignOutFacade(
         signOutWithGoogleUseCase: signOutWithGoogleUseCase,
         signOutWithAppleUseCase: signOutWithAppleUseCase,
         signOutWithKakaoUseCase: signOutWithKakaoUseCase,
         userSessionNotifier: userSessionNotifier,
+        tokenRepository: tokenRepository,
       );
     });
 
@@ -278,12 +282,16 @@ final Provider<AuthWithdrawalFacade> authWithdrawalFacadeProvider =
       final UserSessionNotifier userSessionNotifier = ref.watch(
         userSessionNotifierProvider.notifier,
       );
+      final TokenRepository tokenRepository = ref.watch(
+        tokenRepositoryProvider,
+      );
 
       return AuthWithdrawalFacade(
         withdrawWithGoogleUseCase: withdrawWithGoogleUseCase,
         withdrawWithAppleUseCase: withdrawWithAppleUseCase,
         withdrawWithKakaoUseCase: withdrawWithKakaoUseCase,
         userSessionNotifier: userSessionNotifier,
+        tokenRepository: tokenRepository,
       );
     });
 

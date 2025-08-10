@@ -3,6 +3,7 @@ import 'package:ridingmate/features/auth/application/use_cases/withdraw_with_app
 import 'package:ridingmate/features/auth/application/use_cases/withdraw_with_google_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/withdraw_with_kakao_use_case.dart';
 import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
+import 'package:ridingmate/features/auth/domain/repositories/token_repository.dart';
 
 class AuthWithdrawalFacade {
   const AuthWithdrawalFacade({
@@ -10,15 +11,18 @@ class AuthWithdrawalFacade {
     required WithdrawWithAppleUseCase withdrawWithAppleUseCase,
     required WithdrawWithKakaoUseCase withdrawWithKakaoUseCase,
     required UserSessionNotifier userSessionNotifier,
+    required TokenRepository tokenRepository,
   }) : _withdrawWithGoogleUseCase = withdrawWithGoogleUseCase,
        _withdrawWithAppleUseCase = withdrawWithAppleUseCase,
        _withdrawWithKakaoUseCase = withdrawWithKakaoUseCase,
-       _userSessionNotifier = userSessionNotifier;
+       _userSessionNotifier = userSessionNotifier,
+       _tokenRepository = tokenRepository;
 
   final WithdrawWithGoogleUseCase _withdrawWithGoogleUseCase;
   final WithdrawWithAppleUseCase _withdrawWithAppleUseCase;
   final WithdrawWithKakaoUseCase _withdrawWithKakaoUseCase;
   final UserSessionNotifier _userSessionNotifier;
+  final TokenRepository _tokenRepository;
 
   Future<void> execute(LoginProvider loginProvider) async {
     switch (loginProvider) {
@@ -32,6 +36,7 @@ class AuthWithdrawalFacade {
         await _withdrawWithKakaoUseCase.execute();
         break;
     }
+    await _tokenRepository.clearTokens();
     await _userSessionNotifier.clearUserSession();
   }
 }
