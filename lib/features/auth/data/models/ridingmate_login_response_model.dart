@@ -16,14 +16,14 @@ class RidingMateLoginResponseModel {
     final Map<String, dynamic> data =
         json['data'] as Map<String, dynamic>? ?? json;
     final Map<String, dynamic> tokenInfo =
-        data['tokenInfo'] as Map<String, dynamic>? ?? <String, dynamic>{};
+        data['tokenInfo'] as Map<String, dynamic>? ?? data;
     final Map<String, dynamic> userInfo =
         data['userInfo'] as Map<String, dynamic>? ?? <String, dynamic>{};
 
     final AuthTokens tokens = AuthTokens(
       accessToken: (tokenInfo['accessToken'] ?? '').toString(),
       refreshToken: (tokenInfo['refreshToken'] ?? '').toString(),
-      tokenType: (tokenInfo['tokenType'] ?? '').toString(),
+      tokenType: (tokenInfo['tokenType'] ?? 'Bearer').toString(),
       expiresIn: (tokenInfo['expiresIn'] ?? 0) as int,
     );
 
