@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:ridingmate/core/navigation/app_navigator.dart';
 import 'package:ridingmate/core/theme/app_theme.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/navigation/navigation_scaffold.dart';
@@ -27,6 +28,7 @@ class MyApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
+      navigatorKey: rootNavigatorKey,
       home: const NavigationScaffold(),
       builder: (BuildContext context, Widget? child) {
         final SemanticColors semanticColors = AppTheme.getSemanticColors(

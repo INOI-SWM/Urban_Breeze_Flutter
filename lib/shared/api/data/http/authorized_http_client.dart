@@ -6,15 +6,20 @@ import 'package:ridingmate/features/auth/domain/entities/auth_tokens.dart';
 import 'package:ridingmate/features/auth/domain/repositories/token_repository.dart';
 import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
 
+typedef OnAuthFailure = FutureOr<void> Function();
+
 class AuthorizedHttpClient extends http.BaseClient {
   AuthorizedHttpClient({
     required http.Client inner,
     required TokenRepository tokenRepository,
+    OnAuthFailure? onAuthFailure,
   }) : _inner = inner,
-       _tokenRepository = tokenRepository;
+       _tokenRepository = tokenRepository,
+       _onAuthFailure = onAuthFailure;
 
   final http.Client _inner;
   final TokenRepository _tokenRepository;
+  final OnAuthFailure? _onAuthFailure;
 
   static Future<bool>? _ongoingRefresh;
   static const String _retryHeader = 'X-Auth-Retry';
@@ -95,6 +100,8 @@ class AuthorizedHttpClient extends http.BaseClient {
     try {
       final String? refreshToken = await _tokenRepository.getRefreshToken();
       if (refreshToken == null || refreshToken.isEmpty) {
+        // 리프레시 토큰 자체가 없으면 세션 종료 상태로 간주
+        await _tokenRepository.clearTokens();
         completer.complete(false);
         return false;
       }
@@ -126,6 +133,15 @@ class AuthorizedHttpClient extends http.BaseClient {
         await _tokenRepository.saveTokens(tokens);
         completer.complete(true);
         return true;
+      } else if (resp.statusCode == 401 || resp.statusCode == 403) {
+        // 리프레시 토큰 만료/무효 → 토큰 정리 후 실패 반환
+        await _tokenRepository.clearTokens();
+        final OnAuthFailure? onFail = _onAuthFailure;
+        if (onFail != null) {
+          await onFail();
+        }
+        completer.complete(false);
+        return false;
       }
     } catch (_) {
       // ignore
