@@ -13,7 +13,7 @@ class RidingMateAuthRemoteDataSource extends BaseRemoteDataSource {
     try {
       final http.Response response = await post(
         '/api/auth/google/login',
-        body: <String, dynamic>{'idtoken': idToken},
+        body: <String, dynamic>{'idToken': idToken},
       );
 
       final int statusCode = response.statusCode;
@@ -51,6 +51,34 @@ class RidingMateAuthRemoteDataSource extends BaseRemoteDataSource {
         return RidingMateLoginResponseModel.fromApi(
           jsonMap,
           LoginProvider.kakao,
+        );
+      } else {
+        final String errorMessage =
+            (jsonMap['errorMessage'] ?? jsonMap['message'] ?? 'API 요청 실패')
+                .toString();
+        throw ServerException('API 요청 실패 ($statusCode): $errorMessage');
+      }
+    } on ServerException {
+      rethrow;
+    }
+  }
+
+  Future<RidingMateLoginResponseModel> loginWithAppleIdToken({
+    required String idToken,
+  }) async {
+    try {
+      final http.Response response = await post(
+        '/api/auth/apple/login',
+        body: <String, dynamic>{'idToken': idToken},
+      );
+
+      final int statusCode = response.statusCode;
+      final Map<String, dynamic> jsonMap = decodeResponse(response);
+
+      if (statusCode == 200 || statusCode == 201) {
+        return RidingMateLoginResponseModel.fromApi(
+          jsonMap,
+          LoginProvider.apple,
         );
       } else {
         final String errorMessage =

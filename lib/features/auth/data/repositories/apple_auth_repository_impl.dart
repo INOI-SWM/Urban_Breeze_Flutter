@@ -66,4 +66,7 @@ class AppleAuthRepositoryImpl implements AppleAuthRepository {
 
   @override
   bool get isSignedIn => _appleAuthDataSource.isSignedIn;
+
+  @override
+  Future<String?> getIdToken() => _appleAuthDataSource.getIdToken();
 }

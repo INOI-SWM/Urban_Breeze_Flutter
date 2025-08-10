@@ -6,6 +6,7 @@ abstract class AppleAuthDataSource {
   Future<void> revokeTokens();
   AuthorizationCredentialAppleID? get currentUser;
   bool get isSignedIn;
+  Future<String?> getIdToken();
 }
 
 class AppleAuthDataSourceImpl implements AppleAuthDataSource {
@@ -62,4 +63,15 @@ class AppleAuthDataSourceImpl implements AppleAuthDataSource {
 
   @override
   bool get isSignedIn => _currentUser != null;
+
+  @override
+  Future<String?> getIdToken() async {
+    try {
+      final AuthorizationCredentialAppleID? user = _currentUser;
+      // identityToken은 iOS에서 base64url string으로 제공
+      return user?.identityToken;
+    } catch (error) {
+      return null;
+    }
+  }
 }
