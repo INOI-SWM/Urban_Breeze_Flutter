@@ -1,3 +1,4 @@
+import 'package:ridingmate/core/result/app_result.dart';
 import 'package:ridingmate/features/auth/application/providers/user_session_notifier.dart';
 import 'package:ridingmate/features/auth/application/use_cases/login_with_apple_idtoken_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/login_with_google_idtoken_use_case.dart';
@@ -8,6 +9,7 @@ import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_kaka
 import 'package:ridingmate/features/auth/domain/entities/auth_login_result.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
+import 'package:ridingmate/features/auth/domain/exceptions/auth_exceptions.dart';
 import 'package:ridingmate/features/auth/domain/repositories/token_repository.dart';
 
 class AuthSignInFacade {
@@ -38,24 +40,33 @@ class AuthSignInFacade {
   final TokenRepository _tokenRepository;
   final UserSessionNotifier _userSessionNotifier;
 
-  Future<User?> _runSignInFlow({
+  Future<AppResult<User>> _runSignInFlow({
     required Future<User?> Function() doProviderSignIn,
     required Future<String?> Function() getCredential,
     required Future<AuthLoginResult> Function(String) exchange,
   }) async {
-    final User? providerUser = await doProviderSignIn();
-    if (providerUser == null) return null;
+    try {
+      final User? providerUser = await doProviderSignIn();
+      if (providerUser == null) {
+        return const AppFailure<User>(AuthCanceledException());
+      }
 
-    final String? credential = await getCredential();
-    if (credential == null || credential.isEmpty) return providerUser;
+      final String? credential = await getCredential();
+      if (credential == null || credential.isEmpty) {
+        // 로그인 sdk가 제공하는 자격증명이 없는 경우
+        return const AppFailure<User>(AuthCredentialMissingException());
+      }
 
-    final AuthLoginResult result = await exchange(credential);
-    await _tokenRepository.saveTokens(result.tokens);
-    await _userSessionNotifier.setUserSession(result.user);
-    return result.user;
+      final AuthLoginResult result = await exchange(credential);
+      await _tokenRepository.saveTokens(result.tokens);
+      await _userSessionNotifier.setUserSession(result.user);
+      return AppSuccess<User>(result.user);
+    } catch (e) {
+      return const AppFailure<User>(AuthExchangeFailedException());
+    }
   }
 
-  Future<User?> signIn(LoginProvider provider) async {
+  Future<AppResult<User>> signIn(LoginProvider provider) async {
     switch (provider) {
       case LoginProvider.google:
         return _runSignInFlow(

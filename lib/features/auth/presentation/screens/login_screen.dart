@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/core/result/app_result.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_in_facade.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
@@ -33,18 +34,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       final AuthSignInFacade authSignInFacade = ref.read(
         authSignInFacadeProvider,
       );
-      final User? user = await authSignInFacade.signIn(provider);
-      //TODO : 로그인 null 반환하는거 처리 후 logout처럼 facade에서 상태관리하게 처리
-      if (mounted && user != null) {
-        await ref
-            .read(userSessionNotifierProvider.notifier)
-            .setUserSession(user);
-        if (!mounted) return;
+      final AppResult<User> result = await authSignInFacade.signIn(provider);
+      final User? user = result.dataOrNull;
+      if (!mounted) return;
+      if (user != null) {
         showSuccessMessage(
           context,
           '환영합니다, ${user.displayName ?? user.email}님!',
         );
         Navigator.pop(context);
+      } else {
+        showErrorMessage(context, '로그인에 실패했습니다. 다시 시도해주세요.');
       }
     } catch (e) {
       if (mounted) {
