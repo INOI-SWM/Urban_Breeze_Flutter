@@ -1,3 +1,4 @@
+import 'package:ridingmate/features/auth/application/providers/user_session_notifier.dart';
 import 'package:ridingmate/features/auth/application/use_cases/login_with_apple_idtoken_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/login_with_google_idtoken_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/login_with_kakao_access_token_use_case.dart';
@@ -18,13 +19,15 @@ class AuthSignInFacade {
     required LoginWithKakaoAccessTokenUseCase loginWithKakaoAccessTokenUseCase,
     required LoginWithAppleIdTokenUseCase loginWithAppleIdTokenUseCase,
     required TokenRepository tokenRepository,
+    required UserSessionNotifier userSessionNotifier,
   }) : _signInWithGoogleUseCase = signInWithGoogleUseCase,
        _signInWithAppleUseCase = signInWithAppleUseCase,
        _signInWithKakaoUseCase = signInWithKakaoUseCase,
        _loginWithGoogleIdTokenUseCase = loginWithGoogleIdTokenUseCase,
        _loginWithKakaoAccessTokenUseCase = loginWithKakaoAccessTokenUseCase,
        _loginWithAppleIdTokenUseCase = loginWithAppleIdTokenUseCase,
-       _tokenRepository = tokenRepository;
+       _tokenRepository = tokenRepository,
+       _userSessionNotifier = userSessionNotifier;
 
   final SignInWithGoogleUseCase _signInWithGoogleUseCase;
   final SignInWithAppleUseCase _signInWithAppleUseCase;
@@ -33,51 +36,52 @@ class AuthSignInFacade {
   final LoginWithKakaoAccessTokenUseCase _loginWithKakaoAccessTokenUseCase;
   final LoginWithAppleIdTokenUseCase _loginWithAppleIdTokenUseCase;
   final TokenRepository _tokenRepository;
+  final UserSessionNotifier _userSessionNotifier;
+
+  Future<User?> _runSignInFlow({
+    required Future<User?> Function() doProviderSignIn,
+    required Future<String?> Function() getCredential,
+    required Future<AuthLoginResult> Function(String) exchange,
+  }) async {
+    final User? providerUser = await doProviderSignIn();
+    if (providerUser == null) return null;
+
+    final String? credential = await getCredential();
+    if (credential == null || credential.isEmpty) return providerUser;
+
+    final AuthLoginResult result = await exchange(credential);
+    await _tokenRepository.saveTokens(result.tokens);
+    await _userSessionNotifier.setUserSession(result.user);
+    return result.user;
+  }
 
   Future<User?> signIn(LoginProvider provider) async {
     switch (provider) {
       case LoginProvider.google:
-        final User? user = await _signInWithGoogleUseCase.execute();
-        if (user != null) {
-          final String? idToken = await _signInWithGoogleUseCase.getIdToken();
-          if (idToken != null && idToken.isNotEmpty) {
-            final AuthLoginResult result = await _loginWithGoogleIdTokenUseCase
-                .execute(idToken: idToken);
-            await _tokenRepository.saveTokens(result.tokens);
-            // TODO: 첫 로그인인지, 두번쨰 로그인 인지 판단하여 다른화면 띄우기
-            return result.user;
-          }
-        }
-        return user;
+        return _runSignInFlow(
+          doProviderSignIn: _signInWithGoogleUseCase.execute,
+          getCredential: _signInWithGoogleUseCase.getIdToken,
+          exchange:
+              (String idToken) =>
+                  _loginWithGoogleIdTokenUseCase.execute(idToken: idToken),
+        );
       case LoginProvider.apple:
-        final User? user = await _signInWithAppleUseCase.execute();
-        if (user != null) {
-          final String? idToken = await _signInWithAppleUseCase.getIdToken();
-          if (idToken != null && idToken.isNotEmpty) {
-            final AuthLoginResult result = await _loginWithAppleIdTokenUseCase
-                .execute(idToken: idToken);
-            await _tokenRepository.saveTokens(result.tokens);
-            // TODO: 첫 로그인 분기 처리
-            return result.user;
-          }
-        }
-        return user;
+        return _runSignInFlow(
+          doProviderSignIn: _signInWithAppleUseCase.execute,
+          getCredential: _signInWithAppleUseCase.getIdToken,
+          exchange:
+              (String idToken) =>
+                  _loginWithAppleIdTokenUseCase.execute(idToken: idToken),
+        );
       case LoginProvider.kakao:
-        final User? user = await _signInWithKakaoUseCase.execute();
-        if (user != null) {
-          final String? accessToken =
-              await _signInWithKakaoUseCase.getAccessToken();
-          if (accessToken != null && accessToken.isNotEmpty) {
-            final AuthLoginResult result =
-                await _loginWithKakaoAccessTokenUseCase.execute(
-                  accessToken: accessToken,
-                );
-            await _tokenRepository.saveTokens(result.tokens);
-            // TODO: 첫 로그인 처리 분기
-            return result.user;
-          }
-        }
-        return user;
+        return _runSignInFlow(
+          doProviderSignIn: _signInWithKakaoUseCase.execute,
+          getCredential: _signInWithKakaoUseCase.getAccessToken,
+          exchange:
+              (String accessToken) => _loginWithKakaoAccessTokenUseCase.execute(
+                accessToken: accessToken,
+              ),
+        );
     }
   }
 }
