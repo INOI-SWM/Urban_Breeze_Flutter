@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:ridingmate/features/auth/domain/entities/auth_tokens.dart';
 import 'package:ridingmate/features/auth/domain/repositories/token_repository.dart';
+import 'package:ridingmate/shared/api/data/constants/api_endpoints.dart';
 import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
 
 typedef OnAuthFailure = FutureOr<void> Function();
@@ -23,7 +24,7 @@ class AuthorizedHttpClient extends http.BaseClient {
 
   Future<bool>? _ongoingRefresh;
   static const String _retryHeader = 'X-Auth-Retry';
-  static const String _refreshEndpoint = '/api/auth/refresh';
+  static const String _refreshEndpoint = ApiEndpoints.refreshToken;
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
@@ -153,7 +154,6 @@ class AuthorizedHttpClient extends http.BaseClient {
     }
     return false;
   }
-
 }
 
 typedef _ClonedRequestBuilder = http.BaseRequest Function();

@@ -3,6 +3,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_segment_api_request_model.dart';
 import 'package:ridingmate/features/route_planning/data/models/route_segment_api_response_model.dart';
+import 'package:ridingmate/shared/api/data/constants/api_endpoints.dart';
 import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
 import 'package:ridingmate/shared/api/data/models/api_response_model.dart';
 
@@ -19,7 +20,7 @@ class RouteSegmentRemoteDataSource extends BaseRemoteDataSource {
           RouteSegmentApiRequestModel(start: start, end: end);
 
       final http.Response response = await post(
-        '/api/routes/segment',
+        ApiEndpoints.routesSegment,
         body: requestModel.toJson(),
       );
 
