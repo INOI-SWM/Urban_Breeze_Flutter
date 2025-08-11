@@ -153,7 +153,6 @@ class AuthorizedHttpClient extends http.BaseClient {
     }
     return false;
   }
-
 }
 
 typedef _ClonedRequestBuilder = http.BaseRequest Function();
