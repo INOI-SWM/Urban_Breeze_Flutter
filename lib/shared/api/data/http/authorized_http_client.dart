@@ -21,7 +21,7 @@ class AuthorizedHttpClient extends http.BaseClient {
   final TokenRepository _tokenRepository;
   final OnAuthFailure? _onAuthFailure;
 
-  static Future<bool>? _ongoingRefresh;
+  Future<bool>? _ongoingRefresh;
   static const String _retryHeader = 'X-Auth-Retry';
   static const String _refreshEndpoint = '/api/auth/refresh';
 
@@ -146,23 +146,14 @@ class AuthorizedHttpClient extends http.BaseClient {
     } catch (_) {
       // ignore
     } finally {
-      final Future<bool>? current = _ongoingRefresh;
-      _ongoingRefresh = null;
-      // ensure completer is completed to avoid deadlocks
-      if (current == null || !(await _safeFuture(current))) {
-        if (!completer.isCompleted) completer.complete(false);
+      if (!completer.isCompleted) {
+        completer.complete(false);
       }
+      _ongoingRefresh = null;
     }
     return false;
   }
 
-  Future<bool> _safeFuture(Future<bool> f) async {
-    try {
-      return await f;
-    } catch (_) {
-      return false;
-    }
-  }
 }
 
 typedef _ClonedRequestBuilder = http.BaseRequest Function();
