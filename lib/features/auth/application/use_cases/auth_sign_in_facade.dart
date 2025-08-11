@@ -7,6 +7,7 @@ import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_kaka
 import 'package:ridingmate/features/auth/domain/entities/auth_login_result.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
+import 'package:ridingmate/features/auth/domain/repositories/token_repository.dart';
 
 class AuthSignInFacade {
   const AuthSignInFacade({
@@ -16,12 +17,14 @@ class AuthSignInFacade {
     required LoginWithGoogleIdTokenUseCase loginWithGoogleIdTokenUseCase,
     required LoginWithKakaoAccessTokenUseCase loginWithKakaoAccessTokenUseCase,
     required LoginWithAppleIdTokenUseCase loginWithAppleIdTokenUseCase,
+    required TokenRepository tokenRepository,
   }) : _signInWithGoogleUseCase = signInWithGoogleUseCase,
        _signInWithAppleUseCase = signInWithAppleUseCase,
        _signInWithKakaoUseCase = signInWithKakaoUseCase,
        _loginWithGoogleIdTokenUseCase = loginWithGoogleIdTokenUseCase,
        _loginWithKakaoAccessTokenUseCase = loginWithKakaoAccessTokenUseCase,
-       _loginWithAppleIdTokenUseCase = loginWithAppleIdTokenUseCase;
+       _loginWithAppleIdTokenUseCase = loginWithAppleIdTokenUseCase,
+       _tokenRepository = tokenRepository;
 
   final SignInWithGoogleUseCase _signInWithGoogleUseCase;
   final SignInWithAppleUseCase _signInWithAppleUseCase;
@@ -29,6 +32,7 @@ class AuthSignInFacade {
   final LoginWithGoogleIdTokenUseCase _loginWithGoogleIdTokenUseCase;
   final LoginWithKakaoAccessTokenUseCase _loginWithKakaoAccessTokenUseCase;
   final LoginWithAppleIdTokenUseCase _loginWithAppleIdTokenUseCase;
+  final TokenRepository _tokenRepository;
 
   Future<User?> signIn(LoginProvider provider) async {
     switch (provider) {
@@ -39,7 +43,7 @@ class AuthSignInFacade {
           if (idToken != null && idToken.isNotEmpty) {
             final AuthLoginResult result = await _loginWithGoogleIdTokenUseCase
                 .execute(idToken: idToken);
-            // TODO: 토큰 저장
+            await _tokenRepository.saveTokens(result.tokens);
             // TODO: 첫 로그인인지, 두번쨰 로그인 인지 판단하여 다른화면 띄우기
             return result.user;
           }
@@ -52,7 +56,7 @@ class AuthSignInFacade {
           if (idToken != null && idToken.isNotEmpty) {
             final AuthLoginResult result = await _loginWithAppleIdTokenUseCase
                 .execute(idToken: idToken);
-            // TODO: 토큰 저장
+            await _tokenRepository.saveTokens(result.tokens);
             // TODO: 첫 로그인 분기 처리
             return result.user;
           }
@@ -68,7 +72,7 @@ class AuthSignInFacade {
                 await _loginWithKakaoAccessTokenUseCase.execute(
                   accessToken: accessToken,
                 );
-            // TODO: 토큰 저장
+            await _tokenRepository.saveTokens(result.tokens);
             // TODO: 첫 로그인 처리 분기
             return result.user;
           }

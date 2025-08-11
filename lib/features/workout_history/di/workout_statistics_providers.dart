@@ -31,7 +31,7 @@ remoteWorkoutHistoryDataSourceProvider =
     Provider<RemoteWorkoutHistoryDataSource>((
       Ref<RemoteWorkoutHistoryDataSource> ref,
     ) {
-      final http.Client client = ref.watch(httpClientProvider);
+      final http.Client client = ref.watch(authorizedHttpClientProvider);
       return RemoteWorkoutHistoryDataSource(client: client);
     });
 
