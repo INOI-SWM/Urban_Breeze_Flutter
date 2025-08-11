@@ -4,10 +4,12 @@ class AuthTokens {
     required this.refreshToken,
     required this.tokenType,
     required this.expiresIn,
+    required this.expiresAt,
   });
 
   final String accessToken;
   final String refreshToken;
   final String tokenType;
   final int expiresIn; // seconds
+  final DateTime expiresAt; // absolute expiry
 }

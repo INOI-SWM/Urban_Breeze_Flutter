@@ -25,6 +25,10 @@ class RidingMateLoginResponseModel {
       refreshToken: (tokenInfo['refreshToken'] ?? '').toString(),
       tokenType: (tokenInfo['tokenType'] ?? 'Bearer').toString(),
       expiresIn: (tokenInfo['expiresIn'] ?? 0) as int,
+      expiresAt:
+          DateTime.now()
+              .add(Duration(seconds: (tokenInfo['expiresIn'] ?? 0) as int))
+              .toUtc(),
     );
 
     final User user = User(
