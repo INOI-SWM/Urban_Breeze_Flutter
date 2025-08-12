@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
+import 'package:ridingmate/shared/api/data/constants/api_endpoints.dart';
 import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
 import 'package:ridingmate/shared/api/data/models/api_response_model.dart';
 
@@ -21,7 +22,7 @@ class RemotePlaceSearchDataSource extends BaseRemoteDataSource {
       };
 
       final http.Response response = await get(
-        '/api/routes/search',
+        ApiEndpoints.routesSearch,
         queryParameters: queryParameters,
       );
 

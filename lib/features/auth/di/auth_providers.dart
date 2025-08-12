@@ -229,6 +229,9 @@ final Provider<AuthSignInFacade> authSignInFacadeProvider =
       final TokenRepository tokenRepository = ref.watch(
         tokenRepositoryProvider,
       );
+      final UserSessionNotifier userSessionNotifier = ref.watch(
+        userSessionNotifierProvider.notifier,
+      );
 
       return AuthSignInFacade(
         signInWithGoogleUseCase: signInWithGoogleUseCase,
@@ -238,6 +241,7 @@ final Provider<AuthSignInFacade> authSignInFacadeProvider =
         loginWithKakaoAccessTokenUseCase: loginWithKakaoAccessTokenUseCase,
         loginWithAppleIdTokenUseCase: loginWithAppleIdTokenUseCase,
         tokenRepository: tokenRepository,
+        userSessionNotifier: userSessionNotifier,
       );
     });
 

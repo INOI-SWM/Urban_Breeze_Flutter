@@ -18,7 +18,7 @@ class RemoteWorkoutHistoryDataSource extends BaseRemoteDataSource {
       debugPrint(requestModel.toJson().toString());
       // TODO: 서버 연동 후 주석 해제
       // final http.Response response = await patch(
-      //   '/api/activities/$workoutId/title',
+      //   ApiEndpoints.routeTitle(workoutId),
       //   body: requestModel.toJson(),
       // );
 

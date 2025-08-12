@@ -1,3 +1,5 @@
+import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
+import 'package:ridingmate/core/result/app_result.dart';
 import 'package:ridingmate/features/auth/application/providers/user_session_notifier.dart';
 import 'package:ridingmate/features/auth/application/use_cases/withdraw_with_apple_use_case.dart';
 import 'package:ridingmate/features/auth/application/use_cases/withdraw_with_google_use_case.dart';
@@ -24,19 +26,24 @@ class AuthWithdrawalFacade {
   final UserSessionNotifier _userSessionNotifier;
   final TokenRepository _tokenRepository;
 
-  Future<void> execute(LoginProvider loginProvider) async {
-    switch (loginProvider) {
-      case LoginProvider.google:
-        await _withdrawWithGoogleUseCase.execute();
-        break;
-      case LoginProvider.apple:
-        await _withdrawWithAppleUseCase.execute();
-        break;
-      case LoginProvider.kakao:
-        await _withdrawWithKakaoUseCase.execute();
-        break;
+  Future<AppResult<void>> execute(LoginProvider loginProvider) async {
+    try {
+      switch (loginProvider) {
+        case LoginProvider.google:
+          await _withdrawWithGoogleUseCase.execute();
+          break;
+        case LoginProvider.apple:
+          await _withdrawWithAppleUseCase.execute();
+          break;
+        case LoginProvider.kakao:
+          await _withdrawWithKakaoUseCase.execute();
+          break;
+      }
+      await _tokenRepository.clearTokens();
+      await _userSessionNotifier.clearUserSession();
+      return const AppSuccess<void>(null);
+    } catch (e) {
+      return const AppFailure<void>(ServerException('탈퇴 처리에 실패했습니다'));
     }
-    await _tokenRepository.clearTokens();
-    await _userSessionNotifier.clearUserSession();
   }
 }

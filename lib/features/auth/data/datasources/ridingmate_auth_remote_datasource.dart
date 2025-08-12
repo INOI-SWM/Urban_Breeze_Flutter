@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
 import 'package:ridingmate/features/auth/data/models/ridingmate_login_response_model.dart';
 import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
+import 'package:ridingmate/shared/api/data/constants/api_endpoints.dart';
 import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
 
 class RidingMateAuthRemoteDataSource extends BaseRemoteDataSource {
@@ -12,7 +13,7 @@ class RidingMateAuthRemoteDataSource extends BaseRemoteDataSource {
   }) async {
     try {
       final http.Response response = await post(
-        '/api/auth/google/login',
+        ApiEndpoints.googleLogin,
         body: <String, dynamic>{'idToken': idToken},
       );
 
@@ -40,7 +41,7 @@ class RidingMateAuthRemoteDataSource extends BaseRemoteDataSource {
   }) async {
     try {
       final http.Response response = await post(
-        '/api/auth/kakao/login',
+        ApiEndpoints.kakaoLogin,
         body: <String, dynamic>{'accessToken': accessToken},
       );
 
@@ -68,7 +69,7 @@ class RidingMateAuthRemoteDataSource extends BaseRemoteDataSource {
   }) async {
     try {
       final http.Response response = await post(
-        '/api/auth/apple/login',
+        ApiEndpoints.appleLogin,
         body: <String, dynamic>{'idToken': idToken},
       );
 

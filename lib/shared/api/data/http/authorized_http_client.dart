@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:ridingmate/features/auth/domain/entities/auth_tokens.dart';
 import 'package:ridingmate/features/auth/domain/repositories/token_repository.dart';
+import 'package:ridingmate/shared/api/data/constants/api_endpoints.dart';
 import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
 
 typedef OnAuthFailure = FutureOr<void> Function();
@@ -23,12 +24,23 @@ class AuthorizedHttpClient extends http.BaseClient {
 
   Future<bool>? _ongoingRefresh;
   static const String _retryHeader = 'X-Auth-Retry';
-  static const String _refreshEndpoint = '/api/auth/refresh';
+  static const String _refreshEndpoint = ApiEndpoints.refreshToken;
+  static const Duration _preemptiveWindow = Duration(seconds: 60);
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    // 선제 갱신: 만료 임박 시 먼저 리프레시 시도
+    AuthTokens? tokens = await _tokenRepository.loadTokens();
+    if (tokens != null) {
+      final DateTime nowUtc = DateTime.now().toUtc();
+      final DateTime threshold = tokens.expiresAt.subtract(_preemptiveWindow);
+      if (nowUtc.isAfter(threshold)) {
+        await _refreshTokens();
+        tokens = await _tokenRepository.loadTokens();
+      }
+    }
+
     // 인증 헤더 자동 주입
-    final AuthTokens? tokens = await _tokenRepository.loadTokens();
     final String? accessToken = tokens?.accessToken;
     final String tokenType = tokens?.tokenType ?? 'Bearer';
     if (accessToken != null && accessToken.isNotEmpty) {
@@ -129,6 +141,10 @@ class AuthorizedHttpClient extends http.BaseClient {
           refreshToken: (tokenInfo['refreshToken'] ?? '').toString(),
           tokenType: (tokenInfo['tokenType'] ?? 'Bearer').toString(),
           expiresIn: (tokenInfo['expiresIn'] ?? 0) as int,
+          expiresAt:
+              DateTime.now()
+                  .add(Duration(seconds: (tokenInfo['expiresIn'] ?? 0) as int))
+                  .toUtc(),
         );
         await _tokenRepository.saveTokens(tokens);
         completer.complete(true);

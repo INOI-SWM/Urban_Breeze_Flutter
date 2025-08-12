@@ -19,6 +19,7 @@ class TokenRepositoryImpl implements TokenRepository {
       'refreshToken': tokens.refreshToken,
       'tokenType': tokens.tokenType,
       'expiresIn': tokens.expiresIn,
+      'expiresAt': tokens.expiresAt.toIso8601String(),
     };
     await _storage.write(key: _key, value: jsonEncode(map));
   }
@@ -35,6 +36,8 @@ class TokenRepositoryImpl implements TokenRepository {
         refreshToken: map['refreshToken'] as String? ?? '',
         tokenType: map['tokenType'] as String? ?? 'Bearer',
         expiresIn: map['expiresIn'] as int? ?? 0,
+        expiresAt:
+            DateTime.tryParse(map['expiresAt'] as String) ?? DateTime.now(),
       );
     } catch (_) {
       return null;
