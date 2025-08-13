@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
+import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:ridingmate/shared/map/common_map_widgets.dart';
 import 'package:ridingmate/shared/map/map_constants.dart';
 
@@ -72,6 +74,15 @@ class MapWithBottomSheetLayout extends StatelessWidget {
                           color: colors.lineNormalNormal,
                           borderRadius: BorderRadius.circular(2),
                         ),
+                      ),
+                      CustomAppBar(
+                        leading: CustomIconButton(
+                          icon: Icons.arrow_back_ios_new_rounded,
+                          onTap: () => Navigator.pop(context),
+                        ),
+                        enableSafeArea: false,
+                        safeAreaTop: false,
+                        safeAreaBottom: false,
                       ),
                       sheetChild,
                     ],
