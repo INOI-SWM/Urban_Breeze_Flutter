@@ -4,6 +4,7 @@ import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
+import 'package:ridingmate/shared/design_system/tokens/decorations/inset_border.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
@@ -34,7 +35,11 @@ class SettingsScreen extends ConsumerWidget {
             _buildSettingsSection(context, <Widget>[
               _buildSettingsItem(context, '이용 약관', onPressed: () {}),
               _buildSettingsItem(context, '개인정보 처리방침', onPressed: () {}),
-              _buildSettingsItem(context, '고객 센터', onPressed: () {}),
+              _buildSettingsItem(
+                context,
+                '피드백 및 문의',
+                onPressed: () => _showFeedbackDialog(context),
+              ),
             ]),
 
             const SizedBox(height: 20),
@@ -71,6 +76,74 @@ class SettingsScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showFeedbackDialog(BuildContext context) {
+    final SemanticColors colors = context.semanticColor;
+    final TextEditingController controller = TextEditingController();
+
+    ModalShow.show(
+      context: context,
+      title: '피드백 및 문의',
+      content: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Text(
+              '서비스 개선을 위해 의견을 보내주세요.',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.body2.normalRegular.copyWith(
+                color: colors.labelNeutral,
+              ),
+            ),
+            const SizedBox(height: 12),
+            InsetBorder(
+              color: colors.lineNormalNeutral,
+              width: 1,
+              radius: 12,
+              backgroundColor: Colors.transparent,
+              child: Container(
+                constraints: const BoxConstraints(
+                  minHeight: 120,
+                  maxHeight: 220,
+                ),
+                padding: const EdgeInsets.all(12),
+                child: TextField(
+                  controller: controller,
+                  maxLines: null,
+                  minLines: 5,
+                  cursorColor: colors.primaryNormal,
+                  style: AppTextStyles.body1.normalRegular.copyWith(
+                    color: colors.labelNormal,
+                  ),
+                  decoration: InputDecoration(
+                    isCollapsed: true,
+                    hintText: '내용을 입력해 주세요.',
+                    hintStyle: AppTextStyles.body1.normalRegular.copyWith(
+                      color: colors.labelAssistive,
+                    ),
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      primaryButtonText: '보내기',
+      secondaryButtonText: '취소',
+      onPrimaryButtonPressed: () {
+        final String text = controller.text.trim();
+        if (text.isEmpty) {
+          ErrorDisplay.showErrorMessage(context, '내용을 입력해 주세요.');
+          return;
+        }
+        ErrorDisplay.showSuccessMessage(context, '피드백이 전송되었습니다. 감사합니다!');
+      },
+      onSecondaryButtonPressed: () {},
     );
   }
 
