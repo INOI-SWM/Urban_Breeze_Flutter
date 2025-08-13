@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/route_sharing/application/facades/route_sharing_facade.dart';
+import 'package:ridingmate/features/route_sharing/di/route_sharing_providers.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/layout/map_with_bottom_sheet_layout.dart';
-import 'package:ridingmate/shared/route_sharing/application/services/share_service.dart';
 import 'package:ridingmate/shared/utils/platform_action_sheet.dart';
 
-class MyRouteDetailScreen extends StatelessWidget {
+class MyRouteDetailScreen extends ConsumerWidget {
   const MyRouteDetailScreen({
     super.key,
     required this.routeId,
@@ -16,8 +18,11 @@ class MyRouteDetailScreen extends StatelessWidget {
   final String userId;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final SemanticColors colors = context.semanticColor;
+    final RouteSharingFacade routeSharingFacade = ref.read(
+      routeSharingFacadeProvider,
+    );
     return Scaffold(
       backgroundColor: colors.backgroundNormalNormal,
       body: MapWithBottomSheetLayout(
@@ -31,7 +36,8 @@ class MyRouteDetailScreen extends StatelessWidget {
             options: <PlatformActionSheetOption>[
               PlatformActionSheetOption(
                 title: '링크로 공유',
-                onSelected: () => shareRouteLink(context, userId, routeId),
+                onSelected:
+                    () => routeSharingFacade.shareLink(context, routeId),
               ),
               PlatformActionSheetOption(
                 title: 'GPX 파일로 공유',
