@@ -7,5 +7,3 @@ class RouteShareResponseModel {
 
   final String shareUrl;
 }
-
-
