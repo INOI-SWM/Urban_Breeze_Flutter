@@ -96,7 +96,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                         final Widget action = entry.value;
                         final bool isLast = entry.key == actions!.length - 1;
                         return Padding(
-                          padding: EdgeInsets.only(right: isLast ? 0 : 8),
+                          padding: EdgeInsets.only(right: isLast ? 0 : 16),
                           child: action,
                         );
                       }).toList(),

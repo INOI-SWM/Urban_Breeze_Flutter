@@ -16,6 +16,7 @@ class MapWithBottomSheetLayout extends StatelessWidget {
     this.maxChildSize = 0.8,
     this.snapSizes = const <double>[0.35, 0.6, 0.8],
     required this.sheetChild,
+    this.showOptionButton = false,
   });
 
   final List<Widget> mapOverlays;
@@ -24,6 +25,7 @@ class MapWithBottomSheetLayout extends StatelessWidget {
   final double maxChildSize;
   final List<double> snapSizes;
   final Widget sheetChild;
+  final bool showOptionButton;
 
   @override
   Widget build(BuildContext context) {
@@ -89,6 +91,11 @@ class MapWithBottomSheetLayout extends StatelessWidget {
                             icon: Icons.share_outlined,
                             onTap: () {},
                           ),
+                          if (showOptionButton)
+                            CustomIconButton(
+                              icon: Icons.more_horiz_outlined,
+                              onTap: () {},
+                            ),
                         ],
                         enableSafeArea: false,
                         safeAreaTop: false,
