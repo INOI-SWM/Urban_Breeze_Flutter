@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ridingmate/shared/design_system/widgets/modal/modal_popup.dart';
 
@@ -13,6 +14,7 @@ class ModalShow {
     bool showCloseButton = true,
     VoidCallback? onClose,
     bool barrierDismissible = true,
+    ValueListenable<bool>? primaryEnabledListenable,
   }) {
     return showDialog<T>(
       context: context,
@@ -27,6 +29,7 @@ class ModalShow {
           onSecondaryButtonPressed: onSecondaryButtonPressed,
           showCloseButton: showCloseButton,
           onClose: onClose,
+          primaryEnabledListenable: primaryEnabledListenable,
         );
       },
     );

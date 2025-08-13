@@ -1,0 +1,93 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/app_setting/application/services/account_management_controller.dart';
+import 'package:ridingmate/features/app_setting/presentation/widgets/settings_list.dart';
+import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
+import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
+import 'package:ridingmate/shared/design_system/widgets/modal/modal_show.dart';
+import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
+
+class AccountManagementScreen extends ConsumerWidget {
+  const AccountManagementScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final SemanticColors colors = context.semanticColor;
+
+    return Scaffold(
+      backgroundColor: colors.backgroundNormalNormal,
+      appBar: CustomAppBar(
+        title: '계정 관리',
+        leading: CustomIconButton(
+          onTap: () => Navigator.pop(context),
+          icon: Icons.arrow_back_ios_new_outlined,
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: <Widget>[
+            SettingsSection(
+              children: <Widget>[
+                SettingsItem(
+                  title: '탈퇴하기',
+                  onPressed: () => _showWithdrawalDialog(context, ref),
+                  showArrow: false,
+                  textColor: colors.statusNegative,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showWithdrawalDialog(BuildContext context, WidgetRef ref) {
+    final SemanticColors colors = context.semanticColor;
+    ModalShow.show(
+      context: context,
+      title: '탈퇴하기',
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text('정말 탈퇴하시겠습니까?', style: AppTextStyles.body2.normalRegular),
+          const SizedBox(height: 8),
+          Text(
+            '• 계정과 모든 데이터가 삭제됩니다\n• 삭제된 데이터는 복구할 수 없습니다',
+            style: AppTextStyles.caption1.regular.copyWith(
+              color: colors.labelAlternative,
+            ),
+          ),
+        ],
+      ),
+      primaryButtonText: '탈퇴하기',
+      secondaryButtonText: '취소',
+      onPrimaryButtonPressed: () => _handleWithdrawal(context, ref),
+      onSecondaryButtonPressed: () => Navigator.of(context).pop(),
+    );
+  }
+
+  Future<void> _handleWithdrawal(BuildContext context, WidgetRef ref) async {
+    try {
+      final AccountManagementController controller = ref.read(
+        accountManagementControllerProvider,
+      );
+      await controller.withdraw();
+
+      if (!context.mounted) return;
+
+      ErrorDisplay.showSuccessMessage(context, '탈퇴가 완료되었습니다.');
+      Navigator.of(context).pop();
+    } catch (e) {
+      if (!context.mounted) return;
+
+      ErrorDisplay.showErrorMessage(context, '탈퇴 실패: ${e.toString()}');
+      Navigator.of(context).pop();
+    }
+  }
+}
