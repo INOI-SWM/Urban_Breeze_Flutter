@@ -80,6 +80,16 @@ class MapWithBottomSheetLayout extends StatelessWidget {
                           icon: Icons.arrow_back_ios_new_rounded,
                           onTap: () => Navigator.pop(context),
                         ),
+                        actions: <Widget>[
+                          CustomIconButton(
+                            icon: Icons.file_download_outlined,
+                            onTap: () {},
+                          ),
+                          CustomIconButton(
+                            icon: Icons.share_outlined,
+                            onTap: () {},
+                          ),
+                        ],
                         enableSafeArea: false,
                         safeAreaTop: false,
                         safeAreaBottom: false,
