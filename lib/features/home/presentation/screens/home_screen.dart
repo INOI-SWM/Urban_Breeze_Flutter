@@ -1,3 +1,4 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -5,6 +6,18 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('홈'));
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          const Text('홈'),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => FirebaseCrashlytics.instance.crash(),
+            child: const Text('Crashlytics 강제 크래시'),
+          ),
+        ],
+      ),
+    );
   }
 }
