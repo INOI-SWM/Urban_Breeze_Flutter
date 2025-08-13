@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:ridingmate/core/di/core_providers.dart';
+import 'package:ridingmate/features/route_sharing/application/facades/route_sharing_facade.dart';
 import 'package:ridingmate/features/route_sharing/application/use_cases/get_route_share_link_use_case.dart';
 import 'package:ridingmate/features/route_sharing/data/datasources/route_share_remote_datasource.dart';
 import 'package:ridingmate/features/route_sharing/data/repositories/route_share_repository_impl.dart';
@@ -24,4 +25,12 @@ final Provider<GetRouteShareLinkUseCase> getRouteShareLinkUseCaseProvider =
     Provider<GetRouteShareLinkUseCase>((Ref<GetRouteShareLinkUseCase> ref) {
       final RouteShareRepository repo = ref.watch(routeShareRepositoryProvider);
       return GetRouteShareLinkUseCase(repository: repo);
+    });
+
+final Provider<RouteSharingFacade> routeSharingFacadeProvider =
+    Provider<RouteSharingFacade>((Ref<RouteSharingFacade> ref) {
+      final GetRouteShareLinkUseCase useCase = ref.watch(
+        getRouteShareLinkUseCaseProvider,
+      );
+      return RouteSharingFacade(getRouteShareLinkUseCase: useCase);
     });
