@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "952587763213",
+    "project_id": "ridingmate-8167a",
+    "storage_bucket": "ridingmate-8167a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:952587763213:android:32abb79dd274dacf7adf44",
+        "android_client_info": {
+          "package_name": "com.inoi.ridingmate.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKY0KcAT4dUXH644Pv8Ev16CmYPJD4lgY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
