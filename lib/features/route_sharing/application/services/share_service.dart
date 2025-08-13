@@ -3,7 +3,11 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:ridingmate/core/result/app_result.dart';
+import 'package:ridingmate/features/route_sharing/di/route_sharing_providers.dart';
+import 'package:ridingmate/features/route_sharing/domain/entities/route_share_link.dart';
 import 'package:share_plus/share_plus.dart';
 
 Future<void> shareGpxFile(BuildContext context, String assetPath) async {
@@ -26,15 +30,24 @@ Future<void> shareGpxFile(BuildContext context, String assetPath) async {
 
 Future<void> shareRouteLink(
   BuildContext context,
-  String userId,
+  WidgetRef ref,
   String routeId,
 ) async {
   final Rect origin = _getSharePositionOrigin(context);
 
-  final String shareLink = await _getShareLink(userId, routeId);
+  final AppResult<RouteShareLink> result = await ref
+      .read(getRouteShareLinkUseCaseProvider)
+      .execute(routeId);
+  if (result.isFailure) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(result.exceptionOrNull?.message ?? '공유 링크 생성 실패')),
+    );
+    return;
+  }
 
+  final RouteShareLink link = result.dataOrNull!;
   await SharePlus.instance.share(
-    ShareParams(text: shareLink, sharePositionOrigin: origin),
+    ShareParams(text: link.url, sharePositionOrigin: origin),
   );
 }
 
@@ -42,9 +55,4 @@ Future<void> shareRouteLink(
 Rect _getSharePositionOrigin(BuildContext context) {
   final RenderBox box = context.findRenderObject() as RenderBox;
   return box.localToGlobal(Offset.zero) & box.size;
-}
-
-Future<String> _getShareLink(String userId, String routeId) async {
-  // TODO: 추후 실제 API 요청 로직으로 변경
-  return 'https://ridingmate.app/share/route/$routeId?user=$userId&ref=mobile_share'; // 테스트용 URL (공유 시트 동작 확인용)
 }
