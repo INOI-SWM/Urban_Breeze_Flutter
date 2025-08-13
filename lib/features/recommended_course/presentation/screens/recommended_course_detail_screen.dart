@@ -11,7 +11,11 @@ class RecommendedCourseDetailScreen extends StatelessWidget {
     final SemanticColors colors = context.semanticColor;
     return Scaffold(
       backgroundColor: colors.backgroundNormalNormal,
-      body: const MapWithBottomSheetLayout(sheetChild: SizedBox(height: 240)),
+      body: MapWithBottomSheetLayout(
+        sheetChild: const SizedBox(height: 240),
+        onDownloadButtonTap: (BuildContext context) {},
+        onShareButtonTap: (BuildContext context) {},
+      ),
     );
   }
 }
