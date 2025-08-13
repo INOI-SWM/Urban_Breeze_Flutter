@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/app_setting/presentation/screens/account_management_screen.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
@@ -64,7 +65,19 @@ class SettingsScreen extends ConsumerWidget {
 
             _buildSettingsSection(context, <Widget>[
               _buildSettingsItem(context, '알림 설정', onPressed: () {}),
-              _buildSettingsItem(context, '계정 관리', onPressed: () {}),
+              _buildSettingsItem(
+                context,
+                '계정 관리',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder:
+                          (BuildContext context) =>
+                              const AccountManagementScreen(),
+                    ),
+                  );
+                },
+              ),
               _buildSettingsItem(
                 context,
                 '로그아웃',
