@@ -82,6 +82,13 @@ class SettingsScreen extends ConsumerWidget {
   void _showFeedbackDialog(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
     final TextEditingController controller = TextEditingController();
+    final ValueNotifier<bool> isSendEnabled = ValueNotifier<bool>(
+      controller.text.trim().isNotEmpty,
+    );
+
+    controller.addListener(() {
+      isSendEnabled.value = controller.text.trim().isNotEmpty;
+    });
 
     ModalShow.show(
       context: context,
@@ -135,12 +142,8 @@ class SettingsScreen extends ConsumerWidget {
       ),
       primaryButtonText: '보내기',
       secondaryButtonText: '취소',
+      primaryEnabledListenable: isSendEnabled,
       onPrimaryButtonPressed: () {
-        final String text = controller.text.trim();
-        if (text.isEmpty) {
-          ErrorDisplay.showErrorMessage(context, '내용을 입력해 주세요.');
-          return;
-        }
         ErrorDisplay.showSuccessMessage(context, '피드백이 전송되었습니다. 감사합니다!');
       },
       onSecondaryButtonPressed: () {},
