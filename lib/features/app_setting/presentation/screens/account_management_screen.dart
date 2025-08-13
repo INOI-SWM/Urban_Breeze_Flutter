@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/app_setting/application/services/account_management_controller.dart';
 import 'package:ridingmate/features/app_setting/presentation/widgets/settings_list.dart';
-import 'package:ridingmate/features/auth/application/use_cases/auth_withdrawal_facade.dart';
-import 'package:ridingmate/features/auth/di/auth_providers.dart';
-import 'package:ridingmate/features/auth/domain/entities/user.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
@@ -76,16 +74,10 @@ class AccountManagementScreen extends ConsumerWidget {
 
   Future<void> _handleWithdrawal(BuildContext context, WidgetRef ref) async {
     try {
-      final User? user = ref.read(userSessionNotifierProvider);
-      if (user == null) {
-        ErrorDisplay.showErrorMessage(context, '로그인이 필요합니다.');
-        return;
-      }
-
-      final AuthWithdrawalFacade authWithdrawalFacade = ref.read(
-        authWithdrawalFacadeProvider,
+      final AccountManagementController controller = ref.read(
+        accountManagementControllerProvider,
       );
-      await authWithdrawalFacade.execute(user.loginProvider);
+      await controller.withdraw();
 
       if (!context.mounted) return;
 
