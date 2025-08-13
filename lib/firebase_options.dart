@@ -65,5 +65,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'ridingmate-8167a.firebasestorage.app',
     iosBundleId: 'com.inoi.ridingmate.dev',
   );
-
 }
