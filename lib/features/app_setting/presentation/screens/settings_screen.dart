@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/features/app_setting/presentation/screens/account_management_screen.dart';
+import 'package:ridingmate/features/app_setting/presentation/widgets/settings_list.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
@@ -33,59 +34,61 @@ class SettingsScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: <Widget>[
-            _buildSettingsSection(context, <Widget>[
-              _buildSettingsItem(context, '이용 약관', onPressed: () {}),
-              _buildSettingsItem(context, '개인정보 처리방침', onPressed: () {}),
-              _buildSettingsItem(
-                context,
-                '피드백 및 문의',
-                onPressed: () => _showFeedbackDialog(context),
-              ),
-            ]),
+            SettingsSection(
+              children: <Widget>[
+                SettingsItem(title: '이용 약관', onPressed: () {}),
+                SettingsItem(title: '개인정보 처리방침', onPressed: () {}),
+                SettingsItem(
+                  title: '피드백 및 문의',
+                  onPressed: () => _showFeedbackDialog(context),
+                ),
+              ],
+            ),
 
             const SizedBox(height: 20),
 
-            _buildSettingsSection(context, <Widget>[
-              _buildSettingsItem(
-                context,
-                '버전 정보',
-                rightWidget: Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: Text(
-                    '1.0.0',
-                    style: AppTextStyles.body2.normalRegular.copyWith(
-                      color: colors.labelAssistive,
+            SettingsSection(
+              children: <Widget>[
+                SettingsItem(
+                  title: '버전 정보',
+                  rightWidget: Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: Text(
+                      '1.0.0',
+                      style: AppTextStyles.body2.normalRegular.copyWith(
+                        color: colors.labelAssistive,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ]),
+              ],
+            ),
 
             const SizedBox(height: 20),
 
-            _buildSettingsSection(context, <Widget>[
-              _buildSettingsItem(context, '알림 설정', onPressed: () {}),
-              _buildSettingsItem(
-                context,
-                '계정 관리',
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder:
-                          (BuildContext context) =>
-                              const AccountManagementScreen(),
-                    ),
-                  );
-                },
-              ),
-              _buildSettingsItem(
-                context,
-                '로그아웃',
-                onPressed: () => _showLogoutDialog(context, ref),
-                showArrow: false,
-                textColor: colors.statusNegative,
-              ),
-            ]),
+            SettingsSection(
+              children: <Widget>[
+                SettingsItem(title: '알림 설정', onPressed: () {}),
+                SettingsItem(
+                  title: '계정 관리',
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder:
+                            (BuildContext context) =>
+                                const AccountManagementScreen(),
+                      ),
+                    );
+                  },
+                ),
+                SettingsItem(
+                  title: '로그아웃',
+                  onPressed: () => _showLogoutDialog(context, ref),
+                  showArrow: false,
+                  textColor: colors.statusNegative,
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -163,69 +166,7 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSettingsSection(BuildContext context, List<Widget> items) {
-    final SemanticColors colors = context.semanticColor;
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 12, 0, 12),
-      decoration: BoxDecoration(
-        color: colors.backgroundElevatedAlternative,
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Column(children: _addDividers(items, colors)),
-    );
-  }
-
-  List<Widget> _addDividers(List<Widget> items, SemanticColors colors) {
-    final List<Widget> result = <Widget>[];
-    for (int i = 0; i < items.length; i++) {
-      result.add(items[i]);
-      if (i < items.length - 1) {
-        result.add(Divider(color: colors.lineNormalNormal, height: 24));
-      }
-    }
-    return result;
-  }
-
-  Widget _buildSettingsItem(
-    BuildContext context,
-    String title, {
-    VoidCallback? onPressed,
-    Widget? rightWidget,
-    bool showArrow = true,
-    Color? textColor,
-  }) {
-    final SemanticColors colors = context.semanticColor;
-
-    Widget? trailing;
-    if (rightWidget != null) {
-      trailing = rightWidget;
-    } else if (showArrow) {
-      trailing = Icon(
-        Icons.arrow_forward_ios,
-        size: 24,
-        color: colors.labelAssistive,
-      );
-    }
-
-    return GestureDetector(
-      onTap: onPressed,
-      behavior: HitTestBehavior.opaque,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(
-            title,
-            style: AppTextStyles.body1.normalMedium.copyWith(
-              color: textColor ?? colors.labelNormal,
-            ),
-          ),
-          if (trailing != null)
-            Padding(padding: const EdgeInsets.only(right: 6), child: trailing),
-        ],
-      ),
-    );
-  }
+  // 섹션/아이템은 공통 위젯 `SettingsSection`, `SettingsItem` 재사용
 
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {
     ModalShow.show(

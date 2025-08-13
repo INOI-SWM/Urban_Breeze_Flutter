@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:ridingmate/features/app_setting/presentation/widgets/settings_list.dart';
 import 'package:ridingmate/features/auth/application/use_cases/auth_withdrawal_facade.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
@@ -31,80 +32,18 @@ class AccountManagementScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: <Widget>[
-            _buildSection(context, <Widget>[
-              _buildItem(
-                context,
-                '탈퇴하기',
-                onPressed: () => _showWithdrawalDialog(context, ref),
-                showArrow: false,
-                textColor: colors.statusNegative,
-              ),
-            ]),
+            SettingsSection(
+              children: <Widget>[
+                SettingsItem(
+                  title: '탈퇴하기',
+                  onPressed: () => _showWithdrawalDialog(context, ref),
+                  showArrow: false,
+                  textColor: colors.statusNegative,
+                ),
+              ],
+            ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSection(BuildContext context, List<Widget> items) {
-    final SemanticColors colors = context.semanticColor;
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 12, 0, 12),
-      decoration: BoxDecoration(
-        color: colors.backgroundElevatedAlternative,
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Column(children: _addDividers(items, colors)),
-    );
-  }
-
-  List<Widget> _addDividers(List<Widget> items, SemanticColors colors) {
-    final List<Widget> result = <Widget>[];
-    for (int i = 0; i < items.length; i++) {
-      result.add(items[i]);
-      if (i < items.length - 1) {
-        result.add(Divider(color: colors.lineNormalNormal, height: 24));
-      }
-    }
-    return result;
-  }
-
-  Widget _buildItem(
-    BuildContext context,
-    String title, {
-    VoidCallback? onPressed,
-    Widget? rightWidget,
-    bool showArrow = true,
-    Color? textColor,
-  }) {
-    final SemanticColors colors = context.semanticColor;
-
-    Widget? trailing;
-    if (rightWidget != null) {
-      trailing = rightWidget;
-    } else if (showArrow) {
-      trailing = Icon(
-        Icons.arrow_forward_ios,
-        size: 24,
-        color: colors.labelAssistive,
-      );
-    }
-
-    return GestureDetector(
-      onTap: onPressed,
-      behavior: HitTestBehavior.opaque,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(
-            title,
-            style: AppTextStyles.body1.normalMedium.copyWith(
-              color: textColor ?? colors.labelNormal,
-            ),
-          ),
-          if (trailing != null)
-            Padding(padding: const EdgeInsets.only(right: 6), child: trailing),
-        ],
       ),
     );
   }
