@@ -41,9 +41,12 @@ class RecommendedCourseDetailScreen extends ConsumerWidget {
               ),
               PlatformActionSheetOption(
                 title: 'GPX 파일로 공유',
-                onSelected: () async {
-                  // TODO: 추후 실제 API 요청 로직으로 변경
-                },
+                onSelected:
+                    //TODO : 추후 실제 API 요청 로직으로 변경
+                    () => routeSharingFacade.shareGpxFromAsset(
+                      context,
+                      'assets/gpx/sample.gpx',
+                    ),
               ),
             ],
           );

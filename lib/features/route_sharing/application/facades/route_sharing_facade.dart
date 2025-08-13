@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show ByteData, rootBundle;
+import 'package:path_provider/path_provider.dart';
 import 'package:ridingmate/core/result/app_result.dart';
 import 'package:ridingmate/features/route_sharing/application/use_cases/get_route_share_link_use_case.dart';
 import 'package:ridingmate/features/route_sharing/domain/entities/route_share_link.dart';
@@ -36,5 +40,27 @@ class RouteSharingFacade {
     }
     final Size size = MediaQuery.of(context).size;
     return Rect.fromLTWH(0, 0, size.width, kToolbarHeight);
+  }
+
+  Future<void> shareGpxFromAsset(BuildContext context, String assetPath) async {
+    final Rect origin = _getSharePositionOrigin(context);
+    try {
+      final ByteData data = await rootBundle.load(assetPath);
+      final Directory tempDir = await getTemporaryDirectory();
+      final String fileName = assetPath.split('/').last;
+      final File file = File('${tempDir.path}/$fileName');
+      await file.writeAsBytes(data.buffer.asUint8List());
+      if (!context.mounted) return;
+      await SharePlus.instance.share(
+        ShareParams(
+          text: '라이딩 경로 GPX 파일입니다.',
+          files: <XFile>[XFile(file.path, mimeType: 'application/gpx+xml')],
+          sharePositionOrigin: origin,
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ErrorDisplay.showErrorMessage(context, 'GPX 공유 실패: ${e.toString()}');
+    }
   }
 }
