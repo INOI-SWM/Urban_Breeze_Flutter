@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ridingmate/core/extensions/theme_extensions.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
@@ -17,6 +18,7 @@ class ModalPopup extends StatelessWidget {
     this.onSecondaryButtonPressed,
     this.showCloseButton = true,
     this.onClose,
+    this.primaryEnabledListenable,
   });
 
   final String? title;
@@ -27,6 +29,7 @@ class ModalPopup extends StatelessWidget {
   final VoidCallback? onSecondaryButtonPressed;
   final bool showCloseButton;
   final VoidCallback? onClose;
+  final ValueListenable<bool>? primaryEnabledListenable;
 
   @override
   Widget build(BuildContext context) {
@@ -75,44 +78,65 @@ class ModalPopup extends StatelessWidget {
               ),
             ),
             if (primaryButtonText != null || secondaryButtonText != null)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: <Widget>[
-                    if (secondaryButtonText != null)
-                      Expanded(
-                        child: ButtonOutlined(
-                          text: secondaryButtonText!,
-                          textColor: colors.labelNormal,
-                          borderColor: colors.lineNormalNeutral,
-                          size: ButtonSize.large,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            onSecondaryButtonPressed?.call();
-                          },
-                        ),
-                      ),
-                    if (secondaryButtonText != null &&
-                        primaryButtonText != null)
-                      const SizedBox(width: 12),
-                    if (primaryButtonText != null)
-                      Expanded(
-                        child: ButtonSolid(
-                          text: primaryButtonText!,
-                          textColor: colors.staticWhite,
-                          backgroundColor: colors.primaryNormal,
-                          size: ButtonSize.large,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            onPrimaryButtonPressed?.call();
-                          },
-                        ),
-                      ),
-                  ],
-                ),
-              ),
+              (primaryEnabledListenable != null
+                  ? ValueListenableBuilder<bool>(
+                    valueListenable: primaryEnabledListenable!,
+                    builder: (BuildContext _, bool isEnabled, Widget? __) {
+                      return _buildActionButtons(context, colors, isEnabled);
+                    },
+                  )
+                  : _buildActionButtons(context, colors, true)),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(
+    BuildContext context,
+    SemanticColors colors,
+    bool isPrimaryEnabled,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: <Widget>[
+          if (secondaryButtonText != null)
+            Expanded(
+              child: ButtonOutlined(
+                text: secondaryButtonText!,
+                textColor: colors.labelNormal,
+                borderColor: colors.lineNormalNeutral,
+                size: ButtonSize.large,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  onSecondaryButtonPressed?.call();
+                },
+              ),
+            ),
+          if (secondaryButtonText != null && primaryButtonText != null)
+            const SizedBox(width: 12),
+          if (primaryButtonText != null)
+            Expanded(
+              child: ButtonSolid(
+                text: primaryButtonText!,
+                textColor:
+                    isPrimaryEnabled ? colors.staticWhite : colors.labelDisable,
+                backgroundColor:
+                    isPrimaryEnabled
+                        ? colors.primaryNormal
+                        : colors.interactionDisable,
+                size: ButtonSize.large,
+                onPressed:
+                    isPrimaryEnabled
+                        ? () {
+                          Navigator.of(context).pop();
+                          onPrimaryButtonPressed?.call();
+                        }
+                        : null,
+              ),
+            ),
+        ],
       ),
     );
   }
