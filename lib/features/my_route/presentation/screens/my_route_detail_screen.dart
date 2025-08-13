@@ -8,14 +8,9 @@ import 'package:ridingmate/shared/layout/map_with_bottom_sheet_layout.dart';
 import 'package:ridingmate/shared/utils/platform_action_sheet.dart';
 
 class MyRouteDetailScreen extends ConsumerWidget {
-  const MyRouteDetailScreen({
-    super.key,
-    required this.routeId,
-    required this.userId,
-  });
+  const MyRouteDetailScreen({super.key, required this.routeId});
 
   final String routeId;
-  final String userId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

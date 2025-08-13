@@ -200,7 +200,6 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
                                       (BuildContext context) =>
                                           MyRouteDetailScreen(
                                             routeId: route.id.toString(),
-                                            userId: route.userId.toString(),
                                           ),
                                 ),
                               );
