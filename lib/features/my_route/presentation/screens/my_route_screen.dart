@@ -198,7 +198,10 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
                                 MaterialPageRoute<void>(
                                   builder:
                                       (BuildContext context) =>
-                                          const MyRouteDetailScreen(),
+                                          MyRouteDetailScreen(
+                                            routeId: route.id.toString(),
+                                            userId: route.userId.toString(),
+                                          ),
                                 ),
                               );
                             },
