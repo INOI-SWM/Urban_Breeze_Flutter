@@ -7,6 +7,7 @@ import 'package:ridingmate/features/my_route/domain/entities/my_route_list.dart'
 import 'package:ridingmate/features/my_route/domain/enums/my_route_sort_type.dart';
 import 'package:ridingmate/features/my_route/presentation/config/my_route_category_config.dart';
 import 'package:ridingmate/features/my_route/presentation/config/my_route_filter_config.dart';
+import 'package:ridingmate/features/my_route/presentation/screens/my_route_detail_screen.dart';
 import 'package:ridingmate/features/route_planning/presentation/screens/route_planning_screen.dart';
 import 'package:ridingmate/navigation/page_with_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
@@ -193,7 +194,15 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
                             elevation: route.elevationGainDisplay,
                             cardType: RouteCardType.myRoute,
                             onTap: () {
-                              // TODO: 경로 상세 화면으로 이동
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder:
+                                      (BuildContext context) =>
+                                          MyRouteDetailScreen(
+                                            routeId: route.id.toString(),
+                                          ),
+                                ),
+                              );
                             },
                           ),
                         );

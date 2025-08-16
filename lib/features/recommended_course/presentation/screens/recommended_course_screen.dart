@@ -3,6 +3,7 @@ import 'package:ridingmate/features/recommended_course/application/services/reco
 import 'package:ridingmate/features/recommended_course/domain/enums/course_sort_type.dart';
 import 'package:ridingmate/features/recommended_course/presentation/config/recommended_course_category_config.dart';
 import 'package:ridingmate/features/recommended_course/presentation/config/recommended_course_filter_config.dart';
+import 'package:ridingmate/features/recommended_course/presentation/screens/recommended_course_detail_screen.dart';
 import 'package:ridingmate/navigation/page_with_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/route_card.dart';
@@ -167,7 +168,13 @@ class _RecommendedCourseScreenState extends State<RecommendedCourseScreen> {
                             difficulty: course['difficulty'],
                             scenery: course['scenery'],
                             onTap: () {
-                              // TODO: 코스 상세 화면으로 이동
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder:
+                                      (BuildContext context) =>
+                                          const RecommendedCourseDetailScreen(),
+                                ),
+                              );
                             },
                           ),
                         );
