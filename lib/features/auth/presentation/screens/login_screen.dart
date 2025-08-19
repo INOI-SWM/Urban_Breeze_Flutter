@@ -42,7 +42,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           context,
           '환영합니다, ${user.displayName ?? user.email}님!',
         );
-        Navigator.pop(context);
+        // 로그인 상태 변경으로 자동으로 메인 화면으로 전환됩니다.
       } else {
         showErrorMessage(context, '로그인에 실패했습니다. 다시 시도해주세요.');
       }
@@ -87,33 +87,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        centerTitle: true,
-        actions: <Widget>[
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: context.semanticColor.interactionInactive,
-              shape: BoxShape.circle,
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                customBorder: const CircleBorder(),
-                child: Icon(
-                  Icons.close,
-                  size: 20,
-                  color: context.semanticColor.staticWhite,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+      appBar: const CustomAppBar(centerTitle: true, title: '로그인'),
+      backgroundColor: context.semanticColor.backgroundNormalNormal,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),

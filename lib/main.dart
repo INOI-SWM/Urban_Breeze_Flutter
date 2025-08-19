@@ -5,8 +5,10 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:ridingmate/core/navigation/app_navigator.dart';
 import 'package:ridingmate/core/theme/app_theme.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
+import 'package:ridingmate/features/auth/presentation/screens/login_screen.dart';
 import 'package:ridingmate/navigation/navigation_scaffold.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
+import 'package:ridingmate/shared/screens/splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +22,8 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(userSessionNotifierProvider);
+    final bool isAuthInitialized = ref.watch(isAuthInitializedProvider);
+    final bool isLoggedIn = ref.watch(isLoggedInProvider);
 
     return MaterialApp(
       title: 'Riding Mate',
@@ -29,7 +32,12 @@ class MyApp extends ConsumerWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
       navigatorKey: rootNavigatorKey,
-      home: const NavigationScaffold(),
+      home:
+          !isAuthInitialized
+              ? const SplashScreen()
+              : isLoggedIn
+              ? const NavigationScaffold()
+              : const LoginScreen(),
       builder: (BuildContext context, Widget? child) {
         final SemanticColors semanticColors = AppTheme.getSemanticColors(
           Theme.of(context).brightness,
