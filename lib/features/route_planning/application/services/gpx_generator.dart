@@ -14,7 +14,7 @@ class GpxGenerator {
 
   static Gpx _buildGpx(String title, List<LatLng> coordinates) {
     final Gpx gpx = Gpx();
-    gpx.creator = 'RidingMate'; //todo : 추후 사용자 이름으로 변경
+    gpx.creator = 'Urban Breeze'; //todo : 추후 사용자 이름으로 변경
     gpx.metadata = Metadata(name: title, time: DateTime.now());
     gpx.wpts =
         coordinates
