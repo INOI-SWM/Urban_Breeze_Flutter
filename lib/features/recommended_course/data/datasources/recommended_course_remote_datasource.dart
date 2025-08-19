@@ -9,7 +9,7 @@ class RecommendedCourseRemoteDataSource extends BaseRemoteDataSource {
   RecommendedCourseRemoteDataSource({super.client});
 
   Future<ApiResponseModel<RecommendedCourseListDataModel>>
-  getRecommendedCourseList(RecommendedCourseFilterModel filter) async {
+  getRecommendedCourseList(RecommendedCourseRequestModel filter) async {
     final http.Response response = await get(
       ApiEndpoints.recommendations,
       queryParameters: filter.toQueryParameters(),
