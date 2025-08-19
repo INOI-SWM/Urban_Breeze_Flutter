@@ -299,13 +299,28 @@ final Provider<AuthWithdrawalFacade> authWithdrawalFacadeProvider =
       );
     });
 
+// Auth Initialization Notifier Provider
+final StateNotifierProvider<AuthInitializationNotifier, bool>
+authInitializationNotifierProvider =
+    StateNotifierProvider<AuthInitializationNotifier, bool>(
+      (Ref ref) => AuthInitializationNotifier(),
+    );
+
 // User Session Notifier Providers
 final StateNotifierProvider<UserSessionNotifier, User?>
 userSessionNotifierProvider = StateNotifierProvider<UserSessionNotifier, User?>(
-  (Ref ref) =>
-      UserSessionNotifier(repository: ref.read(userSessionRepositoryProvider)),
+  (Ref ref) => UserSessionNotifier(
+    repository: ref.read(userSessionRepositoryProvider),
+    onInitialized: () {
+      ref.read(authInitializationNotifierProvider.notifier).markInitialized();
+    },
+  ),
 );
 
 final Provider<bool> isLoggedInProvider = Provider<bool>(
   (Ref<bool> ref) => ref.watch(userSessionNotifierProvider) != null,
+);
+
+final Provider<bool> isAuthInitializedProvider = Provider<bool>(
+  (Ref<bool> ref) => ref.watch(authInitializationNotifierProvider),
 );
