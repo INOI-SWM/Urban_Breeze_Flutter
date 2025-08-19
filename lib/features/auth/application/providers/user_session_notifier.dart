@@ -26,8 +26,8 @@ class UserSessionNotifier extends StateNotifier<User?> {
   }
 
   Future<void> loadUserSession() async {
-    // 최소 500ms 지연으로 스플래시 화면이 너무 빨리 사라지지 않도록
-    await Future<void>.delayed(const Duration(milliseconds: 500));
+    // 최소 1초 지연으로 스플래시 화면이 충분히 보이도록
+    await Future<void>.delayed(const Duration(milliseconds: 1000));
     final User? user = await _repository.loadUser();
     state = user;
     // 초기화 완료 알림
