@@ -14,4 +14,7 @@ class ApiEndpoints {
   static String routeShare(String routeId) => '/api/routes/$routeId/share';
   static String routeTitle(String workoutId) =>
       '/api/activities/$workoutId/title';
+
+  //recommendation
+  static const String recommendations = '/api/recommendations';
 }
