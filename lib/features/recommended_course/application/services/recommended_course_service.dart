@@ -1,169 +1,91 @@
+import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course.dart';
+import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course_filter.dart';
+import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course_list.dart';
+import 'package:ridingmate/features/recommended_course/domain/repositories/recommended_course_repository.dart';
 import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
 
 class RecommendedCourseService {
-  static Future<List<Map<String, dynamic>>> fetchRecommendedCourseList({
-    Set<String>? categoryFilter,
-  }) async {
-    // TODO: 실제 API 호출
-    // 임시 지연 시뮬레이션 (실제 네트워크 호출처럼)
-    await Future<void>.delayed(const Duration(milliseconds: 500));
+  const RecommendedCourseService({
+    required RecommendedCourseRepository repository,
+  }) : _repository = repository;
 
-    return _getMockRecommendedCourseList(categoryFilter);
+  final RecommendedCourseRepository _repository;
+
+  /// 추천 코스 목록 조회
+  Future<List<Map<String, dynamic>>> fetchRecommendedCourseList({
+    Set<String>? categoryFilter,
+    String? sortType,
+    double? userLat,
+    double? userLon,
+    int page = 0,
+    int size = 20,
+  }) async {
+    try {
+      // 필터를 도메인 필터로 변환
+      final RecommendedCourseFilter filter = _convertToFilter(
+        categoryFilter,
+        sortType: sortType,
+        userLat: userLat,
+        userLon: userLon,
+        page: page,
+        size: size,
+      );
+
+      // API 호출
+      final RecommendedCourseList courseList = await _repository
+          .getRecommendedCourseList(filter);
+
+      // UI에서 사용하는 Map 형태로 변환
+      return courseList.courses.map(_convertToMap).toList();
+    } catch (e) {
+      // 에러 발생시 빈 리스트 반환 (API 호출 실패)
+      print('추천 코스 API 호출 실패: $e');
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+      return <Map<String, dynamic>>[];
+    }
   }
 
-  /// 서버 구현 전까지 사용할 Mock 데이터
-  static List<Map<String, dynamic>> _getMockRecommendedCourseList(
-    Set<String>? categoryFilter,
-  ) {
-    final List<Map<String, dynamic>> allCourses = <Map<String, dynamic>>[
-      <String, dynamic>{
-        'id': 'rec1',
-        'thumbnailPath': 'assets/images/png/thumbnail_r3_2.png',
-        'sourceType': ThumbnailSourceType.asset,
-        'badgeText': '추천',
-        'title': '한강 자전거도로 코스',
-        'distance': '25.5km',
-        'elevation': '15m',
-        'courseType': '강변',
-        'region': '서울',
-        'roadType': '아스팔트',
-        'scenery': '강/하천',
-        'difficulty': '쉬움',
-      },
-      <String, dynamic>{
-        'id': 'rec2',
-        'thumbnailPath': 'assets/images/png/thumbnail_r3_2.png',
-        'sourceType': ThumbnailSourceType.asset,
-        'badgeText': '추천',
-        'title': '남한산성 둘레길',
-        'distance': '18.2km',
-        'elevation': '320m',
-        'courseType': '산악',
-        'region': '경기',
-        'roadType': '혼합',
-        'scenery': '산/언덕',
-        'difficulty': '어려움',
-      },
-      <String, dynamic>{
-        'id': 'rec3',
-        'thumbnailPath': 'assets/images/png/thumbnail_r3_2.png',
-        'sourceType': ThumbnailSourceType.asset,
-        'badgeText': '추천',
-        'title': '송도 센트럴파크 순환',
-        'distance': '12.0km',
-        'elevation': '25m',
-        'courseType': '교외',
-        'region': '인천',
-        'roadType': '아스팔트',
-        'scenery': '공원',
-        'difficulty': '쉬움',
-      },
-      <String, dynamic>{
-        'id': 'rec4',
-        'thumbnailPath': 'assets/images/png/thumbnail_r3_2.png',
-        'sourceType': ThumbnailSourceType.asset,
-        'badgeText': '추천',
-        'title': '양재천 벚꽃길',
-        'distance': '15.8km',
-        'elevation': '35m',
-        'courseType': '강변',
-        'region': '서울',
-        'roadType': '아스팔트',
-        'scenery': '강/하천',
-        'difficulty': '쉬움',
-      },
-      <String, dynamic>{
-        'id': 'rec5',
-        'thumbnailPath': 'assets/images/png/thumbnail_r3_2.png',
-        'sourceType': ThumbnailSourceType.asset,
-        'badgeText': '추천',
-        'title': '북한산 둘레길',
-        'distance': '22.5km',
-        'elevation': '450m',
-        'courseType': '산악',
-        'region': '서울',
-        'roadType': '흙길',
-        'scenery': '산/언덕',
-        'difficulty': '어려움',
-      },
-      <String, dynamic>{
-        'id': 'rec6',
-        'thumbnailPath': 'assets/images/png/thumbnail_r3_2.png',
-        'sourceType': ThumbnailSourceType.asset,
-        'badgeText': '추천',
-        'title': '청계천 야간 코스',
-        'distance': '8.5km',
-        'elevation': '10m',
-        'courseType': '도심',
-        'region': '서울',
-        'roadType': '아스팔트',
-        'scenery': '강/하천',
-        'difficulty': '쉬움',
-      },
-      <String, dynamic>{
-        'id': 'rec7',
-        'thumbnailPath': 'assets/images/png/thumbnail_r3_2.png',
-        'sourceType': ThumbnailSourceType.asset,
-        'badgeText': '추천',
-        'title': '월미바다열차길',
-        'distance': '14.2km',
-        'elevation': '40m',
-        'courseType': '교외',
-        'region': '인천',
-        'roadType': '아스팔트',
-        'scenery': '해안',
-        'difficulty': '쉬움',
-      },
-      <String, dynamic>{
-        'id': 'rec8',
-        'thumbnailPath': 'assets/images/png/thumbnail_r3_2.png',
-        'sourceType': ThumbnailSourceType.asset,
-        'badgeText': '추천',
-        'title': '운중천 자전거길',
-        'distance': '19.5km',
-        'elevation': '80m',
-        'courseType': '교외',
-        'region': '경기',
-        'roadType': '아스팔트',
-        'scenery': '강/하천',
-        'difficulty': '중간',
-      },
-      <String, dynamic>{
-        'id': 'rec9',
-        'thumbnailPath': 'assets/images/png/thumbnail_r3_2.png',
-        'sourceType': ThumbnailSourceType.asset,
-        'badgeText': '추천',
-        'title': '탄천 종주 코스',
-        'distance': '35.0km',
-        'elevation': '120m',
-        'courseType': '강변',
-        'region': '경기',
-        'roadType': '아스팔트',
-        'scenery': '강/하천',
-        'difficulty': '중간',
-      },
-      <String, dynamic>{
-        'id': 'rec10',
-        'thumbnailPath': 'assets/images/png/thumbnail_r3_2.png',
-        'sourceType': ThumbnailSourceType.asset,
-        'badgeText': '추천',
-        'title': '올림픽공원 힐링코스',
-        'distance': '9.8km',
-        'elevation': '30m',
-        'courseType': '도심',
-        'region': '서울',
-        'roadType': '아스팔트',
-        'scenery': '공원',
-        'difficulty': '쉬움',
-      },
-    ];
+  /// categoryFilter를 RecommendedCourseFilter로 변환
+  RecommendedCourseFilter _convertToFilter(
+    Set<String>? categoryFilter, {
+    String? sortType,
+    double? userLat,
+    double? userLon,
+    int page = 0,
+    int size = 10, // API 기본값
+  }) {
+    // TODO: categoryFilter 파라미터를 실제 필터로 변환하는 로직 구현
+    return RecommendedCourseFilter(
+      page: page,
+      size: size,
+      sortType: sortType ?? 'NEAREST', // API 기본값
+      minDistance: 0.0,
+      maxDistance: 100.0,
+      minElevation: 0.0,
+      maxElevation: 1000.0,
+      userLat: userLat,
+      userLon: userLon,
+    );
+  }
 
-    // 필터링 로직은 나중에 구현
-    if (categoryFilter != null && categoryFilter.isNotEmpty) {
-      // TODO: 필터 적용 로직 구현
-      return allCourses;
-    }
-
-    return allCourses;
+  /// RecommendedCourse를 Map으로 변환 (기존 UI 호환성 위해)
+  Map<String, dynamic> _convertToMap(RecommendedCourse course) {
+    return <String, dynamic>{
+      'id': course.id,
+      'thumbnailPath': course.thumbnailImagePath,
+      'sourceType': ThumbnailSourceType.network, // API에서 온 것은 network
+      'badgeText': '추천', // 기본값
+      'title': course.title,
+      'distance': course.distanceDisplay,
+      'elevation': course.elevationGainDisplay,
+      'courseType':
+          course.recommendationType, // recommendationType을 courseType으로 매핑
+      'region': course.region,
+      'roadType':
+          course.recommendationType, // recommendationType을 roadType으로도 매핑
+      'scenery':
+          course.recommendationType, // recommendationType을 scenery로도 매핑 (임시)
+      'difficulty': course.difficulty,
+    };
   }
 }

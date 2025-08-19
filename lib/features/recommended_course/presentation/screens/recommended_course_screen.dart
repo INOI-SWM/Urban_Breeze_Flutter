@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/features/recommended_course/application/services/recommended_course_service.dart';
+import 'package:ridingmate/features/recommended_course/di/recommended_course_providers.dart';
 import 'package:ridingmate/features/recommended_course/domain/enums/course_sort_type.dart';
 import 'package:ridingmate/features/recommended_course/presentation/config/recommended_course_category_config.dart';
 import 'package:ridingmate/features/recommended_course/presentation/config/recommended_course_filter_config.dart';
@@ -14,11 +16,12 @@ import 'package:ridingmate/shared/filter/models/filter_item.dart';
 import 'package:ridingmate/shared/filter/utils/filter_display_utils.dart';
 import 'package:ridingmate/shared/sort/sort_modal.dart';
 
-class RecommendedCourseScreen extends StatefulWidget implements PageWithAppBar {
+class RecommendedCourseScreen extends ConsumerStatefulWidget
+    implements PageWithAppBar {
   const RecommendedCourseScreen({super.key});
 
   @override
-  State<RecommendedCourseScreen> createState() =>
+  ConsumerState<RecommendedCourseScreen> createState() =>
       _RecommendedCourseScreenState();
 
   @override
@@ -30,9 +33,10 @@ class RecommendedCourseScreen extends StatefulWidget implements PageWithAppBar {
   }
 }
 
-class _RecommendedCourseScreenState extends State<RecommendedCourseScreen> {
-  // TODO: 추천 코스용 정렬 옵션으로 변경 필요 (가까운순, 거리, 난이도)
-  CourseSortType selectedSortOption = CourseSortType.newest;
+class _RecommendedCourseScreenState
+    extends ConsumerState<RecommendedCourseScreen> {
+  // 추천 코스용 정렬 옵션 (API 기본값: 가까운 순)
+  CourseSortType selectedSortOption = CourseSortType.nearest;
 
   // 필터 생성
   List<FilterItem> get filters => RecommendedCourseFilterConfig().filters;
@@ -54,8 +58,15 @@ class _RecommendedCourseScreenState extends State<RecommendedCourseScreen> {
       isLoading = true;
     });
 
-    final List<Map<String, dynamic>> courses =
-        await RecommendedCourseService.fetchRecommendedCourseList();
+    final RecommendedCourseService service = ref.read(
+      recommendedCourseServiceProvider,
+    );
+    final List<Map<String, dynamic>> courses = await service
+        .fetchRecommendedCourseList(
+          sortType: selectedSortOption.apiValue,
+          page: 0,
+          size: 10, // API 기본값
+        );
     setState(() {
       courseList = courses;
       isLoading = false;
@@ -71,7 +82,8 @@ class _RecommendedCourseScreenState extends State<RecommendedCourseScreen> {
         setState(() {
           selectedSortOption = option;
         });
-        // TODO: 정렬 로직 구현 (거리, 난이도 기준)
+        // 정렬 변경시 데이터 새로고침
+        _loadCourseList();
       },
       getDisplayText: (CourseSortType option) => option.displayName,
     );
@@ -91,13 +103,15 @@ class _RecommendedCourseScreenState extends State<RecommendedCourseScreen> {
         setState(() {
           currentFilter = newFilter;
         });
-        // TODO: 필터 적용 로직 구현
+        // 필터 적용시 데이터 새로고침
+        _loadCourseList();
       },
       onReset: () {
         setState(() {
           currentFilter = FilterData.fromFilterItems(filters);
         });
-        // TODO: 초기화 후 데이터 새로고침
+        // 초기화 후 데이터 새로고침
+        _loadCourseList();
       },
     );
   }
@@ -118,7 +132,7 @@ class _RecommendedCourseScreenState extends State<RecommendedCourseScreen> {
             selectedCategories: FilterDisplayUtils.getSelectedCategories(
               currentFilter,
               filters,
-              selectedSortOption != CourseSortType.newest
+              selectedSortOption != CourseSortType.nearest
                   ? selectedSortOption.displayName
                   : null,
             ),
