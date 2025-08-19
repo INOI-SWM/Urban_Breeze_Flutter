@@ -1,10 +1,26 @@
 enum CourseSortType {
-  newest('가까운 순'),
-  oldest('거리 긴 순'),
-  nearest('거리 짧은 순'),
-  distanceLong('난이도 높은 순'),
-  distanceShort('난이도 짧은 순');
+  nearest('가까운 순'),
+  distanceLong('거리 긴 순'),
+  distanceShort('거리 짧은 순'),
+  difficultyHigh('난이도 높은 순'),
+  difficultyLow('난이도 낮은 순');
 
   const CourseSortType(this.displayName);
   final String displayName;
+
+  /// API에서 사용하는 정렬 타입 문자열 반환
+  String get apiValue {
+    switch (this) {
+      case CourseSortType.nearest:
+        return 'NEAREST';
+      case CourseSortType.distanceLong:
+        return 'DISTANCE_LONG';
+      case CourseSortType.distanceShort:
+        return 'DISTANCE_SHORT';
+      case CourseSortType.difficultyHigh:
+        return 'DIFFICULTY_HIGH';
+      case CourseSortType.difficultyLow:
+        return 'DIFFICULTY_LOW';
+    }
+  }
 }
