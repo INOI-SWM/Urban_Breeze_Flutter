@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/features/recommended_course/application/services/recommended_course_service.dart';
 import 'package:ridingmate/features/recommended_course/di/recommended_course_providers.dart';
 import 'package:ridingmate/features/recommended_course/domain/constants/recommended_course_constants.dart';
+import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course.dart';
 import 'package:ridingmate/features/recommended_course/domain/enums/course_sort_type.dart';
 import 'package:ridingmate/features/recommended_course/presentation/config/recommended_course_category_config.dart';
 import 'package:ridingmate/features/recommended_course/presentation/config/recommended_course_filter_config.dart';
@@ -11,6 +12,7 @@ import 'package:ridingmate/navigation/page_with_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:ridingmate/shared/design_system/widgets/card/route_card.dart';
 import 'package:ridingmate/shared/design_system/widgets/category/category_filter.dart';
+import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
 import 'package:ridingmate/shared/filter/filter_modal.dart';
 import 'package:ridingmate/shared/filter/models/filter_data.dart';
 import 'package:ridingmate/shared/filter/models/filter_item.dart';
@@ -45,7 +47,7 @@ class _RecommendedCourseScreenState
 
   late FilterData currentFilter;
 
-  List<Map<String, dynamic>> courseList = <Map<String, dynamic>>[];
+  List<RecommendedCourse> courseList = <RecommendedCourse>[];
   bool isLoading = true;
 
   @override
@@ -68,7 +70,7 @@ class _RecommendedCourseScreenState
     final (double minDistance, double maxDistance) = _getDistanceRange();
     final (double minElevation, double maxElevation) = _getElevationRange();
 
-    final List<Map<String, dynamic>> courses = await service
+    final List<RecommendedCourse> courses = await service
         .fetchRecommendedCourseList(
           categoryFilter: _extractSelectedCategories(),
           sortType: selectedSortOption.apiValue,
@@ -227,18 +229,18 @@ class _RecommendedCourseScreenState
                       physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: courseList.length,
                       itemBuilder: (BuildContext context, int index) {
-                        final Map<String, dynamic> course = courseList[index];
+                        final RecommendedCourse course = courseList[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: RouteCard(
-                            thumbnailPath: course['thumbnailPath'],
-                            sourceType: course['sourceType'],
-                            routeTitle: course['title'],
-                            distance: course['distance'],
-                            elevation: course['elevation'],
+                            thumbnailPath: course.thumbnailImagePath,
+                            sourceType: ThumbnailSourceType.network,
+                            routeTitle: course.title,
+                            distance: course.distanceDisplay,
+                            elevation: course.elevationGainDisplay,
                             cardType: RouteCardType.recommendedCourse,
-                            region: course['region'],
-                            difficulty: course['difficulty'],
+                            region: course.region,
+                            difficulty: course.difficulty,
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute<void>(

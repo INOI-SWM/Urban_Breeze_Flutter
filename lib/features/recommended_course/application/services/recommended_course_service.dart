@@ -3,7 +3,6 @@ import 'package:ridingmate/features/recommended_course/domain/entities/recommend
 import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course_filter.dart';
 import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course_list.dart';
 import 'package:ridingmate/features/recommended_course/domain/repositories/recommended_course_repository.dart';
-import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
 
 class RecommendedCourseService {
   const RecommendedCourseService({
@@ -13,7 +12,7 @@ class RecommendedCourseService {
   final RecommendedCourseRepository _repository;
 
   /// 추천 코스 목록 조회
-  Future<List<Map<String, dynamic>>> fetchRecommendedCourseList({
+  Future<List<RecommendedCourse>> fetchRecommendedCourseList({
     Set<String>? categoryFilter,
     String? sortType,
     double? userLat,
@@ -43,13 +42,15 @@ class RecommendedCourseService {
       // API 호출
       final RecommendedCourseList courseList = await _repository
           .getRecommendedCourseList(filter);
-
-      // UI에서 사용하는 Map 형태로 변환
-      return courseList.courses.map(_convertToMap).toList();
+      if (courseList.courses.isEmpty) {
+        return _getDummyData();
+      }
+      // 도메인 엔티티 직접 반환
+      return courseList.courses;
     } catch (e) {
-      // 에러 발생시 빈 리스트 반환 (API 호출 실패)
+      // API 호출 실패시 테스트용 더미 데이터 반환
       await Future<void>.delayed(const Duration(milliseconds: 500));
-      return <Map<String, dynamic>>[];
+      return _getDummyData();
     }
   }
 
@@ -108,20 +109,76 @@ class RecommendedCourseService {
     );
   }
 
-  /// RecommendedCourse를 Map으로 변환 (기존 UI 호환성 위해)
-  Map<String, dynamic> _convertToMap(RecommendedCourse course) {
-    return <String, dynamic>{
-      'id': course.id,
-      'thumbnailPath': course.thumbnailImagePath,
-      'sourceType': ThumbnailSourceType.network, // API에서 온 것은 network
-      'badgeText': '추천', // 기본값
-      'title': course.title,
-      'distance': course.distanceDisplay,
-      'elevation': course.elevationGainDisplay,
-      'courseType': course.recommendationType,
-      'region': course.region,
-      'difficulty': course.difficulty,
-    };
+  /// 테스트용 더미 데이터 생성
+  List<RecommendedCourse> _getDummyData() {
+    // 더미 추천 코스 데이터들
+    return <RecommendedCourse>[
+      const RecommendedCourse(
+        id: '1',
+        title: '한강 라이딩 코스',
+        description: '한강을 따라가는 아름다운 라이딩 코스입니다. 도시의 스카이라인을 감상하며 라이딩할 수 있습니다.',
+        distanceKm: 25.0,
+        durationSeconds: 0,
+        elevationGain: 150.5,
+        region: '서울특별시',
+        difficulty: '쉬움',
+        recommendationType: '유명 코스',
+        thumbnailImagePath:
+            'https://ridingmate-dev.s3.ap-northeast-2.amazonaws.com/thumbnails/hangang.jpg',
+      ),
+      const RecommendedCourse(
+        id: '2',
+        title: '남산 순환 코스',
+        description: '남산을 둘러보는 도심 속 힐링 라이딩 코스입니다.',
+        distanceKm: 8.5,
+        durationSeconds: 0,
+        elevationGain: 200.0,
+        region: '서울특별시',
+        difficulty: '보통',
+        recommendationType: '유명 코스',
+        thumbnailImagePath:
+            'https://ridingmate-dev.s3.ap-northeast-2.amazonaws.com/thumbnails/namsan.jpg',
+      ),
+      const RecommendedCourse(
+        id: '3',
+        title: '강릉 해안도로',
+        description: '동해안을 따라가는 해안 도로 코스입니다. 바다 전망을 감상하며 라이딩할 수 있습니다.',
+        distanceKm: 60.0,
+        durationSeconds: 0,
+        elevationGain: 450.3,
+        region: '강원',
+        difficulty: '보통',
+        recommendationType: '대회 코스',
+        thumbnailImagePath:
+            'https://ridingmate-dev.s3.ap-northeast-2.amazonaws.com/thumbnails/gangneung.jpg',
+      ),
+      const RecommendedCourse(
+        id: '4',
+        title: '제주 올레길 코스',
+        description: '제주의 아름다운 자연을 만끽할 수 있는 라이딩 코스입니다.',
+        distanceKm: 35.2,
+        durationSeconds: 0,
+        elevationGain: 320.8,
+        region: '제주',
+        difficulty: '어려움',
+        recommendationType: '국토 종주',
+        thumbnailImagePath:
+            'https://ridingmate-dev.s3.ap-northeast-2.amazonaws.com/thumbnails/jeju.jpg',
+      ),
+      const RecommendedCourse(
+        id: '5',
+        title: '충주호 라이딩',
+        description: '충주호의 맑은 물과 산세를 감상하며 달리는 코스입니다.',
+        distanceKm: 42.0,
+        durationSeconds: 0,
+        elevationGain: 280.5,
+        region: '충청',
+        difficulty: '보통',
+        recommendationType: '대회 코스',
+        thumbnailImagePath:
+            'https://ridingmate-dev.s3.ap-northeast-2.amazonaws.com/thumbnails/chungju.jpg',
+      ),
+    ];
   }
 
   // === 카테고리 분류 헬퍼 메서드들 ===
