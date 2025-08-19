@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ridingmate/features/recommended_course/application/services/recommended_course_service.dart';
 import 'package:ridingmate/features/recommended_course/di/recommended_course_providers.dart';
+import 'package:ridingmate/features/recommended_course/domain/constants/recommended_course_constants.dart';
 import 'package:ridingmate/features/recommended_course/domain/enums/course_sort_type.dart';
 import 'package:ridingmate/features/recommended_course/presentation/config/recommended_course_category_config.dart';
 import 'package:ridingmate/features/recommended_course/presentation/config/recommended_course_filter_config.dart';
@@ -62,16 +63,21 @@ class _RecommendedCourseScreenState
     final RecommendedCourseService service = ref.read(
       recommendedCourseServiceProvider,
     );
+
+    // Range 값들을 한 번씩만 계산 (성능 최적화)
+    final (double minDistance, double maxDistance) = _getDistanceRange();
+    final (double minElevation, double maxElevation) = _getElevationRange();
+
     final List<Map<String, dynamic>> courses = await service
         .fetchRecommendedCourseList(
           categoryFilter: _extractSelectedCategories(),
           sortType: selectedSortOption.apiValue,
-          minDistance: _getDistanceRange().$1,
-          maxDistance: _getDistanceRange().$2,
-          minElevation: _getElevationRange().$1,
-          maxElevation: _getElevationRange().$2,
+          minDistance: minDistance,
+          maxDistance: maxDistance,
+          minElevation: minElevation,
+          maxElevation: maxElevation,
           page: 0,
-          size: 10, // API 기본값
+          size: RecommendedCourseConstants.defaultPageSize,
         );
     setState(() {
       courseList = courses;
@@ -106,7 +112,10 @@ class _RecommendedCourseScreenState
     if (distanceRange != null) {
       return (distanceRange.start, distanceRange.end);
     }
-    return (0.0, 100.0); // 기본값
+    return (
+      RecommendedCourseConstants.defaultMinDistance,
+      RecommendedCourseConstants.defaultMaxDistance,
+    );
   }
 
   /// 현재 필터에서 고도 범위 값들을 추출
@@ -117,7 +126,10 @@ class _RecommendedCourseScreenState
     if (elevationRange != null) {
       return (elevationRange.start, elevationRange.end);
     }
-    return (0.0, 1000.0); // 기본값
+    return (
+      RecommendedCourseConstants.defaultMinElevation,
+      RecommendedCourseConstants.defaultMaxElevation,
+    );
   }
 
   void _showSortModal() {
@@ -227,7 +239,6 @@ class _RecommendedCourseScreenState
                             cardType: RouteCardType.recommendedCourse,
                             region: course['region'],
                             difficulty: course['difficulty'],
-                            scenery: course['scenery'],
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute<void>(

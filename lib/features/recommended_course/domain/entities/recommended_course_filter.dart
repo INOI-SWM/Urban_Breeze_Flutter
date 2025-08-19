@@ -1,15 +1,17 @@
+import 'package:ridingmate/features/recommended_course/domain/constants/recommended_course_constants.dart';
+
 class RecommendedCourseFilter {
   const RecommendedCourseFilter({
     this.page = 0,
-    this.size = 10, // API 기본값: 10개
-    this.sortType = 'NEAREST', // API 기본값: 가까운 순
+    this.size = RecommendedCourseConstants.defaultPageSize,
+    this.sortType = RecommendedCourseConstants.defaultSortType,
     this.regions,
     this.difficulty,
     this.recommendationTypes,
-    this.minDistance = 0.0,
-    this.maxDistance = 100.0,
-    this.minElevation = 0.0,
-    this.maxElevation = 1000.0,
+    this.minDistance = RecommendedCourseConstants.defaultMinDistance,
+    this.maxDistance = RecommendedCourseConstants.defaultMaxDistance,
+    this.minElevation = RecommendedCourseConstants.defaultMinElevation,
+    this.maxElevation = RecommendedCourseConstants.defaultMaxElevation,
     this.userLon,
     this.userLat,
   });

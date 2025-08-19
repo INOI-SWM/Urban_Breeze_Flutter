@@ -1,68 +1,20 @@
+import 'package:ridingmate/features/recommended_course/domain/constants/recommended_course_constants.dart';
+
 /// 추천 코스 필드 변환 유틸리티
 /// 한글 표시명과 API 코드 간의 변환을 담당
 class RecommendedCourseFieldConverter {
   const RecommendedCourseFieldConverter._();
 
-  /// 한글 지역명을 API 코드로 매핑
-  static const Map<String, String> _regionMapping = <String, String>{
-    '서울/경기': 'SEOUL',
-    '강원': 'GANGWON',
-    '충청': 'CHUNGCHEONG',
-    '전라': 'JEOLLA',
-    '경상': 'GYEONGSANG',
-    '제주': 'JEJU',
-  };
-
-  /// API 코드를 한글 지역명으로 매핑 (역매핑)
-  static const Map<String, String> _reverseRegionMapping = <String, String>{
-    'SEOUL': '서울/경기',
-    'GANGWON': '강원',
-    'CHUNGCHEONG': '충청',
-    'JEOLLA': '전라',
-    'GYEONGSANG': '경상',
-    'JEJU': '제주',
-  };
-
-  /// 한글 난이도를 API 코드로 매핑
-  static const Map<String, String> _difficultyMapping = <String, String>{
-    '쉬움': 'EASY',
-    '보통': 'MEDIUM',
-    '어려움': 'HARD',
-  };
-
-  /// API 코드를 한글 난이도로 매핑 (역매핑)
-  static const Map<String, String> _reverseDifficultyMapping = <String, String>{
-    'EASY': '쉬움',
-    'MEDIUM': '보통',
-    'HARD': '어려움',
-  };
-
-  /// 한글 추천타입을 API 코드로 매핑
-  static const Map<String, String> _recommendationTypeMapping =
-      <String, String>{
-        '국토 종주': 'CROSS_COUNTRY',
-        '대회 코스': 'COMPETITION',
-        '유명 코스': 'FAMOUS',
-      };
-
-  /// API 코드를 한글 추천타입으로 매핑 (역매핑)
-  static const Map<String, String> _reverseRecommendationTypeMapping =
-      <String, String>{
-        'CROSS_COUNTRY': '국토 종주',
-        'COMPETITION': '대회 코스',
-        'FAMOUS': '유명 코스',
-      };
-
   // === 지역 변환 ===
 
   /// 한글 지역명을 API 코드로 변환
   static String convertRegionToApi(String korean) {
-    return _regionMapping[korean] ?? korean;
+    return RecommendedCourseConstants.regionToApiMapping[korean] ?? korean;
   }
 
   /// API 코드를 한글 지역명으로 변환
   static String convertRegionFromApi(String apiCode) {
-    return _reverseRegionMapping[apiCode] ?? apiCode;
+    return RecommendedCourseConstants.apiToRegionMapping[apiCode] ?? apiCode;
   }
 
   /// 한글 지역명 리스트를 API 코드 리스트로 변환
@@ -89,12 +41,13 @@ class RecommendedCourseFieldConverter {
 
   /// 한글 난이도를 API 코드로 변환
   static String convertDifficultyToApi(String korean) {
-    return _difficultyMapping[korean] ?? korean;
+    return RecommendedCourseConstants.difficultyToApiMapping[korean] ?? korean;
   }
 
   /// API 코드를 한글 난이도로 변환
   static String convertDifficultyFromApi(String apiCode) {
-    return _reverseDifficultyMapping[apiCode] ?? apiCode;
+    return RecommendedCourseConstants.apiToDifficultyMapping[apiCode] ??
+        apiCode;
   }
 
   /// 한글 난이도 리스트를 API 코드 리스트로 변환
@@ -125,12 +78,14 @@ class RecommendedCourseFieldConverter {
 
   /// 한글 추천타입을 API 코드로 변환
   static String convertRecommendationTypeToApi(String korean) {
-    return _recommendationTypeMapping[korean] ?? korean;
+    return RecommendedCourseConstants.recommendationTypeToApiMapping[korean] ??
+        korean;
   }
 
   /// API 코드를 한글 추천타입으로 변환
   static String convertRecommendationTypeFromApi(String apiCode) {
-    return _reverseRecommendationTypeMapping[apiCode] ?? apiCode;
+    return RecommendedCourseConstants.apiToRecommendationTypeMapping[apiCode] ??
+        apiCode;
   }
 
   /// 한글 추천타입 리스트를 API 코드 리스트로 변환
