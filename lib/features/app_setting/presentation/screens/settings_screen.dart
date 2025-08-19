@@ -167,17 +167,20 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  // 섹션/아이템은 공통 위젯 `SettingsSection`, `SettingsItem` 재사용
-
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {
     ModalShow.show(
       context: context,
       title: '로그아웃',
-      content: const Text('정말 로그아웃하시겠습니까?'),
+      content: Text(
+        '정말 로그아웃하시겠습니까?',
+        style: AppTextStyles.body1.normalRegular.copyWith(
+          color: context.semanticColor.labelNormal,
+        ),
+      ),
       primaryButtonText: '로그아웃',
       secondaryButtonText: '취소',
       onPrimaryButtonPressed: () => _handleSignOut(context, ref),
-      onSecondaryButtonPressed: () => Navigator.of(context).pop(),
+      onSecondaryButtonPressed: () {},
     );
   }
 
@@ -193,12 +196,8 @@ class SettingsScreen extends ConsumerWidget {
 
       if (!context.mounted) return;
 
-      if (restartableAppKey.currentState != null) {
-        restartableAppKey.currentState!.restart();
-      } else {
-        Navigator.of(context).pop();
-        restartableAppKey.currentState?.restart();
-      }
+      // 앱 재시작
+      restartableAppKey.currentState?.restart();
     } catch (e) {
       if (!context.mounted) return;
 
