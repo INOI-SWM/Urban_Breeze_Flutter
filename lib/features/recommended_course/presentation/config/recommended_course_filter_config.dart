@@ -6,40 +6,19 @@ class RecommendedCourseFilterConfig implements FilterConfig {
   @override
   List<FilterItem> get filters => <FilterItem>[
     FilterItem.selection(
-      id: 'courseType',
+      id: 'recommendationType',
       title: '코스 종류',
       options: const <String>['전체', '국토 종주', '대회 코스', '유명 코스'],
     ),
     FilterItem.selection(
       id: 'region',
       title: '지역',
-      options: const <String>[
-        '전체',
-        '서울 북부',
-        '서울 남부',
-        '경기 북부',
-        '경기 남부',
-        '인천',
-        '강원',
-        '대전',
-        '충북',
-        '충남',
-        '세종',
-        '광주',
-        '전북',
-        '전남',
-        '울산',
-        '부산',
-        '대구',
-        '경북',
-        '경남',
-        '제주',
-      ],
+      options: const <String>['전체', '서울/경기', '강원', '충청', '전라', '경상', '제주'],
     ),
     FilterItem.range(
       id: 'elevation',
       title: '상승 고도',
-      range: const RangeValues(0, 500),
+      range: const RangeValues(0, 1000),
       unit: 'm',
     ),
     FilterItem.range(
@@ -49,14 +28,9 @@ class RecommendedCourseFilterConfig implements FilterConfig {
       unit: 'km',
     ),
     FilterItem.selection(
-      id: 'roadType',
-      title: '도로',
-      options: const <String>['전체', '공도 많음', '비포장도로 포함'],
-    ),
-    FilterItem.selection(
-      id: 'scenery',
-      title: '자연 경관',
-      options: const <String>['전체', '해안가', '하천', '산', '공원'],
+      id: 'difficulty',
+      title: '난이도',
+      options: const <String>['전체', '쉬움', '보통', '어려움'],
     ),
   ];
 }
