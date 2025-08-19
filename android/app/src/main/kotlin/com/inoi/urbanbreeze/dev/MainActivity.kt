@@ -1,4 +1,4 @@
-package com.inoi.urban_breeze.dev
+package com.inoi.urbanbreeze.dev
 
 import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
@@ -8,8 +8,8 @@ import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.*
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.android.FlutterFragmentActivity
-import com.inoi.urban_breeze.dev.healthconnect.HealthConnectPlugin
-import com.inoi.urban_breeze.dev.healthconnect.HealthConnectManager
+import com.inoi.urbanbreeze.dev.healthconnect.HealthConnectPlugin
+import com.inoi.urbanbreeze.dev.healthconnect.HealthConnectManager
 
 class MainActivity : FlutterFragmentActivity() {
 

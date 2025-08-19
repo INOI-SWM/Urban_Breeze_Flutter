@@ -1,4 +1,4 @@
-package com.inoi.urban_breeze.dev.healthconnect.providers
+package com.inoi.urbanbreeze.dev.healthconnect.providers
 
 import android.content.Context
 import androidx.health.connect.client.HealthConnectClient
@@ -7,7 +7,7 @@ import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.connect.client.time.TimeRangeFilter
-import com.inoi.urban_breeze.dev.healthconnect.HealthConnectManager
+import com.inoi.urbanbreeze.dev.healthconnect.HealthConnectManager
 import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

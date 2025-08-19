@@ -1,8 +1,8 @@
-package com.inoi.urban_breeze.dev.healthconnect
+package com.inoi.urbanbreeze.dev.healthconnect
 
 import android.content.Context
 import io.flutter.plugin.common.MethodChannel
-import com.inoi.urban_breeze.dev.healthconnect.providers.*
+import com.inoi.urbanbreeze.dev.healthconnect.providers.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

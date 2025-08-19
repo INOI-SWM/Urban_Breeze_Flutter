@@ -1,4 +1,4 @@
-package com.inoi.urban_breeze.dev.healthconnect
+package com.inoi.urbanbreeze.dev.healthconnect
 
 import android.app.Activity
 import android.content.Context
@@ -7,7 +7,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import com.inoi.urban_breeze.dev.healthconnect.providers.*
+import com.inoi.urbanbreeze.dev.healthconnect.providers.*
 
 /**
  * Health Connect Flutter 플러그인
@@ -75,7 +75,7 @@ class HealthConnectPlugin(private var activity: Activity? = null) : FlutterPlugi
     }
 
     private fun handleRequestPermissions(result: Result) {
-        val mainActivity = activity as? com.inoi.urban_breeze.dev.MainActivity
+        val mainActivity = activity as? com.inoi.urbanbreeze.dev.MainActivity
         if (mainActivity != null) {
             // MainActivity의 권한 요청 사용
             mainActivity.requestHealthConnectPermissions { granted ->
