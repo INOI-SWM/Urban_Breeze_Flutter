@@ -6,6 +6,7 @@ import 'package:ridingmate/features/app_setting/presentation/widgets/settings_li
 import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/domain/entities/user.dart';
+import 'package:ridingmate/main.dart';
 import 'package:ridingmate/shared/design_system/tokens/decorations/inset_border.dart';
 import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
 import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
@@ -192,10 +193,12 @@ class SettingsScreen extends ConsumerWidget {
 
       if (!context.mounted) return;
 
-      ErrorDisplay.showSuccessMessage(context, '로그아웃되었습니다.');
-
-      // 모든 화면을 제거하고 홈으로 이동 (임시 코드)
-      Navigator.of(context).popUntil((Route<dynamic> route) => route.isFirst);
+      if (restartableAppKey.currentState != null) {
+        restartableAppKey.currentState!.restart();
+      } else {
+        Navigator.of(context).pop();
+        restartableAppKey.currentState?.restart();
+      }
     } catch (e) {
       if (!context.mounted) return;
 

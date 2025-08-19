@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'package:ridingmate/core/navigation/app_navigator.dart';
 import 'package:ridingmate/core/theme/app_theme.dart';
 import 'package:ridingmate/features/auth/di/auth_providers.dart';
 import 'package:ridingmate/features/auth/presentation/screens/login_screen.dart';
@@ -14,11 +13,46 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
   KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']!);
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(RestartableApp(key: restartableAppKey));
+}
+
+// 앱 재시작을 위한 GlobalKey
+final GlobalKey<RestartableAppState> restartableAppKey =
+    GlobalKey<RestartableAppState>();
+
+class RestartableApp extends StatefulWidget {
+  const RestartableApp({super.key});
+
+  @override
+  State<RestartableApp> createState() => RestartableAppState();
+}
+
+class RestartableAppState extends State<RestartableApp> {
+  Key providerScopeKey = UniqueKey();
+  Key myAppKey = UniqueKey();
+  GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  void restart() {
+    setState(() {
+      providerScopeKey = UniqueKey();
+      myAppKey = UniqueKey();
+      navigatorKey = GlobalKey<NavigatorState>();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ProviderScope(
+      key: providerScopeKey,
+      child: MyApp(key: myAppKey, navigatorKey: navigatorKey),
+    );
+  }
 }
 
 class MyApp extends ConsumerWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, required this.navigatorKey});
+
+  final GlobalKey<NavigatorState> navigatorKey;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,7 +65,7 @@ class MyApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      navigatorKey: rootNavigatorKey,
+      navigatorKey: navigatorKey,
       home:
           !isAuthInitialized
               ? const SplashScreen()
