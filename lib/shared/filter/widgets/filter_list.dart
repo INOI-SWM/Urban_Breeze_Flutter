@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
-import 'package:ridingmate/shared/filter/models/filter_data.dart';
-import 'package:ridingmate/shared/filter/models/filter_item.dart';
-import 'package:ridingmate/shared/filter/widgets/filter_widgets.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/filter/models/filter_data.dart';
+import 'package:urban_breeze/shared/filter/models/filter_item.dart';
+import 'package:urban_breeze/shared/filter/widgets/filter_widgets.dart';
 
 class FilterList extends StatelessWidget {
   const FilterList({

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/shared/design_system/tokens/decorations/app_shadows.dart';
-import 'package:ridingmate/shared/design_system/widgets/button/icon_button_solid.dart';
-import 'package:ridingmate/shared/design_system/widgets/icon/icon_size.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/shared/design_system/tokens/decorations/app_shadows.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/icon_button_solid.dart';
+import 'package:urban_breeze/shared/design_system/widgets/icon/icon_size.dart';
 
 class RouteCreationActionButtons extends StatelessWidget {
   const RouteCreationActionButtons({

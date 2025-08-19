@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
-import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart'; // For AppTextStyles
+import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart'; // For AppTextStyles
 
 class AppTheme {
   static SemanticColors getSemanticColors(Brightness brightness) {

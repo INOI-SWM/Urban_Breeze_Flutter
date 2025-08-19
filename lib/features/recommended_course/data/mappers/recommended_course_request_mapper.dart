@@ -1,6 +1,6 @@
-import 'package:ridingmate/features/recommended_course/data/mappers/recommended_course_field_converter.dart';
-import 'package:ridingmate/features/recommended_course/data/models/recommended_course_request_model.dart';
-import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course_filter.dart';
+import 'package:urban_breeze/features/recommended_course/data/mappers/recommended_course_field_converter.dart';
+import 'package:urban_breeze/features/recommended_course/data/models/recommended_course_request_model.dart';
+import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_filter.dart';
 
 /// 추천 코스 요청 관련 매핑
 /// 도메인 필터와 API 요청 모델 간의 변환을 담당

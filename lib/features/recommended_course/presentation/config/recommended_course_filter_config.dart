@@ -1,6 +1,6 @@
-import 'package:ridingmate/features/recommended_course/domain/constants/recommended_course_constants.dart';
-import 'package:ridingmate/shared/filter/models/filter_config.dart';
-import 'package:ridingmate/shared/filter/models/filter_item.dart';
+import 'package:urban_breeze/features/recommended_course/domain/constants/recommended_course_constants.dart';
+import 'package:urban_breeze/shared/filter/models/filter_config.dart';
+import 'package:urban_breeze/shared/filter/models/filter_item.dart';
 
 class RecommendedCourseFilterConfig implements FilterConfig {
   @override

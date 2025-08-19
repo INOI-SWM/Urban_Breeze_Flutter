@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
-import 'package:ridingmate/shared/design_system/widgets/search_field/search_field.dart';
-import 'package:ridingmate/shared/design_system/widgets/search_field/search_field_size.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/design_system/widgets/search_field/search_field.dart';
+import 'package:urban_breeze/shared/design_system/widgets/search_field/search_field_size.dart';
 
 class SearchAppBar extends StatelessWidget implements PreferredSizeWidget {
   const SearchAppBar({

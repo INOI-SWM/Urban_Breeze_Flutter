@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/shared/design_system/tokens/colors/atomic_colors.dart';
+import 'package:urban_breeze/shared/design_system/tokens/colors/atomic_colors.dart';
 
 abstract class SemanticColors {
   Color get primaryNormal;

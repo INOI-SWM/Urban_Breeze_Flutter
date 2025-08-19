@@ -1,4 +1,4 @@
-import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
+import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
 
 class User {
   const User({

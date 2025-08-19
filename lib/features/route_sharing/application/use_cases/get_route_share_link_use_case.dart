@@ -1,7 +1,7 @@
-import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
-import 'package:ridingmate/core/result/app_result.dart';
-import 'package:ridingmate/features/route_sharing/domain/entities/route_share_link.dart';
-import 'package:ridingmate/features/route_sharing/domain/repositories/route_share_repository.dart';
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/route_sharing/domain/entities/route_share_link.dart';
+import 'package:urban_breeze/features/route_sharing/domain/repositories/route_share_repository.dart';
 
 class GetRouteShareLinkUseCase {
   const GetRouteShareLinkUseCase({required RouteShareRepository repository})

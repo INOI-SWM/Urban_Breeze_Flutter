@@ -1,8 +1,8 @@
-import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
-import 'package:ridingmate/features/place_search/domain/exceptions/place_search_domain_exceptions.dart';
-import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
-import 'package:ridingmate/features/workout_history/domain/exceptions/apple_health_kit_exceptions.dart';
-import 'package:ridingmate/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/features/place_search/domain/exceptions/place_search_domain_exceptions.dart';
+import 'package:urban_breeze/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
+import 'package:urban_breeze/features/workout_history/domain/exceptions/apple_health_kit_exceptions.dart';
+import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 
 class ErrorMessageMapper {
   static String getErrorMessage(BaseDomainException exception) {

@@ -1,8 +1,8 @@
-import 'package:ridingmate/features/recommended_course/data/models/recommended_course_list_data_model.dart';
-import 'package:ridingmate/features/recommended_course/data/models/recommended_course_response_model.dart';
-import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course.dart';
-import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course_list.dart';
-import 'package:ridingmate/shared/api/data/models/api_response_model.dart';
+import 'package:urban_breeze/features/recommended_course/data/models/recommended_course_list_data_model.dart';
+import 'package:urban_breeze/features/recommended_course/data/models/recommended_course_response_model.dart';
+import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course.dart';
+import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_list.dart';
+import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 
 /// 추천 코스 응답 관련 매핑
 /// API 응답 모델을 도메인 엔티티로 변환하는 역할을 담당

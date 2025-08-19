@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:ridingmate/core/di/core_providers.dart';
-import 'package:ridingmate/features/recommended_course/application/services/recommended_course_service.dart';
-import 'package:ridingmate/features/recommended_course/data/datasources/recommended_course_remote_datasource.dart';
-import 'package:ridingmate/features/recommended_course/data/repositories/recommended_course_repository_impl.dart';
-import 'package:ridingmate/features/recommended_course/domain/repositories/recommended_course_repository.dart';
+import 'package:urban_breeze/core/di/core_providers.dart';
+import 'package:urban_breeze/features/recommended_course/application/services/recommended_course_service.dart';
+import 'package:urban_breeze/features/recommended_course/data/datasources/recommended_course_remote_datasource.dart';
+import 'package:urban_breeze/features/recommended_course/data/repositories/recommended_course_repository_impl.dart';
+import 'package:urban_breeze/features/recommended_course/domain/repositories/recommended_course_repository.dart';
 
 final Provider<RecommendedCourseRemoteDataSource>
 recommendedCourseRemoteDataSourceProvider =

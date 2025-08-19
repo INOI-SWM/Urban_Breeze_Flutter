@@ -1,4 +1,4 @@
-import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 
 import '../../domain/exceptions/workout_history_domain_exceptions.dart';
 import '../../domain/repositories/workout_history_repository.dart';

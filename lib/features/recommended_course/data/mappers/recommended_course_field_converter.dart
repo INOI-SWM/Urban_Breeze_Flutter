@@ -1,4 +1,4 @@
-import 'package:ridingmate/features/recommended_course/domain/constants/recommended_course_constants.dart';
+import 'package:urban_breeze/features/recommended_course/domain/constants/recommended_course_constants.dart';
 
 /// 추천 코스 필드 변환 유틸리티
 /// 한글 표시명과 API 코드 간의 변환을 담당

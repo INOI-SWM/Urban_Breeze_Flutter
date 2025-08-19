@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/shared/design_system/widgets/category/category_info.dart';
-import 'package:ridingmate/shared/filter/models/filter_data.dart';
-import 'package:ridingmate/shared/filter/models/filter_item.dart';
-import 'package:ridingmate/shared/filter/utils/filter_display_utils.dart';
+import 'package:urban_breeze/shared/design_system/widgets/category/category_info.dart';
+import 'package:urban_breeze/shared/filter/models/filter_data.dart';
+import 'package:urban_breeze/shared/filter/models/filter_item.dart';
+import 'package:urban_breeze/shared/filter/utils/filter_display_utils.dart';
 
 /// 나의 경로 화면의 카테고리 설정
 class MyRouteCategoryConfig {

@@ -1,4 +1,4 @@
-import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 
 /// 사용자가 로그인 플로우를 취소했거나, 프로바이더 로그인에 실패한 경우
 class AuthCanceledException extends BaseDomainException {

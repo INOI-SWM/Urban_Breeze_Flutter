@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:ridingmate/core/di/core_providers.dart';
+import 'package:urban_breeze/core/di/core_providers.dart';
 
 import '../application/use_cases/search_places_use_case.dart';
 import '../data/datasources/remote_place_search_datasource.dart';

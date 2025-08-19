@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/features/my_route/domain/enums/my_route_sort_type.dart';
-import 'package:ridingmate/shared/filter/models/filter_data.dart';
+import 'package:urban_breeze/features/my_route/domain/enums/my_route_sort_type.dart';
+import 'package:urban_breeze/shared/filter/models/filter_data.dart';
 
 class MyRouteFilter {
   factory MyRouteFilter.defaultFilter() {

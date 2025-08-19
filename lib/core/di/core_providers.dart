@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:ridingmate/core/navigation/app_navigator.dart';
-import 'package:ridingmate/features/auth/di/auth_providers.dart';
-import 'package:ridingmate/features/auth/domain/repositories/token_repository.dart';
-import 'package:ridingmate/features/auth/presentation/screens/login_screen.dart';
-import 'package:ridingmate/shared/api/data/http/authorized_http_client.dart';
+import 'package:urban_breeze/core/navigation/app_navigator.dart';
+import 'package:urban_breeze/features/auth/di/auth_providers.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/token_repository.dart';
+import 'package:urban_breeze/features/auth/presentation/screens/login_screen.dart';
+import 'package:urban_breeze/shared/api/data/http/authorized_http_client.dart';
 
 final Provider<http.Client> httpClientProvider = Provider<http.Client>((
   Ref<http.Client> ref,

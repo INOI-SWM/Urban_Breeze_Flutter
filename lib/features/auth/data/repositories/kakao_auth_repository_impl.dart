@@ -1,8 +1,8 @@
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart' as kakao;
-import 'package:ridingmate/features/auth/data/datasources/kakao_auth_datasource.dart';
-import 'package:ridingmate/features/auth/domain/entities/user.dart';
-import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
-import 'package:ridingmate/features/auth/domain/repositories/kakao_auth_repository.dart';
+import 'package:urban_breeze/features/auth/data/datasources/kakao_auth_datasource.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/kakao_auth_repository.dart';
 
 class KakaoAuthRepositoryImpl implements KakaoAuthRepository {
   KakaoAuthRepositoryImpl({required KakaoAuthDataSource kakaoAuthDataSource})

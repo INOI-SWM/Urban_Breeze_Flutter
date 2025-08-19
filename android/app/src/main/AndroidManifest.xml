@@ -16,9 +16,9 @@
     <uses-permission android:name="android.permission.health.READ_EXERCISE_ROUTE" />
     
     <application
-        android:label="ridingmate"
+        android:label="Urban Breeze"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:enableOnBackInvokedCallback="true">
         <activity
             android:name=".MainActivity"

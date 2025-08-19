@@ -1,10 +1,10 @@
 import 'package:http/http.dart' as http;
-import 'package:ridingmate/features/route_planning/data/models/route_save_request_model.dart';
-import 'package:ridingmate/features/route_planning/data/models/route_save_response_model.dart';
-import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
-import 'package:ridingmate/shared/api/data/constants/api_endpoints.dart';
-import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
-import 'package:ridingmate/shared/api/data/models/api_response_model.dart';
+import 'package:urban_breeze/features/route_planning/data/models/route_save_request_model.dart';
+import 'package:urban_breeze/features/route_planning/data/models/route_save_response_model.dart';
+import 'package:urban_breeze/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
+import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
+import 'package:urban_breeze/shared/api/data/datasources/base_remote_datasource.dart';
+import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 
 class RouteRemoteDataSource extends BaseRemoteDataSource {
   RouteRemoteDataSource({super.client});

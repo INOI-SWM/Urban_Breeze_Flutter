@@ -1,6 +1,6 @@
-import 'package:ridingmate/features/route_planning/data/datasources/remote/route_remote_datasource.dart';
-import 'package:ridingmate/features/route_planning/data/models/route_save_request_model.dart';
-import 'package:ridingmate/features/route_planning/domain/repositories/route_repository.dart';
+import 'package:urban_breeze/features/route_planning/data/datasources/remote/route_remote_datasource.dart';
+import 'package:urban_breeze/features/route_planning/data/models/route_save_request_model.dart';
+import 'package:urban_breeze/features/route_planning/domain/repositories/route_repository.dart';
 
 class RouteRepositoryImpl implements RouteRepository {
   RouteRepositoryImpl({required RouteRemoteDataSource routeRemoteDataSource})

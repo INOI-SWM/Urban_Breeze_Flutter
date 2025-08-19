@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:ridingmate/core/di/core_providers.dart';
+import 'package:urban_breeze/core/di/core_providers.dart';
 
 import '../application/use_cases/get_workout_statistics_use_case.dart';
 import '../application/use_cases/sync_apple_health_kit_data_use_case.dart';

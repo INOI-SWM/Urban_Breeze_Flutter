@@ -1,6 +1,6 @@
 import 'package:gpx/gpx.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:ridingmate/features/route_planning/domain/services/polyline_convert_service.dart';
+import 'package:urban_breeze/features/route_planning/domain/services/polyline_convert_service.dart';
 
 class GpxGenerator {
   static String generateGPX(String encodedPolyline, String title) {
@@ -14,7 +14,7 @@ class GpxGenerator {
 
   static Gpx _buildGpx(String title, List<LatLng> coordinates) {
     final Gpx gpx = Gpx();
-    gpx.creator = 'RidingMate'; //todo : 추후 사용자 이름으로 변경
+    gpx.creator = 'Urban Breeze'; //todo : 추후 사용자 이름으로 변경
     gpx.metadata = Metadata(name: title, time: DateTime.now());
     gpx.wpts =
         coordinates

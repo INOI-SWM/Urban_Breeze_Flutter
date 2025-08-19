@@ -1,7 +1,7 @@
-import 'package:ridingmate/features/auth/data/datasources/apple_auth_datasource.dart';
-import 'package:ridingmate/features/auth/domain/entities/user.dart';
-import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
-import 'package:ridingmate/features/auth/domain/repositories/apple_auth_repository.dart';
+import 'package:urban_breeze/features/auth/data/datasources/apple_auth_datasource.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/apple_auth_repository.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class AppleAuthRepositoryImpl implements AppleAuthRepository {

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/route_sharing/application/facades/route_sharing_facade.dart';
-import 'package:ridingmate/features/route_sharing/di/route_sharing_providers.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
-import 'package:ridingmate/shared/layout/map_with_bottom_sheet_layout.dart';
-import 'package:ridingmate/shared/utils/platform_action_sheet.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/route_sharing/application/facades/route_sharing_facade.dart';
+import 'package:urban_breeze/features/route_sharing/di/route_sharing_providers.dart';
+import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/layout/map_with_bottom_sheet_layout.dart';
+import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
 
 class MyRouteDetailScreen extends ConsumerWidget {
   const MyRouteDetailScreen({super.key, required this.routeId});

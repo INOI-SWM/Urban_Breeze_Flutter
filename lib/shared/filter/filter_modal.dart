@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
-import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
-import 'package:ridingmate/shared/design_system/widgets/modal/bottom_sheet_modal.dart';
-import 'package:ridingmate/shared/filter/models/filter_data.dart';
-import 'package:ridingmate/shared/filter/models/filter_item.dart';
-import 'package:ridingmate/shared/filter/widgets/filter_modal_content.dart';
+import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
+import 'package:urban_breeze/shared/design_system/widgets/modal/bottom_sheet_modal.dart';
+import 'package:urban_breeze/shared/filter/models/filter_data.dart';
+import 'package:urban_breeze/shared/filter/models/filter_item.dart';
+import 'package:urban_breeze/shared/filter/widgets/filter_modal_content.dart';
 
 class FilterModal {
   const FilterModal._();

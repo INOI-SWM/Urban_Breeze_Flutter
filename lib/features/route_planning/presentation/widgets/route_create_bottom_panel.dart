@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/place_search/presentation/widgets/poi_setting_modal.dart';
-import 'package:ridingmate/features/route_planning/presentation/widgets/route_bar_layout.dart';
-import 'package:ridingmate/features/route_planning/presentation/widgets/route_stats_row.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
-import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
-import 'package:ridingmate/shared/design_system/widgets/button/button_size.dart';
-import 'package:ridingmate/shared/design_system/widgets/button/button_solid.dart';
-import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
-import 'package:ridingmate/shared/design_system/widgets/text_field/custom_text_field.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/place_search/presentation/widgets/poi_setting_modal.dart';
+import 'package:urban_breeze/features/route_planning/presentation/widgets/route_bar_layout.dart';
+import 'package:urban_breeze/features/route_planning/presentation/widgets/route_stats_row.dart';
+import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/button_size.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/button_solid.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
+import 'package:urban_breeze/shared/design_system/widgets/text_field/custom_text_field.dart';
 
 enum RouteCreateMode { create, save }
 

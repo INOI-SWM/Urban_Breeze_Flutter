@@ -1,4 +1,4 @@
-import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course.dart';
+import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course.dart';
 
 class RecommendedCourseList {
   const RecommendedCourseList({

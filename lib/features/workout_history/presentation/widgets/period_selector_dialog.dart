@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
-import 'package:ridingmate/shared/design_system/widgets/modal/modal_show.dart';
-import 'package:ridingmate/shared/utils/period_utils.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
+import 'package:urban_breeze/shared/utils/period_utils.dart';
 
 import '../../domain/enums/statistic_enums.dart';
 

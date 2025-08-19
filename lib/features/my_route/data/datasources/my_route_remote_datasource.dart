@@ -1,9 +1,9 @@
 import 'package:http/http.dart' as http;
-import 'package:ridingmate/features/my_route/data/models/my_route_filter_model.dart';
-import 'package:ridingmate/features/my_route/data/models/my_route_list_data_model.dart';
-import 'package:ridingmate/shared/api/data/constants/api_endpoints.dart';
-import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
-import 'package:ridingmate/shared/api/data/models/api_response_model.dart';
+import 'package:urban_breeze/features/my_route/data/models/my_route_filter_model.dart';
+import 'package:urban_breeze/features/my_route/data/models/my_route_list_data_model.dart';
+import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
+import 'package:urban_breeze/shared/api/data/datasources/base_remote_datasource.dart';
+import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 
 class MyRouteRemoteDataSource extends BaseRemoteDataSource {
   MyRouteRemoteDataSource({super.client});

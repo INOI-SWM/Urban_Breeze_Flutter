@@ -1,7 +1,7 @@
 import 'package:flutter_map/flutter_map.dart';
-import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
-import 'package:ridingmate/shared/map/map_constants.dart';
-import 'package:ridingmate/shared/map/map_service.dart';
+import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/map/map_constants.dart';
+import 'package:urban_breeze/shared/map/map_service.dart';
 
 class CommonMapWidgets {
   CommonMapWidgets._();

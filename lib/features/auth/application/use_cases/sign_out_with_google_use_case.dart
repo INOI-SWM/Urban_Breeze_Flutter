@@ -1,4 +1,4 @@
-import 'package:ridingmate/features/auth/domain/repositories/google_auth_repository.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/google_auth_repository.dart';
 
 class SignOutWithGoogleUseCase {
   const SignOutWithGoogleUseCase({required GoogleAuthRepository repository})

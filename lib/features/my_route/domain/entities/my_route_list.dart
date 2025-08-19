@@ -1,4 +1,4 @@
-import 'package:ridingmate/features/my_route/domain/entities/my_route.dart';
+import 'package:urban_breeze/features/my_route/domain/entities/my_route.dart';
 
 class MyRouteList {
   factory MyRouteList.empty() {

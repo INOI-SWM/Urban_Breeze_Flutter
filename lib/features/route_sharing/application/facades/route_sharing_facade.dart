@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:path_provider/path_provider.dart';
-import 'package:ridingmate/core/result/app_result.dart';
-import 'package:ridingmate/features/route_sharing/application/use_cases/get_route_share_link_use_case.dart';
-import 'package:ridingmate/features/route_sharing/domain/entities/route_share_link.dart';
-import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/route_sharing/application/use_cases/get_route_share_link_use_case.dart';
+import 'package:urban_breeze/features/route_sharing/domain/entities/route_share_link.dart';
+import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 import 'package:share_plus/share_plus.dart';
 
 class RouteSharingFacade {
