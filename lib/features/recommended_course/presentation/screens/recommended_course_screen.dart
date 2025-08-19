@@ -13,6 +13,7 @@ import 'package:ridingmate/shared/design_system/widgets/category/category_filter
 import 'package:ridingmate/shared/filter/filter_modal.dart';
 import 'package:ridingmate/shared/filter/models/filter_data.dart';
 import 'package:ridingmate/shared/filter/models/filter_item.dart';
+import 'package:ridingmate/shared/filter/models/filter_type.dart';
 import 'package:ridingmate/shared/filter/utils/filter_display_utils.dart';
 import 'package:ridingmate/shared/sort/sort_modal.dart';
 
@@ -63,7 +64,12 @@ class _RecommendedCourseScreenState
     );
     final List<Map<String, dynamic>> courses = await service
         .fetchRecommendedCourseList(
+          categoryFilter: _extractSelectedCategories(),
           sortType: selectedSortOption.apiValue,
+          minDistance: _getDistanceRange().$1,
+          maxDistance: _getDistanceRange().$2,
+          minElevation: _getElevationRange().$1,
+          maxElevation: _getElevationRange().$2,
           page: 0,
           size: 10, // API 기본값
         );
@@ -71,6 +77,47 @@ class _RecommendedCourseScreenState
       courseList = courses;
       isLoading = false;
     });
+  }
+
+  /// 현재 필터에서 선택된 모든 카테고리 값들을 추출
+  Set<String> _extractSelectedCategories() {
+    final Set<String> selectedCategories = <String>{};
+
+    // 각 필터 아이템에서 선택된 값들 추출
+    for (final FilterItem filter in filters) {
+      switch (filter.type) {
+        case FilterType.selection:
+          final String? selectedValue = currentFilter.getStringValue(filter.id);
+          if (selectedValue != null && selectedValue != '전체') {
+            selectedCategories.add(selectedValue);
+          }
+        case FilterType.range:
+          // Range 타입은 categoryFilter에 포함하지 않음 (별도 처리)
+          break;
+      }
+    }
+
+    return selectedCategories;
+  }
+
+  /// 현재 필터에서 거리 범위 값들을 추출
+  (double, double) _getDistanceRange() {
+    final RangeValues? distanceRange = currentFilter.getRangeValue('distance');
+    if (distanceRange != null) {
+      return (distanceRange.start, distanceRange.end);
+    }
+    return (0.0, 100.0); // 기본값
+  }
+
+  /// 현재 필터에서 고도 범위 값들을 추출
+  (double, double) _getElevationRange() {
+    final RangeValues? elevationRange = currentFilter.getRangeValue(
+      'elevation',
+    );
+    if (elevationRange != null) {
+      return (elevationRange.start, elevationRange.end);
+    }
+    return (0.0, 1000.0); // 기본값
   }
 
   void _showSortModal() {

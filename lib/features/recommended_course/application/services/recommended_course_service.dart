@@ -1,3 +1,4 @@
+import 'package:ridingmate/features/recommended_course/data/mappers/recommended_course_field_converter.dart';
 import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course.dart';
 import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course_filter.dart';
 import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course_list.dart';
@@ -17,6 +18,10 @@ class RecommendedCourseService {
     String? sortType,
     double? userLat,
     double? userLon,
+    double? minDistance,
+    double? maxDistance,
+    double? minElevation,
+    double? maxElevation,
     int page = 0,
     int size = 20,
   }) async {
@@ -27,6 +32,10 @@ class RecommendedCourseService {
         sortType: sortType,
         userLat: userLat,
         userLon: userLon,
+        minDistance: minDistance,
+        maxDistance: maxDistance,
+        minElevation: minElevation,
+        maxElevation: maxElevation,
         page: page,
         size: size,
       );
@@ -51,18 +60,54 @@ class RecommendedCourseService {
     String? sortType,
     double? userLat,
     double? userLon,
+    double? minDistance,
+    double? maxDistance,
+    double? minElevation,
+    double? maxElevation,
     int page = 0,
     int size = 10, // API 기본값
   }) {
-    // TODO: categoryFilter 파라미터를 실제 필터로 변환하는 로직 구현
+    List<String>? regions;
+    List<String>? difficulties;
+    List<String>? recommendationTypes;
+
+    // categoryFilter가 있으면 각 카테고리별로 분류
+    if (categoryFilter != null && categoryFilter.isNotEmpty) {
+      // 지역 필터 추출
+      final List<String> extractedRegions =
+          RecommendedCourseFieldConverter.extractRegions(categoryFilter);
+      if (extractedRegions.isNotEmpty) {
+        regions = extractedRegions;
+      }
+
+      // 난이도 필터 추출
+      final List<String> extractedDifficulties =
+          RecommendedCourseFieldConverter.extractDifficulties(categoryFilter);
+      if (extractedDifficulties.isNotEmpty) {
+        difficulties = extractedDifficulties;
+      }
+
+      // 추천타입 필터 추출
+      final List<String> extractedRecommendationTypes =
+          RecommendedCourseFieldConverter.extractRecommendationTypes(
+            categoryFilter,
+          );
+      if (extractedRecommendationTypes.isNotEmpty) {
+        recommendationTypes = extractedRecommendationTypes;
+      }
+    }
+
     return RecommendedCourseFilter(
       page: page,
       size: size,
       sortType: sortType ?? 'NEAREST', // API 기본값
-      minDistance: 0.0,
-      maxDistance: 100.0,
-      minElevation: 0.0,
-      maxElevation: 1000.0,
+      regions: regions,
+      difficulty: difficulties,
+      recommendationTypes: recommendationTypes,
+      minDistance: minDistance ?? 0.0,
+      maxDistance: maxDistance ?? 1000.0,
+      minElevation: minElevation ?? 0.0,
+      maxElevation: maxElevation ?? 1000.0,
       userLat: userLat,
       userLon: userLon,
     );
