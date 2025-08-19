@@ -156,36 +156,4 @@ class RecommendedCourseFieldConverter {
 
     return apiTypes.map(convertRecommendationTypeFromApi).toList();
   }
-
-  // === 카테고리 분류 유틸리티 ===
-
-  /// 문자열이 지역 카테고리인지 확인
-  static bool isRegion(String value) {
-    return _regionMapping.containsKey(value);
-  }
-
-  /// 문자열이 난이도 카테고리인지 확인
-  static bool isDifficulty(String value) {
-    return _difficultyMapping.containsKey(value);
-  }
-
-  /// 문자열이 추천타입 카테고리인지 확인
-  static bool isRecommendationType(String value) {
-    return _recommendationTypeMapping.containsKey(value);
-  }
-
-  /// 카테고리 집합에서 지역들만 추출
-  static List<String> extractRegions(Set<String> categories) {
-    return categories.where(isRegion).toList();
-  }
-
-  /// 카테고리 집합에서 난이도들만 추출
-  static List<String> extractDifficulties(Set<String> categories) {
-    return categories.where(isDifficulty).toList();
-  }
-
-  /// 카테고리 집합에서 추천타입들만 추출
-  static List<String> extractRecommendationTypes(Set<String> categories) {
-    return categories.where(isRecommendationType).toList();
-  }
 }

@@ -1,4 +1,3 @@
-import 'package:ridingmate/features/recommended_course/data/mappers/recommended_course_field_converter.dart';
 import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course.dart';
 import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course_filter.dart';
 import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course_list.dart';
@@ -11,6 +10,28 @@ class RecommendedCourseService {
   }) : _repository = repository;
 
   final RecommendedCourseRepository _repository;
+
+  // === 카테고리 분류를 위한 상수들 ===
+
+  /// 지역 카테고리 목록
+  static const Set<String> _regionCategories = <String>{
+    '서울/경기',
+    '강원',
+    '충청',
+    '전라',
+    '경상',
+    '제주',
+  };
+
+  /// 난이도 카테고리 목록
+  static const Set<String> _difficultyCategories = <String>{'쉬움', '보통', '어려움'};
+
+  /// 추천타입 카테고리 목록
+  static const Set<String> _recommendationTypeCategories = <String>{
+    '국토 종주',
+    '대회 코스',
+    '유명 코스',
+  };
 
   /// 추천 코스 목록 조회
   Future<List<Map<String, dynamic>>> fetchRecommendedCourseList({
@@ -71,27 +92,21 @@ class RecommendedCourseService {
     List<String>? difficulties;
     List<String>? recommendationTypes;
 
-    // categoryFilter가 있으면 각 카테고리별로 분류
     if (categoryFilter != null && categoryFilter.isNotEmpty) {
-      // 지역 필터 추출
-      final List<String> extractedRegions =
-          RecommendedCourseFieldConverter.extractRegions(categoryFilter);
+      final List<String> extractedRegions = _extractRegions(categoryFilter);
       if (extractedRegions.isNotEmpty) {
         regions = extractedRegions;
       }
 
-      // 난이도 필터 추출
-      final List<String> extractedDifficulties =
-          RecommendedCourseFieldConverter.extractDifficulties(categoryFilter);
+      final List<String> extractedDifficulties = _extractDifficulties(
+        categoryFilter,
+      );
       if (extractedDifficulties.isNotEmpty) {
         difficulties = extractedDifficulties;
       }
 
-      // 추천타입 필터 추출
       final List<String> extractedRecommendationTypes =
-          RecommendedCourseFieldConverter.extractRecommendationTypes(
-            categoryFilter,
-          );
+          _extractRecommendationTypes(categoryFilter);
       if (extractedRecommendationTypes.isNotEmpty) {
         recommendationTypes = extractedRecommendationTypes;
       }
@@ -132,5 +147,26 @@ class RecommendedCourseService {
           course.recommendationType, // recommendationType을 scenery로도 매핑 (임시)
       'difficulty': course.difficulty,
     };
+  }
+
+  // === 카테고리 분류 헬퍼 메서드들 ===
+  List<String> _extractRegions(Set<String> categories) {
+    return categories
+        .where((String category) => _regionCategories.contains(category))
+        .toList();
+  }
+
+  List<String> _extractDifficulties(Set<String> categories) {
+    return categories
+        .where((String category) => _difficultyCategories.contains(category))
+        .toList();
+  }
+
+  List<String> _extractRecommendationTypes(Set<String> categories) {
+    return categories
+        .where(
+          (String category) => _recommendationTypeCategories.contains(category),
+        )
+        .toList();
   }
 }
