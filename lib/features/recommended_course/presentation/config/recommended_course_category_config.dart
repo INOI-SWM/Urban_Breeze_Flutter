@@ -53,17 +53,15 @@ class RecommendedCourseCategoryConfig {
   static IconData? _getFilterIcon(String filterTitle) {
     switch (filterTitle) {
       case '코스 종류':
-        return Icons.terrain;
+        return Icons.category;
       case '지역':
         return Icons.location_on;
       case '상승 고도':
         return Icons.trending_up;
       case '거리':
         return Icons.route;
-      case '도로':
-        return Icons.route_sharp;
-      case '자연 경관':
-        return Icons.landscape;
+      case '난이도':
+        return Icons.upgrade;
       default:
         return null;
     }
