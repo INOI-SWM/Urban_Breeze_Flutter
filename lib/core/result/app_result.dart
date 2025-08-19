@@ -1,4 +1,4 @@
-import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 
 sealed class AppResult<T> {
   const AppResult();

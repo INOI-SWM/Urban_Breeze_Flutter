@@ -1,37 +1,37 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ridingmate/features/auth/application/providers/user_session_notifier.dart';
-import 'package:ridingmate/features/auth/application/use_cases/auth_sign_in_facade.dart';
-import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
-import 'package:ridingmate/features/auth/application/use_cases/auth_withdrawal_facade.dart';
-import 'package:ridingmate/features/auth/application/use_cases/login_with_apple_idtoken_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/login_with_google_idtoken_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/login_with_kakao_access_token_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_apple_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_google_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_kakao_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/sign_out_with_apple_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/sign_out_with_google_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/sign_out_with_kakao_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/withdraw_with_apple_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/withdraw_with_google_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/withdraw_with_kakao_use_case.dart';
-import 'package:ridingmate/features/auth/data/datasources/apple_auth_datasource.dart';
-import 'package:ridingmate/features/auth/data/datasources/google_auth_datasource.dart';
-import 'package:ridingmate/features/auth/data/datasources/kakao_auth_datasource.dart';
-import 'package:ridingmate/features/auth/data/datasources/ridingmate_auth_remote_datasource.dart';
-import 'package:ridingmate/features/auth/data/repositories/apple_auth_repository_impl.dart';
-import 'package:ridingmate/features/auth/data/repositories/google_auth_repository_impl.dart';
-import 'package:ridingmate/features/auth/data/repositories/kakao_auth_repository_impl.dart';
-import 'package:ridingmate/features/auth/data/repositories/ridingmate_auth_repository_impl.dart';
-import 'package:ridingmate/features/auth/data/repositories/token_repository_impl.dart';
-import 'package:ridingmate/features/auth/data/repositories/user_session_repository_impl.dart';
-import 'package:ridingmate/features/auth/domain/entities/user.dart';
-import 'package:ridingmate/features/auth/domain/repositories/apple_auth_repository.dart';
-import 'package:ridingmate/features/auth/domain/repositories/google_auth_repository.dart';
-import 'package:ridingmate/features/auth/domain/repositories/kakao_auth_repository.dart';
-import 'package:ridingmate/features/auth/domain/repositories/ridingmate_auth_repository.dart';
-import 'package:ridingmate/features/auth/domain/repositories/token_repository.dart';
-import 'package:ridingmate/features/auth/domain/repositories/user_session_repository.dart';
+import 'package:urban_breeze/features/auth/application/providers/user_session_notifier.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/auth_sign_in_facade.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/auth_sign_out_facade.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/auth_withdrawal_facade.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/login_with_apple_idtoken_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/login_with_google_idtoken_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/login_with_kakao_access_token_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/sign_in_with_apple_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/sign_in_with_google_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/sign_in_with_kakao_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/sign_out_with_apple_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/sign_out_with_google_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/sign_out_with_kakao_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/withdraw_with_apple_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/withdraw_with_google_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/withdraw_with_kakao_use_case.dart';
+import 'package:urban_breeze/features/auth/data/datasources/apple_auth_datasource.dart';
+import 'package:urban_breeze/features/auth/data/datasources/google_auth_datasource.dart';
+import 'package:urban_breeze/features/auth/data/datasources/kakao_auth_datasource.dart';
+import 'package:urban_breeze/features/auth/data/datasources/urban_breeze_auth_remote_datasource.dart';
+import 'package:urban_breeze/features/auth/data/repositories/apple_auth_repository_impl.dart';
+import 'package:urban_breeze/features/auth/data/repositories/google_auth_repository_impl.dart';
+import 'package:urban_breeze/features/auth/data/repositories/kakao_auth_repository_impl.dart';
+import 'package:urban_breeze/features/auth/data/repositories/token_repository_impl.dart';
+import 'package:urban_breeze/features/auth/data/repositories/urban_breeze_auth_repository_impl.dart';
+import 'package:urban_breeze/features/auth/data/repositories/user_session_repository_impl.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/apple_auth_repository.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/google_auth_repository.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/kakao_auth_repository.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/token_repository.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/urban_breeze_auth_repository.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/user_session_repository.dart';
 
 // User Session Repository Provider
 final Provider<UserSessionRepository> userSessionRepositoryProvider =
@@ -55,11 +55,11 @@ final Provider<KakaoAuthDataSource> kakaoAuthDataSourceProvider =
       return KakaoAuthDataSourceImpl();
     });
 
-final Provider<RidingMateAuthRemoteDataSource> authRemoteDataSourceProvider =
-    Provider<RidingMateAuthRemoteDataSource>((
-      Ref<RidingMateAuthRemoteDataSource> ref,
+final Provider<UrbanBreezeAuthRemoteDataSource> authRemoteDataSourceProvider =
+    Provider<UrbanBreezeAuthRemoteDataSource>((
+      Ref<UrbanBreezeAuthRemoteDataSource> ref,
     ) {
-      return RidingMateAuthRemoteDataSource();
+      return UrbanBreezeAuthRemoteDataSource();
     });
 
 // Repository Providers
@@ -89,12 +89,12 @@ final Provider<KakaoAuthRepository> kakaoAuthRepositoryProvider =
       return KakaoAuthRepositoryImpl(kakaoAuthDataSource: kakaoAuthDataSource);
     });
 
-final Provider<RidingMateAuthRepository> authRepositoryProvider =
-    Provider<RidingMateAuthRepository>((Ref<RidingMateAuthRepository> ref) {
-      final RidingMateAuthRemoteDataSource remoteDataSource = ref.watch(
+final Provider<UrbanBreezeAuthRepository> authRepositoryProvider =
+    Provider<UrbanBreezeAuthRepository>((Ref<UrbanBreezeAuthRepository> ref) {
+      final UrbanBreezeAuthRemoteDataSource remoteDataSource = ref.watch(
         authRemoteDataSourceProvider,
       );
-      return RidingMateAuthRepositoryImpl(remoteDataSource: remoteDataSource);
+      return UrbanBreezeAuthRepositoryImpl(remoteDataSource: remoteDataSource);
     });
 
 final Provider<TokenRepository> tokenRepositoryProvider =
@@ -114,7 +114,7 @@ final Provider<SignInWithGoogleUseCase> signInWithGoogleUseCaseProvider =
 final Provider<LoginWithGoogleIdTokenUseCase>
 loginWithGoogleIdTokenUseCaseProvider = Provider<LoginWithGoogleIdTokenUseCase>(
   (Ref<LoginWithGoogleIdTokenUseCase> ref) {
-    final RidingMateAuthRepository authRepository = ref.watch(
+    final UrbanBreezeAuthRepository authRepository = ref.watch(
       authRepositoryProvider,
     );
     return LoginWithGoogleIdTokenUseCase(repository: authRepository);
@@ -126,7 +126,7 @@ loginWithKakaoAccessTokenUseCaseProvider =
     Provider<LoginWithKakaoAccessTokenUseCase>((
       Ref<LoginWithKakaoAccessTokenUseCase> ref,
     ) {
-      final RidingMateAuthRepository authRepository = ref.watch(
+      final UrbanBreezeAuthRepository authRepository = ref.watch(
         authRepositoryProvider,
       );
       return LoginWithKakaoAccessTokenUseCase(repository: authRepository);
@@ -136,7 +136,7 @@ final Provider<LoginWithAppleIdTokenUseCase>
 loginWithAppleIdTokenUseCaseProvider = Provider<LoginWithAppleIdTokenUseCase>((
   Ref<LoginWithAppleIdTokenUseCase> ref,
 ) {
-  final RidingMateAuthRepository authRepository = ref.watch(
+  final UrbanBreezeAuthRepository authRepository = ref.watch(
     authRepositoryProvider,
   );
   return LoginWithAppleIdTokenUseCase(repository: authRepository);

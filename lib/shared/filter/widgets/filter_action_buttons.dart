@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
-import 'package:ridingmate/shared/design_system/widgets/button/button_outlined.dart';
-import 'package:ridingmate/shared/design_system/widgets/button/button_size.dart';
-import 'package:ridingmate/shared/design_system/widgets/button/button_solid.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/button_size.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/button_solid.dart';
 
 class FilterActionButtons extends StatelessWidget {
   const FilterActionButtons({

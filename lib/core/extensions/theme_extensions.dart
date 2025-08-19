@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/core/theme/app_theme.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/core/theme/app_theme.dart';
+import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 
 extension BuildContextSemanticColors on BuildContext {
   SemanticColors get semanticColor {

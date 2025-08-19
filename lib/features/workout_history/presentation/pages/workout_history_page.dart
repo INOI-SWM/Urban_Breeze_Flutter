@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/features/workout_history/presentation/screens/workout_list_screen.dart';
-import 'package:ridingmate/features/workout_history/presentation/screens/workout_statics_screen.dart';
-import 'package:ridingmate/navigation/page_with_app_bar.dart';
-import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
-import 'package:ridingmate/shared/design_system/widgets/tab_bar/custom_tab_bar.dart';
+import 'package:urban_breeze/features/workout_history/presentation/screens/workout_list_screen.dart';
+import 'package:urban_breeze/features/workout_history/presentation/screens/workout_statics_screen.dart';
+import 'package:urban_breeze/navigation/page_with_app_bar.dart';
+import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:urban_breeze/shared/design_system/widgets/tab_bar/custom_tab_bar.dart';
 
 enum WorkoutHistoryTab {
   statistics,

@@ -1,4 +1,4 @@
-import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 
 /// Apple HealthKit 권한 관련 오류
 class HealthKitPermissionException extends BaseDomainException {

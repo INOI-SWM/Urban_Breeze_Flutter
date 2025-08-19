@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/app_setting/application/services/account_management_controller.dart';
-import 'package:ridingmate/features/app_setting/presentation/widgets/settings_list.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
-import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
-import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
-import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
-import 'package:ridingmate/shared/design_system/widgets/modal/modal_show.dart';
-import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/app_setting/application/services/account_management_controller.dart';
+import 'package:urban_breeze/features/app_setting/presentation/widgets/settings_list.dart';
+import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
+import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
+import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
 class AccountManagementScreen extends ConsumerWidget {
   const AccountManagementScreen({super.key});

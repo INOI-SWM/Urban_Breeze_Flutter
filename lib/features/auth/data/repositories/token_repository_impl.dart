@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:ridingmate/features/auth/domain/entities/auth_tokens.dart';
-import 'package:ridingmate/features/auth/domain/repositories/token_repository.dart';
+import 'package:urban_breeze/features/auth/domain/entities/auth_tokens.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/token_repository.dart';
 
 class TokenRepositoryImpl implements TokenRepository {
   TokenRepositoryImpl({FlutterSecureStorage? storage})

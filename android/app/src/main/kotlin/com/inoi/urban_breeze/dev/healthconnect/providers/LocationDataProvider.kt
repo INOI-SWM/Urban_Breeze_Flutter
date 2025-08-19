@@ -1,10 +1,10 @@
-package com.inoi.ridingmate.dev.healthconnect.providers
+package com.inoi.urban_breeze.dev.healthconnect.providers
 
 import android.content.Context
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.ExerciseRouteResult
-import com.inoi.ridingmate.dev.healthconnect.HealthConnectManager
+import com.inoi.urban_breeze.dev.healthconnect.HealthConnectManager
 import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.launch
 

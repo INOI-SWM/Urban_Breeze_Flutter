@@ -1,4 +1,4 @@
-import 'package:ridingmate/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 
 abstract class UserSessionRepository {
   Future<void> saveUser(User user);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
-import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
+import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
+import 'package:urban_breeze/shared/api/data/datasources/base_remote_datasource.dart';
 
 import '../models/workout_title_update_request_model.dart';
 

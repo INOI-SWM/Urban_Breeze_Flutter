@@ -1,4 +1,4 @@
-import 'package:ridingmate/features/workout_history/data/models/workout_statistics_response_model.dart';
+import 'package:urban_breeze/features/workout_history/data/models/workout_statistics_response_model.dart';
 
 import '../../domain/entities/workout_statistics.dart';
 import '../../domain/enums/statistic_enums.dart';

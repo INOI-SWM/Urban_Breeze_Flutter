@@ -1,4 +1,4 @@
-package com.inoi.ridingmate.dev.healthconnect
+package com.inoi.urban_breeze.dev.healthconnect
 
 import android.content.Context
 import android.content.Intent

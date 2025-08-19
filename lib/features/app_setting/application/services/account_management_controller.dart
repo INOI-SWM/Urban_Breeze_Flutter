@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ridingmate/features/auth/application/use_cases/auth_withdrawal_facade.dart';
-import 'package:ridingmate/features/auth/di/auth_providers.dart';
-import 'package:ridingmate/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/auth_withdrawal_facade.dart';
+import 'package:urban_breeze/features/auth/di/auth_providers.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 
 class AccountManagementController {
   AccountManagementController(this._ref);

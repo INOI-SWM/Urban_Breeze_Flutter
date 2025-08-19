@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 
 abstract class BaseRemoteDataSource {
   BaseRemoteDataSource({http.Client? client})

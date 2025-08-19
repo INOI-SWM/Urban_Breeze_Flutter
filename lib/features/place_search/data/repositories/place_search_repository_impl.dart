@@ -1,5 +1,5 @@
-import 'package:ridingmate/features/place_search/data/models/place_search_response_model.dart';
-import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/features/place_search/data/models/place_search_response_model.dart';
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 
 import '../../domain/entities/place.dart';
 import '../../domain/entities/search_result.dart';

@@ -1,4 +1,4 @@
-import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
 
 class RouteStatsUseCase {
   const RouteStatsUseCase();

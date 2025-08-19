@@ -1,15 +1,15 @@
-import 'package:ridingmate/features/auth/domain/entities/auth_login_result.dart';
-import 'package:ridingmate/features/auth/domain/entities/auth_tokens.dart';
-import 'package:ridingmate/features/auth/domain/entities/user.dart';
-import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
+import 'package:urban_breeze/features/auth/domain/entities/auth_login_result.dart';
+import 'package:urban_breeze/features/auth/domain/entities/auth_tokens.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
 
-class RidingMateLoginResponseModel {
-  const RidingMateLoginResponseModel({
+class UrbanBreezeLoginResponseModel {
+  const UrbanBreezeLoginResponseModel({
     required this.tokens,
     required this.user,
   });
 
-  factory RidingMateLoginResponseModel.fromApi(
+  factory UrbanBreezeLoginResponseModel.fromApi(
     Map<String, dynamic> json,
     LoginProvider provider,
   ) {
@@ -39,7 +39,7 @@ class RidingMateLoginResponseModel {
       loginProvider: provider,
     );
 
-    return RidingMateLoginResponseModel(tokens: tokens, user: user);
+    return UrbanBreezeLoginResponseModel(tokens: tokens, user: user);
   }
 
   final AuthTokens tokens;

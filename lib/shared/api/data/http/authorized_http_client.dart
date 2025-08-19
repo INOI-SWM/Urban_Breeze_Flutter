@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:ridingmate/features/auth/domain/entities/auth_tokens.dart';
-import 'package:ridingmate/features/auth/domain/repositories/token_repository.dart';
-import 'package:ridingmate/shared/api/data/constants/api_endpoints.dart';
-import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
+import 'package:urban_breeze/features/auth/domain/entities/auth_tokens.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/token_repository.dart';
+import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
+import 'package:urban_breeze/shared/api/data/datasources/base_remote_datasource.dart';
 
 typedef OnAuthFailure = FutureOr<void> Function();
 

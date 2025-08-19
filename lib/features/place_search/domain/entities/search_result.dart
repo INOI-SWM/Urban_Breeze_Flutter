@@ -1,4 +1,4 @@
-import 'package:ridingmate/features/place_search/domain/entities/place.dart';
+import 'package:urban_breeze/features/place_search/domain/entities/place.dart';
 
 class SearchResultBbox {
   const SearchResultBbox({

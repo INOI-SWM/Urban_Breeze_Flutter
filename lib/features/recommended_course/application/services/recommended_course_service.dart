@@ -1,8 +1,8 @@
-import 'package:ridingmate/features/recommended_course/domain/constants/recommended_course_constants.dart';
-import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course.dart';
-import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course_filter.dart';
-import 'package:ridingmate/features/recommended_course/domain/entities/recommended_course_list.dart';
-import 'package:ridingmate/features/recommended_course/domain/repositories/recommended_course_repository.dart';
+import 'package:urban_breeze/features/recommended_course/domain/constants/recommended_course_constants.dart';
+import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course.dart';
+import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_filter.dart';
+import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_list.dart';
+import 'package:urban_breeze/features/recommended_course/domain/repositories/recommended_course_repository.dart';
 
 class RecommendedCourseService {
   const RecommendedCourseService({
@@ -124,7 +124,7 @@ class RecommendedCourseService {
         difficulty: '쉬움',
         recommendationType: '유명 코스',
         thumbnailImagePath:
-            'https://ridingmate-dev.s3.ap-northeast-2.amazonaws.com/thumbnails/hangang.jpg',
+            'https://urban_breeze-dev.s3.ap-northeast-2.amazonaws.com/thumbnails/hangang.jpg',
       ),
       const RecommendedCourse(
         id: '2',
@@ -137,7 +137,7 @@ class RecommendedCourseService {
         difficulty: '보통',
         recommendationType: '유명 코스',
         thumbnailImagePath:
-            'https://ridingmate-dev.s3.ap-northeast-2.amazonaws.com/thumbnails/namsan.jpg',
+            'https://urban_breeze-dev.s3.ap-northeast-2.amazonaws.com/thumbnails/namsan.jpg',
       ),
       const RecommendedCourse(
         id: '3',
@@ -150,7 +150,7 @@ class RecommendedCourseService {
         difficulty: '보통',
         recommendationType: '대회 코스',
         thumbnailImagePath:
-            'https://ridingmate-dev.s3.ap-northeast-2.amazonaws.com/thumbnails/gangneung.jpg',
+            'https://urban_breeze-dev.s3.ap-northeast-2.amazonaws.com/thumbnails/gangneung.jpg',
       ),
       const RecommendedCourse(
         id: '4',
@@ -163,7 +163,7 @@ class RecommendedCourseService {
         difficulty: '어려움',
         recommendationType: '국토 종주',
         thumbnailImagePath:
-            'https://ridingmate-dev.s3.ap-northeast-2.amazonaws.com/thumbnails/jeju.jpg',
+            'https://urban_breeze-dev.s3.ap-northeast-2.amazonaws.com/thumbnails/jeju.jpg',
       ),
       const RecommendedCourse(
         id: '5',
@@ -176,7 +176,7 @@ class RecommendedCourseService {
         difficulty: '보통',
         recommendationType: '대회 코스',
         thumbnailImagePath:
-            'https://ridingmate-dev.s3.ap-northeast-2.amazonaws.com/thumbnails/chungju.jpg',
+            'https://urban_breeze-dev.s3.ap-northeast-2.amazonaws.com/thumbnails/chungju.jpg',
       ),
     ];
   }

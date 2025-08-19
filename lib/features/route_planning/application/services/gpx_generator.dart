@@ -1,6 +1,6 @@
 import 'package:gpx/gpx.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:ridingmate/features/route_planning/domain/services/polyline_convert_service.dart';
+import 'package:urban_breeze/features/route_planning/domain/services/polyline_convert_service.dart';
 
 class GpxGenerator {
   static String generateGPX(String encodedPolyline, String title) {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/shared/design_system/widgets/button/base_button.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/base_button.dart';
 
 class ButtonSolid extends BaseButton {
   const ButtonSolid({

@@ -1,11 +1,11 @@
-import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
-import 'package:ridingmate/core/result/app_result.dart';
-import 'package:ridingmate/features/auth/application/providers/user_session_notifier.dart';
-import 'package:ridingmate/features/auth/application/use_cases/withdraw_with_apple_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/withdraw_with_google_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/withdraw_with_kakao_use_case.dart';
-import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
-import 'package:ridingmate/features/auth/domain/repositories/token_repository.dart';
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/auth/application/providers/user_session_notifier.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/withdraw_with_apple_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/withdraw_with_google_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/withdraw_with_kakao_use_case.dart';
+import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/token_repository.dart';
 
 class AuthWithdrawalFacade {
   const AuthWithdrawalFacade({

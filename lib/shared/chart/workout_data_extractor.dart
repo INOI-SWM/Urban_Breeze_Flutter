@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
-import 'package:ridingmate/features/workout_history/domain/entities/heart_rate_data.dart';
-import 'package:ridingmate/features/workout_history/domain/entities/location_data.dart';
-import 'package:ridingmate/features/workout_history/domain/entities/workout_record.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/heart_rate_data.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/location_data.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
 
 class WorkoutDataExtractor {
   WorkoutDataExtractor._();

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 
 enum ContentBadgeSize { xsmall, small, medium }
 

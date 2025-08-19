@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/profile/presentation/mixins/profile_edit_button_mixin.dart';
-import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_app_bar.dart';
-import 'package:ridingmate/features/profile/presentation/widgets/profile_edit_layout.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
-import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/profile/presentation/mixins/profile_edit_button_mixin.dart';
+import 'package:urban_breeze/features/profile/presentation/widgets/profile_edit_app_bar.dart';
+import 'package:urban_breeze/features/profile/presentation/widgets/profile_edit_layout.dart';
+import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 
 class ProfileBirthYearEditScreen extends StatefulWidget {
   const ProfileBirthYearEditScreen({super.key, required this.currentValue});

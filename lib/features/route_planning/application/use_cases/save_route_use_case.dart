@@ -1,9 +1,9 @@
-import 'package:ridingmate/features/route_planning/application/use_cases/route_stats_use_case.dart';
-import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
-import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
-import 'package:ridingmate/features/route_planning/domain/repositories/route_repository.dart';
-import 'package:ridingmate/features/route_planning/domain/services/bbox_service.dart';
-import 'package:ridingmate/features/route_planning/domain/services/polyline_convert_service.dart';
+import 'package:urban_breeze/features/route_planning/application/use_cases/route_stats_use_case.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
+import 'package:urban_breeze/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
+import 'package:urban_breeze/features/route_planning/domain/repositories/route_repository.dart';
+import 'package:urban_breeze/features/route_planning/domain/services/bbox_service.dart';
+import 'package:urban_breeze/features/route_planning/domain/services/polyline_convert_service.dart';
 
 class SaveRouteUseCase {
   const SaveRouteUseCase({

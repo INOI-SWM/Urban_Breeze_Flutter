@@ -1,4 +1,4 @@
-import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 
 /// 검색어가 비어있거나 유효하지 않을 때
 class EmptyQueryException extends BaseDomainException {

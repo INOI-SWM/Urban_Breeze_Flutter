@@ -1,14 +1,14 @@
 import 'package:http/http.dart' as http;
-import 'package:ridingmate/core/exceptions/base_domain_exception.dart';
-import 'package:ridingmate/features/auth/data/models/ridingmate_login_response_model.dart';
-import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
-import 'package:ridingmate/shared/api/data/constants/api_endpoints.dart';
-import 'package:ridingmate/shared/api/data/datasources/base_remote_datasource.dart';
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/features/auth/data/models/urban_breeze_login_response_model.dart';
+import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
+import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
+import 'package:urban_breeze/shared/api/data/datasources/base_remote_datasource.dart';
 
-class RidingMateAuthRemoteDataSource extends BaseRemoteDataSource {
-  RidingMateAuthRemoteDataSource({super.client});
+class UrbanBreezeAuthRemoteDataSource extends BaseRemoteDataSource {
+  UrbanBreezeAuthRemoteDataSource({super.client});
 
-  Future<RidingMateLoginResponseModel> loginWithGoogleIdToken({
+  Future<UrbanBreezeLoginResponseModel> loginWithGoogleIdToken({
     required String idToken,
   }) async {
     try {
@@ -21,7 +21,7 @@ class RidingMateAuthRemoteDataSource extends BaseRemoteDataSource {
       final Map<String, dynamic> jsonMap = decodeResponse(response);
 
       if (statusCode == 200 || statusCode == 201) {
-        return RidingMateLoginResponseModel.fromApi(
+        return UrbanBreezeLoginResponseModel.fromApi(
           jsonMap,
           LoginProvider.google,
         );
@@ -36,7 +36,7 @@ class RidingMateAuthRemoteDataSource extends BaseRemoteDataSource {
     }
   }
 
-  Future<RidingMateLoginResponseModel> loginWithKakaoAccessToken({
+  Future<UrbanBreezeLoginResponseModel> loginWithKakaoAccessToken({
     required String accessToken,
   }) async {
     try {
@@ -49,7 +49,7 @@ class RidingMateAuthRemoteDataSource extends BaseRemoteDataSource {
       final Map<String, dynamic> jsonMap = decodeResponse(response);
 
       if (statusCode == 200 || statusCode == 201) {
-        return RidingMateLoginResponseModel.fromApi(
+        return UrbanBreezeLoginResponseModel.fromApi(
           jsonMap,
           LoginProvider.kakao,
         );
@@ -64,7 +64,7 @@ class RidingMateAuthRemoteDataSource extends BaseRemoteDataSource {
     }
   }
 
-  Future<RidingMateLoginResponseModel> loginWithAppleIdToken({
+  Future<UrbanBreezeLoginResponseModel> loginWithAppleIdToken({
     required String idToken,
   }) async {
     try {
@@ -77,7 +77,7 @@ class RidingMateAuthRemoteDataSource extends BaseRemoteDataSource {
       final Map<String, dynamic> jsonMap = decodeResponse(response);
 
       if (statusCode == 200 || statusCode == 201) {
-        return RidingMateLoginResponseModel.fromApi(
+        return UrbanBreezeLoginResponseModel.fromApi(
           jsonMap,
           LoginProvider.apple,
         );

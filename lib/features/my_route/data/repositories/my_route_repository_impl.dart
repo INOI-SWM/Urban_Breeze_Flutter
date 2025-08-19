@@ -1,11 +1,11 @@
-import 'package:ridingmate/features/my_route/data/datasources/my_route_remote_datasource.dart';
-import 'package:ridingmate/features/my_route/data/mappers/my_route_mapper.dart';
-import 'package:ridingmate/features/my_route/data/models/my_route_filter_model.dart';
-import 'package:ridingmate/features/my_route/data/models/my_route_list_data_model.dart';
-import 'package:ridingmate/features/my_route/domain/entities/my_route_filter.dart';
-import 'package:ridingmate/features/my_route/domain/entities/my_route_list.dart';
-import 'package:ridingmate/features/my_route/domain/repositories/my_route_repository.dart';
-import 'package:ridingmate/shared/api/data/models/api_response_model.dart';
+import 'package:urban_breeze/features/my_route/data/datasources/my_route_remote_datasource.dart';
+import 'package:urban_breeze/features/my_route/data/mappers/my_route_mapper.dart';
+import 'package:urban_breeze/features/my_route/data/models/my_route_filter_model.dart';
+import 'package:urban_breeze/features/my_route/data/models/my_route_list_data_model.dart';
+import 'package:urban_breeze/features/my_route/domain/entities/my_route_filter.dart';
+import 'package:urban_breeze/features/my_route/domain/entities/my_route_list.dart';
+import 'package:urban_breeze/features/my_route/domain/repositories/my_route_repository.dart';
+import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 
 class MyRouteRepositoryImpl implements MyRouteRepository {
   const MyRouteRepositoryImpl({

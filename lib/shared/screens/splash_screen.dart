@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});

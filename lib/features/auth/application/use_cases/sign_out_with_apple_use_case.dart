@@ -1,4 +1,4 @@
-import 'package:ridingmate/features/auth/domain/repositories/apple_auth_repository.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/apple_auth_repository.dart';
 
 class SignOutWithAppleUseCase {
   const SignOutWithAppleUseCase({required AppleAuthRepository repository})

@@ -1,6 +1,6 @@
-import 'package:ridingmate/features/auth/domain/entities/auth_login_result.dart';
+import 'package:urban_breeze/features/auth/domain/entities/auth_login_result.dart';
 
-abstract class RidingMateAuthRepository {
+abstract class UrbanBreezeAuthRepository {
   Future<AuthLoginResult> loginWithGoogleIdToken({required String idToken});
   Future<AuthLoginResult> loginWithKakaoAccessToken({
     required String accessToken,
