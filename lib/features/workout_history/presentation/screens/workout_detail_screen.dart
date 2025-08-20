@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/workout_history/domain/entities/workout_record.dart';
-import 'package:ridingmate/features/workout_history/presentation/screens/workout_detail_route_screen.dart';
-import 'package:ridingmate/features/workout_history/presentation/screens/workout_detail_stat_screen.dart';
-import 'package:ridingmate/features/workout_history/presentation/widgets/workout_detail_map_widget.dart';
-import 'package:ridingmate/features/workout_history/presentation/widgets/workout_photo_gallery_widget.dart';
-import 'package:ridingmate/features/workout_history/presentation/widgets/workout_title_edit_widget.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
-import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
-import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
-import 'package:ridingmate/shared/design_system/widgets/button/button_outlined.dart';
-import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
-import 'package:ridingmate/shared/design_system/widgets/info/info_item.dart';
-import 'package:ridingmate/shared/utils/date_formatter.dart';
-import 'package:ridingmate/shared/utils/workout_formatter.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
+import 'package:urban_breeze/features/workout_history/presentation/screens/workout_detail_route_screen.dart';
+import 'package:urban_breeze/features/workout_history/presentation/screens/workout_detail_stat_screen.dart';
+import 'package:urban_breeze/features/workout_history/presentation/widgets/workout_detail_map_widget.dart';
+import 'package:urban_breeze/features/workout_history/presentation/widgets/workout_photo_gallery_widget.dart';
+import 'package:urban_breeze/features/workout_history/presentation/widgets/workout_title_edit_widget.dart';
+import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
+import 'package:urban_breeze/shared/design_system/widgets/info/info_item.dart';
+import 'package:urban_breeze/shared/utils/date_formatter.dart';
+import 'package:urban_breeze/shared/utils/workout_formatter.dart';
 
 class WorkoutDetailScreen extends ConsumerStatefulWidget {
   const WorkoutDetailScreen({

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/workout_history/application/use_cases/update_workout_title_use_case.dart';
-import 'package:ridingmate/features/workout_history/di/workout_statistics_providers.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
-import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
-import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
-import 'package:ridingmate/shared/design_system/widgets/modal/modal_show.dart';
-import 'package:ridingmate/shared/design_system/widgets/text_field/inline_edit_text_field.dart';
-import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/update_workout_title_use_case.dart';
+import 'package:urban_breeze/features/workout_history/di/workout_statistics_providers.dart';
+import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
+import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
+import 'package:urban_breeze/shared/design_system/widgets/text_field/inline_edit_text_field.dart';
+import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
 class WorkoutTitleEditWidget extends ConsumerStatefulWidget {
   const WorkoutTitleEditWidget({

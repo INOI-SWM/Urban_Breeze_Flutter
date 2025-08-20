@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/app_setting/presentation/screens/account_management_screen.dart';
-import 'package:ridingmate/features/app_setting/presentation/widgets/settings_list.dart';
-import 'package:ridingmate/features/auth/application/use_cases/auth_sign_out_facade.dart';
-import 'package:ridingmate/features/auth/di/auth_providers.dart';
-import 'package:ridingmate/features/auth/domain/entities/user.dart';
-import 'package:ridingmate/shared/design_system/tokens/decorations/inset_border.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
-import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
-import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
-import 'package:ridingmate/shared/design_system/widgets/button/custom_icon_button.dart';
-import 'package:ridingmate/shared/design_system/widgets/modal/modal_show.dart';
-import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/app_setting/presentation/screens/account_management_screen.dart';
+import 'package:urban_breeze/features/app_setting/presentation/widgets/settings_list.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/auth_sign_out_facade.dart';
+import 'package:urban_breeze/features/auth/di/auth_providers.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/main.dart';
+import 'package:urban_breeze/shared/design_system/tokens/decorations/inset_border.dart';
+import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
+import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
+import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -166,17 +167,20 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  // 섹션/아이템은 공통 위젯 `SettingsSection`, `SettingsItem` 재사용
-
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {
     ModalShow.show(
       context: context,
       title: '로그아웃',
-      content: const Text('정말 로그아웃하시겠습니까?'),
+      content: Text(
+        '정말 로그아웃하시겠습니까?',
+        style: AppTextStyles.body1.normalRegular.copyWith(
+          color: context.semanticColor.labelNormal,
+        ),
+      ),
       primaryButtonText: '로그아웃',
       secondaryButtonText: '취소',
       onPrimaryButtonPressed: () => _handleSignOut(context, ref),
-      onSecondaryButtonPressed: () => Navigator.of(context).pop(),
+      onSecondaryButtonPressed: () {},
     );
   }
 
@@ -192,10 +196,8 @@ class SettingsScreen extends ConsumerWidget {
 
       if (!context.mounted) return;
 
-      ErrorDisplay.showSuccessMessage(context, '로그아웃되었습니다.');
-
-      // 모든 화면을 제거하고 홈으로 이동 (임시 코드)
-      Navigator.of(context).popUntil((Route<dynamic> route) => route.isFirst);
+      // 앱 재시작
+      restartableAppKey.currentState?.restart();
     } catch (e) {
       if (!context.mounted) return;
 

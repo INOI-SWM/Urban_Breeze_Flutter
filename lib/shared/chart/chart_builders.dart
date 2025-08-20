@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:ridingmate/shared/chart/chart_style_config.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/chart/chart_style_config.dart';
+import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 
 class ChartBuilders {
   ChartBuilders._();

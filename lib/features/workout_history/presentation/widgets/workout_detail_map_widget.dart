@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/workout_history/domain/entities/location_data.dart';
-import 'package:ridingmate/features/workout_history/domain/entities/workout_record.dart';
-import 'package:ridingmate/shared/design_system/tokens/semantic_colors.dart';
-import 'package:ridingmate/shared/map/common_map_widgets.dart';
-import 'package:ridingmate/shared/map/map_constants.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/location_data.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
+import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/map/common_map_widgets.dart';
+import 'package:urban_breeze/shared/map/map_constants.dart';
 
 //TODO: 추후 api 연결 시 폴리곤 띄우기 방식 변경, bbox로 지도 크기 조정
 class WorkoutDetailMapWidget extends StatelessWidget {

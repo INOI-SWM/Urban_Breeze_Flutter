@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/features/home/presentation/screens/home_screen.dart';
-import 'package:ridingmate/features/my_route/presentation/screens/my_route_screen.dart';
-import 'package:ridingmate/features/profile/presentation/pages/profile_page.dart';
-import 'package:ridingmate/features/recommended_course/presentation/screens/recommended_course_screen.dart';
-import 'package:ridingmate/features/workout_history/presentation/pages/workout_history_page.dart';
-import 'package:ridingmate/navigation/bottom_navigation.dart';
-import 'package:ridingmate/navigation/page_with_app_bar.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/home/presentation/screens/home_screen.dart';
+import 'package:urban_breeze/features/my_route/presentation/screens/my_route_screen.dart';
+import 'package:urban_breeze/features/profile/presentation/pages/profile_page.dart';
+import 'package:urban_breeze/features/recommended_course/presentation/screens/recommended_course_screen.dart';
+import 'package:urban_breeze/features/workout_history/presentation/pages/workout_history_page.dart';
+import 'package:urban_breeze/navigation/bottom_navigation.dart';
+import 'package:urban_breeze/navigation/page_with_app_bar.dart';
 
 class NavigationScaffold extends StatefulWidget {
   const NavigationScaffold({super.key, this.initialIndex = 0});

@@ -1,5 +1,5 @@
 import 'package:latlong2/latlong.dart';
-import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
 
 enum RouteMode {
   drivingCar,

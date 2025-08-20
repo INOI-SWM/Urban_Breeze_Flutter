@@ -1,7 +1,7 @@
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:ridingmate/features/route_planning/domain/entities/route_segment.dart';
-import 'package:ridingmate/features/route_planning/domain/services/bbox_service.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
+import 'package:urban_breeze/features/route_planning/domain/services/bbox_service.dart';
 
 class FitMapToRoutesUseCase {
   const FitMapToRoutesUseCase({required BboxService bboxService})

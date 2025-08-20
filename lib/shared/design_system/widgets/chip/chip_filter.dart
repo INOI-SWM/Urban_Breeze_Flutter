@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 
 enum ChipFilterSize { xsmall, small, medium, large }
 

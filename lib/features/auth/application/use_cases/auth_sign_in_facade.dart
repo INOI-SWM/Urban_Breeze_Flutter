@@ -1,16 +1,16 @@
-import 'package:ridingmate/core/result/app_result.dart';
-import 'package:ridingmate/features/auth/application/providers/user_session_notifier.dart';
-import 'package:ridingmate/features/auth/application/use_cases/login_with_apple_idtoken_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/login_with_google_idtoken_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/login_with_kakao_access_token_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_apple_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_google_use_case.dart';
-import 'package:ridingmate/features/auth/application/use_cases/sign_in_with_kakao_use_case.dart';
-import 'package:ridingmate/features/auth/domain/entities/auth_login_result.dart';
-import 'package:ridingmate/features/auth/domain/entities/user.dart';
-import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
-import 'package:ridingmate/features/auth/domain/exceptions/auth_exceptions.dart';
-import 'package:ridingmate/features/auth/domain/repositories/token_repository.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/auth/application/providers/user_session_notifier.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/login_with_apple_idtoken_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/login_with_google_idtoken_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/login_with_kakao_access_token_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/sign_in_with_apple_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/sign_in_with_google_use_case.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/sign_in_with_kakao_use_case.dart';
+import 'package:urban_breeze/features/auth/domain/entities/auth_login_result.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
+import 'package:urban_breeze/features/auth/domain/exceptions/auth_exceptions.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/token_repository.dart';
 
 class AuthSignInFacade {
   const AuthSignInFacade({

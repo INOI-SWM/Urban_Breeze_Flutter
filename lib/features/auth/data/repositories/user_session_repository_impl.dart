@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:ridingmate/features/auth/domain/entities/user.dart';
-import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
-import 'package:ridingmate/features/auth/domain/repositories/user_session_repository.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/user_session_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserSessionRepositoryImpl implements UserSessionRepository {

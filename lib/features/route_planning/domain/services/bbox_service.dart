@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:ridingmate/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
+import 'package:urban_breeze/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 
 class BboxService {
   const BboxService();

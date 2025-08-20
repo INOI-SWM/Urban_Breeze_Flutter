@@ -1,15 +1,15 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/shared/chart/chart_axis_utils.dart';
-import 'package:ridingmate/shared/chart/chart_builders.dart';
-import 'package:ridingmate/shared/chart/chart_style_config.dart';
-import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style.dart';
-import 'package:ridingmate/shared/design_system/widgets/info/info_item.dart';
-import 'package:ridingmate/shared/design_system/widgets/segmented_control/segmented_control.dart';
-import 'package:ridingmate/shared/utils/period_utils.dart';
-import 'package:ridingmate/shared/utils/workout_formatter.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/shared/chart/chart_axis_utils.dart';
+import 'package:urban_breeze/shared/chart/chart_builders.dart';
+import 'package:urban_breeze/shared/chart/chart_style_config.dart';
+import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/design_system/widgets/info/info_item.dart';
+import 'package:urban_breeze/shared/design_system/widgets/segmented_control/segmented_control.dart';
+import 'package:urban_breeze/shared/utils/period_utils.dart';
+import 'package:urban_breeze/shared/utils/workout_formatter.dart';
 
 import '../../application/use_cases/get_workout_statistics_use_case.dart';
 import '../../di/workout_statistics_providers.dart';

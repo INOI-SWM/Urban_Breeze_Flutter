@@ -1,9 +1,9 @@
-import 'package:ridingmate/features/route_planning/application/use_cases/create_route_use_case.dart';
-import 'package:ridingmate/features/route_planning/application/use_cases/fit_map_to_routes_use_case.dart';
-import 'package:ridingmate/features/route_planning/application/use_cases/get_current_location_use_case.dart';
-import 'package:ridingmate/features/route_planning/application/use_cases/manage_route_pins_use_case.dart';
-import 'package:ridingmate/features/route_planning/application/use_cases/route_stats_use_case.dart';
-import 'package:ridingmate/features/route_planning/application/use_cases/save_route_use_case.dart';
+import 'package:urban_breeze/features/route_planning/application/use_cases/create_route_use_case.dart';
+import 'package:urban_breeze/features/route_planning/application/use_cases/fit_map_to_routes_use_case.dart';
+import 'package:urban_breeze/features/route_planning/application/use_cases/get_current_location_use_case.dart';
+import 'package:urban_breeze/features/route_planning/application/use_cases/manage_route_pins_use_case.dart';
+import 'package:urban_breeze/features/route_planning/application/use_cases/route_stats_use_case.dart';
+import 'package:urban_breeze/features/route_planning/application/use_cases/save_route_use_case.dart';
 
 class RoutePlanningFacade {
   const RoutePlanningFacade({

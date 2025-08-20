@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:ridingmate/shared/design_system/widgets/modal/modal_popup.dart';
+import 'package:urban_breeze/shared/design_system/widgets/modal/modal_popup.dart';
 
 class ModalShow {
   static Future<T?> show<T>({

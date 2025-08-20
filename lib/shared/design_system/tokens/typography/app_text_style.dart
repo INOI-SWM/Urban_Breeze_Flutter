@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/shared/design_system/tokens/typography/app_text_style_constants.dart';
+import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style_constants.dart';
 
 extension TextStyleExtensions on TextStyle {
   TextStyle withPercentageLetterSpacing(double percentage) {

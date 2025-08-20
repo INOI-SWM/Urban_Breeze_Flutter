@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/shared/design_system/widgets/category/category_info.dart';
-import 'package:ridingmate/shared/filter/models/filter_data.dart';
-import 'package:ridingmate/shared/filter/models/filter_item.dart';
-import 'package:ridingmate/shared/filter/utils/filter_display_utils.dart';
+import 'package:urban_breeze/shared/design_system/widgets/category/category_info.dart';
+import 'package:urban_breeze/shared/filter/models/filter_data.dart';
+import 'package:urban_breeze/shared/filter/models/filter_item.dart';
+import 'package:urban_breeze/shared/filter/utils/filter_display_utils.dart';
 
 /// 추천 코스 화면의 카테고리 설정
 class RecommendedCourseCategoryConfig {
@@ -53,17 +53,15 @@ class RecommendedCourseCategoryConfig {
   static IconData? _getFilterIcon(String filterTitle) {
     switch (filterTitle) {
       case '코스 종류':
-        return Icons.terrain;
+        return Icons.category;
       case '지역':
         return Icons.location_on;
       case '상승 고도':
         return Icons.trending_up;
       case '거리':
         return Icons.route;
-      case '도로':
-        return Icons.route_sharp;
-      case '자연 경관':
-        return Icons.landscape;
+      case '난이도':
+        return Icons.upgrade;
       default:
         return null;
     }

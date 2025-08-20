@@ -2,15 +2,16 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ridingmate/core/extensions/theme_extensions.dart';
-import 'package:ridingmate/core/result/app_result.dart';
-import 'package:ridingmate/features/auth/application/use_cases/auth_sign_in_facade.dart';
-import 'package:ridingmate/features/auth/di/auth_providers.dart';
-import 'package:ridingmate/features/auth/domain/entities/user.dart';
-import 'package:ridingmate/features/auth/domain/enums/login_provider.dart';
-import 'package:ridingmate/features/auth/presentation/widgets/login_button.dart';
-import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
-import 'package:ridingmate/shared/mixins/error_display_mixin.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/auth/application/use_cases/auth_sign_in_facade.dart';
+import 'package:urban_breeze/features/auth/di/auth_providers.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
+import 'package:urban_breeze/features/auth/presentation/widgets/login_button.dart';
+import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -38,11 +39,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       final User? user = result.dataOrNull;
       if (!mounted) return;
       if (user != null) {
-        showSuccessMessage(
-          context,
-          '환영합니다, ${user.displayName ?? user.email}님!',
-        );
-        Navigator.pop(context);
+        // 로그인 상태 변경으로 자동으로 메인 화면으로 전환됩니다.
       } else {
         showErrorMessage(context, '로그인에 실패했습니다. 다시 시도해주세요.');
       }
@@ -87,63 +84,58 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        centerTitle: true,
-        actions: <Widget>[
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: context.semanticColor.interactionInactive,
-              shape: BoxShape.circle,
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                customBorder: const CircleBorder(),
-                child: Icon(
-                  Icons.close,
-                  size: 20,
-                  color: context.semanticColor.staticWhite,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+      appBar: const CustomAppBar(centerTitle: true, title: '로그인'),
+      backgroundColor: context.semanticColor.backgroundNormalNormal,
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                _buildLoginButton(
-                  text: 'Kakao로 계속하기',
-                  iconPath: 'assets/icons/svg/kakao_logo.svg',
-                  provider: LoginProvider.kakao,
-                ),
-                const SizedBox(height: 12),
-                _buildLoginButton(
-                  text: 'Google로 계속하기',
-                  iconPath: 'assets/icons/svg/google_logo.svg',
-                  provider: LoginProvider.google,
-                ),
-                if (Platform.isIOS) ...<Widget>[
-                  const SizedBox(height: 12),
-                  _buildLoginButton(
-                    text: 'Apple로 계속하기',
-                    iconPath: 'assets/icons/svg/apple_logo.svg',
-                    provider: LoginProvider.apple,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  Image.asset(
+                    'assets/images/png/urban_breeze_logo.png',
+                    height: 250,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    '가장 시원한 도시의 바람이 기다립니다',
+                    style: AppTextStyles.heading2.bold.copyWith(
+                      color: context.semanticColor.labelNormal,
+                    ),
                   ),
                 ],
-              ],
-            ),
+              ),
+
+              SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    _buildLoginButton(
+                      text: 'Kakao로 계속하기',
+                      iconPath: 'assets/icons/svg/kakao_logo.svg',
+                      provider: LoginProvider.kakao,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildLoginButton(
+                      text: 'Google로 계속하기',
+                      iconPath: 'assets/icons/svg/google_logo.svg',
+                      provider: LoginProvider.google,
+                    ),
+                    if (Platform.isIOS) ...<Widget>[
+                      const SizedBox(height: 12),
+                      _buildLoginButton(
+                        text: 'Apple로 계속하기',
+                        iconPath: 'assets/icons/svg/apple_logo.svg',
+                        provider: LoginProvider.apple,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

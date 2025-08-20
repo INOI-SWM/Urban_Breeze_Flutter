@@ -1,4 +1,4 @@
-import 'package:ridingmate/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 
 abstract class AppleAuthRepository {
   Future<User?> signIn();

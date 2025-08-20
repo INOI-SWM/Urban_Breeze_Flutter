@@ -1,11 +1,11 @@
 class RouteSaveResponseModel {
   factory RouteSaveResponseModel.fromJson(Map<String, dynamic> json) {
     return RouteSaveResponseModel(
-      routeId: json['data']['routeId'],
-      title: json['data']['title'],
-      totalDuration: json['data']['totalDuration'],
-      totalDistance: json['data']['totalDistance'],
-      totalElevationGain: json['data']['totalElevationGain'],
+      routeId: json['routeId'],
+      title: json['title'],
+      totalDuration: json['totalDuration'],
+      totalDistance: json['totalDistance'],
+      totalElevationGain: json['totalElevationGain'],
     );
   }
   const RouteSaveResponseModel({

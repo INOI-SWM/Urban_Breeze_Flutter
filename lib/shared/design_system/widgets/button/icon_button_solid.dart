@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ridingmate/shared/design_system/widgets/icon/icon_size.dart';
+import 'package:urban_breeze/shared/design_system/widgets/icon/icon_size.dart';
 
 enum IconButtonSize {
   small(32),

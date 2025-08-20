@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ridingmate/core/result/app_result.dart';
-import 'package:ridingmate/features/my_route/di/my_route_providers.dart';
-import 'package:ridingmate/features/my_route/domain/entities/my_route.dart';
-import 'package:ridingmate/features/my_route/domain/entities/my_route_list.dart';
-import 'package:ridingmate/features/my_route/domain/enums/my_route_sort_type.dart';
-import 'package:ridingmate/features/my_route/presentation/config/my_route_category_config.dart';
-import 'package:ridingmate/features/my_route/presentation/config/my_route_filter_config.dart';
-import 'package:ridingmate/features/route_planning/presentation/screens/route_planning_screen.dart';
-import 'package:ridingmate/navigation/page_with_app_bar.dart';
-import 'package:ridingmate/shared/design_system/widgets/app_bar/custom_app_bar.dart';
-import 'package:ridingmate/shared/design_system/widgets/card/route_card.dart';
-import 'package:ridingmate/shared/design_system/widgets/category/category_filter.dart';
-import 'package:ridingmate/shared/design_system/widgets/thumbnail/thumbnail.dart';
-import 'package:ridingmate/shared/filter/filter_modal.dart';
-import 'package:ridingmate/shared/filter/models/filter_data.dart';
-import 'package:ridingmate/shared/filter/models/filter_item.dart';
-import 'package:ridingmate/shared/filter/utils/filter_display_utils.dart';
-import 'package:ridingmate/shared/sort/sort_modal.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/my_route/di/my_route_providers.dart';
+import 'package:urban_breeze/features/my_route/domain/entities/my_route.dart';
+import 'package:urban_breeze/features/my_route/domain/entities/my_route_list.dart';
+import 'package:urban_breeze/features/my_route/domain/enums/my_route_sort_type.dart';
+import 'package:urban_breeze/features/my_route/presentation/config/my_route_category_config.dart';
+import 'package:urban_breeze/features/my_route/presentation/config/my_route_filter_config.dart';
+import 'package:urban_breeze/features/my_route/presentation/screens/my_route_detail_screen.dart';
+import 'package:urban_breeze/features/route_planning/presentation/screens/route_planning_screen.dart';
+import 'package:urban_breeze/navigation/page_with_app_bar.dart';
+import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:urban_breeze/shared/design_system/widgets/card/route_card.dart';
+import 'package:urban_breeze/shared/design_system/widgets/category/category_filter.dart';
+import 'package:urban_breeze/shared/design_system/widgets/thumbnail/thumbnail.dart';
+import 'package:urban_breeze/shared/filter/filter_modal.dart';
+import 'package:urban_breeze/shared/filter/models/filter_data.dart';
+import 'package:urban_breeze/shared/filter/models/filter_item.dart';
+import 'package:urban_breeze/shared/filter/utils/filter_display_utils.dart';
+import 'package:urban_breeze/shared/sort/sort_modal.dart';
 
 class MyRouteScreen extends ConsumerStatefulWidget implements PageWithAppBar {
   const MyRouteScreen({super.key});
@@ -193,7 +194,15 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
                             elevation: route.elevationGainDisplay,
                             cardType: RouteCardType.myRoute,
                             onTap: () {
-                              // TODO: 경로 상세 화면으로 이동
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder:
+                                      (BuildContext context) =>
+                                          MyRouteDetailScreen(
+                                            routeId: route.id.toString(),
+                                          ),
+                                ),
+                              );
                             },
                           ),
                         );

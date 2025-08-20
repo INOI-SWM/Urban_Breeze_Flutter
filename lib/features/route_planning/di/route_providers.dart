@@ -1,23 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:ridingmate/core/di/core_providers.dart';
-import 'package:ridingmate/features/route_planning/application/use_cases/create_route_use_case.dart';
-import 'package:ridingmate/features/route_planning/application/use_cases/fit_map_to_routes_use_case.dart';
-import 'package:ridingmate/features/route_planning/application/use_cases/get_current_location_use_case.dart';
-import 'package:ridingmate/features/route_planning/application/use_cases/manage_route_pins_use_case.dart';
-import 'package:ridingmate/features/route_planning/application/use_cases/route_planning_facade.dart';
-import 'package:ridingmate/features/route_planning/application/use_cases/route_stats_use_case.dart';
-import 'package:ridingmate/features/route_planning/application/use_cases/save_route_use_case.dart';
-import 'package:ridingmate/features/route_planning/data/datasources/location_datasource.dart';
-import 'package:ridingmate/features/route_planning/data/datasources/remote/route_remote_datasource.dart';
-import 'package:ridingmate/features/route_planning/data/datasources/remote/route_segment_remote_datasource.dart';
-import 'package:ridingmate/features/route_planning/data/repositories/location_repository_impl.dart';
-import 'package:ridingmate/features/route_planning/data/repositories/route_repository_impl.dart';
-import 'package:ridingmate/features/route_planning/data/repositories/route_segment_repository_impl.dart';
-import 'package:ridingmate/features/route_planning/domain/repositories/location_repository.dart';
-import 'package:ridingmate/features/route_planning/domain/repositories/route_repository.dart';
-import 'package:ridingmate/features/route_planning/domain/repositories/route_segment_repository.dart';
-import 'package:ridingmate/features/route_planning/domain/services/bbox_service.dart';
+import 'package:urban_breeze/core/di/core_providers.dart';
+import 'package:urban_breeze/features/route_planning/application/use_cases/create_route_use_case.dart';
+import 'package:urban_breeze/features/route_planning/application/use_cases/fit_map_to_routes_use_case.dart';
+import 'package:urban_breeze/features/route_planning/application/use_cases/get_current_location_use_case.dart';
+import 'package:urban_breeze/features/route_planning/application/use_cases/manage_route_pins_use_case.dart';
+import 'package:urban_breeze/features/route_planning/application/use_cases/route_planning_facade.dart';
+import 'package:urban_breeze/features/route_planning/application/use_cases/route_stats_use_case.dart';
+import 'package:urban_breeze/features/route_planning/application/use_cases/save_route_use_case.dart';
+import 'package:urban_breeze/features/route_planning/data/datasources/location_datasource.dart';
+import 'package:urban_breeze/features/route_planning/data/datasources/remote/route_remote_datasource.dart';
+import 'package:urban_breeze/features/route_planning/data/datasources/remote/route_segment_remote_datasource.dart';
+import 'package:urban_breeze/features/route_planning/data/repositories/location_repository_impl.dart';
+import 'package:urban_breeze/features/route_planning/data/repositories/route_repository_impl.dart';
+import 'package:urban_breeze/features/route_planning/data/repositories/route_segment_repository_impl.dart';
+import 'package:urban_breeze/features/route_planning/domain/repositories/location_repository.dart';
+import 'package:urban_breeze/features/route_planning/domain/repositories/route_repository.dart';
+import 'package:urban_breeze/features/route_planning/domain/repositories/route_segment_repository.dart';
+import 'package:urban_breeze/features/route_planning/domain/services/bbox_service.dart';
 
 // Domain Service Providers
 final Provider<BboxService> bboxServiceProvider = Provider<BboxService>((
