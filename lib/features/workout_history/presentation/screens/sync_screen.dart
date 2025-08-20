@@ -160,6 +160,54 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                 ),
               ),
 
+              const SizedBox(height: 16),
+
+              // Garmin Connect 섹션
+              SizedBox(
+                width: double.infinity,
+                child: ButtonOutlined(
+                  text: _isLoading ? '동기화 중...' : 'Garmin Connect 동기화',
+                  textColor: colors.labelNormal,
+                  borderColor: colors.lineNormalNormal,
+                  onPressed:
+                      _isLoading
+                          ? null
+                          : () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Garmin Connect 동기화 기능은 준비 중입니다.',
+                                ),
+                              ),
+                            );
+                          },
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Samsung Health 섹션
+              SizedBox(
+                width: double.infinity,
+                child: ButtonOutlined(
+                  text: _isLoading ? '동기화 중...' : 'Samsung Health 동기화',
+                  textColor: colors.labelNormal,
+                  borderColor: colors.lineNormalNormal,
+                  onPressed:
+                      _isLoading
+                          ? null
+                          : () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Samsung Health 동기화 기능은 준비 중입니다.',
+                                ),
+                              ),
+                            );
+                          },
+                ),
+              ),
+
               if (_isLoading) ...<Widget>[
                 const SizedBox(height: 24),
                 const Center(child: CircularProgressIndicator()),
