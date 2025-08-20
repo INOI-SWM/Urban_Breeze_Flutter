@@ -17,7 +17,9 @@ import '../../domain/enums/workout_sort_type.dart';
 
 //TODO : 추후 api 개발 시 에러 처리 추가
 class WorkoutListScreen extends ConsumerStatefulWidget {
-  const WorkoutListScreen({super.key});
+  const WorkoutListScreen({super.key, this.onUpdateData});
+
+  final Function(Function(List<WorkoutRecord>))? onUpdateData;
 
   @override
   ConsumerState<WorkoutListScreen> createState() => _WorkoutListScreenState();
@@ -50,19 +52,22 @@ class _EmptyWorkoutState extends StatelessWidget {
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
 
-    return Column(
-      children: <Widget>[
-        Icon(Icons.info_outline, size: 48, color: colors.labelAlternative),
-        const SizedBox(height: 8),
-        Text('운동 데이터가 없습니다', style: AppTextStyles.body2.normalBold),
-        const SizedBox(height: 4),
-        Text(
-          '먼저 권한을 요청하고 데이터를 불러오세요',
-          style: AppTextStyles.label2.medium.copyWith(
-            color: colors.labelAlternative,
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        children: <Widget>[
+          Icon(Icons.info_outline, size: 48, color: colors.labelAlternative),
+          const SizedBox(height: 8),
+          Text('운동 데이터가 없습니다', style: AppTextStyles.body2.normalBold),
+          const SizedBox(height: 4),
+          Text(
+            '먼저 권한을 요청하고 데이터를 불러오세요',
+            style: AppTextStyles.label2.medium.copyWith(
+              color: colors.labelAlternative,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -151,6 +156,20 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   List<WorkoutRecord> _workouts = <WorkoutRecord>[];
   ViewMode _viewMode = ViewMode.list;
   WorkoutSortType _sortType = WorkoutSortType.newest;
+
+  @override
+  void initState() {
+    super.initState();
+    // 부모에게 데이터 업데이트 함수 전달
+    widget.onUpdateData?.call(_updateWorkouts);
+  }
+
+  // 데이터 업데이트 메서드
+  void _updateWorkouts(List<WorkoutRecord> workouts) {
+    setState(() {
+      _workouts = _sortWorkouts(workouts);
+    });
+  }
 
   void _navigateToWorkoutDetail(WorkoutRecord workout, int index) {
     Navigator.push(
