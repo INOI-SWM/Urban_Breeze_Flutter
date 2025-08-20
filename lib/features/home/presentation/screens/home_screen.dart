@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/home/presentation/widgets/latest_workout_card.dart';
 import 'package:urban_breeze/features/home/presentation/widgets/photo_banner.dart';
+import 'package:urban_breeze/features/home/presentation/widgets/recommended_courses_section.dart';
 import 'package:urban_breeze/features/home/presentation/widgets/stats_summary_card.dart';
 import 'package:urban_breeze/features/workout_history/presentation/pages/workout_history_page.dart';
 import 'package:urban_breeze/navigation/navigation_providers.dart';
@@ -54,8 +55,16 @@ class HomeScreen extends ConsumerWidget {
                         ref.read(bottomNavIndexProvider.notifier).state = 3;
                       },
                     ),
+                    const SizedBox(height: 20),
                   ],
                 ),
+              ),
+
+              // 추천 코스 3개 섹션 (패딩 밖으로 분리하여 가로 스크롤 풀블리드 처리)
+              RecommendedCoursesSection(
+                onMorePressed: () {
+                  ref.read(bottomNavIndexProvider.notifier).state = 1;
+                },
               ),
 
               // 메인 콘텐츠

@@ -19,7 +19,7 @@ class StatsSummaryCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Text(
-              '이번 주 요약',
+              '이번 주 라이딩 요약',
               style: AppTextStyles.heading2.bold.copyWith(
                 color: colors.labelStrong,
               ),
