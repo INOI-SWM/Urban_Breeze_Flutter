@@ -6,7 +6,6 @@ import 'package:urban_breeze/features/workout_history/application/use_cases/sync
 import 'package:urban_breeze/features/workout_history/di/workout_statistics_providers.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
-import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
@@ -21,19 +20,8 @@ class SyncScreen extends ConsumerStatefulWidget {
 class _SyncScreenState extends ConsumerState<SyncScreen> {
   bool _isLoading = false;
 
-  // Apple Health Kit 관련 메서드들
-  Future<void> _requestAppleHealthKitPermissions() async {
-    try {
-      final SyncAppleHealthKitDataUseCase useCase = ref.read(
-        syncAppleHealthKitDataUseCaseProvider,
-      );
-      await useCase.requestPermissions();
-    } catch (e) {
-      // TODO : 권한 요청 실패 시 에러 처리
-    }
-  }
-
-  Future<void> _testGetAppleHealthKitWorkouts() async {
+  // Apple Health Kit 통합 동기화 (권한 요청 + 데이터 동기화)
+  Future<void> _syncAppleHealthKit() async {
     setState(() {
       _isLoading = true;
     });
@@ -42,6 +30,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
       final SyncAppleHealthKitDataUseCase useCase = ref.read(
         syncAppleHealthKitDataUseCaseProvider,
       );
+
+      // 1. 권한 요청
+      await useCase.requestPermissions();
+
+      // 2. 데이터 동기화
       final List<WorkoutRecord> workouts = await useCase.fetchBasicWorkoutData(
         startDate: DateTime.now().subtract(const Duration(days: 30)),
         endDate: DateTime.now(),
@@ -51,7 +44,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
         _isLoading = false;
       });
 
-      // TODO: 성공 메시지 표시
+      // 성공 메시지 표시
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -64,7 +57,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
         _isLoading = false;
       });
 
-      // TODO: 에러 메시지 표시
+      // 에러 메시지 표시
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Apple Health Kit 동기화 실패')),
@@ -73,19 +66,8 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
     }
   }
 
-  // Google Health Connect 관련 메서드들
-  Future<void> _requestGoogleHealthConnectPermissions() async {
-    try {
-      final SyncGoogleHealthConnectDataUseCase useCase = ref.read(
-        syncGoogleHealthConnectDataUseCaseProvider,
-      );
-      await useCase.requestPermissions();
-    } catch (e) {
-      // TODO : 권한 요청 실패 시 에러 처리
-    }
-  }
-
-  Future<void> _testGetGoogleHealthConnectWorkouts() async {
+  // Google Health Connect 통합 동기화 (권한 요청 + 데이터 동기화)
+  Future<void> _syncGoogleHealthConnect() async {
     setState(() {
       _isLoading = true;
     });
@@ -94,6 +76,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
       final SyncGoogleHealthConnectDataUseCase useCase = ref.read(
         syncGoogleHealthConnectDataUseCaseProvider,
       );
+
+      // 1. 권한 요청
+      await useCase.requestPermissions();
+
+      // 2. 데이터 동기화
       final Map<WorkoutRecord, Map<String, dynamic>> completeData =
           await useCase.syncCompleteWorkoutData(
             startDate: DateTime.now().subtract(const Duration(days: 1000)),
@@ -106,7 +93,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
         _isLoading = false;
       });
 
-      // TODO: 성공 메시지 표시
+      // 성공 메시지 표시
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -121,7 +108,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
         _isLoading = false;
       });
 
-      // TODO: 에러 메시지 표시
+      // 에러 메시지 표시
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Google Health Connect 동기화 실패')),
@@ -149,68 +136,28 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(
-                'Health Kit 연동',
-                style: AppTextStyles.title3.bold.copyWith(
-                  color: colors.labelStrong,
+              // Apple Health Kit 섹션
+              SizedBox(
+                width: double.infinity,
+                child: ButtonOutlined(
+                  text: _isLoading ? '동기화 중...' : 'Apple Health Kit 동기화',
+                  textColor: colors.labelNormal,
+                  borderColor: colors.lineNormalNormal,
+                  onPressed: _isLoading ? null : _syncAppleHealthKit,
                 ),
               ),
+
               const SizedBox(height: 16),
 
-              // Apple Health Kit 섹션
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: ButtonOutlined(
-                      text: 'Apple 권한 요청',
-                      textColor: colors.labelNormal,
-                      borderColor: colors.lineNormalNormal,
-                      onPressed:
-                          _isLoading ? null : _requestAppleHealthKitPermissions,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ButtonOutlined(
-                      text: _isLoading ? '동기화 중...' : 'Apple 데이터 동기화',
-                      textColor: colors.labelNormal,
-                      borderColor: colors.lineNormalNormal,
-                      onPressed:
-                          _isLoading ? null : _testGetAppleHealthKitWorkouts,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-
               // Google Health Connect 섹션
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: ButtonOutlined(
-                      text: 'Google 권한 요청',
-                      textColor: colors.labelNormal,
-                      borderColor: colors.lineNormalNormal,
-                      onPressed:
-                          _isLoading
-                              ? null
-                              : _requestGoogleHealthConnectPermissions,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ButtonOutlined(
-                      text: _isLoading ? '동기화 중...' : 'Google 데이터 동기화',
-                      textColor: colors.labelNormal,
-                      borderColor: colors.lineNormalNormal,
-                      onPressed:
-                          _isLoading
-                              ? null
-                              : _testGetGoogleHealthConnectWorkouts,
-                    ),
-                  ),
-                ],
+              SizedBox(
+                width: double.infinity,
+                child: ButtonOutlined(
+                  text: _isLoading ? '동기화 중...' : 'Google Health Connect 동기화',
+                  textColor: colors.labelNormal,
+                  borderColor: colors.lineNormalNormal,
+                  onPressed: _isLoading ? null : _syncGoogleHealthConnect,
+                ),
               ),
 
               if (_isLoading) ...<Widget>[
