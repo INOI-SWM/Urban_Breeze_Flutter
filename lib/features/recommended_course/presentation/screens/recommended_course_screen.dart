@@ -17,6 +17,7 @@ import 'package:urban_breeze/shared/filter/filter_modal.dart';
 import 'package:urban_breeze/shared/filter/models/filter_data.dart';
 import 'package:urban_breeze/shared/filter/models/filter_item.dart';
 import 'package:urban_breeze/shared/filter/models/filter_type.dart';
+import 'package:urban_breeze/shared/filter/utils/filter_converter.dart';
 import 'package:urban_breeze/shared/filter/utils/filter_display_utils.dart';
 import 'package:urban_breeze/shared/sort/sort_modal.dart';
 
@@ -66,9 +67,23 @@ class _RecommendedCourseScreenState
       recommendedCourseServiceProvider,
     );
 
-    // Range 값들을 한 번씩만 계산 (성능 최적화)
-    final (double minDistance, double maxDistance) = _getDistanceRange();
-    final (double minElevation, double maxElevation) = _getElevationRange();
+    // FilterConverter를 사용한 Range 값 추출 (성능 최적화)
+    final (
+      double minDistance,
+      double maxDistance,
+    ) = FilterConverter.extractDistanceRange(
+      currentFilter,
+      defaultMin: RecommendedCourseConstants.defaultMinDistance,
+      defaultMax: RecommendedCourseConstants.defaultMaxDistance,
+    );
+    final (
+      double minElevation,
+      double maxElevation,
+    ) = FilterConverter.extractElevationRange(
+      currentFilter,
+      defaultMin: RecommendedCourseConstants.defaultMinElevation,
+      defaultMax: RecommendedCourseConstants.defaultMaxElevation,
+    );
 
     final List<RecommendedCourse> courses = await service
         .fetchRecommendedCourseList(
@@ -95,8 +110,11 @@ class _RecommendedCourseScreenState
     for (final FilterItem filter in filters) {
       switch (filter.type) {
         case FilterType.selection:
-          final String? selectedValue = currentFilter.getStringValue(filter.id);
-          if (selectedValue != null && selectedValue != '전체') {
+          final String? selectedValue = FilterConverter.extractStringValue(
+            currentFilter,
+            filter.id,
+          );
+          if (selectedValue != null) {
             selectedCategories.add(selectedValue);
           }
         case FilterType.range:
@@ -106,32 +124,6 @@ class _RecommendedCourseScreenState
     }
 
     return selectedCategories;
-  }
-
-  /// 현재 필터에서 거리 범위 값들을 추출
-  (double, double) _getDistanceRange() {
-    final RangeValues? distanceRange = currentFilter.getRangeValue('distance');
-    if (distanceRange != null) {
-      return (distanceRange.start, distanceRange.end);
-    }
-    return (
-      RecommendedCourseConstants.defaultMinDistance,
-      RecommendedCourseConstants.defaultMaxDistance,
-    );
-  }
-
-  /// 현재 필터에서 고도 범위 값들을 추출
-  (double, double) _getElevationRange() {
-    final RangeValues? elevationRange = currentFilter.getRangeValue(
-      'elevation',
-    );
-    if (elevationRange != null) {
-      return (elevationRange.start, elevationRange.end);
-    }
-    return (
-      RecommendedCourseConstants.defaultMinElevation,
-      RecommendedCourseConstants.defaultMaxElevation,
-    );
   }
 
   void _showSortModal() {
