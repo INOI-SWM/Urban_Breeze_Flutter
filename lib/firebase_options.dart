@@ -50,19 +50,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAKY0KcAT4dUXH644Pv8Ev16CmYPJD4lgY',
-    appId: '1:952587763213:android:32abb79dd274dacf7adf44',
-    messagingSenderId: '952587763213',
-    projectId: 'ridingmate-8167a',
-    storageBucket: 'ridingmate-8167a.firebasestorage.app',
+    apiKey: 'AIzaSyAEhjwTigKCOko1l_r021eu025tw-MRCNQ',
+    appId: '1:723259332020:android:3670764c8c007a201a8ee1',
+    messagingSenderId: '723259332020',
+    projectId: 'urban-breeze',
+    storageBucket: 'urban-breeze.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCvvWplxD1W3_DR7KerGfPEx6ZaIOYG7VI',
-    appId: '1:952587763213:ios:972db10d3ec411c27adf44',
-    messagingSenderId: '952587763213',
-    projectId: 'ridingmate-8167a',
-    storageBucket: 'ridingmate-8167a.firebasestorage.app',
-    iosBundleId: 'com.inoi.ridingmate.dev',
+    apiKey: 'AIzaSyCAgZBbrHR6iz9nM4oDW_52O8LrFa-LV6o',
+    appId: '1:723259332020:ios:1ed3660599c235cf1a8ee1',
+    messagingSenderId: '723259332020',
+    projectId: 'urban-breeze',
+    storageBucket: 'urban-breeze.firebasestorage.app',
+    iosBundleId: 'com.inoi.urbanbreeze.dev',
   );
+
 }
