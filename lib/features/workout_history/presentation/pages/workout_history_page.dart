@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:urban_breeze/features/workout_history/presentation/screens/sync_screen.dart';
 import 'package:urban_breeze/features/workout_history/presentation/screens/workout_list_screen.dart';
 import 'package:urban_breeze/features/workout_history/presentation/screens/workout_statics_screen.dart';
 import 'package:urban_breeze/navigation/navigation_providers.dart';
 import 'package:urban_breeze/navigation/page_with_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:urban_breeze/shared/design_system/widgets/tab_bar/custom_tab_bar.dart';
 
 enum WorkoutHistoryTab {
@@ -30,7 +32,21 @@ class WorkoutHistoryPage extends ConsumerStatefulWidget
 
   @override
   PreferredSizeWidget getAppBar(BuildContext context) {
-    return const CustomAppBar(title: '기록');
+    return CustomAppBar(
+      title: '기록',
+      actions: <Widget>[
+        CustomIconButton(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (BuildContext context) => const SyncScreen(),
+              ),
+            );
+          },
+          icon: Icons.settings,
+        ),
+      ],
+    );
   }
 }
 
