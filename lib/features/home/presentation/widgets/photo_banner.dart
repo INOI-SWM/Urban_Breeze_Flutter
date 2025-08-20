@@ -23,7 +23,6 @@ class PhotoBanner extends StatelessWidget {
     final SemanticColors colors = context.semanticColor;
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 20, 20, 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         boxShadow: AppShadows.instance.emphasize,
