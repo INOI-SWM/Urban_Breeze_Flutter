@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/workout_history/presentation/pages/workout_history_page.dart';
 import 'package:urban_breeze/features/workout_history/presentation/screens/workout_detail_screen.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
@@ -17,9 +18,7 @@ import '../../domain/enums/workout_sort_type.dart';
 
 //TODO : 추후 api 개발 시 에러 처리 추가
 class WorkoutListScreen extends ConsumerStatefulWidget {
-  const WorkoutListScreen({super.key, this.onUpdateData});
-
-  final Function(Function(List<WorkoutRecord>))? onUpdateData;
+  const WorkoutListScreen({super.key});
 
   @override
   ConsumerState<WorkoutListScreen> createState() => _WorkoutListScreenState();
@@ -52,23 +51,20 @@ class _EmptyWorkoutState extends StatelessWidget {
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
 
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Icon(Icons.info_outline, size: 48, color: colors.labelAlternative),
-          const SizedBox(height: 8),
-          Text('운동 데이터가 없습니다', style: AppTextStyles.body2.normalBold),
-          const SizedBox(height: 4),
-          Text(
-            '먼저 권한을 요청하고 데이터를 불러오세요',
-            style: AppTextStyles.label2.medium.copyWith(
-              color: colors.labelAlternative,
-            ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Icon(Icons.info_outline, size: 48, color: colors.labelAlternative),
+        const SizedBox(height: 8),
+        Text('운동 데이터가 없습니다', style: AppTextStyles.body2.normalBold),
+        const SizedBox(height: 4),
+        Text(
+          '먼저 권한을 요청하고 데이터를 불러오세요',
+          style: AppTextStyles.label2.medium.copyWith(
+            color: colors.labelAlternative,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -161,8 +157,6 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   @override
   void initState() {
     super.initState();
-    // 부모에게 데이터 업데이트 함수 전달
-    widget.onUpdateData?.call(_updateWorkouts);
   }
 
   // 데이터 업데이트 메서드
@@ -232,11 +226,26 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Provider에서 워크아웃 데이터 감지
+    final List<WorkoutRecord> providerWorkouts = ref.watch(workoutDataProvider);
+
+    // Provider에서 새 데이터가 있으면 업데이트
+    if (providerWorkouts.isNotEmpty && providerWorkouts != _workouts) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _updateWorkouts(providerWorkouts);
+      });
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         // 결과 표시
-        Expanded(child: _buildResultWidget()),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 20),
+            child: _buildResultWidget(),
+          ),
+        ),
       ],
     );
   }

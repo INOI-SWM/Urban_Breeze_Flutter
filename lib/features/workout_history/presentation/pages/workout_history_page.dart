@@ -27,6 +27,20 @@ class SyncingStateNotifier extends StateNotifier<bool> {
   void setSyncing(bool value) => state = value;
 }
 
+// 워크아웃 데이터 관리를 위한 Provider
+final StateNotifierProvider<WorkoutDataNotifier, List<WorkoutRecord>>
+workoutDataProvider =
+    StateNotifierProvider<WorkoutDataNotifier, List<WorkoutRecord>>(
+      (Ref ref) => WorkoutDataNotifier(),
+    );
+
+class WorkoutDataNotifier extends StateNotifier<List<WorkoutRecord>> {
+  WorkoutDataNotifier() : super(<WorkoutRecord>[]);
+
+  void updateWorkouts(List<WorkoutRecord> workouts) => state = workouts;
+  void clearWorkouts() => state = <WorkoutRecord>[];
+}
+
 // 별도의 RefreshButton 위젯
 class _RefreshButton extends ConsumerWidget {
   const _RefreshButton();
@@ -137,11 +151,9 @@ class _RefreshButton extends ConsumerWidget {
               '일부 데이터 동기화 완료! 총 ${allWorkouts.length}개의 운동 기록을 가져왔습니다.\n오류: ${errorMessages.join(', ')}';
         }
 
-        // WorkoutListScreen에 데이터 전달을 위해 상태를 찾아서 콜백 호출
-        final _WorkoutHistoryPageState? state =
-            context.findAncestorStateOfType<_WorkoutHistoryPageState>();
-        if (allWorkouts.isNotEmpty && state?._updateWorkoutsCallback != null) {
-          state!._updateWorkoutsCallback!(allWorkouts);
+        // WorkoutListScreen에 데이터 전달을 위해 Provider 업데이트
+        if (allWorkouts.isNotEmpty) {
+          ref.read(workoutDataProvider.notifier).updateWorkouts(allWorkouts);
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -211,7 +223,6 @@ class WorkoutHistoryPage extends ConsumerStatefulWidget
 
 class _WorkoutHistoryPageState extends ConsumerState<WorkoutHistoryPage> {
   WorkoutHistoryTab _selectedTab = WorkoutHistoryTab.statistics;
-  Function(List<WorkoutRecord>)? _updateWorkoutsCallback;
 
   static const List<WorkoutHistoryTab> _tabs = <WorkoutHistoryTab>[
     WorkoutHistoryTab.statistics,
@@ -248,11 +259,7 @@ class _WorkoutHistoryPageState extends ConsumerState<WorkoutHistoryPage> {
       case WorkoutHistoryTab.statistics:
         return const WorkoutStaticsScreen();
       case WorkoutHistoryTab.ridingHistory:
-        return WorkoutListScreen(
-          onUpdateData: (Function(List<WorkoutRecord>) updateCallback) {
-            _updateWorkoutsCallback = updateCallback;
-          },
-        );
+        return const WorkoutListScreen();
     }
   }
 }
