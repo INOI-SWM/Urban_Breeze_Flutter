@@ -55,6 +55,7 @@ class _EmptyWorkoutState extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Icon(Icons.info_outline, size: 48, color: colors.labelAlternative),
           const SizedBox(height: 8),
