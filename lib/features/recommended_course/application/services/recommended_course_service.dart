@@ -3,6 +3,7 @@ import 'package:urban_breeze/features/recommended_course/domain/entities/recomme
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_filter.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_list.dart';
 import 'package:urban_breeze/features/recommended_course/domain/repositories/recommended_course_repository.dart';
+import 'package:urban_breeze/shared/filter/utils/filter_converter.dart';
 
 class RecommendedCourseService {
   const RecommendedCourseService({
@@ -72,20 +73,28 @@ class RecommendedCourseService {
     List<String>? recommendationTypes;
 
     if (categoryFilter != null && categoryFilter.isNotEmpty) {
-      final List<String> extractedRegions = _extractRegions(categoryFilter);
+      final List<String> extractedRegions = FilterConverter.extractCategoryType(
+        categoryFilter,
+        RecommendedCourseConstants.regions.toList(),
+      );
       if (extractedRegions.isNotEmpty) {
         regions = extractedRegions;
       }
 
-      final List<String> extractedDifficulties = _extractDifficulties(
-        categoryFilter,
-      );
+      final List<String> extractedDifficulties =
+          FilterConverter.extractCategoryType(
+            categoryFilter,
+            RecommendedCourseConstants.difficulties.toList(),
+          );
       if (extractedDifficulties.isNotEmpty) {
         difficulties = extractedDifficulties;
       }
 
       final List<String> extractedRecommendationTypes =
-          _extractRecommendationTypes(categoryFilter);
+          FilterConverter.extractCategoryType(
+            categoryFilter,
+            RecommendedCourseConstants.recommendationTypes.toList(),
+          );
       if (extractedRecommendationTypes.isNotEmpty) {
         recommendationTypes = extractedRecommendationTypes;
       }
@@ -181,31 +190,5 @@ class RecommendedCourseService {
     ];
   }
 
-  // === 카테고리 분류 헬퍼 메서드들 ===
-  List<String> _extractRegions(Set<String> categories) {
-    return categories
-        .where(
-          (String category) =>
-              RecommendedCourseConstants.regions.contains(category),
-        )
-        .toList();
-  }
-
-  List<String> _extractDifficulties(Set<String> categories) {
-    return categories
-        .where(
-          (String category) =>
-              RecommendedCourseConstants.difficulties.contains(category),
-        )
-        .toList();
-  }
-
-  List<String> _extractRecommendationTypes(Set<String> categories) {
-    return categories
-        .where(
-          (String category) =>
-              RecommendedCourseConstants.recommendationTypes.contains(category),
-        )
-        .toList();
-  }
+  // 카테고리 분류 로직은 FilterConverter.extractCategoryType으로 통합됨
 }
