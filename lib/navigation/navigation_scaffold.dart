@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/home/presentation/screens/home_screen.dart';
 import 'package:urban_breeze/features/my_route/presentation/screens/my_route_screen.dart';
@@ -6,25 +7,13 @@ import 'package:urban_breeze/features/profile/presentation/pages/profile_page.da
 import 'package:urban_breeze/features/recommended_course/presentation/screens/recommended_course_screen.dart';
 import 'package:urban_breeze/features/workout_history/presentation/pages/workout_history_page.dart';
 import 'package:urban_breeze/navigation/bottom_navigation.dart';
+import 'package:urban_breeze/navigation/navigation_providers.dart';
 import 'package:urban_breeze/navigation/page_with_app_bar.dart';
 
-class NavigationScaffold extends StatefulWidget {
+class NavigationScaffold extends ConsumerWidget {
   const NavigationScaffold({super.key, this.initialIndex = 0});
 
   final int initialIndex;
-
-  @override
-  State<NavigationScaffold> createState() => _NavigationScaffoldState();
-}
-
-class _NavigationScaffoldState extends State<NavigationScaffold> {
-  late int _currentIndex;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentIndex = widget.initialIndex;
-  }
 
   static final List<Widget> _pages = <Widget>[
     const HomeScreen(),
@@ -34,8 +23,8 @@ class _NavigationScaffoldState extends State<NavigationScaffold> {
     const ProfilePage(),
   ];
 
-  PreferredSizeWidget? _getAppBar() {
-    final Widget currentPage = _pages[_currentIndex];
+  PreferredSizeWidget? _getAppBar(int currentIndex, BuildContext context) {
+    final Widget currentPage = _pages[currentIndex];
 
     if (currentPage is PageWithAppBar) {
       // 현재 페이지가 PageWithAppBar를 구현했다면, 해당 페이지의 getAppBar 메서드를 호출
@@ -46,21 +35,25 @@ class _NavigationScaffoldState extends State<NavigationScaffold> {
     return null; //또는 AppBar(title: const Text('기본 앱바')); //
   }
 
-  void _onDestinationSelected(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final int currentIndex = ref.watch(bottomNavIndexProvider);
+
+    // 최초 진입시 initialIndex 반영
+    if (currentIndex == 0 && initialIndex != 0) {
+      // ignore: unused_result
+      ref.read(bottomNavIndexProvider.notifier).state = initialIndex;
+    }
+
     return Scaffold(
       backgroundColor: context.semanticColor.backgroundNormalNormal,
-      appBar: _getAppBar(),
-      body: SafeArea(child: _pages[_currentIndex]),
+      appBar: _getAppBar(currentIndex, context),
+      body: SafeArea(child: _pages[currentIndex]),
       bottomNavigationBar: BottomNavigation(
-        currentIndex: _currentIndex,
-        onDestinationSelected: _onDestinationSelected,
+        currentIndex: currentIndex,
+        onDestinationSelected: (int index) {
+          ref.read(bottomNavIndexProvider.notifier).state = index;
+        },
       ),
     );
   }
