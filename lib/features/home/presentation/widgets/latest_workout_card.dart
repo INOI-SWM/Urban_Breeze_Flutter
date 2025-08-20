@@ -6,7 +6,8 @@ import 'package:urban_breeze/shared/design_system/widgets/card/card_list.dart';
 import 'package:urban_breeze/shared/design_system/widgets/thumbnail/thumbnail.dart';
 
 class LatestWorkoutCard extends StatelessWidget {
-  const LatestWorkoutCard({super.key});
+  const LatestWorkoutCard({super.key, this.onMorePressed});
+  final VoidCallback? onMorePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +21,25 @@ class LatestWorkoutCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-          '최근 운동',
-          style: AppTextStyles.title3.bold.copyWith(color: colors.labelStrong),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text(
+              '최근 운동',
+              style: AppTextStyles.heading2.bold.copyWith(
+                color: colors.labelStrong,
+              ),
+            ),
+            GestureDetector(
+              onTap: onMorePressed,
+              child: Text(
+                '더보기',
+                style: AppTextStyles.label1.normalBold.copyWith(
+                  color: colors.labelAlternative,
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         const CardList(

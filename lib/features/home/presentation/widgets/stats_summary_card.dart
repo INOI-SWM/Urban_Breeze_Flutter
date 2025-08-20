@@ -5,7 +5,8 @@ import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_sty
 import 'package:urban_breeze/shared/design_system/widgets/info/info_item.dart';
 
 class StatsSummaryCard extends StatelessWidget {
-  const StatsSummaryCard({super.key});
+  const StatsSummaryCard({super.key, this.onMorePressed});
+  final VoidCallback? onMorePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -14,9 +15,25 @@ class StatsSummaryCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-          '이번 주 요약',
-          style: AppTextStyles.title3.bold.copyWith(color: colors.labelStrong),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text(
+              '이번 주 요약',
+              style: AppTextStyles.heading2.bold.copyWith(
+                color: colors.labelStrong,
+              ),
+            ),
+            GestureDetector(
+              onTap: onMorePressed,
+              child: Text(
+                '더보기',
+                style: AppTextStyles.label1.normalBold.copyWith(
+                  color: colors.labelAlternative,
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 12),
         Container(
