@@ -65,5 +65,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'urban-breeze.firebasestorage.app',
     iosBundleId: 'com.inoi.urbanbreeze.dev',
   );
-
 }
