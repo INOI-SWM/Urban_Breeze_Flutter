@@ -3,6 +3,7 @@ import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/badge/content_badge.dart';
+import 'package:urban_breeze/shared/design_system/widgets/card/user_info_in_card.dart';
 import 'package:urban_breeze/shared/design_system/widgets/thumbnail/thumbnail.dart';
 
 enum RouteCardType {
@@ -126,64 +127,10 @@ class RouteCard extends StatelessWidget {
   }
 
   Widget _buildUserInfo(SemanticColors colors) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: <Widget>[
-          // 사용자 프로필 이미지
-          Container(
-            width: _avatarSize,
-            height: _avatarSize,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: colors.lineNormalAlternative, width: 1),
-              color: colors.backgroundNormalAlternative,
-            ),
-            child: ClipOval(
-              child:
-                  (userProfileImage?.isNotEmpty == true)
-                      ? Image.network(
-                        userProfileImage!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (
-                          BuildContext context,
-                          Object error,
-                          StackTrace? stackTrace,
-                        ) {
-                          return Container(
-                            color: colors.fillNormal,
-                            child: Icon(
-                              Icons.person,
-                              size: 16,
-                              color: colors.backgroundNormalNormal,
-                            ),
-                          );
-                        },
-                      )
-                      : Container(
-                        color: colors.fillNormal,
-                        child: Icon(
-                          Icons.person,
-                          size: 16,
-                          color: colors.backgroundNormalNormal,
-                        ),
-                      ),
-            ),
-          ),
-          const SizedBox(width: 4),
-          // 사용자 이름
-          Expanded(
-            child: Text(
-              userName ?? '',
-              style: AppTextStyles.label2.medium.copyWith(
-                color: colors.labelAlternative,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
+    return UserInfoInCard(
+      userName: userName,
+      userProfileImage: userProfileImage,
+      avatarSize: _avatarSize,
     );
   }
 
