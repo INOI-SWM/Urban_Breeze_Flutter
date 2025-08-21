@@ -11,10 +11,10 @@ class MapWithBottomSheetLayout extends StatelessWidget {
   const MapWithBottomSheetLayout({
     super.key,
     this.mapOverlays = const <Widget>[],
-    this.initialChildSize = 0.35,
+    this.initialChildSize = 0.5,
     this.minChildSize = 0.2,
     this.maxChildSize = 0.8,
-    this.snapSizes = const <double>[0.35, 0.6, 0.8],
+    this.snapSizes = const <double>[0.2, 0.5, 0.8],
     required this.sheetChild,
     this.showOptionButton = false,
     required this.onDownloadButtonTap,
