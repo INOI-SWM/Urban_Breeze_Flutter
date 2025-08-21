@@ -214,6 +214,7 @@ class _RecommendedCourseScreenState
                             cardType: RouteCardType.recommendedCourse,
                             region: course.region,
                             difficulty: course.difficulty,
+                            scenery: course.recommendationType,
                             onTap: () {
                               // 추천 코스 클릭 이벤트
                               AmplitudeAnalytics.logEvent(
