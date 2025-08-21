@@ -9,6 +9,9 @@ pre-commit:
     dart_fix:
       runner: bash
       script: dart fix --apply
+    dart_format:
+      runner: bash
+      script: dart format .
 
 pre-push:
   parallel: true
@@ -17,3 +20,5 @@ pre-push:
       run: .lefthook/validate-branch-name.sh
     flutter-analyze:
       run: .lefthook/flutter-analyze.sh
+    dart-format-check:
+      run: .lefthook/dart-format-check.sh
