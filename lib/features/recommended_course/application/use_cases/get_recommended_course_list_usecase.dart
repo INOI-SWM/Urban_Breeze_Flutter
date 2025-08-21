@@ -1,65 +1,137 @@
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/recommended_course/domain/constants/recommended_course_constants.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_filter.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_list.dart';
+import 'package:urban_breeze/features/recommended_course/domain/enums/course_sort_type.dart';
 import 'package:urban_breeze/features/recommended_course/domain/repositories/recommended_course_repository.dart';
+import 'package:urban_breeze/shared/filter/models/filter_data.dart';
+import 'package:urban_breeze/shared/filter/utils/filter_converter.dart';
 
-class RecommendedCourseService {
-  const RecommendedCourseService({
+class GetRecommendedCourseListUseCase {
+  const GetRecommendedCourseListUseCase({
     required RecommendedCourseRepository repository,
   }) : _repository = repository;
 
   final RecommendedCourseRepository _repository;
 
-  /// 추천 코스 목록 조회
-  Future<List<RecommendedCourse>> fetchRecommendedCourseList({
-    Set<String>? categoryFilter,
-    String? sortType,
-    double? userLat,
-    double? userLon,
-    double? minDistance,
-    double? maxDistance,
-    double? minElevation,
-    double? maxElevation,
-    int page = 0,
-    int size = RecommendedCourseConstants.defaultPageSize,
+  Future<AppResult<List<RecommendedCourse>>> execute({
+    FilterData? filterData,
+    CourseSortType? sortType,
   }) async {
     try {
+      // 기본값 설정
+      final CourseSortType actualSortType = sortType ?? CourseSortType.nearest;
+
+      Set<String> categoryFilter = <String>{};
+      double minDistance = RecommendedCourseConstants.defaultMinDistance;
+      double maxDistance = RecommendedCourseConstants.defaultMaxDistance;
+      double minElevation = RecommendedCourseConstants.defaultMinElevation;
+      double maxElevation = RecommendedCourseConstants.defaultMaxElevation;
+
+      // FilterData가 제공된 경우 값 추출
+      if (filterData != null) {
+        // 카테고리 값 추출
+        categoryFilter = _extractSelectedCategories(filterData);
+
+        // Range 값 추출
+        final (
+          double extractedMinDistance,
+          double extractedMaxDistance,
+        ) = FilterConverter.extractDistanceRange(
+          filterData,
+          defaultMin: RecommendedCourseConstants.defaultMinDistance,
+          defaultMax: RecommendedCourseConstants.defaultMaxDistance,
+        );
+        minDistance = extractedMinDistance;
+        maxDistance = extractedMaxDistance;
+
+        final (
+          double extractedMinElevation,
+          double extractedMaxElevation,
+        ) = FilterConverter.extractElevationRange(
+          filterData,
+          defaultMin: RecommendedCourseConstants.defaultMinElevation,
+          defaultMax: RecommendedCourseConstants.defaultMaxElevation,
+        );
+        minElevation = extractedMinElevation;
+        maxElevation = extractedMaxElevation;
+      }
+
       // 필터를 도메인 필터로 변환
       final RecommendedCourseFilter filter = _convertToFilter(
         categoryFilter,
-        sortType: sortType,
-        userLat: userLat,
-        userLon: userLon,
+        sortType: actualSortType.apiValue,
         minDistance: minDistance,
         maxDistance: maxDistance,
         minElevation: minElevation,
         maxElevation: maxElevation,
-        page: page,
-        size: size,
+        page: 0,
+        size: RecommendedCourseConstants.defaultPageSize,
       );
 
-      // API 호출
-      final RecommendedCourseList courseList = await _repository
-          .getRecommendedCourseList(filter);
-      if (courseList.courses.isEmpty) {
-        return _getDummyData();
+      try {
+        // Repository 호출
+        final RecommendedCourseList courseList = await _repository
+            .getRecommendedCourseList(filter);
+
+        if (courseList.courses.isEmpty) {
+          // API 응답이 비어있는 경우 더미 데이터 반환
+          return AppSuccess<List<RecommendedCourse>>(_getDummyData());
+        }
+
+        return AppSuccess<List<RecommendedCourse>>(courseList.courses);
+      } catch (repositoryError) {
+        // API 호출 실패시 테스트용 더미 데이터 반환
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+        return AppSuccess<List<RecommendedCourse>>(_getDummyData());
       }
-      // 도메인 엔티티 직접 반환
-      return courseList.courses;
     } catch (e) {
-      // API 호출 실패시 테스트용 더미 데이터 반환
-      await Future<void>.delayed(const Duration(milliseconds: 500));
-      return _getDummyData();
+      return AppFailure<List<RecommendedCourse>>(
+        NetworkException(e.toString()),
+      );
     }
+  }
+
+  /// 필터 데이터에서 선택된 카테고리 값들을 추출
+  Set<String> _extractSelectedCategories(FilterData filterData) {
+    final Set<String> selectedCategories = <String>{};
+
+    // 지역 추출
+    final String? region = FilterConverter.extractStringValue(
+      filterData,
+      'region',
+    );
+    if (region != null) {
+      selectedCategories.add(region);
+    }
+
+    // 난이도 추출
+    final String? difficulty = FilterConverter.extractStringValue(
+      filterData,
+      'difficulty',
+    );
+    if (difficulty != null) {
+      selectedCategories.add(difficulty);
+    }
+
+    // 추천 타입 추출
+    final String? recommendationType = FilterConverter.extractStringValue(
+      filterData,
+      'recommendation_type',
+    );
+    if (recommendationType != null) {
+      selectedCategories.add(recommendationType);
+    }
+
+    return selectedCategories;
   }
 
   /// categoryFilter를 RecommendedCourseFilter로 변환
   RecommendedCourseFilter _convertToFilter(
     Set<String>? categoryFilter, {
     String? sortType,
-    double? userLat,
-    double? userLon,
     double? minDistance,
     double? maxDistance,
     double? minElevation,
@@ -72,20 +144,28 @@ class RecommendedCourseService {
     List<String>? recommendationTypes;
 
     if (categoryFilter != null && categoryFilter.isNotEmpty) {
-      final List<String> extractedRegions = _extractRegions(categoryFilter);
+      final List<String> extractedRegions = FilterConverter.extractCategoryType(
+        categoryFilter,
+        RecommendedCourseConstants.regions.toList(),
+      );
       if (extractedRegions.isNotEmpty) {
         regions = extractedRegions;
       }
 
-      final List<String> extractedDifficulties = _extractDifficulties(
-        categoryFilter,
-      );
+      final List<String> extractedDifficulties =
+          FilterConverter.extractCategoryType(
+            categoryFilter,
+            RecommendedCourseConstants.difficulties.toList(),
+          );
       if (extractedDifficulties.isNotEmpty) {
         difficulties = extractedDifficulties;
       }
 
       final List<String> extractedRecommendationTypes =
-          _extractRecommendationTypes(categoryFilter);
+          FilterConverter.extractCategoryType(
+            categoryFilter,
+            RecommendedCourseConstants.recommendationTypes.toList(),
+          );
       if (extractedRecommendationTypes.isNotEmpty) {
         recommendationTypes = extractedRecommendationTypes;
       }
@@ -104,14 +184,11 @@ class RecommendedCourseService {
           minElevation ?? RecommendedCourseConstants.defaultMinElevation,
       maxElevation:
           maxElevation ?? RecommendedCourseConstants.defaultMaxElevation,
-      userLat: userLat,
-      userLon: userLon,
     );
   }
 
   /// 테스트용 더미 데이터 생성
   List<RecommendedCourse> _getDummyData() {
-    // 더미 추천 코스 데이터들
     return <RecommendedCourse>[
       const RecommendedCourse(
         id: '1',
@@ -179,33 +256,5 @@ class RecommendedCourseService {
             'https://urban_breeze-dev.s3.ap-northeast-2.amazonaws.com/thumbnails/chungju.jpg',
       ),
     ];
-  }
-
-  // === 카테고리 분류 헬퍼 메서드들 ===
-  List<String> _extractRegions(Set<String> categories) {
-    return categories
-        .where(
-          (String category) =>
-              RecommendedCourseConstants.regions.contains(category),
-        )
-        .toList();
-  }
-
-  List<String> _extractDifficulties(Set<String> categories) {
-    return categories
-        .where(
-          (String category) =>
-              RecommendedCourseConstants.difficulties.contains(category),
-        )
-        .toList();
-  }
-
-  List<String> _extractRecommendationTypes(Set<String> categories) {
-    return categories
-        .where(
-          (String category) =>
-              RecommendedCourseConstants.recommendationTypes.contains(category),
-        )
-        .toList();
   }
 }

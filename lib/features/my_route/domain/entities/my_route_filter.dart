@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:urban_breeze/features/my_route/domain/enums/my_route_sort_type.dart';
+import 'package:urban_breeze/shared/filter/models/base_filter.dart';
 import 'package:urban_breeze/shared/filter/models/filter_data.dart';
+import 'package:urban_breeze/shared/filter/utils/filter_converter.dart';
 
-class MyRouteFilter {
+class MyRouteFilter extends BaseFilter {
   factory MyRouteFilter.defaultFilter() {
     return const MyRouteFilter();
   }
@@ -12,45 +13,41 @@ class MyRouteFilter {
     FilterData filterData,
     MyRouteSortType sortType,
   ) {
-    // 필터 값 추출
-    double minDistance = 0;
-    double maxDistance = 100;
-    double minElevation = 0;
-    double maxElevation = 100;
+    // FilterConverter를 사용한 범위 값 추출
+    final (
+      double minDistance,
+      double maxDistance,
+    ) = FilterConverter.extractDistanceRange(
+      filterData,
+      defaultMin: 0,
+      defaultMax: 100,
+    );
+
+    final (
+      double minElevation,
+      double maxElevation,
+    ) = FilterConverter.extractElevationRange(
+      filterData,
+      defaultMin: 0,
+      defaultMax: 100,
+    );
+
+    // 생성자 필터 추출 및 변환
     String relationTypes = '';
-
-    // 거리 필터
-    if (filterData.values.containsKey('distance')) {
-      final dynamic distanceValue = filterData.values['distance'];
-      if (distanceValue is RangeValues) {
-        minDistance = distanceValue.start.toDouble();
-        maxDistance = distanceValue.end.toDouble();
-      }
-    }
-
-    // 상승 고도 필터
-    if (filterData.values.containsKey('elevation')) {
-      final dynamic elevationValue = filterData.values['elevation'];
-      if (elevationValue is RangeValues) {
-        minElevation = elevationValue.start.toDouble();
-        maxElevation = elevationValue.end.toDouble();
-      }
-    }
-
-    // 생성자 필터 (relationTypes로 변환)
-    if (filterData.values.containsKey('creator')) {
-      final dynamic creatorValue = filterData.values['creator'];
-      if (creatorValue is String) {
-        switch (creatorValue) {
-          case '내가 생성한 경로':
-            relationTypes = 'CREATED';
-            break;
-          case '공유 받은 경로':
-            relationTypes = 'SHARED';
-            break;
-          default:
-            relationTypes = '';
-        }
+    final String? creatorValue = FilterConverter.extractStringValue(
+      filterData,
+      'creator',
+    );
+    if (creatorValue != null) {
+      switch (creatorValue) {
+        case '내가 생성한 경로':
+          relationTypes = 'CREATED';
+          break;
+        case '공유 받은 경로':
+          relationTypes = 'SHARED';
+          break;
+        default:
+          relationTypes = '';
       }
     }
 
@@ -65,27 +62,66 @@ class MyRouteFilter {
   }
 
   const MyRouteFilter({
-    this.page = 0,
-    this.size = 10,
+    super.page = 0,
+    super.size = 10,
     this.sortType = MyRouteSortType.newest,
     this.relationTypes = '',
-    this.minDistanceKm = 0,
-    this.maxDistanceKm = 100,
-    this.minElevationGain = 0,
-    this.maxElevationGain = 100,
-  });
+    double minDistanceKm = 0,
+    double maxDistanceKm = 100,
+    double minElevationGain = 0,
+    double maxElevationGain = 100,
+  }) : super(
+         minDistance: minDistanceKm,
+         maxDistance: maxDistanceKm,
+         minElevation: minElevationGain,
+         maxElevation: maxElevationGain,
+       );
 
-  final int page;
-  final int size;
   final MyRouteSortType sortType;
   final String relationTypes;
-  final double minDistanceKm;
-  final double maxDistanceKm;
-  final double minElevationGain;
-  final double maxElevationGain;
 
-  /// 필터 업데이트
+  // BaseFilter의 값들을 더 명확한 이름으로 접근하기 위한 getter들
+  double get minDistanceKm => minDistance;
+  double get maxDistanceKm => maxDistance;
+  double get minElevationGain => minElevation;
+  double get maxElevationGain => maxElevation;
+
+  @override
+  double getDefaultMaxDistance() => 100.0;
+
+  @override
+  double getDefaultMaxElevation() => 100.0;
+
+  @override
+  bool get hasAppliedFilters {
+    return hasDistanceFilter || hasElevationFilter || relationTypes.isNotEmpty;
+  }
+
+  @override
   MyRouteFilter copyWith({
+    int? page,
+    int? size,
+    double? minDistance,
+    double? maxDistance,
+    double? minElevation,
+    double? maxElevation,
+    MyRouteSortType? sortType,
+    String? relationTypes,
+  }) {
+    return MyRouteFilter(
+      page: page ?? this.page,
+      size: size ?? this.size,
+      sortType: sortType ?? this.sortType,
+      relationTypes: relationTypes ?? this.relationTypes,
+      minDistanceKm: minDistance ?? minDistanceKm,
+      maxDistanceKm: maxDistance ?? maxDistanceKm,
+      minElevationGain: minElevation ?? minElevationGain,
+      maxElevationGain: maxElevation ?? maxElevationGain,
+    );
+  }
+
+  /// 기존 호환성을 위한 copyWith 오버로드
+  MyRouteFilter copyWithLegacy({
     int? page,
     int? size,
     MyRouteSortType? sortType,
@@ -95,24 +131,15 @@ class MyRouteFilter {
     double? minElevationGain,
     double? maxElevationGain,
   }) {
-    return MyRouteFilter(
-      page: page ?? this.page,
-      size: size ?? this.size,
-      sortType: sortType ?? this.sortType,
-      relationTypes: relationTypes ?? this.relationTypes,
-      minDistanceKm: minDistanceKm ?? this.minDistanceKm,
-      maxDistanceKm: maxDistanceKm ?? this.maxDistanceKm,
-      minElevationGain: minElevationGain ?? this.minElevationGain,
-      maxElevationGain: maxElevationGain ?? this.maxElevationGain,
+    return copyWith(
+      page: page,
+      size: size,
+      minDistance: minDistanceKm,
+      maxDistance: maxDistanceKm,
+      minElevation: minElevationGain,
+      maxElevation: maxElevationGain,
+      sortType: sortType,
+      relationTypes: relationTypes,
     );
-  }
-
-  /// 필터가 적용되었는지 확인
-  bool get hasAppliedFilters {
-    return minDistanceKm > 0 ||
-        maxDistanceKm < 100 ||
-        minElevationGain > 0 ||
-        maxElevationGain < 100 ||
-        relationTypes.isNotEmpty;
   }
 }

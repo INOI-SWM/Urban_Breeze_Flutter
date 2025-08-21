@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:urban_breeze/features/recommended_course/application/services/recommended_course_service.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/recommended_course/di/recommended_course_providers.dart';
-import 'package:urban_breeze/features/recommended_course/domain/constants/recommended_course_constants.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course.dart';
 import 'package:urban_breeze/features/recommended_course/domain/enums/course_sort_type.dart';
 import 'package:urban_breeze/features/recommended_course/presentation/config/recommended_course_category_config.dart';
@@ -16,7 +15,6 @@ import 'package:urban_breeze/shared/design_system/widgets/thumbnail/thumbnail.da
 import 'package:urban_breeze/shared/filter/filter_modal.dart';
 import 'package:urban_breeze/shared/filter/models/filter_data.dart';
 import 'package:urban_breeze/shared/filter/models/filter_item.dart';
-import 'package:urban_breeze/shared/filter/models/filter_type.dart';
 import 'package:urban_breeze/shared/filter/utils/filter_display_utils.dart';
 import 'package:urban_breeze/shared/sort/sort_modal.dart';
 
@@ -49,6 +47,7 @@ class _RecommendedCourseScreenState
 
   List<RecommendedCourse> courseList = <RecommendedCourse>[];
   bool isLoading = true;
+  String? errorMessage;
 
   @override
   void initState() {
@@ -60,78 +59,22 @@ class _RecommendedCourseScreenState
   Future<void> _loadCourseList() async {
     setState(() {
       isLoading = true;
+      errorMessage = null;
     });
 
-    final RecommendedCourseService service = ref.read(
-      recommendedCourseServiceProvider,
-    );
+    final AppResult<List<RecommendedCourse>> result = await ref
+        .read(getRecommendedCourseListUseCaseProvider)
+        .execute(filterData: currentFilter, sortType: selectedSortOption);
 
-    // Range 값들을 한 번씩만 계산 (성능 최적화)
-    final (double minDistance, double maxDistance) = _getDistanceRange();
-    final (double minElevation, double maxElevation) = _getElevationRange();
-
-    final List<RecommendedCourse> courses = await service
-        .fetchRecommendedCourseList(
-          categoryFilter: _extractSelectedCategories(),
-          sortType: selectedSortOption.apiValue,
-          minDistance: minDistance,
-          maxDistance: maxDistance,
-          minElevation: minElevation,
-          maxElevation: maxElevation,
-          page: 0,
-          size: RecommendedCourseConstants.defaultPageSize,
-        );
     setState(() {
-      courseList = courses;
       isLoading = false;
-    });
-  }
-
-  /// 현재 필터에서 선택된 모든 카테고리 값들을 추출
-  Set<String> _extractSelectedCategories() {
-    final Set<String> selectedCategories = <String>{};
-
-    // 각 필터 아이템에서 선택된 값들 추출
-    for (final FilterItem filter in filters) {
-      switch (filter.type) {
-        case FilterType.selection:
-          final String? selectedValue = currentFilter.getStringValue(filter.id);
-          if (selectedValue != null && selectedValue != '전체') {
-            selectedCategories.add(selectedValue);
-          }
-        case FilterType.range:
-          // Range 타입은 categoryFilter에 포함하지 않음 (별도 처리)
-          break;
+      if (result.isSuccess) {
+        courseList = result.dataOrNull!;
+      } else {
+        errorMessage = result.exceptionOrNull?.message ?? '알 수 없는 오류가 발생했습니다';
+        courseList = <RecommendedCourse>[];
       }
-    }
-
-    return selectedCategories;
-  }
-
-  /// 현재 필터에서 거리 범위 값들을 추출
-  (double, double) _getDistanceRange() {
-    final RangeValues? distanceRange = currentFilter.getRangeValue('distance');
-    if (distanceRange != null) {
-      return (distanceRange.start, distanceRange.end);
-    }
-    return (
-      RecommendedCourseConstants.defaultMinDistance,
-      RecommendedCourseConstants.defaultMaxDistance,
-    );
-  }
-
-  /// 현재 필터에서 고도 범위 값들을 추출
-  (double, double) _getElevationRange() {
-    final RangeValues? elevationRange = currentFilter.getRangeValue(
-      'elevation',
-    );
-    if (elevationRange != null) {
-      return (elevationRange.start, elevationRange.end);
-    }
-    return (
-      RecommendedCourseConstants.defaultMinElevation,
-      RecommendedCourseConstants.defaultMaxElevation,
-    );
+    });
   }
 
   void _showSortModal() {
@@ -223,6 +166,8 @@ class _RecommendedCourseScreenState
             child:
                 isLoading
                     ? const Center(child: CircularProgressIndicator())
+                    : errorMessage != null
+                    ? Center(child: Text('오류: $errorMessage'))
                     : courseList.isEmpty
                     ? const Center(child: Text('추천 코스가 없습니다'))
                     : ListView.builder(
