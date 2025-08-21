@@ -5,6 +5,8 @@ import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/route_sharing/application/facades/route_sharing_facade.dart';
 import 'package:urban_breeze/features/route_sharing/di/route_sharing_providers.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/design_system/widgets/card/user_info_in_card.dart';
 import 'package:urban_breeze/shared/layout/map_with_bottom_sheet_layout.dart';
 import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
 
@@ -36,7 +38,6 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
     return Scaffold(
       backgroundColor: colors.backgroundNormalNormal,
       body: MapWithBottomSheetLayout(
-        sheetChild: const SizedBox(height: 240),
         showOptionButton: true,
         onDownloadButtonTap: (BuildContext context) {
           AmplitudeAnalytics.logButtonClick('my_route_download');
@@ -108,6 +109,28 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
             ],
           );
         },
+        sheetChild: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const UserInfoInCard(userName: 'test', userProfileImage: 'test'),
+              Text(
+                '테스트 타이틀',
+                style: AppTextStyles.heading2.bold.copyWith(
+                  color: colors.labelStrong,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '2025.07.22',
+                style: AppTextStyles.label2.medium.copyWith(
+                  color: colors.labelAlternative,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
