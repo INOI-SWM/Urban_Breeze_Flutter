@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:urban_breeze/shared/design_system/widgets/info/info_item.dart';
+import 'package:urban_breeze/shared/design_system/widgets/info/info_items_row.dart';
 
 class RouteStatsRow extends StatelessWidget {
   const RouteStatsRow({
@@ -15,12 +15,11 @@ class RouteStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
-        Expanded(child: InfoItem(label: '예상 소요시간', value: totalDuration)),
-        Expanded(child: InfoItem(label: '총 거리', value: '$totalDistance km')),
-        Expanded(child: InfoItem(label: '총 상승고도', value: elevationGain)),
+    return InfoItemsRow(
+      items: <InfoItemData>[
+        InfoItemData(label: '예상 소요시간', value: totalDuration),
+        InfoItemData(label: '총 거리', value: '$totalDistance km'),
+        InfoItemData(label: '총 상승고도', value: elevationGain),
       ],
     );
   }
