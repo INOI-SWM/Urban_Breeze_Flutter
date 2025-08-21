@@ -1,6 +1,3 @@
-import java.util.Properties
-import java.io.FileInputStream
-
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
@@ -12,12 +9,7 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-// key.properties 파일 읽기
-val keystoreProperties = Properties()
-val keystorePropertiesFile = rootProject.file("key.properties")
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-}
+// Firebase SHA-1과 일치하는 전역 debug keystore 사용
 
 android {
     namespace = "com.inoi.urbanbreeze.dev"
@@ -33,19 +25,19 @@ android {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
-    // 공유 keystore를 사용한 signing 설정
+    // Firebase SHA-1과 일치하는 전역 debug keystore 사용
     signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String? ?: "androiddebugkey"
-            keyPassword = keystoreProperties["keyPassword"] as String? ?: "android"
-            storeFile = file(keystoreProperties["storeFile"] as String? ?: "../debug.keystore")
-            storePassword = keystoreProperties["storePassword"] as String? ?: "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+            storeFile = file(System.getProperty("user.home") + "/.android/debug.keystore")
+            storePassword = "android"
         }
         getByName("debug") {
-            keyAlias = keystoreProperties["keyAlias"] as String? ?: "androiddebugkey"
-            keyPassword = keystoreProperties["keyPassword"] as String? ?: "android"
-            storeFile = file(keystoreProperties["storeFile"] as String? ?: "../debug.keystore")
-            storePassword = keystoreProperties["storePassword"] as String? ?: "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+            storeFile = file(System.getProperty("user.home") + "/.android/debug.keystore")
+            storePassword = "android"
         }
     }
 
