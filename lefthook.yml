@@ -5,13 +5,12 @@ commit-msg:
       run: .lefthook/validate-commit-msg.sh {1}
 
 pre-commit:
-  scripts:
+  parallel: true
+  commands:
     dart_fix:
-      runner: bash
-      script: dart fix --apply
+      run: dart fix --apply
     dart_format:
-      runner: bash
-      script: dart format .
+      run: dart format .
 
 pre-push:
   parallel: true

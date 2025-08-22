@@ -63,9 +63,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '723259332020',
     projectId: 'urban-breeze',
     storageBucket: 'urban-breeze.firebasestorage.app',
-    androidClientId: '723259332020-r5u1laq4umq0v0n489d2b4k81vj0ugo3.apps.googleusercontent.com',
-    iosClientId: '723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc.apps.googleusercontent.com',
+    androidClientId:
+        '723259332020-r5u1laq4umq0v0n489d2b4k81vj0ugo3.apps.googleusercontent.com',
+    iosClientId:
+        '723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc.apps.googleusercontent.com',
     iosBundleId: 'com.inoi.urbanbreeze.dev',
   );
-
 }
