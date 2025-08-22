@@ -15,6 +15,8 @@ import 'package:urban_breeze/shared/screens/splash_screen.dart';
 
 import 'firebase_options.dart';
 
+// 테스트용 주석 추가
+// 추가 테스트 주석
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);

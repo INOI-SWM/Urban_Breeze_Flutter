@@ -12,7 +12,20 @@
           "package_name": "com.inoi.urbanbreeze.dev"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "723259332020-r5u1laq4umq0v0n489d2b4k81vj0ugo3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inoi.urbanbreeze.dev",
+            "certificate_hash": "dd8981ba4296acc4822d83a397718bf3af8c5024"
+          }
+        },
+        {
+          "client_id": "723259332020-pknmvj67csp46ouls3git52653c0u6ap.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyAEhjwTigKCOko1l_r021eu025tw-MRCNQ"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "723259332020-fs9lrqklq6vv08d676h5ihvr8f2a9nkg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.inoi.urbanbreeze.dev"
+              }
+            }
+          ]
         }
       }
     }

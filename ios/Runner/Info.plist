@@ -27,7 +27,7 @@
 		<dict>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.494451214414-b4vjma0f944dgmk74eabfe1df6akuvua</string>
+				<string>com.googleusercontent.apps.723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc</string>
 			</array>
 		</dict>
 		<dict>
@@ -40,7 +40,7 @@
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>GIDClientID</key>
-	<string>494451214414-b4vjma0f944dgmk74eabfe1df6akuvua.apps.googleusercontent.com</string>
+	<string>723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc.apps.googleusercontent.com</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
