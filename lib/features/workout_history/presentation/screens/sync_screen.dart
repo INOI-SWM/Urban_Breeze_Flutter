@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
-import 'package:urban_breeze/features/workout_history/application/use_cases/sync_apple_health_kit_data_use_case.dart';
-import 'package:urban_breeze/features/workout_history/application/use_cases/sync_google_health_connect_data_use_case.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/workout_history/application/facades/terra_health_sync_facade.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_statistics_providers.dart';
-import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
@@ -20,100 +19,142 @@ class SyncScreen extends ConsumerStatefulWidget {
 class _SyncScreenState extends ConsumerState<SyncScreen> {
   bool _isLoading = false;
 
-  // Apple Health Kit 통합 동기화 (권한 요청 + 데이터 동기화)
+  // Apple Health Kit 통합 동기화 (Terra API 사용)
   Future<void> _syncAppleHealthKit() async {
+    await _syncAppleHealthData();
+  }
+
+  // Google Health Connect 통합 동기화 (Terra API 사용)
+  Future<void> _syncGoogleHealthConnect() async {
+    await _syncHealthConnectData();
+  }
+
+  // Apple Health에서 데이터 가져오기 (초기화 + 연결 + 동기화)
+  Future<void> _syncAppleHealthData() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final SyncAppleHealthKitDataUseCase useCase = ref.read(
-        syncAppleHealthKitDataUseCaseProvider,
+      final TerraHealthSyncFacade facade = ref.read(
+        terraHealthSyncFacadeProvider,
       );
+      final AppResult<Map<String, dynamic>?> result =
+          await facade.syncAppleHealthData();
 
-      // 1. 권한 요청
-      await useCase.requestPermissions();
-
-      // 2. 데이터 동기화
-      final List<WorkoutRecord> workouts = await useCase.fetchBasicWorkoutData(
-        startDate: DateTime.now().subtract(const Duration(days: 30)),
-        endDate: DateTime.now(),
-      );
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      // 성공 메시지 표시
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Apple Health Kit 데이터 ${workouts.length}개 동기화 완료'),
-          ),
+      if (result.isSuccess) {
+        final Map<String, dynamic>? data = result.dataOrNull;
+        if (data != null &&
+            data['message']?.toString().contains('webhook') == true) {
+          _showInfoMessage('Apple Health 데이터 가져오기 완료! 웹훅을 통해 데이터가 전송됩니다.');
+        } else {
+          _showSuccessMessage('Apple Health 데이터 가져오기 완료!');
+        }
+      } else {
+        _showErrorMessage(
+          'Apple Health 데이터 가져오기 실패: ${result.exceptionOrNull?.message}',
         );
       }
     } catch (e) {
+      _showErrorMessage('Apple Health 데이터 가져오기 중 오류 발생: $e');
+    } finally {
       setState(() {
         _isLoading = false;
       });
-
-      // 에러 메시지 표시
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Apple Health Kit 동기화 실패')),
-        );
-      }
     }
   }
 
-  // Google Health Connect 통합 동기화 (권한 요청 + 데이터 동기화)
-  Future<void> _syncGoogleHealthConnect() async {
+  // Health Connect에서 데이터 가져오기 (초기화 + 연결 + 동기화)
+  Future<void> _syncHealthConnectData() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final SyncGoogleHealthConnectDataUseCase useCase = ref.read(
-        syncGoogleHealthConnectDataUseCaseProvider,
+      final TerraHealthSyncFacade facade = ref.read(
+        terraHealthSyncFacadeProvider,
       );
+      final AppResult<Map<String, dynamic>?> result =
+          await facade.syncHealthConnectData();
 
-      // 1. 권한 요청
-      await useCase.requestPermissions();
-
-      // 2. 데이터 동기화
-      final Map<WorkoutRecord, Map<String, dynamic>> completeData =
-          await useCase.syncCompleteWorkoutData(
-            startDate: DateTime.now().subtract(const Duration(days: 1000)),
-            endDate: DateTime.now(),
-          );
-
-      final List<WorkoutRecord> workouts = completeData.keys.toList();
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      // 성공 메시지 표시
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Google Health Connect 데이터 ${workouts.length}개 동기화 완료',
-            ),
-          ),
+      if (result.isSuccess) {
+        final Map<String, dynamic>? data = result.dataOrNull;
+        if (data != null &&
+            data['message']?.toString().contains('webhook') == true) {
+          _showInfoMessage('Health Connect 데이터 가져오기 완료! 웹훅을 통해 데이터가 전송됩니다.');
+        } else {
+          _showSuccessMessage('Health Connect 데이터 가져오기 완료!');
+        }
+      } else {
+        _showErrorMessage(
+          'Health Connect 데이터 가져오기 실패: ${result.exceptionOrNull?.message}',
         );
       }
     } catch (e) {
+      _showErrorMessage('Health Connect 데이터 가져오기 중 오류 발생: $e');
+    } finally {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
 
-      // 에러 메시지 표시
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Google Health Connect 동기화 실패')),
+  // Samsung Health에서 데이터 가져오기 (초기화 + 연결 + 동기화)
+  Future<void> _syncSamsungHealthData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final TerraHealthSyncFacade facade = ref.read(
+        terraHealthSyncFacadeProvider,
+      );
+      final AppResult<Map<String, dynamic>?> result =
+          await facade.syncSamsungHealthData();
+
+      if (result.isSuccess) {
+        final Map<String, dynamic>? data = result.dataOrNull;
+        if (data != null &&
+            data['message']?.toString().contains('webhook') == true) {
+          _showInfoMessage('Samsung Health 데이터 가져오기 완료! 웹훅을 통해 데이터가 전송됩니다.');
+        } else {
+          _showSuccessMessage('Samsung Health 데이터 가져오기 완료!');
+        }
+      } else {
+        _showErrorMessage(
+          'Samsung Health 데이터 가져오기 실패: ${result.exceptionOrNull?.message}',
         );
       }
+    } catch (e) {
+      _showErrorMessage('Samsung Health 데이터 가져오기 중 오류 발생: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _showSuccessMessage(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.green),
+      );
+    }
+  }
+
+  void _showErrorMessage(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  void _showInfoMessage(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.blue),
+      );
     }
   }
 
@@ -176,7 +217,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
-                                  'Garmin Connect 동기화 기능은 준비 중입니다.',
+                                  'Garmin Connect는 Terra API에서 지원하지 않습니다.',
                                 ),
                               ),
                             );
@@ -193,18 +234,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                   text: _isLoading ? '동기화 중...' : 'Samsung Health 동기화',
                   textColor: colors.labelNormal,
                   borderColor: colors.lineNormalNormal,
-                  onPressed:
-                      _isLoading
-                          ? null
-                          : () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Samsung Health 동기화 기능은 준비 중입니다.',
-                                ),
-                              ),
-                            );
-                          },
+                  onPressed: _isLoading ? null : _syncSamsungHealthData,
                 ),
               ),
 
