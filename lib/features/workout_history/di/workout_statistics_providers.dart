@@ -8,6 +8,7 @@ import '../application/use_cases/sync_google_health_connect_data_use_case.dart';
 import '../application/use_cases/update_workout_title_use_case.dart';
 import '../data/datasources/google_health_connect_datasource.dart';
 import '../data/datasources/remote_workout_history_datasource.dart';
+import '../data/datasources/terra_api_datasoiurce.dart';
 import '../data/datasources/workout_statistics_datasource.dart';
 import '../data/repositories/apple_health_kit_sync_repository_impl.dart';
 import '../data/repositories/google_health_connect_sync_repository_impl.dart';
@@ -41,6 +42,12 @@ googleHealthConnectDataSourceProvider = Provider<GoogleHealthConnectDataSource>(
     return GoogleHealthConnectDataSource();
   },
 );
+
+// Terra API Data Source Provider
+final Provider<TerraApiDataSource> terraApiDataSourceProvider =
+    Provider<TerraApiDataSource>((Ref<TerraApiDataSource> ref) {
+      return TerraApiDataSource(ref);
+    });
 
 // Repository Providers
 final Provider<WorkoutStatisticsRepository>
