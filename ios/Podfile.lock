@@ -118,6 +118,10 @@ PODS:
     - FlutterMacOS
   - sign_in_with_apple (0.0.1):
     - Flutter
+  - terra_flutter_bridge (0.4.3):
+    - Flutter
+    - TerraiOS (~> 1.6.28)
+  - TerraiOS (1.6.28)
 
 DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
@@ -133,6 +137,7 @@ DEPENDENCIES:
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
+  - terra_flutter_bridge (from `.symlinks/plugins/terra_flutter_bridge/ios`)
 
 SPEC REPOS:
   trunk:
@@ -155,6 +160,7 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - PromisesSwift
+    - TerraiOS
 
 EXTERNAL SOURCES:
   firebase_core:
@@ -183,6 +189,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   sign_in_with_apple:
     :path: ".symlinks/plugins/sign_in_with_apple/ios"
+  terra_flutter_bridge:
+    :path: ".symlinks/plugins/terra_flutter_bridge/ios"
 
 SPEC CHECKSUMS:
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
@@ -217,6 +225,8 @@ SPEC CHECKSUMS:
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
   sign_in_with_apple: c5dcc141574c8c54d5ac99dd2163c0c72ad22418
+  terra_flutter_bridge: d87e891e3cea43f47245072b0c55a028fdd95711
+  TerraiOS: 131a86c453923b98c47e84dc79db2ea6bab7e3cc
 
 PODFILE CHECKSUM: ae9e65fc23486119b8e977fd41d9213f251e537a
 

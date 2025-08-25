@@ -46,7 +46,7 @@ android {
         applicationId = "com.inoi.urbanbreeze.dev"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 26  // Health Connect 요구사항 (API 26+)
+        minSdk = 28  // Terra Flutter Bridge 요구사항 (API 28+)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

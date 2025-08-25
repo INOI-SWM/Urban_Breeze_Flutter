@@ -1,0 +1,100 @@
+import 'package:terra_flutter_bridge/models/enums.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/connect_terra_health_app_use_case.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/initialize_terra_use_case.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/sync_terra_health_data_use_case.dart';
+import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
+
+class TerraHealthSyncFacade {
+  const TerraHealthSyncFacade({
+    required this.initializeTerraUseCase,
+    required this.connectTerraHealthAppUseCase,
+    required this.syncTerraHealthDataUseCase,
+  });
+
+  final InitializeTerraUseCase initializeTerraUseCase;
+  final ConnectTerraHealthAppUseCase connectTerraHealthAppUseCase;
+  final SyncTerraHealthDataUseCase syncTerraHealthDataUseCase;
+
+  /// Terra를 통한 건강 데이터 가져오기 (초기화 + 연결 + 동기화)
+  Future<AppResult<Map<String, dynamic>?>> syncHealthDataFromTerra({
+    required Connection connection,
+    required DateTime startDate,
+    required DateTime endDate,
+    bool toWebhook = true,
+  }) async {
+    try {
+      // 1. Terra 초기화
+      final AppResult<void> initResult = await initializeTerraUseCase.execute();
+      if (!initResult.isSuccess) {
+        return AppFailure<Map<String, dynamic>?>(initResult.exceptionOrNull!);
+      }
+
+      // 2. 건강 앱 연결
+      final AppResult<void> connectResult = await connectTerraHealthAppUseCase
+          .execute(connection);
+      if (!connectResult.isSuccess) {
+        return AppFailure<Map<String, dynamic>?>(
+          connectResult.exceptionOrNull!,
+        );
+      }
+
+      // 3. 데이터 동기화
+      final AppResult<Map<String, dynamic>?> syncResult =
+          await syncTerraHealthDataUseCase.execute(
+            connection: connection,
+            startDate: startDate,
+            endDate: endDate,
+            toWebhook: toWebhook,
+          );
+
+      return syncResult;
+    } catch (e) {
+      return AppFailure<Map<String, dynamic>?>(TerraApiException(e.toString()));
+    }
+  }
+
+  /// Apple Health에서 데이터 가져오기
+  /// TODO: apple의 경우 데이터 가져오기 최적화 작업 진행해야함.
+  Future<AppResult<Map<String, dynamic>?>> syncAppleHealthData({
+    DateTime? startDate,
+    DateTime? endDate,
+    bool toWebhook = true,
+  }) async {
+    return syncHealthDataFromTerra(
+      connection: Connection.appleHealth,
+      startDate: startDate ?? DateTime.now().subtract(const Duration(days: 7)),
+      endDate: endDate ?? DateTime.now(),
+      toWebhook: toWebhook,
+    );
+  }
+
+  // googl samasung은 30일 이상 데이터 가져오기 불가능
+  /// Health Connect에서 데이터 가져오기
+  Future<AppResult<Map<String, dynamic>?>> syncHealthConnectData({
+    DateTime? startDate,
+    DateTime? endDate,
+    bool toWebhook = true,
+  }) async {
+    return syncHealthDataFromTerra(
+      connection: Connection.healthConnect,
+      startDate: startDate ?? DateTime.now().subtract(const Duration(days: 30)),
+      endDate: endDate ?? DateTime.now(),
+      toWebhook: toWebhook,
+    );
+  }
+
+  /// Samsung Health에서 데이터 가져오기
+  Future<AppResult<Map<String, dynamic>?>> syncSamsungHealthData({
+    DateTime? startDate,
+    DateTime? endDate,
+    bool toWebhook = true,
+  }) async {
+    return syncHealthDataFromTerra(
+      connection: Connection.samsung,
+      startDate: startDate ?? DateTime.now().subtract(const Duration(days: 30)),
+      endDate: endDate ?? DateTime.now(),
+      toWebhook: toWebhook,
+    );
+  }
+}
