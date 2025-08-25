@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -81,5 +82,26 @@ class TerraApiDataSource {
     } catch (e) {
       throw Exception('토큰 생성 중 오류 발생: ${e.toString()}');
     }
+  }
+
+  Future<Map<String, dynamic>?> getData(
+    Connection connection, {
+    required DateTime startDate,
+    required DateTime endDate,
+    bool toWebhook = true,
+  }) async {
+    final DataMessage? result = await TerraFlutter.getActivity(
+      connection,
+      startDate,
+      endDate,
+      toWebhook: toWebhook,
+    );
+
+    if (result?.error != null) {
+      throw Exception(result?.error);
+    }
+    debugPrint(result?.data.toString());
+
+    return result?.data;
   }
 }
