@@ -55,6 +55,7 @@ class TerraHealthSyncFacade {
   }
 
   /// Apple Health에서 데이터 가져오기
+  /// TODO: apple의 경우 데이터 가져오기 최적화 작업 진행해야함.
   Future<AppResult<Map<String, dynamic>?>> syncAppleHealthData({
     DateTime? startDate,
     DateTime? endDate,
@@ -68,6 +69,7 @@ class TerraHealthSyncFacade {
     );
   }
 
+  // googl samasung은 30일 이상 데이터 가져오기 불가능
   /// Health Connect에서 데이터 가져오기
   Future<AppResult<Map<String, dynamic>?>> syncHealthConnectData({
     DateTime? startDate,
@@ -76,7 +78,7 @@ class TerraHealthSyncFacade {
   }) async {
     return syncHealthDataFromTerra(
       connection: Connection.healthConnect,
-      startDate: startDate ?? DateTime.now().subtract(const Duration(days: 7)),
+      startDate: startDate ?? DateTime.now().subtract(const Duration(days: 30)),
       endDate: endDate ?? DateTime.now(),
       toWebhook: toWebhook,
     );
@@ -90,7 +92,7 @@ class TerraHealthSyncFacade {
   }) async {
     return syncHealthDataFromTerra(
       connection: Connection.samsung,
-      startDate: startDate ?? DateTime.now().subtract(const Duration(days: 7)),
+      startDate: startDate ?? DateTime.now().subtract(const Duration(days: 30)),
       endDate: endDate ?? DateTime.now(),
       toWebhook: toWebhook,
     );
