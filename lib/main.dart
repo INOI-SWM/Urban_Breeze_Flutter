@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_service.dart';
+import 'package:urban_breeze/core/services/app_tracking_service.dart';
 import 'package:urban_breeze/core/theme/app_theme.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
 import 'package:urban_breeze/features/auth/presentation/screens/login_screen.dart';
@@ -27,6 +28,12 @@ Future<void> main() async {
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     return true;
   };
+
+  try {
+    await AppTrackingService.instance.requestTrackingAuthorization();
+  } catch (e) {
+    debugPrint('ATT 권한 요청 실패: $e');
+  }
 
   try {
     await AmplitudeService.instance.initialize();

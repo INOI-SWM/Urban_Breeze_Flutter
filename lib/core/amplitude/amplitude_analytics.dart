@@ -1,6 +1,7 @@
 import 'package:amplitude_flutter/events/base_event.dart';
 import 'package:flutter/foundation.dart';
 
+import '../services/app_tracking_service.dart';
 import 'amplitude_events.dart';
 import 'amplitude_service.dart';
 
@@ -50,12 +51,26 @@ class AmplitudeAnalytics {
     await logEvent(AmplitudeEvents.buttonClicked, properties: properties);
   }
 
-  /// 사용자 ID 설정
-  static Future<void> setUserId(String userId) async {
+  /// 사용자 ID 설정 (ATT 권한 확인 후)
+  static Future<void> setUserId(String userId, String loginProvider) async {
     final AmplitudeService amplitudeService = AmplitudeService.instance;
 
     try {
-      await amplitudeService.setUserId(userId);
+      // ATT 권한 확인
+      final bool isAuthorized =
+          await AppTrackingService.instance.isCurrentlyAuthorized();
+
+      if (isAuthorized) {
+        await amplitudeService.setUserId(userId);
+      }
+
+      await logEvent(
+        'user_login_success',
+        properties: <String, dynamic>{
+          'provider': loginProvider,
+          'tracking_authorized': isAuthorized,
+        },
+      );
     } catch (e) {
       debugPrint('Amplitude 사용자 ID 설정 실패: $e');
     }
