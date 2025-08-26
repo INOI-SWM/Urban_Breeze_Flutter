@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/recommended_course/di/recommended_course_providers.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course.dart';
@@ -54,6 +55,10 @@ class _RecommendedCourseScreenState
     super.initState();
     currentFilter = FilterData.fromFilterItems(filters);
     _loadCourseList();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AmplitudeAnalytics.logScreenView('recommended_course_screen');
+    });
   }
 
   Future<void> _loadCourseList() async {
@@ -86,6 +91,15 @@ class _RecommendedCourseScreenState
         setState(() {
           selectedSortOption = option;
         });
+
+        AmplitudeAnalytics.logEvent(
+          'recommended_course_sort_changed',
+          properties: <String, dynamic>{
+            'sort_type': option.name,
+            'sort_display_name': option.displayName,
+          },
+        );
+
         // 정렬 변경시 데이터 새로고침
         _loadCourseList();
       },
@@ -107,6 +121,17 @@ class _RecommendedCourseScreenState
         setState(() {
           currentFilter = newFilter;
         });
+
+        AmplitudeAnalytics.logEvent(
+          'recommended_course_filter_applied',
+          properties: <String, dynamic>{
+            'filter_count': FilterDisplayUtils.getAppliedFiltersCount(
+              newFilter,
+              filters,
+            ),
+          },
+        );
+
         // 필터 적용시 데이터 새로고침
         _loadCourseList();
       },
@@ -114,7 +139,9 @@ class _RecommendedCourseScreenState
         setState(() {
           currentFilter = FilterData.fromFilterItems(filters);
         });
-        // 초기화 후 데이터 새로고침
+
+        AmplitudeAnalytics.logEvent('recommended_course_filter_reset');
+
         _loadCourseList();
       },
     );
@@ -187,6 +214,14 @@ class _RecommendedCourseScreenState
                             region: course.region,
                             difficulty: course.difficulty,
                             onTap: () {
+                              // 추천 코스 클릭 이벤트
+                              AmplitudeAnalytics.logEvent(
+                                'recommended_course_clicked',
+                                properties: <String, dynamic>{
+                                  'course_id': course.id,
+                                },
+                              );
+
                               Navigator.of(context).push(
                                 MaterialPageRoute<void>(
                                   builder:

@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/shared/chart/chart_axis_utils.dart';
 import 'package:urban_breeze/shared/chart/chart_builders.dart';
@@ -66,6 +67,9 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
   @override
   void initState() {
     super.initState();
+    // 화면 조회 이벤트
+    AmplitudeAnalytics.logScreenView('workout_statistics_screen');
+
     _getWorkoutStatisticsUseCase = ref.read(
       getWorkoutStatisticsUseCaseProvider,
     );
@@ -143,6 +147,16 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
       tabs: _periodTabs,
       selectedTab: _selectedPeriodType,
       onTabSelected: (StatisticPeriodType type) {
+        // 기간 변경 이벤트
+        AmplitudeAnalytics.logEvent(
+          'workout_statistics_period_changed',
+          properties: <String, dynamic>{
+            'period_type': type.name,
+            'period_label': type.label,
+            'previous_period_type': _selectedPeriodType.name,
+          },
+        );
+
         setState(() {
           _selectedPeriodType = type;
         });
@@ -181,6 +195,16 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
       tabs: _dataTypeTabs,
       selectedTab: _selectedDataType,
       onTabSelected: (StaticDataType type) {
+        // 데이터 타입 변경 이벤트
+        AmplitudeAnalytics.logEvent(
+          'workout_statistics_data_type_changed',
+          properties: <String, dynamic>{
+            'data_type': type.name,
+            'data_type_label': type.label,
+            'previous_data_type': _selectedDataType.name,
+          },
+        );
+
         setState(() {
           _selectedDataType = type;
         });
@@ -585,11 +609,42 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
   }
 
   void _showPeriodSelector() {
+    // 기간 선택 다이얼로그 열기 이벤트
+    AmplitudeAnalytics.logEvent(
+      'workout_statistics_period_selector_opened',
+      properties: <String, dynamic>{
+        'current_period_type': _selectedPeriodType.name,
+        'current_period_selection': <String, int>{
+          'year': _periodSelection.year,
+          'month': _periodSelection.month,
+          'week': _periodSelection.week,
+        },
+      },
+    );
+
     PeriodSelectorDialog.show(
       context,
       periodType: _selectedPeriodType,
       initialSelection: _periodSelection,
       onPeriodChanged: (PeriodSelection newSelection) {
+        // 기간 선택 변경 이벤트
+        AmplitudeAnalytics.logEvent(
+          'workout_statistics_period_selection_changed',
+          properties: <String, dynamic>{
+            'period_type': _selectedPeriodType.name,
+            'previous_selection': <String, int>{
+              'year': _periodSelection.year,
+              'month': _periodSelection.month,
+              'week': _periodSelection.week,
+            },
+            'new_selection': <String, int>{
+              'year': newSelection.year,
+              'month': newSelection.month,
+              'week': newSelection.week,
+            },
+          },
+        );
+
         setState(() {
           _periodSelection = newSelection;
         });

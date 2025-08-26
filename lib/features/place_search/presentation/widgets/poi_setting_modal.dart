@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
@@ -12,6 +13,8 @@ class PoiSettingModal extends StatefulWidget {
   const PoiSettingModal({super.key});
 
   static Future<void> show({required BuildContext context}) {
+    AmplitudeAnalytics.logEvent('poi_setting_modal_opened');
+
     return BottomSheetShow.show(
       context: context,
       appBar: CustomAppBar(
@@ -19,7 +22,10 @@ class PoiSettingModal extends StatefulWidget {
         centerTitle: true,
         leading: CustomIconButton(
           icon: Icons.chevron_left_sharp,
-          onTap: () => Navigator.of(context).pop(),
+          onTap: () {
+            AmplitudeAnalytics.logButtonClick('poi_setting_modal_close');
+            Navigator.of(context).pop();
+          },
         ),
       ),
       content: const PoiSettingModal(),
@@ -39,8 +45,18 @@ class _PoiSettingModalState extends State<PoiSettingModal> {
     setState(() {
       if (_selectedPois.contains(label)) {
         _selectedPois.remove(label);
+
+        AmplitudeAnalytics.logEvent(
+          'poi_setting_disabled',
+          properties: <String, dynamic>{'poi_type': label},
+        );
       } else {
         _selectedPois.add(label);
+
+        AmplitudeAnalytics.logEvent(
+          'poi_setting_enabled',
+          properties: <String, dynamic>{'poi_type': label},
+        );
       }
     });
   }

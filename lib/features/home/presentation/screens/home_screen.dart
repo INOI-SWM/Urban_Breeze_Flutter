@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/home/presentation/widgets/latest_workout_card.dart';
 import 'package:urban_breeze/features/home/presentation/widgets/photo_banner.dart';
@@ -10,11 +11,25 @@ import 'package:urban_breeze/navigation/navigation_providers.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // 홈 화면 진입 이벤트
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AmplitudeAnalytics.logScreenView('home_screen');
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
 
     return Scaffold(
@@ -40,6 +55,7 @@ class HomeScreen extends ConsumerWidget {
                     // 기록 통계 (더미 요약 카드)
                     StatsSummaryCard(
                       onMorePressed: () {
+                        AmplitudeAnalytics.logButtonClick('home_stats_more');
                         ref.read(workoutHistoryTabProvider.notifier).state =
                             WorkoutHistoryTab.statistics;
                         ref.read(bottomNavIndexProvider.notifier).state = 3;
@@ -50,6 +66,9 @@ class HomeScreen extends ConsumerWidget {
                     // 최근 라이딩 1건
                     LatestWorkoutCard(
                       onMorePressed: () {
+                        AmplitudeAnalytics.logButtonClick(
+                          'home_latest_workout_more',
+                        );
                         ref.read(workoutHistoryTabProvider.notifier).state =
                             WorkoutHistoryTab.ridingHistory;
                         ref.read(bottomNavIndexProvider.notifier).state = 3;
@@ -63,6 +82,9 @@ class HomeScreen extends ConsumerWidget {
               // 추천 코스 3개 섹션 (패딩 밖으로 분리하여 가로 스크롤 풀블리드 처리)
               RecommendedCoursesSection(
                 onMorePressed: () {
+                  AmplitudeAnalytics.logButtonClick(
+                    'home_recommended_courses_more',
+                  );
                   ref.read(bottomNavIndexProvider.notifier).state = 1;
                 },
               ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/shared/design_system/tokens/decorations/app_shadows.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/icon_button_solid.dart';
@@ -71,7 +72,12 @@ class RouteCreationActionButtons extends StatelessWidget {
         const SizedBox(height: 12),
         IconButtonSolid(
           icon: Icons.my_location,
-          onPressed: onMoveToCurrentLocation,
+          onPressed: () {
+            AmplitudeAnalytics.logButtonClick(
+              'route_planning_move_to_current_location',
+            );
+            onMoveToCurrentLocation();
+          },
           iconSize: _iconSize,
           backgroundColor: locationButtonBg,
           iconColor: locationButtonIcon,

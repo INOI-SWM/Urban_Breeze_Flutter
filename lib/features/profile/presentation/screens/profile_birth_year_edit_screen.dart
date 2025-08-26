@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/profile/presentation/mixins/profile_edit_button_mixin.dart';
 import 'package:urban_breeze/features/profile/presentation/widgets/profile_edit_app_bar.dart';
@@ -32,6 +33,14 @@ class _ProfileBirthYearEditScreenState extends State<ProfileBirthYearEditScreen>
 
   @override
   void onSave() {
+    AmplitudeAnalytics.logEvent(
+      'profile_birth_year_saved',
+      properties: <String, dynamic>{
+        'old_value': widget.currentValue,
+        'new_value': _selectedValue,
+      },
+    );
+
     Navigator.of(context).pop(_selectedValue);
   }
 

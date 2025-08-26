@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/app_setting/application/services/account_management_controller.dart';
 import 'package:urban_breeze/features/app_setting/presentation/widgets/settings_list.dart';
@@ -34,7 +35,10 @@ class AccountManagementScreen extends ConsumerWidget {
               children: <Widget>[
                 SettingsItem(
                   title: '탈퇴하기',
-                  onPressed: () => _showWithdrawalDialog(context, ref),
+                  onPressed: () {
+                    AmplitudeAnalytics.logButtonClick('account_withdrawal');
+                    _showWithdrawalDialog(context, ref);
+                  },
                   showArrow: false,
                   textColor: colors.statusNegative,
                 ),
@@ -81,10 +85,19 @@ class AccountManagementScreen extends ConsumerWidget {
 
       if (!context.mounted) return;
 
+      // 탈퇴 성공 이벤트
+      AmplitudeAnalytics.logEvent('account_withdrawal_success');
+
       ErrorDisplay.showSuccessMessage(context, '탈퇴가 완료되었습니다.');
       Navigator.of(context).pop();
     } catch (e) {
       if (!context.mounted) return;
+
+      // 탈퇴 실패 이벤트
+      AmplitudeAnalytics.logEvent(
+        'account_withdrawal_failed',
+        properties: <String, dynamic>{'error_message': e.toString()},
+      );
 
       ErrorDisplay.showErrorMessage(context, '탈퇴 실패: ${e.toString()}');
       Navigator.of(context).pop();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/workout_history/presentation/pages/workout_history_page.dart';
 import 'package:urban_breeze/features/workout_history/presentation/screens/workout_detail_screen.dart';
@@ -157,6 +158,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   @override
   void initState() {
     super.initState();
+    AmplitudeAnalytics.logScreenView('workout_list_screen');
   }
 
   // 데이터 업데이트 메서드
@@ -167,6 +169,11 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   }
 
   void _navigateToWorkoutDetail(WorkoutRecord workout, int index) {
+    AmplitudeAnalytics.logEvent(
+      'workout_record_clicked',
+      properties: <String, dynamic>{'workout_id': workout.id},
+    );
+
     Navigator.push(
       context,
       MaterialPageRoute<void>(
@@ -185,6 +192,14 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
       options: WorkoutSortType.values,
       selectedOption: _sortType,
       onOptionSelected: (WorkoutSortType sortType) {
+        AmplitudeAnalytics.logEvent(
+          'workout_sort_changed',
+          properties: <String, dynamic>{
+            'sort_type': sortType.name,
+            'sort_display_name': sortType.displayName,
+          },
+        );
+
         setState(() {
           _sortType = sortType;
           _workouts = _sortWorkouts(_workouts);
@@ -276,11 +291,21 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
                 _ViewModeToggleButton(
                   viewMode: _viewMode,
                   onToggle: () {
+                    // 뷰 모드 변경 이벤트
+                    final ViewMode newViewMode =
+                        _viewMode == ViewMode.list
+                            ? ViewMode.grid
+                            : ViewMode.list;
+
+                    AmplitudeAnalytics.logEvent(
+                      'workout_view_mode_changed',
+                      properties: <String, dynamic>{
+                        'view_mode': newViewMode.name,
+                      },
+                    );
+
                     setState(() {
-                      _viewMode =
-                          _viewMode == ViewMode.list
-                              ? ViewMode.grid
-                              : ViewMode.list;
+                      _viewMode = newViewMode;
                     });
                   },
                 ),

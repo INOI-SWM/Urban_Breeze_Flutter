@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/user_session_repository.dart';
 
@@ -18,9 +19,32 @@ class UserSessionNotifier extends StateNotifier<User?> {
   Future<void> setUserSession(User user) async {
     state = user;
     await _repository.saveUser(user);
+    await AmplitudeAnalytics.setUserId(user.id, user.loginProvider.name);
   }
 
   Future<void> clearUserSession() async {
+    // 로그아웃 이벤트 전송
+    if (state != null) {
+      try {
+        await AmplitudeAnalytics.logEvent(
+          'user_logout',
+          properties: <String, dynamic>{
+            'logout_reason': 'user_action',
+            'login_provider': state!.loginProvider.name,
+          },
+        );
+      } catch (e) {
+        // 로그아웃 이벤트 전송 실패해도 로그아웃은 계속 진행
+      }
+    }
+
+    // Amplitude 사용자 리셋
+    try {
+      await AmplitudeAnalytics.resetUser();
+    } catch (e) {
+      // Amplitude 리셋 실패해도 로그아웃은 계속 진행
+    }
+
     state = null;
     await _repository.clearUser();
   }

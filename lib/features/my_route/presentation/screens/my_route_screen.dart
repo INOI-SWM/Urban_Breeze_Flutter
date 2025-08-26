@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/my_route/di/my_route_providers.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route.dart';
@@ -33,6 +34,7 @@ class MyRouteScreen extends ConsumerStatefulWidget implements PageWithAppBar {
       actions: <Widget>[
         IconButton(
           onPressed: () {
+            AmplitudeAnalytics.logButtonClick('my_route_add_button');
             Navigator.of(context).push(
               MaterialPageRoute<RoutePlanningScreen>(
                 builder: (BuildContext context) => const RoutePlanningScreen(),
@@ -62,6 +64,10 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
     super.initState();
     currentFilter = FilterData.fromFilterItems(filters);
     _loadRouteList();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AmplitudeAnalytics.logScreenView('my_route_screen');
+    });
   }
 
   Future<void> _loadRouteList() async {
@@ -94,6 +100,15 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
         setState(() {
           selectedSortOption = option;
         });
+
+        AmplitudeAnalytics.logEvent(
+          'my_route_sort_changed',
+          properties: <String, dynamic>{
+            'sort_type': option.name,
+            'sort_display_name': option.displayName,
+          },
+        );
+
         _loadRouteList();
       },
       getDisplayText: (MyRouteSortType option) => option.displayName,
@@ -114,12 +129,24 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
         setState(() {
           currentFilter = newFilter;
         });
+
+        AmplitudeAnalytics.logEvent(
+          'my_route_filter_applied',
+          properties: <String, dynamic>{
+            'filter_count': FilterDisplayUtils.getAppliedFiltersCount(
+              newFilter,
+              filters,
+            ),
+          },
+        );
+
         _loadRouteList();
       },
       onReset: () {
         setState(() {
           currentFilter = FilterData.fromFilterItems(filters);
         });
+        AmplitudeAnalytics.logEvent('my_route_filter_reset');
         _loadRouteList();
       },
       showTabBar: false,
@@ -194,6 +221,14 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
                             elevation: route.elevationGainDisplay,
                             cardType: RouteCardType.myRoute,
                             onTap: () {
+                              // 경로 클릭 이벤트
+                              AmplitudeAnalytics.logEvent(
+                                'my_route_clicked',
+                                properties: <String, dynamic>{
+                                  'route_id': route.id.toString(),
+                                },
+                              );
+
                               Navigator.of(context).push(
                                 MaterialPageRoute<void>(
                                   builder:

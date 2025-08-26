@@ -1,4 +1,5 @@
 import 'package:terra_flutter_bridge/models/enums.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/connect_terra_health_app_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/initialize_terra_use_case.dart';
@@ -27,6 +28,15 @@ class TerraHealthSyncFacade {
       // 1. Terra 초기화
       final AppResult<void> initResult = await initializeTerraUseCase.execute();
       if (!initResult.isSuccess) {
+        // Terra 초기화 실패 이벤트
+        AmplitudeAnalytics.logEvent(
+          'terra_initialization_failed',
+          properties: <String, dynamic>{
+            'connection': connection.name,
+            'error_message':
+                initResult.exceptionOrNull?.toString() ?? 'Unknown error',
+          },
+        );
         return AppFailure<Map<String, dynamic>?>(initResult.exceptionOrNull!);
       }
 
@@ -34,6 +44,15 @@ class TerraHealthSyncFacade {
       final AppResult<void> connectResult = await connectTerraHealthAppUseCase
           .execute(connection);
       if (!connectResult.isSuccess) {
+        // 건강 앱 연결 실패 이벤트
+        AmplitudeAnalytics.logEvent(
+          'terra_health_app_connection_failed',
+          properties: <String, dynamic>{
+            'connection': connection.name,
+            'error_message':
+                connectResult.exceptionOrNull?.toString() ?? 'Unknown error',
+          },
+        );
         return AppFailure<Map<String, dynamic>?>(
           connectResult.exceptionOrNull!,
         );
@@ -48,8 +67,39 @@ class TerraHealthSyncFacade {
             toWebhook: toWebhook,
           );
 
+      if (syncResult.isSuccess) {
+        // Terra 동기화 성공 이벤트
+        AmplitudeAnalytics.logEvent(
+          'terra_sync_success',
+          properties: <String, dynamic>{
+            'connection': connection.name,
+            'to_webhook': toWebhook,
+          },
+        );
+      } else {
+        // Terra 동기화 실패 이벤트
+        AmplitudeAnalytics.logEvent(
+          'terra_sync_failed',
+          properties: <String, dynamic>{
+            'connection': connection.name,
+            'to_webhook': toWebhook,
+            'error_message':
+                syncResult.exceptionOrNull?.toString() ?? 'Unknown error',
+          },
+        );
+      }
+
       return syncResult;
     } catch (e) {
+      // Terra 동기화 예외 이벤트
+      AmplitudeAnalytics.logEvent(
+        'terra_sync_exception',
+        properties: <String, dynamic>{
+          'connection': connection.name,
+          'to_webhook': toWebhook,
+          'error_message': e.toString(),
+        },
+      );
       return AppFailure<Map<String, dynamic>?>(TerraApiException(e.toString()));
     }
   }
