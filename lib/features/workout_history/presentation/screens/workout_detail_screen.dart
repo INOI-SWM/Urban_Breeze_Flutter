@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
 import 'package:urban_breeze/features/workout_history/presentation/screens/workout_detail_route_screen.dart';
@@ -33,6 +34,19 @@ class WorkoutDetailScreen extends ConsumerStatefulWidget {
 
 class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
   @override
+  void initState() {
+    super.initState();
+    // 화면 조회 이벤트
+    AmplitudeAnalytics.logScreenView(
+      'workout_detail_screen',
+      additionalProperties: <String, dynamic>{
+        'workout_id': widget.workoutRecord.id,
+        'workout_index': widget.workoutIndex,
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
 
@@ -47,6 +61,13 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
           CustomIconButton(
             icon: Icons.more_vert,
             onTap: () {
+              // 더보기 메뉴 클릭 이벤트
+              AmplitudeAnalytics.logButtonClick(
+                'workout_detail_more_options',
+                additionalProperties: <String, dynamic>{
+                  'workout_id': widget.workoutRecord.id,
+                },
+              );
               // TODO: 더보기 메뉴 구현
             },
           ),
@@ -185,6 +206,14 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
                       child: ButtonOutlined(
                         text: '상세 정보',
                         onPressed: () {
+                          // 상세 정보 버튼 클릭 이벤트
+                          AmplitudeAnalytics.logButtonClick(
+                            'workout_detail_statistics',
+                            additionalProperties: <String, dynamic>{
+                              'workout_id': widget.workoutRecord.id,
+                            },
+                          );
+
                           Navigator.push(
                             context,
                             MaterialPageRoute<void>(
@@ -214,6 +243,14 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
                       child: ButtonOutlined(
                         text: '상세 경로',
                         onPressed: () {
+                          // 상세 경로 버튼 클릭 이벤트
+                          AmplitudeAnalytics.logButtonClick(
+                            'workout_detail_route',
+                            additionalProperties: <String, dynamic>{
+                              'workout_id': widget.workoutRecord.id,
+                            },
+                          );
+
                           Navigator.push(
                             context,
                             MaterialPageRoute<void>(

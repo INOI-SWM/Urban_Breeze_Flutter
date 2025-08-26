@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/terra_health_sync_facade.dart';
@@ -19,13 +20,24 @@ class SyncScreen extends ConsumerStatefulWidget {
 class _SyncScreenState extends ConsumerState<SyncScreen> {
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    // 화면 조회 이벤트
+    AmplitudeAnalytics.logScreenView('workout_sync_screen');
+  }
+
   // Apple Health Kit 통합 동기화 (Terra API 사용)
   Future<void> _syncAppleHealthKit() async {
+    // Apple Health 동기화 버튼 클릭 이벤트
+    AmplitudeAnalytics.logButtonClick('workout_sync_apple_health');
     await _syncAppleHealthData();
   }
 
   // Google Health Connect 통합 동기화 (Terra API 사용)
   Future<void> _syncGoogleHealthConnect() async {
+    // Health Connect 동기화 버튼 클릭 이벤트
+    AmplitudeAnalytics.logButtonClick('workout_sync_health_connect');
     await _syncHealthConnectData();
   }
 
@@ -46,16 +58,38 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
         final Map<String, dynamic>? data = result.dataOrNull;
         if (data != null &&
             data['message']?.toString().contains('webhook') == true) {
+          // Apple Health 동기화 성공 (웹훅) 이벤트
+          AmplitudeAnalytics.logEvent(
+            'workout_sync_apple_health_success',
+            properties: <String, dynamic>{'sync_method': 'webhook'},
+          );
           _showInfoMessage('Apple Health 데이터 가져오기 완료! 웹훅을 통해 데이터가 전송됩니다.');
         } else {
+          // Apple Health 동기화 성공 (직접) 이벤트
+          AmplitudeAnalytics.logEvent(
+            'workout_sync_apple_health_success',
+            properties: <String, dynamic>{'sync_method': 'direct'},
+          );
           _showSuccessMessage('Apple Health 데이터 가져오기 완료!');
         }
       } else {
+        // Apple Health 동기화 실패 이벤트
+        AmplitudeAnalytics.logEvent(
+          'workout_sync_apple_health_failed',
+          properties: <String, dynamic>{
+            'error_message': result.exceptionOrNull?.message ?? 'Unknown error',
+          },
+        );
         _showErrorMessage(
           'Apple Health 데이터 가져오기 실패: ${result.exceptionOrNull?.message}',
         );
       }
     } catch (e) {
+      // Apple Health 동기화 예외 이벤트
+      AmplitudeAnalytics.logEvent(
+        'workout_sync_apple_health_exception',
+        properties: <String, dynamic>{'error_message': e.toString()},
+      );
       _showErrorMessage('Apple Health 데이터 가져오기 중 오류 발생: $e');
     } finally {
       setState(() {
@@ -81,16 +115,41 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
         final Map<String, dynamic>? data = result.dataOrNull;
         if (data != null &&
             data['message']?.toString().contains('webhook') == true) {
+          // Health Connect 동기화 성공 (웹훅) 이벤트
+          AmplitudeAnalytics.logEvent(
+            'workout_sync_health_connect_success',
+            properties: <String, dynamic>{'sync_method': 'webhook'},
+          );
           _showInfoMessage('Health Connect 데이터 가져오기 완료! 웹훅을 통해 데이터가 전송됩니다.');
         } else {
+          // Health Connect 동기화 성공 (직접) 이벤트
+          AmplitudeAnalytics.logEvent(
+            'workout_sync_health_connect_success',
+            properties: <String, dynamic>{
+              'sync_method': 'direct',
+              'data_count': data?.length ?? 0,
+            },
+          );
           _showSuccessMessage('Health Connect 데이터 가져오기 완료!');
         }
       } else {
+        // Health Connect 동기화 실패 이벤트
+        AmplitudeAnalytics.logEvent(
+          'workout_sync_health_connect_failed',
+          properties: <String, dynamic>{
+            'error_message': result.exceptionOrNull?.message ?? 'Unknown error',
+          },
+        );
         _showErrorMessage(
           'Health Connect 데이터 가져오기 실패: ${result.exceptionOrNull?.message}',
         );
       }
     } catch (e) {
+      // Health Connect 동기화 예외 이벤트
+      AmplitudeAnalytics.logEvent(
+        'workout_sync_health_connect_exception',
+        properties: <String, dynamic>{'error_message': e.toString()},
+      );
       _showErrorMessage('Health Connect 데이터 가져오기 중 오류 발생: $e');
     } finally {
       setState(() {
@@ -101,6 +160,9 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
 
   // Samsung Health에서 데이터 가져오기 (초기화 + 연결 + 동기화)
   Future<void> _syncSamsungHealthData() async {
+    // Samsung Health 동기화 버튼 클릭 이벤트
+    AmplitudeAnalytics.logButtonClick('workout_sync_samsung_health');
+
     setState(() {
       _isLoading = true;
     });
@@ -116,16 +178,41 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
         final Map<String, dynamic>? data = result.dataOrNull;
         if (data != null &&
             data['message']?.toString().contains('webhook') == true) {
+          // Samsung Health 동기화 성공 (웹훅) 이벤트
+          AmplitudeAnalytics.logEvent(
+            'workout_sync_samsung_health_success',
+            properties: <String, dynamic>{'sync_method': 'webhook'},
+          );
           _showInfoMessage('Samsung Health 데이터 가져오기 완료! 웹훅을 통해 데이터가 전송됩니다.');
         } else {
+          // Samsung Health 동기화 성공 (직접) 이벤트
+          AmplitudeAnalytics.logEvent(
+            'workout_sync_samsung_health_success',
+            properties: <String, dynamic>{
+              'sync_method': 'direct',
+              'data_count': data?.length ?? 0,
+            },
+          );
           _showSuccessMessage('Samsung Health 데이터 가져오기 완료!');
         }
       } else {
+        // Samsung Health 동기화 실패 이벤트
+        AmplitudeAnalytics.logEvent(
+          'workout_sync_samsung_health_failed',
+          properties: <String, dynamic>{
+            'error_message': result.exceptionOrNull?.message ?? 'Unknown error',
+          },
+        );
         _showErrorMessage(
           'Samsung Health 데이터 가져오기 실패: ${result.exceptionOrNull?.message}',
         );
       }
     } catch (e) {
+      // Samsung Health 동기화 예외 이벤트
+      AmplitudeAnalytics.logEvent(
+        'workout_sync_samsung_health_exception',
+        properties: <String, dynamic>{'error_message': e.toString()},
+      );
       _showErrorMessage('Samsung Health 데이터 가져오기 중 오류 발생: $e');
     } finally {
       setState(() {
@@ -214,6 +301,10 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                       _isLoading
                           ? null
                           : () {
+                            // Garmin Connect 동기화 버튼 클릭 이벤트 (지원하지 않음)
+                            AmplitudeAnalytics.logButtonClick(
+                              'workout_sync_garmin_connect',
+                            );
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
