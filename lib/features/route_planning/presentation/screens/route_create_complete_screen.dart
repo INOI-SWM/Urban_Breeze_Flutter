@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/route_planning/presentation/widgets/route_stats_row.dart';
 import 'package:urban_breeze/navigation/navigation_scaffold.dart';
@@ -22,6 +23,7 @@ class RouteCreateCompleteScreen extends StatelessWidget {
   final String elevationGain;
 
   void _popToRoot(BuildContext context) {
+    AmplitudeAnalytics.logButtonClick('route_create_complete_confirm');
     Navigator.of(context).pushAndRemoveUntil(
       PageRouteBuilder<void>(
         pageBuilder:

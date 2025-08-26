@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/place_search/presentation/widgets/poi_setting_modal.dart';
 import 'package:urban_breeze/features/route_planning/presentation/widgets/route_bar_layout.dart';
@@ -105,6 +106,9 @@ class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
               backgroundColor: colors.fillNormal,
               textColor: colors.labelNeutral,
               onPressed: () {
+                AmplitudeAnalytics.logButtonClick(
+                  'route_planning_map_settings',
+                );
                 PoiSettingModal.show(context: context);
               },
             ),
@@ -117,7 +121,15 @@ class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
                       : colors.interactionDisable,
               textColor:
                   widget.hasRoute ? colors.staticWhite : colors.labelAssistive,
-              onPressed: widget.hasRoute ? widget.onSave : null,
+              onPressed:
+                  widget.hasRoute
+                      ? () {
+                        AmplitudeAnalytics.logButtonClick(
+                          'route_planning_save_button',
+                        );
+                        widget.onSave?.call();
+                      }
+                      : null,
             ),
           ],
         );
@@ -129,7 +141,10 @@ class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
           titleTextSize: AppBarTitleSize.large,
           leading: CustomIconButton(
             icon: Icons.arrow_back_ios_new,
-            onTap: widget.onBack ?? () => Navigator.of(context).pop(),
+            onTap: () {
+              AmplitudeAnalytics.logButtonClick('route_planning_save_back');
+              widget.onBack?.call();
+            },
           ),
           actions: <Widget>[
             ButtonSolid(
@@ -143,7 +158,15 @@ class _RouteCreateBottomPanelState extends State<RouteCreateBottomPanel> {
                   _isCompleteButtonEnabled
                       ? colors.staticWhite
                       : colors.labelAssistive,
-              onPressed: _isCompleteButtonEnabled ? _handleComplete : null,
+              onPressed:
+                  _isCompleteButtonEnabled
+                      ? () {
+                        AmplitudeAnalytics.logButtonClick(
+                          'route_planning_save_complete',
+                        );
+                        _handleComplete();
+                      }
+                      : null,
             ),
           ],
         );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/place_search/domain/entities/place.dart';
@@ -57,6 +58,10 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     super.initState();
     _facade = ref.read(routePlanningFacadeProvider);
     _getCurrentLocation();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AmplitudeAnalytics.logScreenView('route_planning_screen');
+    });
   }
 
   @override
@@ -82,13 +87,20 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     setState(() {
       _isButtonPressed = !_isButtonPressed;
     });
+
+    AmplitudeAnalytics.logEvent(
+      'route_planning_pin_mode_toggled',
+      properties: <String, dynamic>{'is_pin_mode_active': _isButtonPressed},
+    );
   }
 
   void _onCloseTap() {
+    AmplitudeAnalytics.logButtonClick('route_planning_close');
     Navigator.of(context).pop();
   }
 
   void _onClearTap() {
+    AmplitudeAnalytics.logButtonClick('route_planning_clear_search');
     setState(() {
       _selectedPlace = null;
       _searchedPlaces.clear();
@@ -97,6 +109,8 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   Future<void> _openSearchScreen() async {
+    AmplitudeAnalytics.logButtonClick('route_planning_search');
+
     final dynamic result = await Navigator.push<dynamic>(
       context,
       MaterialPageRoute<dynamic>(
@@ -126,6 +140,16 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     _searchedPlaces.clear();
     _lastSearchQuery = null;
     _moveToPlace(place);
+
+    // 단일 장소 선택 이벤트
+    AmplitudeAnalytics.logEvent(
+      'route_planning_place_selected',
+      properties: <String, dynamic>{
+        'place_title': place.title,
+        'place_address': place.address,
+        'selection_type': 'single',
+      },
+    );
   }
 
   void _handleMultiplePlacesSelection(SearchResult searchResult) {
@@ -138,6 +162,16 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       _moveToPlace(searchResult.places.first);
       _fitMapToSearchResults(searchResult);
     }
+
+    // 다중 장소 선택 이벤트
+    AmplitudeAnalytics.logEvent(
+      'route_planning_places_selected',
+      properties: <String, dynamic>{
+        'search_query': searchResult.query,
+        'places_count': searchResult.places.length,
+        'selection_type': 'multiple',
+      },
+    );
   }
 
   void _moveToPlace(Place place) {
@@ -171,8 +205,22 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
             _pins[_pins.length - 2] = success.data.points.first;
             _pins[_pins.length - 1] = success.data.points.last;
           });
+          AmplitudeAnalytics.logEvent(
+            'route_planning_route_created',
+            properties: <String, dynamic>{
+              'route_segments_count': _routeSegments.length,
+              'total_pins': _pins.length,
+            },
+          );
         case final AppFailure<RouteSegment> failure:
           _removeLastPin(shouldRemoveRouteSegment: false);
+          AmplitudeAnalytics.logEvent(
+            'route_planning_route_failed',
+            properties: <String, dynamic>{
+              'error_type': failure.exceptionOrNull?.runtimeType.toString(),
+            },
+          );
+
           showErrorFromAppResult(context, failure);
       }
     }
@@ -185,6 +233,15 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       setState(() {
         _pins.add(position);
       });
+      AmplitudeAnalytics.logEvent(
+        'route_planning_pin_added',
+        properties: <String, dynamic>{
+          'pin_count': _pins.length,
+          'pin_latitude': position.latitude,
+          'pin_longitude': position.longitude,
+        },
+      );
+
       if (_facade.managePins.shouldGetRoute(_pins)) {
         _getRoute();
       }
@@ -204,6 +261,14 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
         }
       }
     });
+
+    AmplitudeAnalytics.logEvent(
+      'route_planning_pin_removed',
+      properties: <String, dynamic>{
+        'remaining_pins': _pins.length,
+        'remaining_segments': _routeSegments.length,
+      },
+    );
   }
 
   void _fitMapToAllRoutes() {
@@ -264,12 +329,24 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       _isSaveMode = true;
       _isButtonPressed = false;
     });
+
+    AmplitudeAnalytics.logEvent(
+      'route_planning_save_mode_entered',
+      properties: <String, dynamic>{
+        'total_distance': formattedTotalDistance,
+        'total_duration': formattedTotalDuration,
+        'elevation_gain': formattedElevationGain,
+        'route_segments_count': _routeSegments.length,
+      },
+    );
   }
 
   void _exitSaveMode() {
     setState(() {
       _isSaveMode = false;
     });
+
+    AmplitudeAnalytics.logEvent('route_planning_save_mode_exited');
   }
 
   Future<void> _completeRouteSave(String title) async {
@@ -286,6 +363,17 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
       Navigator.of(context).pop();
       _exitSaveMode();
+
+      AmplitudeAnalytics.logEvent(
+        'route_planning_route_saved',
+        properties: <String, dynamic>{
+          'route_title': title,
+          'total_distance': formattedTotalDistance,
+          'total_duration': formattedTotalDuration,
+          'elevation_gain': formattedElevationGain,
+          'route_segments_count': _routeSegments.length,
+        },
+      );
 
       Navigator.push(
         context,
@@ -306,6 +394,11 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       );
     } catch (e) {
       Navigator.of(context).pop();
+      AmplitudeAnalytics.logEvent(
+        'route_planning_route_save_failed',
+        properties: <String, dynamic>{'error_message': e.toString()},
+      );
+
       showErrorMessage(context, '경로 저장에 실패했습니다. 다시 시도해주세요.');
     }
   }
