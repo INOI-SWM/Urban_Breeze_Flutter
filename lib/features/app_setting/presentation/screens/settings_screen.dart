@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/app_setting/presentation/screens/account_management_screen.dart';
 import 'package:urban_breeze/features/app_setting/presentation/widgets/settings_list.dart';
@@ -37,11 +38,28 @@ class SettingsScreen extends ConsumerWidget {
           children: <Widget>[
             SettingsSection(
               children: <Widget>[
-                SettingsItem(title: '이용 약관', onPressed: () {}),
-                SettingsItem(title: '개인정보 처리방침', onPressed: () {}),
+                SettingsItem(
+                  title: '이용 약관',
+                  onPressed: () {
+                    AmplitudeAnalytics.logButtonClick(
+                      'settings_terms_of_service',
+                    );
+                  },
+                ),
+                SettingsItem(
+                  title: '개인정보 처리방침',
+                  onPressed: () {
+                    AmplitudeAnalytics.logButtonClick(
+                      'settings_privacy_policy',
+                    );
+                  },
+                ),
                 SettingsItem(
                   title: '피드백 및 문의',
-                  onPressed: () => _showFeedbackDialog(context),
+                  onPressed: () {
+                    AmplitudeAnalytics.logButtonClick('settings_feedback');
+                    _showFeedbackDialog(context);
+                  },
                 ),
               ],
             ),
@@ -69,10 +87,18 @@ class SettingsScreen extends ConsumerWidget {
 
             SettingsSection(
               children: <Widget>[
-                SettingsItem(title: '알림 설정', onPressed: () {}),
+                SettingsItem(
+                  title: '알림 설정',
+                  onPressed: () {
+                    AmplitudeAnalytics.logButtonClick('settings_notifications');
+                  },
+                ),
                 SettingsItem(
                   title: '계정 관리',
                   onPressed: () {
+                    AmplitudeAnalytics.logButtonClick(
+                      'settings_account_management',
+                    );
                     Navigator.of(context).push(
                       MaterialPageRoute<void>(
                         builder:
@@ -84,7 +110,10 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 SettingsItem(
                   title: '로그아웃',
-                  onPressed: () => _showLogoutDialog(context, ref),
+                  onPressed: () {
+                    AmplitudeAnalytics.logButtonClick('settings_logout');
+                    _showLogoutDialog(context, ref);
+                  },
                   showArrow: false,
                   textColor: colors.statusNegative,
                 ),
@@ -161,6 +190,12 @@ class SettingsScreen extends ConsumerWidget {
       secondaryButtonText: '취소',
       primaryEnabledListenable: isSendEnabled,
       onPrimaryButtonPressed: () {
+        AmplitudeAnalytics.logEvent(
+          'feedback_submitted',
+          properties: <String, dynamic>{
+            'feedback_length': controller.text.length,
+          },
+        );
         ErrorDisplay.showSuccessMessage(context, '피드백이 전송되었습니다. 감사합니다!');
       },
       onSecondaryButtonPressed: () {},
