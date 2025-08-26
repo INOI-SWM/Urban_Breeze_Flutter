@@ -24,12 +24,7 @@ class AmplitudeService {
       }
 
       _amplitude = Amplitude(
-        Configuration(
-          apiKey: apiKey,
-          instanceName: 'urban_breeze_dev',
-          flushIntervalMillis: 50000,
-          flushQueueSize: 20,
-        ),
+        Configuration(apiKey: apiKey, instanceName: 'urban_breeze_dev'),
       );
 
       await _amplitude.isBuilt;
