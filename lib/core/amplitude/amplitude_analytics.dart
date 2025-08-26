@@ -1,4 +1,5 @@
 import 'package:amplitude_flutter/events/base_event.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'amplitude_events.dart';
@@ -22,7 +23,7 @@ class AmplitudeAnalytics {
       final BaseEvent event = BaseEvent(eventName, eventProperties: properties);
       await amplitudeService.amplitude.track(event);
     } catch (e) {
-      print('Amplitude 이벤트 전송 실패: $e');
+      debugPrint('Amplitude 이벤트 전송 실패: $e');
     }
   }
 
@@ -65,7 +66,7 @@ class AmplitudeAnalytics {
     try {
       await amplitudeService.setUserId(userId);
     } catch (e) {
-      print('Amplitude 사용자 ID 설정 실패: $e');
+      debugPrint('Amplitude 사용자 ID 설정 실패: $e');
     }
   }
 
@@ -78,7 +79,7 @@ class AmplitudeAnalytics {
     try {
       await amplitudeService.amplitude.flush();
     } catch (e) {
-      print('Amplitude 이벤트 플러시 실패: $e');
+      debugPrint('Amplitude 이벤트 플러시 실패: $e');
     }
   }
 }
