@@ -8,7 +8,7 @@ import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_sty
 import 'package:urban_breeze/shared/design_system/widgets/button/button_size.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_solid.dart';
 
-class RouteCreateCompleteScreen extends StatelessWidget {
+class RouteCreateCompleteScreen extends StatefulWidget {
   const RouteCreateCompleteScreen({
     super.key,
     required this.routeTitle,
@@ -21,6 +21,19 @@ class RouteCreateCompleteScreen extends StatelessWidget {
   final String totalDistance;
   final String totalDuration;
   final String elevationGain;
+
+  @override
+  State<RouteCreateCompleteScreen> createState() =>
+      _RouteCreateCompleteScreenState();
+}
+
+class _RouteCreateCompleteScreenState extends State<RouteCreateCompleteScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // 화면 조회 이벤트
+    AmplitudeAnalytics.logScreenView('route_create_complete_screen');
+  }
 
   void _popToRoot(BuildContext context) {
     AmplitudeAnalytics.logButtonClick('route_create_complete_confirm');
@@ -101,7 +114,7 @@ class RouteCreateCompleteScreen extends StatelessWidget {
                   children: <Widget>[
                     Center(
                       child: Text(
-                        routeTitle,
+                        widget.routeTitle,
                         style: AppTextStyles.heading2.bold.copyWith(
                           color: colors.labelNormal,
                         ),
@@ -109,9 +122,9 @@ class RouteCreateCompleteScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     RouteStatsRow(
-                      totalDistance: totalDistance,
-                      totalDuration: totalDuration,
-                      elevationGain: elevationGain,
+                      totalDistance: widget.totalDistance,
+                      totalDuration: widget.totalDuration,
+                      elevationGain: widget.elevationGain,
                     ),
                   ],
                 ),
