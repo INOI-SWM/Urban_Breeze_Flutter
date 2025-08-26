@@ -1,9 +1,7 @@
 import 'package:amplitude_flutter/events/base_event.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'amplitude_events.dart';
-import 'amplitude_providers.dart';
 import 'amplitude_service.dart';
 
 /// Amplitude 분석 유틸리티
@@ -11,16 +9,13 @@ import 'amplitude_service.dart';
 class AmplitudeAnalytics {
   /// 이벤트 전송
   static Future<void> logEvent(
-    WidgetRef ref,
     String eventName, {
     Map<String, dynamic>? properties,
   }) async {
-    final AmplitudeService amplitudeService = ref.read(
-      amplitudeServiceProvider,
-    );
-
     try {
       final BaseEvent event = BaseEvent(eventName, eventProperties: properties);
+      final AmplitudeService amplitudeService = AmplitudeService.instance;
+
       await amplitudeService.amplitude.track(event);
     } catch (e) {
       debugPrint('Amplitude 이벤트 전송 실패: $e');
@@ -29,7 +24,6 @@ class AmplitudeAnalytics {
 
   /// 화면 조회 이벤트 전송
   static Future<void> logScreenView(
-    WidgetRef ref,
     String screenName, {
     Map<String, dynamic>? additionalProperties,
   }) async {
@@ -39,12 +33,11 @@ class AmplitudeAnalytics {
       ...?additionalProperties,
     };
 
-    await logEvent(ref, AmplitudeEvents.screenViewed, properties: properties);
+    await logEvent(AmplitudeEvents.screenViewed, properties: properties);
   }
 
   /// 버튼 클릭 이벤트 전송
   static Future<void> logButtonClick(
-    WidgetRef ref,
     String buttonName, {
     Map<String, dynamic>? additionalProperties,
   }) async {
@@ -54,14 +47,12 @@ class AmplitudeAnalytics {
       ...?additionalProperties,
     };
 
-    await logEvent(ref, AmplitudeEvents.buttonClicked, properties: properties);
+    await logEvent(AmplitudeEvents.buttonClicked, properties: properties);
   }
 
   /// 사용자 ID 설정
-  static Future<void> setUserId(WidgetRef ref, String userId) async {
-    final AmplitudeService amplitudeService = ref.read(
-      amplitudeServiceProvider,
-    );
+  static Future<void> setUserId(String userId) async {
+    final AmplitudeService amplitudeService = AmplitudeService.instance;
 
     try {
       await amplitudeService.setUserId(userId);
@@ -70,11 +61,20 @@ class AmplitudeAnalytics {
     }
   }
 
+  /// 사용자 리셋 (로그아웃 시)
+  static Future<void> resetUser() async {
+    final AmplitudeService amplitudeService = AmplitudeService.instance;
+
+    try {
+      await amplitudeService.amplitude.reset();
+    } catch (e) {
+      debugPrint('Amplitude 사용자 리셋 실패: $e');
+    }
+  }
+
   /// 이벤트 플러시 (강제 전송)
-  static Future<void> flush(WidgetRef ref) async {
-    final AmplitudeService amplitudeService = ref.read(
-      amplitudeServiceProvider,
-    );
+  static Future<void> flush() async {
+    final AmplitudeService amplitudeService = AmplitudeService.instance;
 
     try {
       await amplitudeService.amplitude.flush();
