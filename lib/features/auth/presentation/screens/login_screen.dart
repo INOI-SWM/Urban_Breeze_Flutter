@@ -47,14 +47,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       final User? user = result.dataOrNull;
       if (!mounted) return;
 
-      if (user != null) {
-        AmplitudeAnalytics.logEvent(
-          'user_login_success',
-          properties: <String, dynamic>{'provider': providerName},
-        );
-
-        AmplitudeAnalytics.setUserId(user.id);
-      } else {
+      if (user == null) {
         AmplitudeAnalytics.logEvent(
           'user_login_failed',
           properties: <String, dynamic>{'provider': providerName},
