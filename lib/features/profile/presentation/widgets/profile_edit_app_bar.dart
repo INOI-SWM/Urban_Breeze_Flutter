@@ -28,7 +28,9 @@ class ProfileEditAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: title,
       leading: CustomIconButton(
         icon: Icons.arrow_back_ios_new,
-        onTap: () => Navigator.of(context).pop(),
+        onTap: () {
+          Navigator.of(context).pop();
+        },
       ),
       actions: <Widget>[
         GestureDetector(

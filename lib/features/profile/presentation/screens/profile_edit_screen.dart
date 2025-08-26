@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_bio_edit_screen.dart';
@@ -34,6 +35,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _bio = '자신을 소개해주세요';
     _gender = '선택해주세요';
     _birthYear = '선택해주세요';
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AmplitudeAnalytics.logScreenView('profile_edit_screen');
+    });
   }
 
   @override
@@ -46,7 +51,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         title: '프로필 수정',
         leading: CustomIconButton(
           icon: Icons.arrow_back_ios_new,
-          onTap: () => Navigator.of(context).pop(),
+          onTap: () {
+            Navigator.of(context).pop();
+          },
         ),
       ),
       body: SingleChildScrollView(
@@ -59,6 +66,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 //TODO : 기본 이미지 설정
                 imageUrl: widget.user.photoUrl!,
                 onPressed: () {
+                  AmplitudeAnalytics.logButtonClick('profile_image_edit');
                   // TODO: 프로필 사진 저장소, 또는 카메라로 수정 기능 추가
                 },
               ),
@@ -100,6 +108,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   void _navigateToNicknameEdit() async {
+    AmplitudeAnalytics.logButtonClick('profile_nickname_edit');
     final String? result = await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder:
@@ -116,6 +125,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   void _navigateToBioEdit() async {
+    AmplitudeAnalytics.logButtonClick('profile_bio_edit');
     final String? result = await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder:
@@ -131,6 +141,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   void _navigateToGenderEdit() async {
+    AmplitudeAnalytics.logButtonClick('profile_gender_edit');
     final String? result = await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder:
@@ -147,6 +158,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   void _navigateToBirthYearEdit() async {
+    AmplitudeAnalytics.logButtonClick('profile_birth_year_edit');
     final String? result = await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder:

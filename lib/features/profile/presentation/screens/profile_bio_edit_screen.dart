@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/profile/presentation/mixins/profile_edit_button_mixin.dart';
 import 'package:urban_breeze/features/profile/presentation/widgets/profile_edit_app_bar.dart';
@@ -31,6 +32,16 @@ class _ProfileBioEditScreenState extends State<ProfileBioEditScreen>
 
   @override
   void onSave() {
+    final String? newValue = getCurrentInputValue();
+    AmplitudeAnalytics.logEvent(
+      'profile_bio_saved',
+      properties: <String, dynamic>{
+        'old_value': widget.currentValue,
+        'new_value': newValue,
+        'value_length': newValue?.length ?? 0,
+      },
+    );
+
     Navigator.of(context).pop(getCurrentInputValue());
   }
 
