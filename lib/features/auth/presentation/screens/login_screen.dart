@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/application/use_cases/auth_sign_in_facade.dart';
@@ -31,6 +32,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       _loadingProvider = provider;
     });
 
+    // 로그인 버튼 클릭 이벤트
+    final String providerName = _getProviderName(provider);
+    AmplitudeAnalytics.logButtonClick(
+      'login_button',
+      additionalProperties: <String, dynamic>{'provider': providerName},
+    );
+
     try {
       final AuthSignInFacade authSignInFacade = ref.read(
         authSignInFacadeProvider,
@@ -38,18 +46,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       final AppResult<User> result = await authSignInFacade.signIn(provider);
       final User? user = result.dataOrNull;
       if (!mounted) return;
+
       if (user != null) {
-        // 로그인 상태 변경으로 자동으로 메인 화면으로 전환됩니다.
+        AmplitudeAnalytics.logEvent(
+          'user_login_success',
+          properties: <String, dynamic>{'provider': providerName},
+        );
+
+        AmplitudeAnalytics.setUserId(user.id);
       } else {
+        AmplitudeAnalytics.logEvent(
+          'user_login_failed',
+          properties: <String, dynamic>{'provider': providerName},
+        );
+
         showErrorMessage(context, '로그인에 실패했습니다. 다시 시도해주세요.');
       }
     } catch (e) {
       if (mounted) {
-        final String providerName = switch (provider) {
-          LoginProvider.google => 'Google',
-          LoginProvider.apple => 'Apple',
-          LoginProvider.kakao => 'Kakao',
-        };
+        final String providerName = _getProviderName(provider);
+
+        // 로그인 실패 이벤트
+        AmplitudeAnalytics.logEvent(
+          'user_login_failed',
+          properties: <String, dynamic>{
+            'provider': providerName,
+            'error_type': 'exception',
+            'error_message': e.toString(),
+          },
+        );
+
         showErrorMessage(context, '$providerName 로그인에 실패했습니다.');
       }
     } finally {
@@ -59,6 +85,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         });
       }
     }
+  }
+
+  String _getProviderName(LoginProvider provider) {
+    return switch (provider) {
+      LoginProvider.google => 'Google',
+      LoginProvider.apple => 'Apple',
+      LoginProvider.kakao => 'Kakao',
+    };
   }
 
   Widget _buildLoginButton({
