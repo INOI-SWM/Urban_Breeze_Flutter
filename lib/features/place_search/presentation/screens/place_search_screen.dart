@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/place_search/application/use_cases/search_places_use_case.dart';
@@ -56,6 +57,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
     // 화면 진입 시 검색 필드에 자동 포커스
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _searchFocusNode.requestFocus();
+      AmplitudeAnalytics.logScreenView('place_search_screen');
     });
   }
 
@@ -102,6 +104,15 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
       return;
     }
 
+    AmplitudeAnalytics.logEvent(
+      'place_search_executed',
+      properties: <String, dynamic>{
+        'query': query,
+        'query_length': query.length,
+        'search_type': 'realtime',
+      },
+    );
+
     final LatLng searchLocation = _currentLocation ?? _defaultLocation;
 
     setState(() {
@@ -125,18 +136,52 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
             _searchResults = success.data.places;
             _lastSearchResult = success.data;
           });
+
+          AmplitudeAnalytics.logEvent(
+            'place_search_success',
+            properties: <String, dynamic>{
+              'query': query,
+              'result_count': success.data.places.length,
+            },
+          );
         case final AppFailure<SearchResult> failure:
           showErrorFromAppResult(context, failure);
+
+          AmplitudeAnalytics.logEvent(
+            'place_search_failed',
+            properties: <String, dynamic>{
+              'query': query,
+              'error_type': failure.exceptionOrNull?.runtimeType.toString(),
+            },
+          );
       }
     }
   }
 
   void _selectPlace(Place place) {
+    AmplitudeAnalytics.logEvent(
+      'place_search_place_selected',
+      properties: <String, dynamic>{
+        'place_title': place.title,
+        'place_address': place.address,
+        'place_latitude': place.latitude,
+        'place_longitude': place.longitude,
+      },
+    );
+
     Navigator.of(context).pop(place);
   }
 
   void _selectAllPlaces() {
     if (_searchResults.isNotEmpty && _lastSearchResult != null) {
+      AmplitudeAnalytics.logEvent(
+        'place_search_all_selected',
+        properties: <String, dynamic>{
+          'total_places': _searchResults.length,
+          'query': _lastSearchResult!.query,
+        },
+      );
+
       Navigator.of(context).pop(_lastSearchResult);
     }
   }
@@ -239,13 +284,26 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
               searchFocusNode: _searchFocusNode,
               onSearchChanged: _onSearchTextChanged,
               onSearchSubmitted: (String query) {
+                AmplitudeAnalytics.logEvent(
+                  'place_search_submitted',
+                  properties: <String, dynamic>{
+                    'query': query,
+                    'query_length': query.length,
+                    'search_type': 'submitted',
+                  },
+                );
+
                 _performSearch(query);
                 // 키보드 확인 버튼을 눌렀을 때 검색 결과를 모두 반환
                 Future<void>.delayed(const Duration(milliseconds: 100), () {
                   _selectAllPlaces();
                 });
               },
-              onBackPressed: () => Navigator.of(context).pop(),
+              onBackPressed: () {
+                // 뒤로가기 이벤트
+                AmplitudeAnalytics.logButtonClick('place_search_back');
+                Navigator.of(context).pop();
+              },
             ),
             Expanded(child: _buildSearchResults()),
           ],
