@@ -10,6 +10,8 @@ import 'package:urban_breeze/core/amplitude/amplitude_service.dart';
 import 'package:urban_breeze/core/services/app_tracking_service.dart';
 import 'package:urban_breeze/core/theme/app_theme.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart' as auth;
+import 'package:urban_breeze/features/auth/presentation/screens/consent_screen.dart';
 import 'package:urban_breeze/features/auth/presentation/screens/login_screen.dart';
 import 'package:urban_breeze/navigation/navigation_scaffold.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
@@ -82,10 +84,32 @@ class MyApp extends ConsumerWidget {
 
   final GlobalKey<NavigatorState> navigatorKey;
 
+  Widget _buildHomeScreen({
+    required bool isAuthInitialized,
+    required bool isLoggedIn,
+    required auth.User? user,
+  }) {
+    if (!isAuthInitialized) {
+      return const SplashScreen();
+    }
+
+    if (!isLoggedIn) {
+      return const LoginScreen();
+    }
+
+    // 첫 로그인인 경우 동의창으로 이동
+    if (user?.isFirstLogin == true) {
+      return const ConsentScreen();
+    }
+
+    return const NavigationScaffold();
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isAuthInitialized = ref.watch(isAuthInitializedProvider);
     final bool isLoggedIn = ref.watch(isLoggedInProvider);
+    final auth.User? user = ref.watch(userSessionNotifierProvider);
 
     return MaterialApp(
       title: 'Urban Breeze',
@@ -94,12 +118,11 @@ class MyApp extends ConsumerWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
       navigatorKey: navigatorKey,
-      home:
-          !isAuthInitialized
-              ? const SplashScreen()
-              : isLoggedIn
-              ? const NavigationScaffold()
-              : const LoginScreen(),
+      home: _buildHomeScreen(
+        isAuthInitialized: isAuthInitialized,
+        isLoggedIn: isLoggedIn,
+        user: user,
+      ),
       builder: (BuildContext context, Widget? child) {
         final SemanticColors semanticColors = AppTheme.getSemanticColors(
           Theme.of(context).brightness,

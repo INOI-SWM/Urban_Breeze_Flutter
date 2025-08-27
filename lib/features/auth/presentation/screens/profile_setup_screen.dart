@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
-import 'package:urban_breeze/features/auth/di/auth_providers.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 
@@ -27,11 +26,7 @@ class ProfileSetupScreen extends ConsumerWidget {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    ref
-                        .read(profileSetupNotifierProvider.notifier)
-                        .markProfileSetupCompleted();
-                  },
+                  onPressed: () {},
                   child: const Text('프로필 설정 완료'),
                 ),
               ),

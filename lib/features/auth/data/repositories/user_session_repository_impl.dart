@@ -1,9 +1,9 @@
 import 'dart:convert';
 
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/user_session_repository.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class UserSessionRepositoryImpl implements UserSessionRepository {
   static const String _userKey = 'user_session';
