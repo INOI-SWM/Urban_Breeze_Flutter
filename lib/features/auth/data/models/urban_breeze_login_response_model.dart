@@ -37,6 +37,7 @@ class UrbanBreezeLoginResponseModel {
       displayName: (userInfo['nickname'] as String?)?.trim(),
       photoUrl: (userInfo['profileImageUrl'] as String?)?.trim(),
       loginProvider: provider,
+      isFirstLogin: (userInfo['isFirstLogin'] ?? false) as bool,
     );
 
     return UrbanBreezeLoginResponseModel(tokens: tokens, user: user);
