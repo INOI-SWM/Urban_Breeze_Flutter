@@ -7,6 +7,7 @@ class User {
     this.displayName,
     this.photoUrl,
     required this.loginProvider,
+    this.isFirstLogin = false,
   });
 
   final String id;
@@ -14,4 +15,5 @@ class User {
   final String? displayName;
   final String? photoUrl;
   final LoginProvider loginProvider;
+  final bool isFirstLogin;
 }
