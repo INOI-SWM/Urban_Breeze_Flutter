@@ -17,6 +17,7 @@ class UserSessionRepositoryImpl implements UserSessionRepository {
       'displayName': user.displayName,
       'photoUrl': user.photoUrl,
       'loginProvider': user.loginProvider.name,
+      'isFirstLogin': user.isFirstLogin.toString(),
     };
     await prefs.setString(_userKey, jsonEncode(userJson));
   }
@@ -40,6 +41,7 @@ class UserSessionRepositoryImpl implements UserSessionRepository {
         loginProvider: LoginProviderExtension.fromJson(
           userJson['loginProvider'] as String,
         ),
+        isFirstLogin: userJson['isFirstLogin'] as bool,
       );
     } catch (e) {
       return null;

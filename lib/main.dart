@@ -98,7 +98,7 @@ class MyApp extends ConsumerWidget {
     }
 
     // 첫 로그인인 경우 동의창으로 이동
-    if (user?.isFirstLogin == true) {
+    if (user!.isFirstLogin == true) {
       return const ConsentScreen();
     }
 
