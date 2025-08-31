@@ -133,6 +133,9 @@ PODS:
     - Flutter
     - TerraiOS (~> 1.6.28)
   - TerraiOS (1.6.28)
+  - webview_flutter_wkwebview (0.0.1):
+    - Flutter
+    - FlutterMacOS
 
 DEPENDENCIES:
   - amplitude_flutter (from `.symlinks/plugins/amplitude_flutter/darwin`)
@@ -151,6 +154,7 @@ DEPENDENCIES:
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
   - terra_flutter_bridge (from `.symlinks/plugins/terra_flutter_bridge/ios`)
+  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
 SPEC REPOS:
   trunk:
@@ -211,6 +215,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sign_in_with_apple/ios"
   terra_flutter_bridge:
     :path: ".symlinks/plugins/terra_flutter_bridge/ios"
+  webview_flutter_wkwebview:
+    :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
   amplitude_flutter: 4eb26cea5f147c917075bc8cb57449de518159a5
@@ -252,6 +258,7 @@ SPEC CHECKSUMS:
   sign_in_with_apple: c5dcc141574c8c54d5ac99dd2163c0c72ad22418
   terra_flutter_bridge: d87e891e3cea43f47245072b0c55a028fdd95711
   TerraiOS: 131a86c453923b98c47e84dc79db2ea6bab7e3cc
+  webview_flutter_wkwebview: 1821ceac936eba6f7984d89a9f3bcb4dea99ebb2
 
 PODFILE CHECKSUM: ae9e65fc23486119b8e977fd41d9213f251e537a
 
