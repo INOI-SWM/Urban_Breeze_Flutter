@@ -21,11 +21,30 @@ class _ConsentScreenState extends State<ConsentScreen> {
 
   bool get _isAllConsented => _privacyConsent && _locationConsent;
 
+  void _openPrivacyPolicy() {
+    // TODO: 실제 개인정보처리방침 URL로 변경
+    const String privacyPolicyUrl = 'https://naver.com';
+
+    // url_launcher 패키지를 사용하여 웹사이트 열기
+    // 또는 앱 내 웹뷰로 열기
+    print('개인정보처리방침 열기: $privacyPolicyUrl');
+
+    // 실제 구현 시에는 다음과 같이 사용:
+    // launchUrl(Uri.parse(privacyPolicyUrl));
+  }
+
+  void _openLocationPolicy() {
+    // TODO: 실제 위치기반서비스 약관 URL로 변경
+    const String locationPolicyUrl = 'https://naver.com';
+  }
+
   Widget _buildConsentCheckbox({
     required String title,
     String? consentKey,
     bool isAllConsent = false,
     required SemanticColors colors,
+    String? detailText,
+    VoidCallback? onDetailTap,
   }) {
     final bool isChecked =
         isAllConsent
@@ -72,7 +91,24 @@ class _ConsentScreenState extends State<ConsentScreen> {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(title, style: AppTextStyles.body1.readingRegular),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Text(title, style: AppTextStyles.body1.readingRegular),
+                ),
+                if (detailText != null)
+                  GestureDetector(
+                    onTap: onDetailTap,
+                    child: Text(
+                      detailText,
+                      style: AppTextStyles.body1.readingRegular.copyWith(
+                        color: colors.primaryNormal,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ],
       ),
@@ -107,12 +143,20 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 title: '개인정보처리방침 동의 (필수)',
                 consentKey: 'privacy',
                 colors: colors,
+                detailText: '(자세히)',
+                onDetailTap: () {
+                  _openPrivacyPolicy();
+                },
               ),
               const SizedBox(height: 16),
               _buildConsentCheckbox(
                 title: '위치기반서비스 동의 (필수)',
                 consentKey: 'location',
                 colors: colors,
+                detailText: '(자세히)',
+                onDetailTap: () {
+                  _openLocationPolicy();
+                },
               ),
               const SizedBox(height: 16),
               //Separate line
