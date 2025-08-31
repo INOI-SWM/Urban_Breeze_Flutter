@@ -34,31 +34,48 @@ class _ConsentScreenState extends State<ConsentScreen> {
             ? _privacyConsent
             : _locationConsent;
 
-    return Row(
-      children: <Widget>[
-        CustomCheckbox(
-          value: isChecked,
-          onChanged: (bool value) {
-            setState(() {
-              if (isAllConsent) {
-                // 모두 동의 체크박스
-                _privacyConsent = value;
-                _locationConsent = value;
-              } else {
-                // 개별 체크박스
-                if (consentKey == 'privacy') {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          if (isAllConsent) {
+            final bool newValue = !(_privacyConsent && _locationConsent);
+            _privacyConsent = newValue;
+            _locationConsent = newValue;
+          } else {
+            if (consentKey == 'privacy') {
+              _privacyConsent = !_privacyConsent;
+            } else if (consentKey == 'location') {
+              _locationConsent = !_locationConsent;
+            }
+          }
+        });
+      },
+      child: Row(
+        children: <Widget>[
+          CustomCheckbox(
+            value: isChecked,
+            onChanged: (bool value) {
+              setState(() {
+                if (isAllConsent) {
                   _privacyConsent = value;
-                } else if (consentKey == 'location') {
                   _locationConsent = value;
+                } else {
+                  if (consentKey == 'privacy') {
+                    _privacyConsent = value;
+                  } else if (consentKey == 'location') {
+                    _locationConsent = value;
+                  }
                 }
-              }
-            });
-          },
-          colors: colors,
-        ),
-        const SizedBox(width: 8),
-        Expanded(child: Text(title, style: AppTextStyles.body1.readingRegular)),
-      ],
+              });
+            },
+            colors: colors,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(title, style: AppTextStyles.body1.readingRegular),
+          ),
+        ],
+      ),
     );
   }
 
