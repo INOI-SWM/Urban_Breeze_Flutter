@@ -1,9 +1,11 @@
 import 'package:urban_breeze/features/my_route/data/models/my_route_filter_model.dart';
 import 'package:urban_breeze/features/my_route/data/models/my_route_list_data_model.dart';
 import 'package:urban_breeze/features/my_route/data/models/my_route_model.dart';
+import 'package:urban_breeze/features/my_route/data/models/my_route_detail_model.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route_filter.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route_list.dart';
+import 'package:urban_breeze/features/my_route/domain/entities/my_route_detail.dart';
 import 'package:urban_breeze/features/my_route/domain/enums/my_route_sort_type.dart';
 import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 
@@ -106,6 +108,33 @@ class MyRouteMapper {
       size: data.pagination.size,
       hasNext: data.pagination.hasNext,
       hasPrevious: data.pagination.hasPrevious,
+    );
+  }
+
+  /// ApiResponseModel을 MyRouteDetail 엔티티로 변환
+  static MyRouteDetail fromDetailApiResponse(
+    ApiResponseModel<MyRouteDetailModel> response,
+  ) {
+    final MyRouteDetailModel data = response.data;
+
+    return MyRouteDetail(
+      id: data.id,
+      title: data.title,
+      createdAt: data.createdAt,
+      duration: data.duration,
+      distance: data.distance,
+      elevationGain: data.elevationGain,
+      userId: data.userId,
+      nickname: data.nickname,
+      profileImageUrl: data.profileImageUrl,
+      trackPointsCount: data.trackPointsCount,
+      trackPoints:
+          data.trackPoints
+              .map(
+                (TrackPointModel model) =>
+                    TrackPoint(index: model.index, elevation: model.elevation),
+              )
+              .toList(),
     );
   }
 }
