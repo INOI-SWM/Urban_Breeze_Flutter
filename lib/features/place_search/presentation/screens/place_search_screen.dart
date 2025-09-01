@@ -14,6 +14,7 @@ import 'package:urban_breeze/features/route_planning/application/use_cases/get_c
 import 'package:urban_breeze/features/route_planning/di/route_providers.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/search_app_bar.dart';
+import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
@@ -188,7 +189,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
 
   Widget _buildSearchResults() {
     if (_isSearching) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: AppLoadingIndicator());
     }
 
     if (_searchController.text.trim().isEmpty) {

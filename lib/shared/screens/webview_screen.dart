@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebViewScreen extends StatefulWidget {
@@ -58,7 +59,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
       body: Stack(
         children: <Widget>[
           WebViewWidget(controller: controller),
-          if (isLoading) const Center(child: CircularProgressIndicator()),
+          if (isLoading) const Center(child: AppLoadingIndicator()),
         ],
       ),
     );
