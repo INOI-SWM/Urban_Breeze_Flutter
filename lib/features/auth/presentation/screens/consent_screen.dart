@@ -18,10 +18,12 @@ class ConsentScreen extends StatefulWidget {
 }
 
 class _ConsentScreenState extends State<ConsentScreen> {
+  bool _serviceConsent = false;
   bool _privacyConsent = false;
   bool _locationConsent = false;
 
-  bool get _isAllConsented => _privacyConsent && _locationConsent;
+  bool get _isAllConsented =>
+      _serviceConsent && _privacyConsent && _locationConsent;
 
   void _openWebviewScreen(String url, String title) {
     Navigator.push<Widget>(
@@ -31,6 +33,44 @@ class _ConsentScreenState extends State<ConsentScreen> {
             (BuildContext context) => WebViewScreen(url: url, title: title),
       ),
     );
+  }
+
+  void _handleConsentChange(String? consentKey, bool isAllConsent, bool value) {
+    setState(() {
+      if (isAllConsent) {
+        _serviceConsent = value;
+        _privacyConsent = value;
+        _locationConsent = value;
+      } else {
+        switch (consentKey) {
+          case 'service':
+            _serviceConsent = value;
+            break;
+          case 'privacy':
+            _privacyConsent = value;
+            break;
+          case 'location':
+            _locationConsent = value;
+            break;
+        }
+      }
+    });
+  }
+
+  void _handleConsentTap(String? consentKey, bool isAllConsent) {
+    if (isAllConsent) {
+      final bool newValue =
+          !(_serviceConsent && _privacyConsent && _locationConsent);
+      _handleConsentChange(consentKey, isAllConsent, newValue);
+    } else {
+      final bool currentValue = switch (consentKey) {
+        'service' => _serviceConsent,
+        'privacy' => _privacyConsent,
+        'location' => _locationConsent,
+        _ => false,
+      };
+      _handleConsentChange(consentKey, isAllConsent, !currentValue);
+    }
   }
 
   Widget _buildConsentCheckbox({
@@ -43,69 +83,55 @@ class _ConsentScreenState extends State<ConsentScreen> {
   }) {
     final bool isChecked =
         isAllConsent
-            ? _privacyConsent && _locationConsent
-            : consentKey == 'privacy'
-            ? _privacyConsent
-            : _locationConsent;
+            ? _serviceConsent && _privacyConsent && _locationConsent
+            : switch (consentKey) {
+              'service' => _serviceConsent,
+              'privacy' => _privacyConsent,
+              'location' => _locationConsent,
+              _ => false,
+            };
 
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          if (isAllConsent) {
-            final bool newValue = !(_privacyConsent && _locationConsent);
-            _privacyConsent = newValue;
-            _locationConsent = newValue;
-          } else {
-            if (consentKey == 'privacy') {
-              _privacyConsent = !_privacyConsent;
-            } else if (consentKey == 'location') {
-              _locationConsent = !_locationConsent;
-            }
-          }
-        });
-      },
-      child: Row(
-        children: <Widget>[
-          CustomCheckbox(
-            value: isChecked,
-            onChanged: (bool value) {
-              setState(() {
-                if (isAllConsent) {
-                  _privacyConsent = value;
-                  _locationConsent = value;
-                } else {
-                  if (consentKey == 'privacy') {
-                    _privacyConsent = value;
-                  } else if (consentKey == 'location') {
-                    _locationConsent = value;
-                  }
-                }
-              });
-            },
-            colors: colors,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Text(title, style: AppTextStyles.body1.readingRegular),
-                ),
-                if (detailText != null)
-                  GestureDetector(
-                    onTap: onDetailTap,
+      onTap: () => _handleConsentTap(consentKey, isAllConsent),
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
+          children: <Widget>[
+            CustomCheckbox(
+              value: isChecked,
+              onChanged:
+                  (bool value) =>
+                      _handleConsentChange(consentKey, isAllConsent, value),
+              colors: colors,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Row(
+                children: <Widget>[
+                  Expanded(
                     child: Text(
-                      detailText,
-                      style: AppTextStyles.body1.readingRegular.copyWith(
-                        color: colors.primaryNormal,
-                        decoration: TextDecoration.underline,
-                      ),
+                      title,
+                      style: AppTextStyles.body1.readingRegular,
                     ),
                   ),
-              ],
+                  if (detailText != null)
+                    GestureDetector(
+                      onTap: onDetailTap,
+                      behavior: HitTestBehavior.opaque,
+                      child: Text(
+                        detailText,
+                        style: AppTextStyles.body1.readingRegular.copyWith(
+                          color: colors.primaryNormal,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -142,7 +168,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   _openWebviewScreen(servicePolicyUrl, '서비스 이용약관');
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               _buildConsentCheckbox(
                 title: '개인정보처리방침 동의 (필수)',
                 consentKey: 'privacy',
@@ -153,7 +179,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 },
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               _buildConsentCheckbox(
                 title: '위치기반서비스 동의 (필수)',
                 consentKey: 'location',
@@ -163,10 +189,10 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   _openWebviewScreen(locationPolicyUrl, '위치기반서비스 약관');
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               //Separate line
               Divider(color: colors.lineNormalNormal, height: 1),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               _buildConsentCheckbox(
                 title: '모든 약관에 동의합니다',
                 isAllConsent: true,
