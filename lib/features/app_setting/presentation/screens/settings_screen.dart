@@ -15,6 +15,8 @@ import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
+import 'package:urban_breeze/shared/screens/webview_constant.dart';
+import 'package:urban_breeze/shared/utils/webview_navigation.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -39,10 +41,15 @@ class SettingsScreen extends ConsumerWidget {
             SettingsSection(
               children: <Widget>[
                 SettingsItem(
-                  title: '이용 약관',
+                  title: '서비스 이용약관',
                   onPressed: () {
                     AmplitudeAnalytics.logButtonClick(
                       'settings_terms_of_service',
+                    );
+                    WebViewNavigation.navigateToWebView(
+                      context,
+                      url: servicePolicyUrl,
+                      title: '서비스 이용약관',
                     );
                   },
                 ),
@@ -51,6 +58,24 @@ class SettingsScreen extends ConsumerWidget {
                   onPressed: () {
                     AmplitudeAnalytics.logButtonClick(
                       'settings_privacy_policy',
+                    );
+                    WebViewNavigation.navigateToWebView(
+                      context,
+                      url: privacyPolicyUrl,
+                      title: '개인정보 처리방침',
+                    );
+                  },
+                ),
+                SettingsItem(
+                  title: '위치기반서비스 동의',
+                  onPressed: () {
+                    AmplitudeAnalytics.logButtonClick(
+                      'settings_location_service',
+                    );
+                    WebViewNavigation.navigateToWebView(
+                      context,
+                      url: locationPolicyUrl,
+                      title: '위치기반서비스 동의',
                     );
                   },
                 ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/auth/presentation/screens/profile_setup_screen.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
@@ -8,7 +9,7 @@ import 'package:urban_breeze/shared/design_system/widgets/button/button_size.dar
 import 'package:urban_breeze/shared/design_system/widgets/button/button_solid.dart';
 import 'package:urban_breeze/shared/design_system/widgets/checkbox/custom_checkbox.dart';
 import 'package:urban_breeze/shared/screens/webview_constant.dart';
-import 'package:urban_breeze/shared/screens/webview_screen.dart';
+import 'package:urban_breeze/shared/utils/webview_navigation.dart';
 
 class ConsentScreen extends StatefulWidget {
   const ConsentScreen({super.key});
@@ -24,16 +25,6 @@ class _ConsentScreenState extends State<ConsentScreen> {
 
   bool get _isAllConsented =>
       _serviceConsent && _privacyConsent && _locationConsent;
-
-  void _openWebviewScreen(String url, String title) {
-    Navigator.push<Widget>(
-      context,
-      MaterialPageRoute<Widget>(
-        builder:
-            (BuildContext context) => WebViewScreen(url: url, title: title),
-      ),
-    );
-  }
 
   void _handleConsentChange(String? consentKey, bool isAllConsent, bool value) {
     setState(() {
@@ -138,6 +129,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    AmplitudeAnalytics.logScreenView('consent_screen');
     final SemanticColors colors = context.semanticColor;
     return Scaffold(
       appBar: const CustomAppBar(centerTitle: true, title: '이용약관 동의'),
@@ -165,7 +157,14 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 colors: colors,
                 detailText: '(자세히)',
                 onDetailTap: () {
-                  _openWebviewScreen(servicePolicyUrl, '서비스 이용약관');
+                  AmplitudeAnalytics.logButtonClick(
+                    'consent_service_policy_detail',
+                  );
+                  WebViewNavigation.navigateToWebView(
+                    context,
+                    url: servicePolicyUrl,
+                    title: '서비스 이용약관',
+                  );
                 },
               ),
               const SizedBox(height: 8),
@@ -175,7 +174,14 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 colors: colors,
                 detailText: '(자세히)',
                 onDetailTap: () {
-                  _openWebviewScreen(privacyPolicyUrl, '개인정보처리방침');
+                  AmplitudeAnalytics.logButtonClick(
+                    'consent_privacy_policy_detail',
+                  );
+                  WebViewNavigation.navigateToWebView(
+                    context,
+                    url: privacyPolicyUrl,
+                    title: '개인정보처리방침',
+                  );
                 },
               ),
 
@@ -186,7 +192,14 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 colors: colors,
                 detailText: '(자세히)',
                 onDetailTap: () {
-                  _openWebviewScreen(locationPolicyUrl, '위치기반서비스 약관');
+                  AmplitudeAnalytics.logButtonClick(
+                    'consent_location_policy_detail',
+                  );
+                  WebViewNavigation.navigateToWebView(
+                    context,
+                    url: locationPolicyUrl,
+                    title: '위치기반서비스 약관',
+                  );
                 },
               ),
               const SizedBox(height: 8),
@@ -210,6 +223,9 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   onPressed:
                       _isAllConsented
                           ? () {
+                            AmplitudeAnalytics.logButtonClick(
+                              'consent_agree_done',
+                            );
                             // 동의 완료 후 프로필 설정 화면으로 이동
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute<Widget>(
