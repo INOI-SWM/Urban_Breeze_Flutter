@@ -1,11 +1,11 @@
+import 'package:urban_breeze/features/my_route/data/models/my_route_detail_model.dart';
 import 'package:urban_breeze/features/my_route/data/models/my_route_filter_model.dart';
 import 'package:urban_breeze/features/my_route/data/models/my_route_list_data_model.dart';
 import 'package:urban_breeze/features/my_route/data/models/my_route_model.dart';
-import 'package:urban_breeze/features/my_route/data/models/my_route_detail_model.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route.dart';
+import 'package:urban_breeze/features/my_route/domain/entities/my_route_detail.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route_filter.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route_list.dart';
-import 'package:urban_breeze/features/my_route/domain/entities/my_route_detail.dart';
 import 'package:urban_breeze/features/my_route/domain/enums/my_route_sort_type.dart';
 import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 
