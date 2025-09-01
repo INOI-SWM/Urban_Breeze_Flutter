@@ -1,9 +1,9 @@
 import 'dart:convert';
 
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/user_session_repository.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class UserSessionRepositoryImpl implements UserSessionRepository {
   static const String _userKey = 'user_session';
@@ -17,6 +17,7 @@ class UserSessionRepositoryImpl implements UserSessionRepository {
       'displayName': user.displayName,
       'photoUrl': user.photoUrl,
       'loginProvider': user.loginProvider.name,
+      'isFirstLogin': user.isFirstLogin.toString(),
     };
     await prefs.setString(_userKey, jsonEncode(userJson));
   }
@@ -40,6 +41,7 @@ class UserSessionRepositoryImpl implements UserSessionRepository {
         loginProvider: LoginProviderExtension.fromJson(
           userJson['loginProvider'] as String,
         ),
+        isFirstLogin: userJson['isFirstLogin'] as bool,
       );
     } catch (e) {
       return null;

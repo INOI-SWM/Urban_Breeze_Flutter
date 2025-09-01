@@ -36,6 +36,7 @@ dependencies:
   terra_flutter_bridge: ^0.8.0
   amplitude_flutter: ^4.3.7
   app_tracking_transparency: ^2.0.6+1
+  webview_flutter: ^4.13.0
 
 dev_dependencies:
   flutter_test:
