@@ -7,6 +7,7 @@ import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar
 import 'package:urban_breeze/shared/design_system/widgets/button/button_size.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_solid.dart';
 import 'package:urban_breeze/shared/design_system/widgets/checkbox/custom_checkbox.dart';
+import 'package:urban_breeze/shared/screens/webview_constant.dart';
 import 'package:urban_breeze/shared/screens/webview_screen.dart';
 
 class ConsentScreen extends StatefulWidget {
@@ -131,17 +132,27 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 '계속 진행하시려면 아래 권한에 동의해 주세요',
                 style: AppTextStyles.heading2.bold,
               ),
-
-              const SizedBox(height: 24),
+              const SizedBox(height: 40),
+              _buildConsentCheckbox(
+                title: '서비스 이용약관 동의 (필수)',
+                consentKey: 'service',
+                colors: colors,
+                detailText: '(자세히)',
+                onDetailTap: () {
+                  _openWebviewScreen(servicePolicyUrl, '서비스 이용약관');
+                },
+              ),
+              const SizedBox(height: 16),
               _buildConsentCheckbox(
                 title: '개인정보처리방침 동의 (필수)',
                 consentKey: 'privacy',
                 colors: colors,
                 detailText: '(자세히)',
                 onDetailTap: () {
-                  _openWebviewScreen('https://naver.com', '개인정보처리방침');
+                  _openWebviewScreen(privacyPolicyUrl, '개인정보처리방침');
                 },
               ),
+
               const SizedBox(height: 16),
               _buildConsentCheckbox(
                 title: '위치기반서비스 동의 (필수)',
@@ -149,7 +160,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
                 colors: colors,
                 detailText: '(자세히)',
                 onDetailTap: () {
-                  _openWebviewScreen('https://naver.com', '위치기반서비스 약관');
+                  _openWebviewScreen(locationPolicyUrl, '위치기반서비스 약관');
                 },
               ),
               const SizedBox(height: 16),
