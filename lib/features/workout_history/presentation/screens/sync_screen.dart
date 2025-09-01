@@ -9,6 +9,7 @@ import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
+import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 
 class SyncScreen extends ConsumerStatefulWidget {
   const SyncScreen({super.key});
@@ -331,7 +332,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
 
               if (_isLoading) ...<Widget>[
                 const SizedBox(height: 24),
-                const Center(child: CircularProgressIndicator()),
+                const Center(child: AppLoadingIndicator()),
               ],
             ],
           ),

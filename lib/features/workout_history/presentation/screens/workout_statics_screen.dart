@@ -8,6 +8,7 @@ import 'package:urban_breeze/shared/chart/chart_builders.dart';
 import 'package:urban_breeze/shared/chart/chart_style_config.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/info/info_item.dart';
+import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/design_system/widgets/segmented_control/segmented_control.dart';
 import 'package:urban_breeze/shared/utils/period_utils.dart';
 import 'package:urban_breeze/shared/utils/workout_formatter.dart';
@@ -231,7 +232,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
   Widget _buildLoadingState() {
     return const Padding(
       padding: _UIConstants.loadingPadding,
-      child: Center(child: CircularProgressIndicator()),
+      child: Center(child: AppLoadingIndicator()),
     );
   }
 

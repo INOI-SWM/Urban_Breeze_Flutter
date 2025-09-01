@@ -12,6 +12,7 @@ import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
 import 'package:urban_breeze/features/auth/presentation/widgets/login_button.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -97,7 +98,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       return Container(
         height: 48,
         alignment: Alignment.center,
-        child: const CircularProgressIndicator(),
+        child: const AppLoadingIndicator(),
       );
     }
 

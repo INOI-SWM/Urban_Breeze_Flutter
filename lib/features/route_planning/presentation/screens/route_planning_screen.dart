@@ -16,6 +16,7 @@ import 'package:urban_breeze/features/route_planning/presentation/widgets/route_
 import 'package:urban_breeze/features/route_planning/presentation/widgets/route_creation_actions.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
+import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/design_system/widgets/marker/route_pin_marker.dart';
 import 'package:urban_breeze/shared/map/common_map_widgets.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
@@ -353,7 +354,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
+      builder: (_) => const Center(child: AppLoadingIndicator()),
     );
 
     try {
@@ -446,7 +447,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
     if (_isLocationLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: AppLoadingIndicator());
     }
 
     return Scaffold(
@@ -555,7 +556,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                   ),
                   if (_isRouteLoading)
                     const Positioned.fill(
-                      child: Center(child: CircularProgressIndicator()),
+                      child: Center(child: AppLoadingIndicator()),
                     ),
                   if (!_isSaveMode)
                     Positioned(

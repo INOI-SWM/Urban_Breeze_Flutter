@@ -14,6 +14,7 @@ import 'package:urban_breeze/navigation/page_with_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/card/route_card.dart';
 import 'package:urban_breeze/shared/design_system/widgets/category/category_filter.dart';
+import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/design_system/widgets/thumbnail/thumbnail.dart';
 import 'package:urban_breeze/shared/filter/filter_modal.dart';
 import 'package:urban_breeze/shared/filter/models/filter_data.dart';
@@ -198,7 +199,7 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
           Expanded(
             child:
                 isLoading
-                    ? const Center(child: CircularProgressIndicator())
+                    ? const Center(child: AppLoadingIndicator())
                     : errorMessage != null
                     ? Center(child: Text('오류: $errorMessage'))
                     : routeList.routes.isEmpty

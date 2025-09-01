@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 
 enum ThumbnailRatio {
   square,
@@ -54,7 +55,7 @@ class Thumbnail extends StatelessWidget {
           ImageChunkEvent? loadingProgress,
         ) {
           if (loadingProgress == null) return child;
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: AppLoadingIndicator());
         },
         errorBuilder: (
           BuildContext context,
