@@ -38,8 +38,8 @@ class SaveRouteUseCase {
         routeSegments,
       );
 
-      final List<double> elevations =
-          routeSegments.expand((RouteSegment seg) => seg.elevations).toList();
+      final List<List<double>> geometry =
+          PolylineConvertService.extractGeometryFromSegments(routeSegments);
 
       await _routeRepository.saveRoute(
         title: title,
@@ -48,7 +48,7 @@ class SaveRouteUseCase {
         distance: totalDistance,
         duration: totalDuration,
         elevationGain: elevationGain,
-        elevations: elevations,
+        geometry: geometry,
       );
     } catch (e) {
       throw RouteSaveException('경로 저장 중 오류가 발생했습니다: $e');
