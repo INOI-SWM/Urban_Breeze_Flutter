@@ -8,6 +8,7 @@ class RouteSegment {
     required this.duration,
     required this.elevationGain,
     required this.bbox,
+    required this.originalGeometry,
   });
 
   final List<LatLng> points;
@@ -16,4 +17,5 @@ class RouteSegment {
   final int duration; // 분
   final double elevationGain; // Strava 스타일 의미있는 상승고도(미터)
   final List<double> bbox; //경로를 포함하는 경계 상자 [minLng, minLat, maxLng, maxLat]
+  final List<List<double>> originalGeometry; // [longitude, latitude, elevation]
 }

@@ -1,8 +1,8 @@
 import 'package:latlong2/latlong.dart';
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/features/route_planning/data/models/route_segment_api_response_model.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
 import 'package:urban_breeze/features/route_planning/domain/services/elevation_calculate_service.dart';
-import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 
 class RouteMapper {
   static const int _elevationIndex = 2;
@@ -24,6 +24,7 @@ class RouteMapper {
       duration: dto.totalDuration,
       elevationGain: elevationGain,
       bbox: dto.bbox,
+      originalGeometry: dto.geometry,
     );
   }
 
