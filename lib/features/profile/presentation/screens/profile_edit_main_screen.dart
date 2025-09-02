@@ -11,17 +11,18 @@ import 'package:urban_breeze/features/profile/presentation/widgets/profile_image
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
+import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
 
-class ProfileEditScreen extends StatefulWidget {
-  const ProfileEditScreen({super.key, required this.user});
+class ProfileEditMainScreen extends StatefulWidget {
+  const ProfileEditMainScreen({super.key, required this.user});
 
   final User user;
 
   @override
-  State<ProfileEditScreen> createState() => _ProfileEditScreenState();
+  State<ProfileEditMainScreen> createState() => _ProfileEditMainScreenState();
 }
 
-class _ProfileEditScreenState extends State<ProfileEditScreen> {
+class _ProfileEditMainScreenState extends State<ProfileEditMainScreen> {
   String _nickname = '';
   String _bio = '';
   String _gender = '';
@@ -67,7 +68,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 imageUrl: widget.user.photoUrl!,
                 onPressed: () {
                   AmplitudeAnalytics.logButtonClick('profile_image_edit');
-                  // TODO: 프로필 사진 저장소, 또는 카메라로 수정 기능 추가
+                  _showProfileImageOptions();
                 },
               ),
 
@@ -172,5 +173,36 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         _birthYear = result;
       });
     }
+  }
+
+  void _showProfileImageOptions() {
+    showPlatformActionSheet(
+      context,
+      title: '프로필 사진 수정',
+      options: <PlatformActionSheetOption>[
+        PlatformActionSheetOption(
+          title: '사진 촬영',
+          onSelected: () {
+            AmplitudeAnalytics.logButtonClick('profile_image_camera');
+            // TODO: 카메라로 사진 촬영 기능 구현
+          },
+        ),
+        PlatformActionSheetOption(
+          title: '앨범에서 사진 선택',
+          onSelected: () {
+            AmplitudeAnalytics.logButtonClick('profile_image_gallery');
+            // TODO: 갤러리에서 사진 선택 기능 구현
+          },
+        ),
+        PlatformActionSheetOption(
+          title: '사진 삭제',
+          onSelected: () {
+            AmplitudeAnalytics.logButtonClick('profile_image_delete');
+            // TODO: 프로필 사진 삭제 기능 구현
+          },
+          isDestructive: true,
+        ),
+      ],
+    );
   }
 }
