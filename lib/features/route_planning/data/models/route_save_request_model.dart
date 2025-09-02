@@ -5,7 +5,7 @@ class RouteSaveRequestModel {
     required this.distance,
     required this.duration, // 분
     required this.elevationGain,
-    required this.elevations,
+    required this.geometry,
     required this.bbox,
   });
 
@@ -14,7 +14,7 @@ class RouteSaveRequestModel {
   final double distance;
   final int duration;
   final double elevationGain;
-  final List<double> elevations;
+  final List<List<double>> geometry; // [longitude, latitude, elevation]
   final List<double> bbox;
 
   Map<String, dynamic> toJson() {
@@ -24,7 +24,7 @@ class RouteSaveRequestModel {
       'distance': distance,
       'duration': duration,
       'elevationGain': elevationGain,
-      'elevations': elevations,
+      'geometry': geometry,
       'bbox': bbox,
     };
   }

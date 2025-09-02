@@ -6,6 +6,6 @@ abstract class RouteRepository {
     required double distance,
     required int duration,
     required double elevationGain,
-    required List<double> elevations,
+    required List<List<double>> geometry,
   });
 }

@@ -29,4 +29,16 @@ class PolylineConvertService {
       return <LatLng>[];
     }
   }
+
+  static List<List<double>> extractGeometryFromSegments(
+    List<RouteSegment> routeSegments,
+  ) {
+    final List<List<double>> geometry = <List<double>>[];
+
+    for (final RouteSegment segment in routeSegments) {
+      geometry.addAll(segment.originalGeometry);
+    }
+
+    return geometry;
+  }
 }

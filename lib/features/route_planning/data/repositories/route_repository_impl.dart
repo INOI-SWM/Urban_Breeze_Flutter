@@ -16,7 +16,7 @@ class RouteRepositoryImpl implements RouteRepository {
     required double distance,
     required int duration,
     required double elevationGain,
-    required List<double> elevations,
+    required List<List<double>> geometry,
   }) async {
     final RouteSaveRequestModel request = RouteSaveRequestModel(
       title: title,
@@ -25,7 +25,7 @@ class RouteRepositoryImpl implements RouteRepository {
       distance: distance,
       duration: duration,
       elevationGain: elevationGain,
-      elevations: elevations,
+      geometry: geometry,
     );
 
     await _routeRemoteDataSource.saveRoute(request);
