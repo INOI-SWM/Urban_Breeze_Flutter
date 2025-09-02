@@ -216,8 +216,14 @@ class _ConsentScreenState extends State<ConsentScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ButtonSolid(
-                  backgroundColor: colors.primaryNormal,
-                  textColor: colors.staticWhite,
+                  backgroundColor:
+                      _isAllConsented
+                          ? colors.primaryNormal
+                          : colors.interactionDisable,
+                  textColor:
+                      _isAllConsented
+                          ? colors.staticWhite
+                          : colors.labelAssistive,
                   size: ButtonSize.large,
                   text: '계속',
                   onPressed:
