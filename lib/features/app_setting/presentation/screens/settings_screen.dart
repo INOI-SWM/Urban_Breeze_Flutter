@@ -67,7 +67,7 @@ class SettingsScreen extends ConsumerWidget {
                   },
                 ),
                 SettingsItem(
-                  title: '위치기반서비스 동의',
+                  title: '위치기반 서비스 이용약관',
                   onPressed: () {
                     AmplitudeAnalytics.logButtonClick(
                       'settings_location_service',
@@ -112,12 +112,12 @@ class SettingsScreen extends ConsumerWidget {
 
             SettingsSection(
               children: <Widget>[
-                SettingsItem(
-                  title: '알림 설정',
-                  onPressed: () {
-                    AmplitudeAnalytics.logButtonClick('settings_notifications');
-                  },
-                ),
+                // SettingsItem(
+                //   title: '알림 설정',
+                //   onPressed: () {
+                //     AmplitudeAnalytics.logButtonClick('settings_notifications');
+                //   },
+                // ),
                 SettingsItem(
                   title: '계정 관리',
                   onPressed: () {
