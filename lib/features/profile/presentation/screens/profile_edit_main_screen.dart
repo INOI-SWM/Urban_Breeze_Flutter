@@ -210,6 +210,25 @@ class _ProfileEditMainScreenState extends State<ProfileEditMainScreen>
     );
   }
 
+  void _handleImageUpdate(XFile? image, String operation) {
+    if (image != null) {
+      setState(() {
+        // TODO: 이미지를 서버에 업로드하고 프로필 이미지로 설정
+        // _profileImagePath = image.path;
+      });
+
+      if (mounted) {
+        showSuccessMessage(context, '성공적으로 업데이트 했습니다');
+      }
+    }
+  }
+
+  void _handleImageError(String operation, dynamic error) {
+    if (mounted) {
+      showErrorMessage(context, '업데이트에 실패했습니다: ${error.toString()}');
+    }
+  }
+
   Future<void> _takePhotoWithCamera() async {
     try {
       final XFile? photo = await _imagePicker.pickImage(
@@ -218,24 +237,9 @@ class _ProfileEditMainScreenState extends State<ProfileEditMainScreen>
         maxWidth: 800,
         maxHeight: 800,
       );
-
-      if (photo != null) {
-        // TODO: 촬영된 사진을 서버에 업로드하고 프로필 이미지로 설정
-        setState(() {
-          // 임시로 로컬 이미지 경로 저장 (실제로는 서버 URL로 교체 필요)
-          // _profileImagePath = photo.path;
-        });
-
-        if (mounted) {
-          showSuccessMessage(context, '성공적으로 업데이트 했습니다');
-        }
-      }
+      _handleImageUpdate(photo, '카메라 촬영');
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('카메라 접근에 실패했습니다: ${e.toString()}')),
-        );
-      }
+      _handleImageError('카메라 접근', e);
     }
   }
 
@@ -247,24 +251,9 @@ class _ProfileEditMainScreenState extends State<ProfileEditMainScreen>
         maxWidth: 800,
         maxHeight: 800,
       );
-
-      if (image != null) {
-        // TODO: 선택된 사진을 서버에 업로드하고 프로필 이미지로 설정
-        setState(() {
-          // 임시로 로컬 이미지 경로 저장 (실제로는 서버 URL로 교체 필요)
-          // _profileImagePath = image.path;
-        });
-
-        if (mounted) {
-          showSuccessMessage(context, '성공적으로 업데이트했습니다');
-        }
-      }
+      _handleImageUpdate(image, '갤러리 선택');
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('갤러리 접근에 실패했습니다: ${e.toString()}')),
-        );
-      }
+      _handleImageError('갤러리 접근', e);
     }
   }
 
