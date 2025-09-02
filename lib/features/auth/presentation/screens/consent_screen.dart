@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
-import 'package:urban_breeze/features/auth/presentation/screens/profile_setup_screen.dart';
+import 'package:urban_breeze/navigation/navigation_scaffold.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
@@ -225,19 +225,18 @@ class _ConsentScreenState extends State<ConsentScreen> {
                           ? colors.staticWhite
                           : colors.labelAssistive,
                   size: ButtonSize.large,
-                  text: '계속',
+                  text: '가입하기',
                   onPressed:
                       _isAllConsented
                           ? () {
                             AmplitudeAnalytics.logButtonClick(
                               'consent_agree_done',
                             );
-                            // 동의 완료 후 프로필 설정 화면으로 이동
                             Navigator.of(context).pushReplacement(
                               MaterialPageRoute<Widget>(
                                 builder:
                                     (BuildContext context) =>
-                                        const ProfileSetupScreen(),
+                                        const NavigationScaffold(),
                               ),
                             );
                           }
