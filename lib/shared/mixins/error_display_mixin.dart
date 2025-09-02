@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/shared/utils/error_message_mapper.dart';
 
 mixin ErrorDisplayMixin {
@@ -33,11 +33,7 @@ mixin ErrorDisplayMixin {
 
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-      ),
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
     );
   }
 
