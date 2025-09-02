@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
@@ -11,21 +12,25 @@ import 'package:urban_breeze/features/profile/presentation/widgets/profile_image
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
+import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
+import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
 
-class ProfileEditScreen extends StatefulWidget {
-  const ProfileEditScreen({super.key, required this.user});
+class ProfileEditMainScreen extends StatefulWidget {
+  const ProfileEditMainScreen({super.key, required this.user});
 
   final User user;
 
   @override
-  State<ProfileEditScreen> createState() => _ProfileEditScreenState();
+  State<ProfileEditMainScreen> createState() => _ProfileEditMainScreenState();
 }
 
-class _ProfileEditScreenState extends State<ProfileEditScreen> {
+class _ProfileEditMainScreenState extends State<ProfileEditMainScreen>
+    with ErrorDisplayMixin {
   String _nickname = '';
   String _bio = '';
   String _gender = '';
   String _birthYear = '';
+  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   void initState() {
@@ -67,7 +72,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 imageUrl: widget.user.photoUrl!,
                 onPressed: () {
                   AmplitudeAnalytics.logButtonClick('profile_image_edit');
-                  // TODO: 프로필 사진 저장소, 또는 카메라로 수정 기능 추가
+                  _showProfileImageOptions();
                 },
               ),
 
@@ -172,5 +177,93 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         _birthYear = result;
       });
     }
+  }
+
+  void _showProfileImageOptions() {
+    showPlatformActionSheet(
+      context,
+      title: '프로필 사진 수정',
+      options: <PlatformActionSheetOption>[
+        PlatformActionSheetOption(
+          title: '사진 촬영',
+          onSelected: () {
+            AmplitudeAnalytics.logButtonClick('profile_image_camera');
+            _takePhotoWithCamera();
+          },
+        ),
+        PlatformActionSheetOption(
+          title: '앨범에서 사진 선택',
+          onSelected: () {
+            AmplitudeAnalytics.logButtonClick('profile_image_gallery');
+            _pickImageFromGallery();
+          },
+        ),
+        PlatformActionSheetOption(
+          title: '사진 삭제',
+          onSelected: () {
+            AmplitudeAnalytics.logButtonClick('profile_image_delete');
+            _deleteProfileImage();
+          },
+          isDestructive: true,
+        ),
+      ],
+    );
+  }
+
+  void _handleImageUpdate(XFile? image, String operation) {
+    if (image != null) {
+      setState(() {
+        // TODO: 이미지를 서버에 업로드하고 프로필 이미지로 설정
+        // _profileImagePath = image.path;
+      });
+
+      if (mounted) {
+        showSuccessMessage(context, '성공적으로 업데이트 했습니다');
+      }
+    }
+  }
+
+  void _handleImageError(String operation, dynamic error) {
+    if (mounted) {
+      showErrorMessage(context, '업데이트에 실패했습니다: ${error.toString()}');
+    }
+  }
+
+  Future<void> _takePhotoWithCamera() async {
+    try {
+      final XFile? photo = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 80,
+        maxWidth: 800,
+        maxHeight: 800,
+      );
+      _handleImageUpdate(photo, '카메라 촬영');
+    } catch (e) {
+      _handleImageError('카메라 접근', e);
+    }
+  }
+
+  Future<void> _pickImageFromGallery() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+        maxWidth: 800,
+        maxHeight: 800,
+      );
+      _handleImageUpdate(image, '갤러리 선택');
+    } catch (e) {
+      _handleImageError('갤러리 접근', e);
+    }
+  }
+
+  void _deleteProfileImage() {
+    // TODO: 프로필 사진 삭제 API 호출
+    setState(() {
+      // 기본 이미지로 설정
+      // _profileImagePath = null;
+    });
+
+    showSuccessMessage(context, '성공적으로 업데이트 했습니다');
   }
 }

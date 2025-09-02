@@ -55,7 +55,7 @@ class ProfileImageEditButton extends StatelessWidget {
                     ),
                   ),
                   child: Icon(
-                    Icons.camera_alt,
+                    Icons.edit_outlined,
                     size: 12,
                     color: colors.staticWhite,
                   ),

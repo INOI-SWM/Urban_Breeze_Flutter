@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
-import 'package:urban_breeze/features/profile/presentation/screens/profile_edit_screen.dart';
+import 'package:urban_breeze/features/profile/presentation/screens/profile_edit_main_screen.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
@@ -87,7 +87,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     AmplitudeAnalytics.logButtonClick('profile_edit_button');
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (BuildContext context) => ProfileEditScreen(user: widget.user),
+        builder:
+            (BuildContext context) => ProfileEditMainScreen(user: widget.user),
       ),
     );
   }
