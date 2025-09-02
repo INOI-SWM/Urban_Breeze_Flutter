@@ -57,14 +57,19 @@ class AccountManagementScreen extends ConsumerWidget {
       title: '탈퇴하기',
       content: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Text('정말 탈퇴하시겠습니까?', style: AppTextStyles.body2.normalRegular),
+          Text(
+            '정말 탈퇴하시겠습니까?',
+            style: AppTextStyles.body1.normalBold.copyWith(
+              color: colors.accentForegroundRed,
+            ),
+          ),
           const SizedBox(height: 8),
           Text(
             '• 계정과 모든 데이터가 삭제됩니다\n• 삭제된 데이터는 복구할 수 없습니다',
-            style: AppTextStyles.caption1.regular.copyWith(
-              color: colors.labelAlternative,
+            style: AppTextStyles.body2.normalBold.copyWith(
+              color: colors.labelNormal,
             ),
           ),
         ],
@@ -72,7 +77,6 @@ class AccountManagementScreen extends ConsumerWidget {
       primaryButtonText: '탈퇴하기',
       secondaryButtonText: '취소',
       onPrimaryButtonPressed: () => _handleWithdrawal(context, ref),
-      onSecondaryButtonPressed: () => Navigator.of(context).pop(),
     );
   }
 
