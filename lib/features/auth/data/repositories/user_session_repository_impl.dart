@@ -41,7 +41,7 @@ class UserSessionRepositoryImpl implements UserSessionRepository {
         loginProvider: LoginProviderExtension.fromJson(
           userJson['loginProvider'] as String,
         ),
-        isFirstLogin: userJson['isFirstLogin'] as bool,
+        isFirstLogin: userJson['isFirstLogin'].toString() == 'true',
       );
     } catch (e) {
       return null;
