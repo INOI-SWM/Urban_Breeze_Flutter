@@ -67,7 +67,7 @@ class SettingsScreen extends ConsumerWidget {
                   },
                 ),
                 SettingsItem(
-                  title: '위치기반서비스 동의',
+                  title: '위치기반 서비스 이용약관',
                   onPressed: () {
                     AmplitudeAnalytics.logButtonClick(
                       'settings_location_service',

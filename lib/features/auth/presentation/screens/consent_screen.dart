@@ -187,7 +187,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
 
               const SizedBox(height: 8),
               _buildConsentCheckbox(
-                title: '위치기반서비스 동의 (필수)',
+                title: '위치기반 서비스 이용약관 동의 (필수)',
                 consentKey: 'location',
                 colors: colors,
                 detailText: '(자세히)',
