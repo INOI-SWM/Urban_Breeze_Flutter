@@ -1,9 +1,8 @@
-import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
 
 import '../../domain/entities/place.dart';
 import '../../domain/entities/search_result.dart';
-import '../../domain/exceptions/place_search_domain_exceptions.dart';
 import '../../domain/repositories/place_search_repository.dart';
 
 class SearchPlacesUseCase {
@@ -37,17 +36,10 @@ class SearchPlacesUseCase {
       );
 
       return AppSuccess<SearchResult>(uniqueSearchResult);
-    } on EmptyQueryException catch (e) {
-      return AppFailure<SearchResult>(e);
-    } on NoResultsException catch (e) {
-      return AppFailure<SearchResult>(e);
-    } on NetworkException catch (e) {
-      return AppFailure<SearchResult>(e);
-    } on ServerException catch (e) {
-      return AppFailure<SearchResult>(e);
-    } on ParsingException catch (e) {
-      return AppFailure<SearchResult>(e);
     } catch (e) {
+      if (e is BaseDomainException) {
+        return AppFailure<SearchResult>(e);
+      }
       return const AppFailure<SearchResult>(
         ParsingException('검색 중 오류가 발생했습니다'),
       );

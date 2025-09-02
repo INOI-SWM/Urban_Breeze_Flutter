@@ -146,8 +146,6 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
             },
           );
         case final AppFailure<SearchResult> failure:
-          showErrorFromAppResult(context, failure);
-
           AmplitudeAnalytics.logEvent(
             'place_search_failed',
             properties: <String, dynamic>{
@@ -259,7 +257,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
                 Text(
                   place.address,
                   style: AppTextStyles.body2.normalRegular.copyWith(
-                    color: context.semanticColor.labelDisable,
+                    color: context.semanticColor.labelAlternative,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
