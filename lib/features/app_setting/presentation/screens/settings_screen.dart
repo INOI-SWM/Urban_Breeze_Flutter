@@ -112,12 +112,12 @@ class SettingsScreen extends ConsumerWidget {
 
             SettingsSection(
               children: <Widget>[
-                SettingsItem(
-                  title: '알림 설정',
-                  onPressed: () {
-                    AmplitudeAnalytics.logButtonClick('settings_notifications');
-                  },
-                ),
+                // SettingsItem(
+                //   title: '알림 설정',
+                //   onPressed: () {
+                //     AmplitudeAnalytics.logButtonClick('settings_notifications');
+                //   },
+                // ),
                 SettingsItem(
                   title: '계정 관리',
                   onPressed: () {
