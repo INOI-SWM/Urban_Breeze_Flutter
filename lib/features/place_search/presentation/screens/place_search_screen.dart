@@ -6,8 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
-import 'package:urban_breeze/features/place_search/application/use_cases/perform_realtime_search_use_case.dart';
-import 'package:urban_breeze/features/place_search/application/use_cases/perform_submitted_search_use_case.dart';
+import 'package:urban_breeze/features/place_search/application/use_cases/place_search_facade.dart';
 import 'package:urban_breeze/features/place_search/di/place_search_providers.dart';
 import 'package:urban_breeze/features/place_search/domain/entities/place.dart';
 import 'package:urban_breeze/features/place_search/domain/entities/search_result.dart';
@@ -39,8 +38,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
   Timer? _debounceTimer; // 실시간 검색 시 과도한 API 호출 방지용 타이머
 
   late final GetCurrentLocationUseCase _getCurrentLocationUseCase;
-  late final PerformRealtimeSearchUseCase _performRealtimeSearchUseCase;
-  late final PerformSubmittedSearchUseCase _performSubmittedSearchUseCase;
+  late final PlaceSearchFacade _placeSearchFacade;
 
   LatLng? _currentLocation;
   static const LatLng _defaultLocation = MapConstants.seoulCityHall;
@@ -49,12 +47,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
   void initState() {
     super.initState();
     _getCurrentLocationUseCase = ref.read(getCurrentLocationUseCaseProvider);
-    _performRealtimeSearchUseCase = ref.read(
-      performRealtimeSearchUseCaseProvider,
-    );
-    _performSubmittedSearchUseCase = ref.read(
-      performSubmittedSearchUseCaseProvider,
-    );
+    _placeSearchFacade = ref.read(placeSearchFacadeProvider);
 
     // 초기 위치 사용 (null인 경우 현재 위치 가져오기)
     _currentLocation = widget.initialLocation;
@@ -116,8 +109,8 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
       _isSearching = true;
     });
 
-    final AppResult<SearchResult> result = await _performRealtimeSearchUseCase
-        .execute(
+    final AppResult<SearchResult> result = await _placeSearchFacade
+        .performRealtimeSearch(
           query: query,
           longitude: _currentLocation?.longitude ?? _defaultLocation.longitude,
           latitude: _currentLocation?.latitude ?? _defaultLocation.latitude,
@@ -169,8 +162,8 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
       _isSearching = true;
     });
 
-    final AppResult<SearchResult> result = await _performSubmittedSearchUseCase
-        .execute(
+    final AppResult<SearchResult> result = await _placeSearchFacade
+        .performSubmittedSearch(
           query: query,
           longitude: _currentLocation?.longitude ?? _defaultLocation.longitude,
           latitude: _currentLocation?.latitude ?? _defaultLocation.latitude,

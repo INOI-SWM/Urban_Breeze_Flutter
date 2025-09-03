@@ -3,13 +3,17 @@ import 'package:urban_breeze/core/result/app_result.dart';
 
 import '../../domain/entities/search_result.dart';
 import '../../domain/repositories/place_search_repository.dart';
+import 'process_search_results_use_case.dart';
 
 class PerformSubmittedSearchUseCase {
   const PerformSubmittedSearchUseCase({
     required PlaceSearchRepository repository,
-  }) : _repository = repository;
+    required ProcessSearchResultsUseCase processResultsUseCase,
+  }) : _repository = repository,
+       _processResultsUseCase = processResultsUseCase;
 
   final PlaceSearchRepository _repository;
+  final ProcessSearchResultsUseCase _processResultsUseCase;
 
   Future<AppResult<SearchResult>> execute({
     required String query,
@@ -21,13 +25,26 @@ class PerformSubmittedSearchUseCase {
       return const AppFailure<SearchResult>(ValidationException('검색어를 입력해주세요'));
     }
 
-    // API 검색 실행
-    return AppSuccess<SearchResult>(
-      await _repository.searchPlaces(
+    try {
+      // API 검색 실행
+      final SearchResult searchResult = await _repository.searchPlaces(
         query: query,
         longitude: longitude,
         latitude: latitude,
-      ),
-    );
+      );
+
+      // 검색 결과 처리 (정규화, 중복 제거 등)
+      final SearchResult processedResult = _processResultsUseCase
+          .processSearchResults(searchResult);
+      return AppSuccess<SearchResult>(processedResult);
+    } on NetworkException catch (e) {
+      return AppFailure<SearchResult>(e);
+    } on ValidationException catch (e) {
+      return AppFailure<SearchResult>(e);
+    } catch (e) {
+      return AppFailure<SearchResult>(
+        ServerException('검색에 실패했습니다: ${e.toString()}'),
+      );
+    }
   }
 }
