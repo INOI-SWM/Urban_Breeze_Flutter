@@ -6,7 +6,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
-import 'package:urban_breeze/features/place_search/application/use_cases/search_places_use_case.dart';
+import 'package:urban_breeze/features/place_search/application/use_cases/perform_realtime_search_use_case.dart';
+import 'package:urban_breeze/features/place_search/application/use_cases/perform_submitted_search_use_case.dart';
 import 'package:urban_breeze/features/place_search/di/place_search_providers.dart';
 import 'package:urban_breeze/features/place_search/domain/entities/place.dart';
 import 'package:urban_breeze/features/place_search/domain/entities/search_result.dart';
@@ -37,8 +38,9 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
   SearchResult? _lastSearchResult; // 마지막 검색 결과 저장
   Timer? _debounceTimer; // 실시간 검색 시 과도한 API 호출 방지용 타이머
 
-  late final SearchPlacesUseCase _searchPlacesUseCase;
   late final GetCurrentLocationUseCase _getCurrentLocationUseCase;
+  late final PerformRealtimeSearchUseCase _performRealtimeSearchUseCase;
+  late final PerformSubmittedSearchUseCase _performSubmittedSearchUseCase;
 
   LatLng? _currentLocation;
   static const LatLng _defaultLocation = MapConstants.seoulCityHall;
@@ -46,8 +48,13 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
   @override
   void initState() {
     super.initState();
-    _searchPlacesUseCase = ref.read(searchPlacesUseCaseProvider);
     _getCurrentLocationUseCase = ref.read(getCurrentLocationUseCaseProvider);
+    _performRealtimeSearchUseCase = ref.read(
+      performRealtimeSearchUseCaseProvider,
+    );
+    _performSubmittedSearchUseCase = ref.read(
+      performSubmittedSearchUseCaseProvider,
+    );
 
     // 초기 위치 사용 (null인 경우 현재 위치 가져오기)
     _currentLocation = widget.initialLocation;
@@ -105,26 +112,17 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
       return;
     }
 
-    AmplitudeAnalytics.logEvent(
-      'place_search_executed',
-      properties: <String, dynamic>{
-        'query': query,
-        'query_length': query.length,
-        'search_type': 'realtime',
-      },
-    );
-
-    final LatLng searchLocation = _currentLocation ?? _defaultLocation;
-
     setState(() {
       _isSearching = true;
     });
 
-    final AppResult<SearchResult> result = await _searchPlacesUseCase.call(
-      query: query,
-      longitude: searchLocation.longitude,
-      latitude: searchLocation.latitude,
-    );
+    final AppResult<SearchResult> result = await _performRealtimeSearchUseCase
+        .execute(
+          query: query,
+          longitude: _currentLocation?.longitude ?? _defaultLocation.longitude,
+          latitude: _currentLocation?.latitude ?? _defaultLocation.latitude,
+          lastSearchResult: _lastSearchResult,
+        );
 
     if (mounted) {
       setState(() {
@@ -133,33 +131,16 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
 
       switch (result) {
         case final AppSuccess<SearchResult> success:
-          // 실시간 검색: API 응답이 있으면 새 결과 표시, 없으면 기존 결과에서 필터링
-          if (success.data.places.isNotEmpty) {
-            setState(() {
-              _searchResults = success.data.places;
-              _lastSearchResult = success.data;
-            });
-          } else if (_lastSearchResult != null &&
-              _lastSearchResult!.places.isNotEmpty) {
-            final List<Place> filteredPlaces = _filterPlacesByQuery(
-              _lastSearchResult!.places,
-              query.trim(),
-            );
-            setState(() {
-              _searchResults = filteredPlaces;
-            });
-          } else {
-            setState(() {
-              _searchResults.clear();
-              _lastSearchResult = null;
-            });
-          }
+          setState(() {
+            _searchResults = success.data.places;
+            _lastSearchResult = success.data;
+          });
 
           AmplitudeAnalytics.logEvent(
             'place_search_success',
             properties: <String, dynamic>{
               'query': query,
-              'result_count': _searchResults.length,
+              'result_count': success.data.places.length,
             },
           );
         case final AppFailure<SearchResult> failure:
@@ -184,26 +165,16 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
       return;
     }
 
-    AmplitudeAnalytics.logEvent(
-      'place_search_executed',
-      properties: <String, dynamic>{
-        'query': query,
-        'query_length': query.length,
-        'search_type': 'realtime',
-      },
-    );
-
-    final LatLng searchLocation = _currentLocation ?? _defaultLocation;
-
     setState(() {
       _isSearching = true;
     });
 
-    final AppResult<SearchResult> result = await _searchPlacesUseCase.call(
-      query: query,
-      longitude: searchLocation.longitude,
-      latitude: searchLocation.latitude,
-    );
+    final AppResult<SearchResult> result = await _performSubmittedSearchUseCase
+        .execute(
+          query: query,
+          longitude: _currentLocation?.longitude ?? _defaultLocation.longitude,
+          latitude: _currentLocation?.latitude ?? _defaultLocation.latitude,
+        );
 
     if (mounted) {
       setState(() {
@@ -240,20 +211,6 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
           );
       }
     }
-  }
-
-  // 띄어쓰기 차이를 무시하고 문자열이 같은 결과만 필터링
-  List<Place> _filterPlacesByQuery(List<Place> places, String query) {
-    final String normalizedQuery = query.replaceAll(' ', '').toLowerCase();
-    return places.where((Place place) {
-      final String normalizedTitle =
-          place.title.replaceAll(' ', '').toLowerCase();
-      final String normalizedAddress =
-          place.address.replaceAll(' ', '').toLowerCase();
-
-      return normalizedTitle.contains(normalizedQuery) ||
-          normalizedAddress.contains(normalizedQuery);
-    }).toList();
   }
 
   void _selectPlace(Place place) {
@@ -295,82 +252,98 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
     }
 
     if (_searchController.text.trim().isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Icon(
-              Icons.search,
-              size: 64,
-              color: context.semanticColor.labelDisable,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '검색어를 입력해주세요',
-              style: AppTextStyles.body1.normalRegular.copyWith(
-                color: context.semanticColor.labelDisable,
-              ),
-            ),
-          ],
-        ),
-      );
+      return _buildEmptyState();
     }
 
     if (_searchResults.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Icon(
-              Icons.search_off,
-              size: 64,
-              color: context.semanticColor.labelDisable,
-            ),
-            const SizedBox(height: 16),
-            Text('검색 결과가 없습니다', style: AppTextStyles.body1.normalRegular),
-            const SizedBox(height: 8),
-            Text(
-              '다른 검색어로 시도해보세요',
-              style: AppTextStyles.body2.normalRegular.copyWith(
-                color: context.semanticColor.labelDisable,
-              ),
-            ),
-          ],
-        ),
-      );
+      return _buildNoResultsState();
     }
 
+    return _buildResultsList();
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Icon(
+            Icons.search,
+            size: 64,
+            color: context.semanticColor.labelDisable,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '검색어를 입력해주세요',
+            style: AppTextStyles.body1.normalRegular.copyWith(
+              color: context.semanticColor.labelDisable,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNoResultsState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Icon(
+            Icons.search_off,
+            size: 64,
+            color: context.semanticColor.labelDisable,
+          ),
+          const SizedBox(height: 16),
+          Text('검색 결과가 없습니다', style: AppTextStyles.body1.normalRegular),
+          const SizedBox(height: 8),
+          Text(
+            '다른 검색어로 시도해보세요',
+            style: AppTextStyles.body2.normalRegular.copyWith(
+              color: context.semanticColor.labelDisable,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResultsList() {
     return ListView.builder(
       itemCount: _searchResults.length,
       itemBuilder: (BuildContext context, int index) {
         final Place place = _searchResults[index];
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: InkWell(
-            onTap: () => _selectPlace(place),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  place.title,
-                  style: AppTextStyles.body1.normalRegular,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  place.address,
-                  style: AppTextStyles.body2.normalRegular.copyWith(
-                    color: context.semanticColor.labelAlternative,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        );
+        return _buildResultItem(place);
       },
+    );
+  }
+
+  Widget _buildResultItem(Place place) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      child: InkWell(
+        onTap: () => _selectPlace(place),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              place.title,
+              style: AppTextStyles.body1.normalRegular,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              place.address,
+              style: AppTextStyles.body2.normalRegular.copyWith(
+                color: context.semanticColor.labelAlternative,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
     );
   }
 

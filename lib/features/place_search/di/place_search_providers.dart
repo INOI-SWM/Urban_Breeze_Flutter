@@ -2,7 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/core/di/core_providers.dart';
 
-import '../application/use_cases/search_places_use_case.dart';
+import '../application/use_cases/filter_places_use_case.dart';
+import '../application/use_cases/perform_realtime_search_use_case.dart';
+import '../application/use_cases/perform_submitted_search_use_case.dart';
 import '../data/datasources/remote_place_search_datasource.dart';
 import '../data/repositories/place_search_repository_impl.dart';
 import '../domain/repositories/place_search_repository.dart';
@@ -29,14 +31,35 @@ final Provider<PlaceSearchRepository> placeSearchRepositoryProvider =
       return PlaceSearchRepositoryImpl(dataSource: dataSource);
     });
 
-final Provider<SearchPlacesUseCase> searchPlacesUseCaseProvider =
-    Provider<SearchPlacesUseCase>((Ref<SearchPlacesUseCase> ref) {
-      final PlaceSearchRepository repository = ref.watch(
-        placeSearchRepositoryProvider,
-      );
-
-      return SearchPlacesUseCase(repository: repository);
+final Provider<FilterPlacesUseCase> filterPlacesUseCaseProvider =
+    Provider<FilterPlacesUseCase>((Ref<FilterPlacesUseCase> ref) {
+      return const FilterPlacesUseCase();
     });
 
-final Provider<SearchPlacesUseCase> placeSearchProvider =
-    searchPlacesUseCaseProvider;
+final Provider<PerformRealtimeSearchUseCase>
+performRealtimeSearchUseCaseProvider = Provider<PerformRealtimeSearchUseCase>((
+  Ref<PerformRealtimeSearchUseCase> ref,
+) {
+  final PlaceSearchRepository repository = ref.watch(
+    placeSearchRepositoryProvider,
+  );
+  final FilterPlacesUseCase filterPlacesUseCase = ref.watch(
+    filterPlacesUseCaseProvider,
+  );
+
+  return PerformRealtimeSearchUseCase(
+    repository: repository,
+    filterPlacesUseCase: filterPlacesUseCase,
+  );
+});
+
+final Provider<PerformSubmittedSearchUseCase>
+performSubmittedSearchUseCaseProvider = Provider<PerformSubmittedSearchUseCase>(
+  (Ref<PerformSubmittedSearchUseCase> ref) {
+    final PlaceSearchRepository repository = ref.watch(
+      placeSearchRepositoryProvider,
+    );
+
+    return PerformSubmittedSearchUseCase(repository: repository);
+  },
+);
