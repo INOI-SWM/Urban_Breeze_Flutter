@@ -288,14 +288,13 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
         LatLng(searchResult.bbox!.minLat, searchResult.bbox!.minLon),
         LatLng(searchResult.bbox!.maxLat, searchResult.bbox!.maxLon),
       );
-
       _mapController.fitCamera(
         CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)),
       );
       return;
     }
 
-    // bbox 정보가 없는 경우 클라이언트에서 계산 (fallback)
+    // bbox 정보가 없는 경우 클라이언트에서 계산
     if (searchResult.places.length == 1) {
       _moveToPlace(searchResult.places.first);
       return;

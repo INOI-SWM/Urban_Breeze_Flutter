@@ -267,6 +267,11 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
 
   void _selectAllPlaces() {
     if (_searchResults.isNotEmpty && _lastSearchResult != null) {
+      if (_searchResults.length == 1) {
+        _selectPlace(_searchResults.first);
+        return;
+      }
+
       AmplitudeAnalytics.logEvent(
         'place_search_all_selected',
         properties: <String, dynamic>{
