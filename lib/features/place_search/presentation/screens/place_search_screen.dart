@@ -74,7 +74,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
     // 실시간 검색 (300ms 디바운스)
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 300), () {
-      _performSearch(query);
+      _performRealtimeSearch(query);
     });
   }
 
@@ -92,6 +92,80 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
         setState(() {
           _currentLocation = _defaultLocation;
         });
+      }
+    }
+  }
+
+  Future<void> _performRealtimeSearch(String query) async {
+    if (query.trim().isEmpty) {
+      setState(() {
+        _searchResults.clear();
+        _isSearching = false;
+      });
+      return;
+    }
+
+    AmplitudeAnalytics.logEvent(
+      'place_search_executed',
+      properties: <String, dynamic>{
+        'query': query,
+        'query_length': query.length,
+        'search_type': 'realtime',
+      },
+    );
+
+    final LatLng searchLocation = _currentLocation ?? _defaultLocation;
+
+    setState(() {
+      _isSearching = true;
+    });
+
+    final AppResult<SearchResult> result = await _searchPlacesUseCase.call(
+      query: query,
+      longitude: searchLocation.longitude,
+      latitude: searchLocation.latitude,
+    );
+
+    if (mounted) {
+      setState(() {
+        _isSearching = false;
+      });
+
+      switch (result) {
+        case final AppSuccess<SearchResult> success:
+          // 실시간 검색에서는 기존 결과가 있으면 띄어쓰기 차이를 무시하고 필터링
+          if (_lastSearchResult != null &&
+              _lastSearchResult!.places.isNotEmpty) {
+            final List<Place> filteredPlaces = _filterPlacesByQuery(
+              _lastSearchResult!.places,
+              query.trim(),
+            );
+            setState(() {
+              _searchResults = filteredPlaces;
+            });
+          } else {
+            setState(() {
+              _searchResults = success.data.places;
+              _lastSearchResult = success.data;
+            });
+          }
+
+          AmplitudeAnalytics.logEvent(
+            'place_search_success',
+            properties: <String, dynamic>{
+              'query': query,
+              'result_count': _searchResults.length,
+            },
+          );
+        case final AppFailure<SearchResult> failure:
+          // 실시간 검색 실패 시에는 기존 결과 유지
+          AmplitudeAnalytics.logEvent(
+            'place_search_failed',
+            properties: <String, dynamic>{
+              'query': query,
+              'error_type': failure.exceptionOrNull?.runtimeType.toString(),
+            },
+          );
       }
     }
   }
@@ -146,6 +220,12 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
             },
           );
         case final AppFailure<SearchResult> failure:
+          // RETURN 검색 실패 시 검색 결과를 초기화
+          setState(() {
+            _searchResults.clear();
+            _lastSearchResult = null;
+          });
+
           AmplitudeAnalytics.logEvent(
             'place_search_failed',
             properties: <String, dynamic>{
@@ -155,6 +235,20 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
           );
       }
     }
+  }
+
+  // 띄어쓰기 차이를 무시하고 문자열이 같은 결과만 필터링
+  List<Place> _filterPlacesByQuery(List<Place> places, String query) {
+    final String normalizedQuery = query.replaceAll(' ', '').toLowerCase();
+    return places.where((Place place) {
+      final String normalizedTitle =
+          place.title.replaceAll(' ', '').toLowerCase();
+      final String normalizedAddress =
+          place.address.replaceAll(' ', '').toLowerCase();
+
+      return normalizedTitle.contains(normalizedQuery) ||
+          normalizedAddress.contains(normalizedQuery);
+    }).toList();
   }
 
   void _selectPlace(Place place) {
@@ -282,7 +376,7 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
               searchController: _searchController,
               searchFocusNode: _searchFocusNode,
               onSearchChanged: _onSearchTextChanged,
-              onSearchSubmitted: (String query) {
+              onSearchSubmitted: (String query) async {
                 AmplitudeAnalytics.logEvent(
                   'place_search_submitted',
                   properties: <String, dynamic>{
@@ -292,11 +386,14 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
                   },
                 );
 
-                _performSearch(query);
-                // 키보드 확인 버튼을 눌렀을 때 검색 결과를 모두 반환
-                Future<void>.delayed(const Duration(milliseconds: 100), () {
+                // RETURN 버튼을 눌렀을 때 검색을 한 번 더 진행
+                await _performSearch(query);
+
+                // 검색 결과가 있으면 모든 결과 반환, 없으면 결과 없음 창 표시
+                if (_searchResults.isNotEmpty) {
                   _selectAllPlaces();
-                });
+                }
+                // 결과가 없으면 _buildSearchResults()에서 자동으로 "검색 결과가 없습니다" 창이 표시됨
               },
               onBackPressed: () {
                 // 뒤로가기 이벤트
