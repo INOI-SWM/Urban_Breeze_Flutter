@@ -71,7 +71,7 @@ class FloatingSearchAppBar extends StatelessWidget
                       hintTextColor:
                           isSearchActive
                               ? colors.labelNormal
-                              : colors.labelAssistive,
+                              : colors.labelAlternative,
                     ),
                   ),
                 ),
