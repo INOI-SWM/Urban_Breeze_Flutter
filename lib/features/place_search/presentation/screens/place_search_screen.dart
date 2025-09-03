@@ -133,8 +133,13 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
 
       switch (result) {
         case final AppSuccess<SearchResult> success:
-          // 실시간 검색에서는 기존 결과가 있으면 띄어쓰기 차이를 무시하고 필터링
-          if (_lastSearchResult != null &&
+          // 실시간 검색: API 응답이 있으면 새 결과 표시, 없으면 기존 결과에서 필터링
+          if (success.data.places.isNotEmpty) {
+            setState(() {
+              _searchResults = success.data.places;
+              _lastSearchResult = success.data;
+            });
+          } else if (_lastSearchResult != null &&
               _lastSearchResult!.places.isNotEmpty) {
             final List<Place> filteredPlaces = _filterPlacesByQuery(
               _lastSearchResult!.places,
@@ -145,8 +150,8 @@ class _PlaceSearchScreenState extends ConsumerState<PlaceSearchScreen>
             });
           } else {
             setState(() {
-              _searchResults = success.data.places;
-              _lastSearchResult = success.data;
+              _searchResults.clear();
+              _lastSearchResult = null;
             });
           }
 
