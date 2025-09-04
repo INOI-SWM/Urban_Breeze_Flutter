@@ -44,7 +44,15 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
             context,
             title: '저장 방식',
             options: <PlatformActionSheetOption>[
-              PlatformActionSheetOption(title: 'GPX 다운로드', onSelected: () {}),
+              PlatformActionSheetOption(
+                title: 'GPX 다운로드',
+                onSelected: () {
+                  AmplitudeAnalytics.logEvent(
+                    'my_route_download_gpx',
+                    properties: <String, dynamic>{'route_id': widget.routeId},
+                  );
+                },
+              ),
             ],
           );
         },
@@ -88,7 +96,15 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
             context,
             title: '옵션',
             options: <PlatformActionSheetOption>[
-              PlatformActionSheetOption(title: '삭제', onSelected: () {}),
+              PlatformActionSheetOption(
+                title: '삭제',
+                onSelected: () {
+                  AmplitudeAnalytics.logEvent(
+                    'my_route_delete',
+                    properties: <String, dynamic>{'route_id': widget.routeId},
+                  );
+                },
+              ),
             ],
           );
         },
