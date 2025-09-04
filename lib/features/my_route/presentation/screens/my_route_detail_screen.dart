@@ -40,6 +40,13 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
         showOptionButton: true,
         onDownloadButtonTap: (BuildContext context) {
           AmplitudeAnalytics.logButtonClick('my_route_download');
+          showPlatformActionSheet(
+            context,
+            title: '저장 방식',
+            options: <PlatformActionSheetOption>[
+              PlatformActionSheetOption(title: 'GPX 다운로드', onSelected: () {}),
+            ],
+          );
         },
         onShareButtonTap: (BuildContext context) {
           AmplitudeAnalytics.logButtonClick('my_route_share');
@@ -77,6 +84,13 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
         },
         onOptionButtonTap: (BuildContext context) {
           AmplitudeAnalytics.logButtonClick('my_route_options');
+          showPlatformActionSheet(
+            context,
+            title: '옵션',
+            options: <PlatformActionSheetOption>[
+              PlatformActionSheetOption(title: '삭제', onSelected: () {}),
+            ],
+          );
         },
       ),
     );
