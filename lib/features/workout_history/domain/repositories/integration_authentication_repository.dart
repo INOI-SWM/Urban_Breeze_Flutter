@@ -6,4 +6,7 @@ abstract class IntegrationAuthenticationRepository {
   Future<IntegrationAuthentication> requestIntegrationLink({
     required String terraProvider,
   });
+
+  /// 연동된 서비스들의 활동 기록 가져오기
+  Future<Map<String, dynamic>> getIntegrationActivity();
 }
