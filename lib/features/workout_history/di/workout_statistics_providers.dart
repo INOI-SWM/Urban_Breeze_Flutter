@@ -4,6 +4,7 @@ import 'package:urban_breeze/core/di/core_providers.dart';
 
 import '../application/facades/terra_health_sync_facade.dart';
 import '../application/use_cases/connect_terra_health_app_use_case.dart';
+import '../application/use_cases/get_integration_activity_use_case.dart';
 import '../application/use_cases/get_workout_statistics_use_case.dart';
 import '../application/use_cases/initialize_terra_use_case.dart';
 import '../application/use_cases/request_garmin_connect_permission_use_case.dart';
@@ -213,6 +214,17 @@ requestSuuntoPermissionUseCaseProvider =
       return RequestSuuntoPermissionUseCase(repository: repository);
     });
 
+// Get Integration Activity Use Case Provider
+final Provider<GetIntegrationActivityUseCase>
+getIntegrationActivityUseCaseProvider = Provider<GetIntegrationActivityUseCase>(
+  (Ref<GetIntegrationActivityUseCase> ref) {
+    final IntegrationAuthenticationRepository repository = ref.watch(
+      integrationAuthenticationRepositoryProvider,
+    );
+    return GetIntegrationActivityUseCase(repository: repository);
+  },
+);
+
 // Terra Facade Provider
 final Provider<TerraHealthSyncFacade> terraHealthSyncFacadeProvider =
     Provider<TerraHealthSyncFacade>((Ref<TerraHealthSyncFacade> ref) {
@@ -230,6 +242,8 @@ final Provider<TerraHealthSyncFacade> terraHealthSyncFacadeProvider =
       );
       final RequestSuuntoPermissionUseCase requestSuuntoPermissionUseCase = ref
           .watch(requestSuuntoPermissionUseCaseProvider);
+      final GetIntegrationActivityUseCase getIntegrationActivityUseCase = ref
+          .watch(getIntegrationActivityUseCaseProvider);
 
       return TerraHealthSyncFacade(
         initializeTerraUseCase: initializeTerraUseCase,
@@ -238,5 +252,6 @@ final Provider<TerraHealthSyncFacade> terraHealthSyncFacadeProvider =
         requestGarminConnectPermissionUseCase:
             requestGarminConnectPermissionUseCase,
         requestSuuntoPermissionUseCase: requestSuuntoPermissionUseCase,
+        getIntegrationActivityUseCase: getIntegrationActivityUseCase,
       );
     });

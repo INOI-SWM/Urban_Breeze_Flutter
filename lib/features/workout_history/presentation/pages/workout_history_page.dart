@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/workout_history/application/facades/terra_health_sync_facade.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_apple_health_kit_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_google_health_connect_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_statistics_providers.dart';
@@ -77,7 +79,8 @@ class _RefreshButton extends ConsumerWidget {
     final List<WorkoutRecord> allWorkouts = <WorkoutRecord>[];
     int successCount = 0;
     int totalAttempts = 0;
-    final List<String> errorMessages = <String>[];
+    int integrationSuccessCount = 0;
+    int integrationTotalAttempts = 0;
 
     try {
       // iOS에서만 Apple Health Kit 시도
@@ -101,7 +104,7 @@ class _RefreshButton extends ConsumerWidget {
             successCount++;
           }
         } catch (e) {
-          errorMessages.add('Apple Health Kit: ${e.toString()}');
+          // Apple Health Kit 오류는 카운트만 하고 상세 메시지는 표시하지 않음
         }
       }
 
@@ -128,13 +131,27 @@ class _RefreshButton extends ConsumerWidget {
             successCount++;
           }
         } catch (e) {
-          errorMessages.add('Google Health Connect: ${e.toString()}');
+          // Google Health Connect 오류는 카운트만 하고 상세 메시지는 표시하지 않음
         }
       }
 
-      // 아무 플랫폼에서도 시도하지 않은 경우
-      if (totalAttempts == 0) {
-        errorMessages.add('지원되지 않는 플랫폼입니다. iOS 또는 Android에서만 동작합니다.');
+      // 연동된 서비스들의 활동 기록 새로고침
+      integrationTotalAttempts = 1; // 연동 새로고침은 항상 1번 시도
+      try {
+        final TerraHealthSyncFacade facade = ref.read(
+          terraHealthSyncFacadeProvider,
+        );
+        final AppResult<Map<String, dynamic>> result =
+            await facade.refreshIntegrationActivity();
+
+        if (result.isSuccess) {
+          final Map<String, dynamic> integrationData = result.dataOrNull!;
+          debugPrint('연동 활동 기록: $integrationData');
+          integrationSuccessCount = 1;
+          // 연동 데이터를 기존 워크아웃 데이터에 추가하거나 별도 처리
+        }
+      } catch (e) {
+        // 연동 새로고침 오류는 카운트만 하고 상세 메시지는 표시하지 않음
       }
 
       syncNotifier.setSyncing(false);
@@ -142,13 +159,23 @@ class _RefreshButton extends ConsumerWidget {
       // 결과 메시지 표시 및 데이터 전달
       if (context.mounted) {
         String message;
-        if (successCount == 0) {
-          message = '동기화할 수 있는 데이터가 없습니다.\n오류: ${errorMessages.join(', ')}';
-        } else if (successCount == totalAttempts) {
-          message = '모든 데이터 동기화 완료! 총 ${allWorkouts.length}개의 운동 기록을 가져왔습니다.';
+
+        // 연동할 것이 없는 경우 (플랫폼 지원 안함)
+        if (totalAttempts == 0) {
+          message = '지원되지 않는 플랫폼입니다. iOS 또는 Android에서만 동작합니다.';
         } else {
-          message =
-              '일부 데이터 동기화 완료! 총 ${allWorkouts.length}개의 운동 기록을 가져왔습니다.\n오류: ${errorMessages.join(', ')}';
+          // 성공/실패 개수 기반 메시지
+          final int totalSuccess = successCount + integrationSuccessCount;
+          final int totalAttemptsCount =
+              totalAttempts + integrationTotalAttempts;
+
+          if (totalSuccess == 0) {
+            message = '동기화할 수 있는 데이터가 없습니다.';
+          } else if (totalSuccess == totalAttemptsCount) {
+            message = '모든 데이터 동기화 완료! 총 ${allWorkouts.length}개의 운동 기록을 가져왔습니다.';
+          } else {
+            message = '일부 데이터 동기화 완료! 총 ${allWorkouts.length}개의 운동 기록을 가져왔습니다.';
+          }
         }
 
         // WorkoutListScreen에 데이터 전달을 위해 Provider 업데이트
@@ -159,7 +186,7 @@ class _RefreshButton extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(message),
-            duration: const Duration(seconds: 5), // 더 긴 시간 동안 메시지 표시
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -168,9 +195,9 @@ class _RefreshButton extends ConsumerWidget {
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('동기화 중 오류가 발생했습니다: ${e.toString()}'),
-            duration: const Duration(seconds: 5),
+          const SnackBar(
+            content: Text('동기화 중 오류가 발생했습니다.'),
+            duration: Duration(seconds: 3),
           ),
         );
       }
