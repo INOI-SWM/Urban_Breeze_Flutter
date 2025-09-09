@@ -3,6 +3,8 @@ import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/connect_terra_health_app_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/initialize_terra_use_case.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/request_garmin_connect_permission_use_case.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/request_suunto_permission_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_terra_health_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 
@@ -11,11 +13,16 @@ class TerraHealthSyncFacade {
     required this.initializeTerraUseCase,
     required this.connectTerraHealthAppUseCase,
     required this.syncTerraHealthDataUseCase,
+    required this.requestGarminConnectPermissionUseCase,
+    required this.requestSuuntoPermissionUseCase,
   });
 
   final InitializeTerraUseCase initializeTerraUseCase;
   final ConnectTerraHealthAppUseCase connectTerraHealthAppUseCase;
   final SyncTerraHealthDataUseCase syncTerraHealthDataUseCase;
+  final RequestGarminConnectPermissionUseCase
+  requestGarminConnectPermissionUseCase;
+  final RequestSuuntoPermissionUseCase requestSuuntoPermissionUseCase;
 
   /// Terra를 통한 건강 데이터 가져오기 (초기화 + 연결 + 동기화)
   Future<AppResult<Map<String, dynamic>?>> syncHealthDataFromTerra({
@@ -146,5 +153,76 @@ class TerraHealthSyncFacade {
       endDate: endDate ?? DateTime.now(),
       toWebhook: toWebhook,
     );
+  }
+
+  /// Garmin Connect 연동 링크 요청
+  Future<AppResult<Map<String, dynamic>>>
+  requestGarminConnectPermission() async {
+    try {
+      // Garmin Connect 연동 링크 요청
+      final AppResult<Map<String, dynamic>> result =
+          await requestGarminConnectPermissionUseCase.execute();
+
+      if (result.isSuccess) {
+        // Garmin Connect 연동 링크 요청 성공 이벤트
+        AmplitudeAnalytics.logEvent(
+          'garmin_connect_permission_request_success',
+          properties: <String, dynamic>{},
+        );
+        return result;
+      } else {
+        // Garmin Connect 연동 링크 요청 실패 이벤트
+        AmplitudeAnalytics.logEvent(
+          'garmin_connect_permission_request_failed',
+          properties: <String, dynamic>{
+            'error_message':
+                result.exceptionOrNull?.toString() ?? 'Unknown error',
+          },
+        );
+        return result;
+      }
+    } catch (e) {
+      // Garmin Connect 연동 링크 요청 예외 이벤트
+      AmplitudeAnalytics.logEvent(
+        'garmin_connect_permission_request_exception',
+        properties: <String, dynamic>{'error_message': e.toString()},
+      );
+      return AppFailure<Map<String, dynamic>>(TerraApiException(e.toString()));
+    }
+  }
+
+  /// Suunto 연동 링크 요청
+  Future<AppResult<Map<String, dynamic>>> requestSuuntoPermission() async {
+    try {
+      // Suunto 연동 링크 요청
+      final AppResult<Map<String, dynamic>> result =
+          await requestSuuntoPermissionUseCase.execute();
+
+      if (result.isSuccess) {
+        // Suunto 연동 링크 요청 성공 이벤트
+        AmplitudeAnalytics.logEvent(
+          'suunto_permission_request_success',
+          properties: <String, dynamic>{},
+        );
+        return result;
+      } else {
+        // Suunto 연동 링크 요청 실패 이벤트
+        AmplitudeAnalytics.logEvent(
+          'suunto_permission_request_failed',
+          properties: <String, dynamic>{
+            'error_message':
+                result.exceptionOrNull?.toString() ?? 'Unknown error',
+          },
+        );
+        return result;
+      }
+    } catch (e) {
+      // Suunto 연동 링크 요청 예외 이벤트
+      AmplitudeAnalytics.logEvent(
+        'suunto_permission_request_exception',
+        properties: <String, dynamic>{'error_message': e.toString()},
+      );
+      return AppFailure<Map<String, dynamic>>(TerraApiException(e.toString()));
+    }
   }
 }
