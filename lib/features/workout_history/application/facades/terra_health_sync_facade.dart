@@ -6,6 +6,7 @@ import 'package:urban_breeze/features/workout_history/application/use_cases/init
 import 'package:urban_breeze/features/workout_history/application/use_cases/request_garmin_connect_permission_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/request_suunto_permission_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_terra_health_data_use_case.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/integration_authentication.dart';
 import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 
 class TerraHealthSyncFacade {
@@ -156,11 +157,11 @@ class TerraHealthSyncFacade {
   }
 
   /// Garmin Connect 연동 링크 요청
-  Future<AppResult<Map<String, dynamic>>>
+  Future<AppResult<IntegrationAuthentication>>
   requestGarminConnectPermission() async {
     try {
       // Garmin Connect 연동 링크 요청
-      final AppResult<Map<String, dynamic>> result =
+      final AppResult<IntegrationAuthentication> result =
           await requestGarminConnectPermissionUseCase.execute();
 
       if (result.isSuccess) {
@@ -187,15 +188,17 @@ class TerraHealthSyncFacade {
         'garmin_connect_permission_request_exception',
         properties: <String, dynamic>{'error_message': e.toString()},
       );
-      return AppFailure<Map<String, dynamic>>(TerraApiException(e.toString()));
+      return AppFailure<IntegrationAuthentication>(
+        TerraApiException(e.toString()),
+      );
     }
   }
 
   /// Suunto 연동 링크 요청
-  Future<AppResult<Map<String, dynamic>>> requestSuuntoPermission() async {
+  Future<AppResult<IntegrationAuthentication>> requestSuuntoPermission() async {
     try {
       // Suunto 연동 링크 요청
-      final AppResult<Map<String, dynamic>> result =
+      final AppResult<IntegrationAuthentication> result =
           await requestSuuntoPermissionUseCase.execute();
 
       if (result.isSuccess) {
@@ -222,7 +225,9 @@ class TerraHealthSyncFacade {
         'suunto_permission_request_exception',
         properties: <String, dynamic>{'error_message': e.toString()},
       );
-      return AppFailure<Map<String, dynamic>>(TerraApiException(e.toString()));
+      return AppFailure<IntegrationAuthentication>(
+        TerraApiException(e.toString()),
+      );
     }
   }
 }

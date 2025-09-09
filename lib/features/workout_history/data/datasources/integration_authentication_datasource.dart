@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import 'package:http/http.dart' as http;
+import 'package:urban_breeze/features/workout_history/data/models/integration_authentication_response_model.dart';
 import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
 import 'package:urban_breeze/shared/api/data/datasources/base_remote_datasource.dart';
 
@@ -8,7 +7,7 @@ class IntegrationAuthenticationDataSource extends BaseRemoteDataSource {
   IntegrationAuthenticationDataSource({super.client});
 
   /// 연동 링크 요청
-  Future<Map<String, dynamic>> requestIntegrationLink({
+  Future<IntegrationAuthenticationApiResponse> requestIntegrationLink({
     required String terraProvider,
   }) async {
     try {
@@ -18,20 +17,14 @@ class IntegrationAuthenticationDataSource extends BaseRemoteDataSource {
 
       final http.Response response = await post(uri.toString());
 
-      final Map<String, dynamic> responseData = _parseResponse(response);
-      return responseData;
+      final Map<String, dynamic> responseData = decodeResponse(response);
+
+      return IntegrationAuthenticationApiResponse.fromJson(
+        responseData,
+        IntegrationAuthenticationResponseModel.fromJson,
+      );
     } catch (e) {
       rethrow;
-    }
-  }
-
-  Map<String, dynamic> _parseResponse(http.Response response) {
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body) as Map<String, dynamic>;
-    } else {
-      throw Exception(
-        'Failed to request integration link: ${response.statusCode} - ${response.body}',
-      );
     }
   }
 }

@@ -1,19 +1,22 @@
 import 'package:urban_breeze/core/result/app_result.dart';
-import 'package:urban_breeze/features/workout_history/data/datasources/integration_authentication_datasource.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/integration_authentication.dart';
 import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
+import 'package:urban_breeze/features/workout_history/domain/repositories/integration_authentication_repository.dart';
 
 class RequestSuuntoPermissionUseCase {
-  const RequestSuuntoPermissionUseCase({required this.integrationDataSource});
+  const RequestSuuntoPermissionUseCase({required this.repository});
 
-  final IntegrationAuthenticationDataSource integrationDataSource;
+  final IntegrationAuthenticationRepository repository;
 
-  Future<AppResult<Map<String, dynamic>>> execute() async {
+  Future<AppResult<IntegrationAuthentication>> execute() async {
     try {
-      final Map<String, dynamic> result = await integrationDataSource
+      final IntegrationAuthentication result = await repository
           .requestIntegrationLink(terraProvider: 'SUUNTO');
-      return AppSuccess<Map<String, dynamic>>(result);
+      return AppSuccess<IntegrationAuthentication>(result);
     } catch (e) {
-      return AppFailure<Map<String, dynamic>>(TerraApiException(e.toString()));
+      return AppFailure<IntegrationAuthentication>(
+        TerraApiException(e.toString()),
+      );
     }
   }
 }

@@ -5,6 +5,7 @@ import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/terra_health_sync_facade.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_statistics_providers.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/integration_authentication.dart';
 import 'package:urban_breeze/shared/design_system/tokens/decorations/inset_border.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
@@ -276,14 +277,14 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
       final TerraHealthSyncFacade facade = ref.read(
         terraHealthSyncFacadeProvider,
       );
-      final AppResult<Map<String, dynamic>> result =
+      final AppResult<IntegrationAuthentication> result =
           await facade.requestGarminConnectPermission();
 
       if (result.isSuccess) {
-        final Map<String, dynamic> data = result.dataOrNull!;
-        final String? authUrl = data['authUrl'] as String?;
+        final IntegrationAuthentication data = result.dataOrNull!;
+        final String authUrl = data.url;
 
-        if (authUrl != null && authUrl.isNotEmpty) {
+        if (authUrl.isNotEmpty) {
           // 연동 링크를 사용자에게 표시
           _showIntegrationLinkDialog('Garmin Connect', authUrl);
         } else {
@@ -323,14 +324,14 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
       final TerraHealthSyncFacade facade = ref.read(
         terraHealthSyncFacadeProvider,
       );
-      final AppResult<Map<String, dynamic>> result =
+      final AppResult<IntegrationAuthentication> result =
           await facade.requestSuuntoPermission();
 
       if (result.isSuccess) {
-        final Map<String, dynamic> data = result.dataOrNull!;
-        final String? authUrl = data['authUrl'] as String?;
+        final IntegrationAuthentication data = result.dataOrNull!;
+        final String authUrl = data.url;
 
-        if (authUrl != null && authUrl.isNotEmpty) {
+        if (authUrl.isNotEmpty) {
           // 연동 링크를 사용자에게 표시
           _showIntegrationLinkDialog('Suunto', authUrl);
         } else {

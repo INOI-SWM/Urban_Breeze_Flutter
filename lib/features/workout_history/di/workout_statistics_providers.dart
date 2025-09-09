@@ -19,10 +19,12 @@ import '../data/datasources/terra_api_datasoiurce.dart';
 import '../data/datasources/workout_statistics_datasource.dart';
 import '../data/repositories/apple_health_kit_sync_repository_impl.dart';
 import '../data/repositories/google_health_connect_sync_repository_impl.dart';
+import '../data/repositories/integration_authentication_repository_impl.dart';
 import '../data/repositories/workout_history_repository_impl.dart';
 import '../data/repositories/workout_statistics_repository_impl.dart';
 import '../domain/repositories/google_health_connect_sync_repository.dart';
 import '../domain/repositories/health_kit_sync_repository.dart';
+import '../domain/repositories/integration_authentication_repository.dart';
 import '../domain/repositories/workout_history_repository.dart';
 import '../domain/repositories/workout_statistics_repository.dart';
 
@@ -58,6 +60,18 @@ integrationAuthenticationDataSourceProvider =
     ) {
       final http.Client client = ref.watch(authorizedHttpClientProvider);
       return IntegrationAuthenticationDataSource(client: client);
+    });
+
+// Integration Authentication Repository Provider
+final Provider<IntegrationAuthenticationRepository>
+integrationAuthenticationRepositoryProvider =
+    Provider<IntegrationAuthenticationRepository>((
+      Ref<IntegrationAuthenticationRepository> ref,
+    ) {
+      final IntegrationAuthenticationDataSource dataSource = ref.watch(
+        integrationAuthenticationDataSourceProvider,
+      );
+      return IntegrationAuthenticationRepositoryImpl(dataSource: dataSource);
     });
 
 // Terra API Data Source Provider
@@ -181,11 +195,10 @@ requestGarminConnectPermissionUseCaseProvider =
     Provider<RequestGarminConnectPermissionUseCase>((
       Ref<RequestGarminConnectPermissionUseCase> ref,
     ) {
-      final IntegrationAuthenticationDataSource integrationDataSource = ref
-          .watch(integrationAuthenticationDataSourceProvider);
-      return RequestGarminConnectPermissionUseCase(
-        integrationDataSource: integrationDataSource,
+      final IntegrationAuthenticationRepository repository = ref.watch(
+        integrationAuthenticationRepositoryProvider,
       );
+      return RequestGarminConnectPermissionUseCase(repository: repository);
     });
 
 // Suunto Permission Use Case Provider
@@ -194,11 +207,10 @@ requestSuuntoPermissionUseCaseProvider =
     Provider<RequestSuuntoPermissionUseCase>((
       Ref<RequestSuuntoPermissionUseCase> ref,
     ) {
-      final IntegrationAuthenticationDataSource integrationDataSource = ref
-          .watch(integrationAuthenticationDataSourceProvider);
-      return RequestSuuntoPermissionUseCase(
-        integrationDataSource: integrationDataSource,
+      final IntegrationAuthenticationRepository repository = ref.watch(
+        integrationAuthenticationRepositoryProvider,
       );
+      return RequestSuuntoPermissionUseCase(repository: repository);
     });
 
 // Terra Facade Provider
