@@ -6,15 +6,13 @@ import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/terra_health_sync_facade.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_statistics_providers.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/integration_authentication.dart';
-import 'package:urban_breeze/shared/design_system/tokens/decorations/inset_border.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
-import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
-import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
+import 'package:urban_breeze/shared/utils/webview_navigation.dart';
 
 class SyncScreen extends ConsumerStatefulWidget {
   const SyncScreen({super.key});
@@ -285,8 +283,12 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
         final String authUrl = data.url;
 
         if (authUrl.isNotEmpty) {
-          // 연동 링크를 사용자에게 표시
-          _showIntegrationLinkDialog('Garmin Connect', authUrl);
+          // 연동 링크를 웹뷰로 표시
+          WebViewNavigation.navigateToWebView(
+            context,
+            url: authUrl,
+            title: 'Garmin Connect 연동',
+          );
         } else {
           if (mounted) {
             showErrorMessage(context, '연동 링크를 받을 수 없습니다.');
@@ -332,8 +334,12 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
         final String authUrl = data.url;
 
         if (authUrl.isNotEmpty) {
-          // 연동 링크를 사용자에게 표시
-          _showIntegrationLinkDialog('Suunto', authUrl);
+          // 연동 링크를 웹뷰로 표시
+          WebViewNavigation.navigateToWebView(
+            context,
+            url: authUrl,
+            title: 'Suunto 연동',
+          );
         } else {
           if (mounted) {
             showErrorMessage(context, '연동 링크를 받을 수 없습니다.');
@@ -356,50 +362,6 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
         _isLoading = false;
       });
     }
-  }
-
-  void _showIntegrationLinkDialog(String serviceName, String authUrl) {
-    if (!mounted) return;
-
-    final SemanticColors colors = context.semanticColor;
-
-    ModalShow.show(
-      context: context,
-      title: '$serviceName 연동',
-      content: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              '$serviceName 연동을 위해 아래 링크를 클릭하세요:',
-              style: AppTextStyles.body2.normalRegular.copyWith(
-                color: colors.labelNeutral,
-              ),
-            ),
-            const SizedBox(height: 16),
-            InsetBorder(
-              color: colors.lineNormalNeutral,
-              width: 1,
-              radius: 12,
-              backgroundColor: Colors.transparent,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                child: SelectableText(
-                  authUrl,
-                  style: AppTextStyles.body2.normalRegular.copyWith(
-                    color: colors.labelNormal,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-      primaryButtonText: '확인',
-      onPrimaryButtonPressed: () => Navigator.of(context).pop(),
-    );
   }
 
   @override
