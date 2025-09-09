@@ -6,11 +6,14 @@ import '../application/facades/terra_health_sync_facade.dart';
 import '../application/use_cases/connect_terra_health_app_use_case.dart';
 import '../application/use_cases/get_workout_statistics_use_case.dart';
 import '../application/use_cases/initialize_terra_use_case.dart';
+import '../application/use_cases/request_garmin_connect_permission_use_case.dart';
+import '../application/use_cases/request_suunto_permission_use_case.dart';
 import '../application/use_cases/sync_apple_health_kit_data_use_case.dart';
 import '../application/use_cases/sync_google_health_connect_data_use_case.dart';
 import '../application/use_cases/sync_terra_health_data_use_case.dart';
 import '../application/use_cases/update_workout_title_use_case.dart';
 import '../data/datasources/google_health_connect_datasource.dart';
+import '../data/datasources/integration_authentication_datasource.dart';
 import '../data/datasources/remote_workout_history_datasource.dart';
 import '../data/datasources/terra_api_datasoiurce.dart';
 import '../data/datasources/workout_statistics_datasource.dart';
@@ -46,6 +49,16 @@ googleHealthConnectDataSourceProvider = Provider<GoogleHealthConnectDataSource>(
     return GoogleHealthConnectDataSource();
   },
 );
+
+// Integration Authentication Data Source Provider
+final Provider<IntegrationAuthenticationDataSource>
+integrationAuthenticationDataSourceProvider =
+    Provider<IntegrationAuthenticationDataSource>((
+      Ref<IntegrationAuthenticationDataSource> ref,
+    ) {
+      final http.Client client = ref.watch(authorizedHttpClientProvider);
+      return IntegrationAuthenticationDataSource(client: client);
+    });
 
 // Terra API Data Source Provider
 final Provider<TerraApiDataSource> terraApiDataSourceProvider =
@@ -162,6 +175,32 @@ final Provider<SyncTerraHealthDataUseCase> syncTerraHealthDataUseCaseProvider =
       return SyncTerraHealthDataUseCase(terraDataSource: terraDataSource);
     });
 
+// Garmin Connect Permission Use Case Provider
+final Provider<RequestGarminConnectPermissionUseCase>
+requestGarminConnectPermissionUseCaseProvider =
+    Provider<RequestGarminConnectPermissionUseCase>((
+      Ref<RequestGarminConnectPermissionUseCase> ref,
+    ) {
+      final IntegrationAuthenticationDataSource integrationDataSource = ref
+          .watch(integrationAuthenticationDataSourceProvider);
+      return RequestGarminConnectPermissionUseCase(
+        integrationDataSource: integrationDataSource,
+      );
+    });
+
+// Suunto Permission Use Case Provider
+final Provider<RequestSuuntoPermissionUseCase>
+requestSuuntoPermissionUseCaseProvider =
+    Provider<RequestSuuntoPermissionUseCase>((
+      Ref<RequestSuuntoPermissionUseCase> ref,
+    ) {
+      final IntegrationAuthenticationDataSource integrationDataSource = ref
+          .watch(integrationAuthenticationDataSourceProvider);
+      return RequestSuuntoPermissionUseCase(
+        integrationDataSource: integrationDataSource,
+      );
+    });
+
 // Terra Facade Provider
 final Provider<TerraHealthSyncFacade> terraHealthSyncFacadeProvider =
     Provider<TerraHealthSyncFacade>((Ref<TerraHealthSyncFacade> ref) {
@@ -173,10 +212,19 @@ final Provider<TerraHealthSyncFacade> terraHealthSyncFacadeProvider =
       final SyncTerraHealthDataUseCase syncTerraHealthDataUseCase = ref.watch(
         syncTerraHealthDataUseCaseProvider,
       );
+      final RequestGarminConnectPermissionUseCase
+      requestGarminConnectPermissionUseCase = ref.watch(
+        requestGarminConnectPermissionUseCaseProvider,
+      );
+      final RequestSuuntoPermissionUseCase requestSuuntoPermissionUseCase = ref
+          .watch(requestSuuntoPermissionUseCaseProvider);
 
       return TerraHealthSyncFacade(
         initializeTerraUseCase: initializeTerraUseCase,
         connectTerraHealthAppUseCase: connectTerraHealthAppUseCase,
         syncTerraHealthDataUseCase: syncTerraHealthDataUseCase,
+        requestGarminConnectPermissionUseCase:
+            requestGarminConnectPermissionUseCase,
+        requestSuuntoPermissionUseCase: requestSuuntoPermissionUseCase,
       );
     });
