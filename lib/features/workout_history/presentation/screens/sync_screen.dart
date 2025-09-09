@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/core/services/deep_link_service.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/terra_health_sync_facade.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_statistics_providers.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/integration_authentication.dart';
@@ -24,12 +27,37 @@ class SyncScreen extends ConsumerStatefulWidget {
 class _SyncScreenState extends ConsumerState<SyncScreen>
     with ErrorDisplayMixin {
   bool _isLoading = false;
+  StreamSubscription<IntegrationCallback>? _deepLinkSubscription;
 
   @override
   void initState() {
     super.initState();
     // 화면 조회 이벤트
     AmplitudeAnalytics.logScreenView('workout_sync_screen');
+
+    // Deep Link 콜백 리스너 등록
+    _deepLinkSubscription = DeepLinkService().callbackStream.listen(
+      _handleIntegrationCallback,
+    );
+  }
+
+  @override
+  void dispose() {
+    _deepLinkSubscription?.cancel();
+    super.dispose();
+  }
+
+  /// Deep Link 콜백 처리
+  void _handleIntegrationCallback(IntegrationCallback callback) {
+    debugPrint('연동 콜백 수신: $callback');
+
+    if (!mounted) return;
+
+    if (callback.isSuccess) {
+      showSuccessMessage(context, '연동이 성공하였습니다.');
+    } else {
+      showErrorMessage(context, '연동이 실패하였습니다.');
+    }
   }
 
   // Apple Health Kit 통합 동기화 (Terra API 사용)

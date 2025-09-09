@@ -37,6 +37,7 @@ dependencies:
   amplitude_flutter: ^4.3.7
   app_tracking_transparency: ^2.0.6+1
   webview_flutter: ^4.13.0
+  app_links: ^6.3.2
 
 dev_dependencies:
   flutter_test:

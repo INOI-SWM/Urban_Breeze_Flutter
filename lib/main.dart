@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_service.dart';
 import 'package:urban_breeze/core/services/app_tracking_service.dart';
+import 'package:urban_breeze/core/services/deep_link_service.dart';
 import 'package:urban_breeze/core/theme/app_theme.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart' as auth;
@@ -41,6 +42,12 @@ Future<void> main() async {
     await AmplitudeService.instance.initialize();
   } catch (e) {
     debugPrint('Amplitude 초기화 실패: $e');
+  }
+
+  try {
+    await DeepLinkService().initialize();
+  } catch (e) {
+    debugPrint('Deep Link 초기화 실패: $e');
   }
 
   runApp(RestartableApp(key: restartableAppKey));

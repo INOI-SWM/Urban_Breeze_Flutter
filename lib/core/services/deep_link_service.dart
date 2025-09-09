@@ -1,0 +1,71 @@
+import 'dart:async';
+
+import 'package:app_links/app_links.dart';
+import 'package:flutter/material.dart';
+
+/// Deep Link 처리 서비스
+class DeepLinkService {
+  factory DeepLinkService() => _instance;
+  DeepLinkService._internal();
+  static final DeepLinkService _instance = DeepLinkService._internal();
+
+  final StreamController<IntegrationCallback> _callbackController =
+      StreamController<IntegrationCallback>.broadcast();
+
+  Stream<IntegrationCallback> get callbackStream => _callbackController.stream;
+
+  /// Deep Link 초기화
+  Future<void> initialize() async {
+    try {
+      final AppLinks appLinks = AppLinks();
+
+      // 앱이 종료된 상태에서 Deep Link로 실행된 경우
+      final Uri? initialLink = await appLinks.getInitialLink();
+      if (initialLink != null) {
+        _processDeepLink(initialLink);
+      }
+
+      // 앱이 실행 중일 때 Deep Link 수신
+      appLinks.uriLinkStream.listen((Uri link) {
+        _processDeepLink(link);
+      });
+    } catch (e) {
+      debugPrint('Deep Link 초기화 오류: $e');
+    }
+  }
+
+  /// Deep Link 처리
+  void _processDeepLink(Uri link) {
+    debugPrint('Deep Link 수신: $link');
+
+    if (link.scheme == 'urbanbreeze' && link.host == 'integration') {
+      final IntegrationCallback callback = IntegrationCallback.fromUri(link);
+      _callbackController.add(callback);
+    }
+  }
+
+  /// 리소스 정리
+  void dispose() {
+    _callbackController.close();
+  }
+}
+
+/// 연동 콜백 데이터 모델
+class IntegrationCallback {
+  const IntegrationCallback({required this.status});
+
+  factory IntegrationCallback.fromUri(Uri uri) {
+    final String? status = uri.queryParameters['status'];
+
+    return IntegrationCallback(status: status ?? 'error');
+  }
+
+  final String status;
+
+  bool get isSuccess => status == 'success';
+
+  @override
+  String toString() {
+    return 'IntegrationCallback(status: $status)';
+  }
+}
