@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/workout_sync_facade.dart';
-import 'package:urban_breeze/features/workout_history/di/workout_statistics_providers.dart';
+import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
 import 'package:urban_breeze/features/workout_history/presentation/screens/sync_screen.dart';
 import 'package:urban_breeze/features/workout_history/presentation/screens/workout_list_screen.dart';

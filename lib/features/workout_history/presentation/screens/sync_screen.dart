@@ -8,7 +8,7 @@ import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/core/services/deep_link_service.dart';
 import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/workout_sync_facade.dart';
-import 'package:urban_breeze/features/workout_history/di/workout_statistics_providers.dart';
+import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';

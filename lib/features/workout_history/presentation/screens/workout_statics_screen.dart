@@ -14,7 +14,7 @@ import 'package:urban_breeze/shared/utils/period_utils.dart';
 import 'package:urban_breeze/shared/utils/workout_formatter.dart';
 
 import '../../application/use_cases/get_workout_statistics_use_case.dart';
-import '../../di/workout_statistics_providers.dart';
+import '../../di/workout_history_providers.dart';
 import '../../domain/entities/workout_statistics.dart';
 import '../../domain/enums/statistic_enums.dart';
 import '../widgets/period_selector_dialog.dart';
