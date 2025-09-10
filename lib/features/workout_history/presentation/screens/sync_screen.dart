@@ -312,11 +312,13 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
         if (authUrl.isNotEmpty) {
           // 연동 링크를 웹뷰로 표시
-          WebViewNavigation.navigateToWebView(
-            context,
-            url: authUrl,
-            title: 'Garmin Connect 연동',
-          );
+          if (mounted) {
+            WebViewNavigation.navigateToWebView(
+              context,
+              url: authUrl,
+              title: 'Garmin Connect 연동',
+            );
+          }
         } else {
           if (mounted) {
             showErrorMessage(context, '연동 링크를 받을 수 없습니다.');
@@ -363,11 +365,13 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
         if (authUrl.isNotEmpty) {
           // 연동 링크를 웹뷰로 표시
-          WebViewNavigation.navigateToWebView(
-            context,
-            url: authUrl,
-            title: 'Suunto 연동',
-          );
+          if (mounted) {
+            WebViewNavigation.navigateToWebView(
+              context,
+              url: authUrl,
+              title: 'Suunto 연동',
+            );
+          }
         } else {
           if (mounted) {
             showErrorMessage(context, '연동 링크를 받을 수 없습니다.');
