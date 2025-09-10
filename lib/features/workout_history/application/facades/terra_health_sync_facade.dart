@@ -2,12 +2,8 @@ import 'package:terra_flutter_bridge/models/enums.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/connect_terra_health_app_use_case.dart';
-import 'package:urban_breeze/features/workout_history/application/use_cases/get_integration_activity_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/initialize_terra_use_case.dart';
-import 'package:urban_breeze/features/workout_history/application/use_cases/request_garmin_connect_permission_use_case.dart';
-import 'package:urban_breeze/features/workout_history/application/use_cases/request_suunto_permission_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_terra_health_data_use_case.dart';
-import 'package:urban_breeze/features/workout_history/domain/entities/integration_authentication.dart';
 import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 
 class TerraHealthSyncFacade {
@@ -15,18 +11,11 @@ class TerraHealthSyncFacade {
     required this.initializeTerraUseCase,
     required this.connectTerraHealthAppUseCase,
     required this.syncTerraHealthDataUseCase,
-    required this.requestGarminConnectPermissionUseCase,
-    required this.requestSuuntoPermissionUseCase,
-    required this.getIntegrationActivityUseCase,
   });
 
   final InitializeTerraUseCase initializeTerraUseCase;
   final ConnectTerraHealthAppUseCase connectTerraHealthAppUseCase;
   final SyncTerraHealthDataUseCase syncTerraHealthDataUseCase;
-  final RequestGarminConnectPermissionUseCase
-  requestGarminConnectPermissionUseCase;
-  final RequestSuuntoPermissionUseCase requestSuuntoPermissionUseCase;
-  final GetIntegrationActivityUseCase getIntegrationActivityUseCase;
 
   /// Terra를 통한 건강 데이터 가져오기 (초기화 + 연결 + 동기화)
   Future<AppResult<Map<String, dynamic>?>> syncHealthDataFromTerra({
