@@ -6,9 +6,9 @@ import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/core/services/deep_link_service.dart';
-import 'package:urban_breeze/features/workout_history/application/facades/terra_health_sync_facade.dart';
+import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
+import 'package:urban_breeze/features/workout_history/application/facades/workout_sync_facade.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_statistics_providers.dart';
-import 'package:urban_breeze/features/workout_history/domain/entities/integration_authentication.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
@@ -81,9 +81,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     });
 
     try {
-      final TerraHealthSyncFacade facade = ref.read(
-        terraHealthSyncFacadeProvider,
-      );
+      final WorkoutSyncFacade facade = ref.read(workoutSyncFacadeProvider);
       final AppResult<Map<String, dynamic>?> result =
           await facade.syncAppleHealthData();
 
@@ -150,9 +148,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     });
 
     try {
-      final TerraHealthSyncFacade facade = ref.read(
-        terraHealthSyncFacadeProvider,
-      );
+      final WorkoutSyncFacade facade = ref.read(workoutSyncFacadeProvider);
       final AppResult<Map<String, dynamic>?> result =
           await facade.syncHealthConnectData();
 
@@ -225,9 +221,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     });
 
     try {
-      final TerraHealthSyncFacade facade = ref.read(
-        terraHealthSyncFacadeProvider,
-      );
+      final WorkoutSyncFacade facade = ref.read(workoutSyncFacadeProvider);
       final AppResult<Map<String, dynamic>?> result =
           await facade.syncSamsungHealthData();
 
@@ -300,14 +294,12 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     });
 
     try {
-      final TerraHealthSyncFacade facade = ref.read(
-        terraHealthSyncFacadeProvider,
-      );
-      final AppResult<IntegrationAuthentication> result =
-          await facade.requestGarminConnectPermission();
+      final WorkoutSyncFacade facade = ref.read(workoutSyncFacadeProvider);
+      final AppResult<IntegrationAuth> result =
+          await facade.requestGarminPermission();
 
       if (result.isSuccess) {
-        final IntegrationAuthentication data = result.dataOrNull!;
+        final IntegrationAuth data = result.dataOrNull!;
         final String authUrl = data.url;
 
         if (authUrl.isNotEmpty) {
@@ -353,14 +345,12 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     });
 
     try {
-      final TerraHealthSyncFacade facade = ref.read(
-        terraHealthSyncFacadeProvider,
-      );
-      final AppResult<IntegrationAuthentication> result =
+      final WorkoutSyncFacade facade = ref.read(workoutSyncFacadeProvider);
+      final AppResult<IntegrationAuth> result =
           await facade.requestSuuntoPermission();
 
       if (result.isSuccess) {
-        final IntegrationAuthentication data = result.dataOrNull!;
+        final IntegrationAuth data = result.dataOrNull!;
         final String authUrl = data.url;
 
         if (authUrl.isNotEmpty) {

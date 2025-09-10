@@ -1,0 +1,168 @@
+import 'dart:io';
+
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/integration/application/facades/integration_sync_facade.dart';
+import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
+import 'package:urban_breeze/features/workout_history/application/facades/terra_health_sync_facade.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/sync_apple_health_kit_data_use_case.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/sync_google_health_connect_data_use_case.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
+import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
+
+/// 워크아웃 동기화 통합 Facade
+/// Terra API와 Integration API를 모두 관리
+class WorkoutSyncFacade {
+  const WorkoutSyncFacade({
+    required this.terraHealthSyncFacade,
+    required this.integrationSyncFacade,
+    required this.syncAppleHealthKitDataUseCase,
+    required this.syncGoogleHealthConnectDataUseCase,
+  });
+
+  final TerraHealthSyncFacade terraHealthSyncFacade;
+  final IntegrationSyncFacade integrationSyncFacade;
+  final SyncAppleHealthKitDataUseCase syncAppleHealthKitDataUseCase;
+  final SyncGoogleHealthConnectDataUseCase syncGoogleHealthConnectDataUseCase;
+
+  /// Apple Health에서 데이터 가져오기
+  Future<AppResult<Map<String, dynamic>?>> syncAppleHealthData({
+    DateTime? startDate,
+    DateTime? endDate,
+    bool toWebhook = true,
+  }) async {
+    return terraHealthSyncFacade.syncAppleHealthData(
+      startDate: startDate,
+      endDate: endDate,
+      toWebhook: toWebhook,
+    );
+  }
+
+  /// Health Connect에서 데이터 가져오기
+  Future<AppResult<Map<String, dynamic>?>> syncHealthConnectData({
+    DateTime? startDate,
+    DateTime? endDate,
+    bool toWebhook = true,
+  }) async {
+    return terraHealthSyncFacade.syncHealthConnectData(
+      startDate: startDate,
+      endDate: endDate,
+      toWebhook: toWebhook,
+    );
+  }
+
+  /// Samsung Health에서 데이터 가져오기
+  Future<AppResult<Map<String, dynamic>?>> syncSamsungHealthData({
+    DateTime? startDate,
+    DateTime? endDate,
+    bool toWebhook = true,
+  }) async {
+    return terraHealthSyncFacade.syncSamsungHealthData(
+      startDate: startDate,
+      endDate: endDate,
+      toWebhook: toWebhook,
+    );
+  }
+
+  /// Garmin Connect 연동 링크 요청
+  Future<AppResult<IntegrationAuth>> requestGarminPermission() async {
+    return integrationSyncFacade.requestGarminPermission();
+  }
+
+  /// Suunto 연동 링크 요청
+  Future<AppResult<IntegrationAuth>> requestSuuntoPermission() async {
+    return integrationSyncFacade.requestSuuntoPermission();
+  }
+
+  /// 연동된 서비스들의 활동 기록 새로고침
+  Future<AppResult<Map<String, dynamic>>> refreshIntegrationActivity() async {
+    return integrationSyncFacade.refreshIntegrationActivity();
+  }
+
+  /// 전체 워크아웃 동기화 (Terra SDK + Integration API)
+  Future<AppResult<Map<String, dynamic>>> performFullSync() async {
+    try {
+      final List<WorkoutRecord> allWorkouts = <WorkoutRecord>[];
+      int successCount = 0;
+      int totalAttempts = 0;
+      int integrationSuccessCount = 0;
+      int integrationTotalAttempts = 0;
+
+      // iOS에서만 Apple Health Kit 시도
+      if (Platform.isIOS) {
+        totalAttempts++;
+        try {
+          // 권한 확인
+          final bool hasPermission =
+              await syncAppleHealthKitDataUseCase.checkPermissions();
+
+          if (hasPermission) {
+            final List<WorkoutRecord> appleWorkouts =
+                await syncAppleHealthKitDataUseCase.fetchBasicWorkoutData(
+                  startDate: DateTime.now().subtract(const Duration(days: 30)),
+                  endDate: DateTime.now(),
+                );
+            allWorkouts.addAll(appleWorkouts);
+            successCount++;
+          }
+        } catch (e) {
+          // Apple Health Kit 오류는 카운트만 하고 상세 메시지는 표시하지 않음
+        }
+      }
+
+      // Android에서만 Google Health Connect 시도
+      if (Platform.isAndroid) {
+        totalAttempts++;
+        try {
+          // 권한 확인
+          final bool hasPermission =
+              await syncGoogleHealthConnectDataUseCase.checkPermissions();
+
+          if (hasPermission) {
+            final Map<WorkoutRecord, Map<String, dynamic>> completeData =
+                await syncGoogleHealthConnectDataUseCase
+                    .syncCompleteWorkoutData(
+                      startDate: DateTime.now().subtract(
+                        const Duration(days: 1000),
+                      ),
+                      endDate: DateTime.now(),
+                    );
+            allWorkouts.addAll(completeData.keys.toList());
+            successCount++;
+          }
+        } catch (e) {
+          // Google Health Connect 오류는 카운트만 하고 상세 메시지는 표시하지 않음
+        }
+      }
+
+      // 연동된 서비스들의 활동 기록 새로고침
+      integrationTotalAttempts = 1; // 연동 새로고침은 항상 1번 시도
+      try {
+        final AppResult<Map<String, dynamic>> result =
+            await integrationSyncFacade.refreshIntegrationActivity();
+
+        if (result.isSuccess) {
+          integrationSuccessCount = 1;
+        }
+      } catch (e) {
+        // 연동 새로고침 오류는 카운트만 하고 상세 메시지는 표시하지 않음
+      }
+
+      // 결과 데이터 구성
+      final Map<String, dynamic> resultData = <String, dynamic>{
+        'allWorkouts': allWorkouts,
+        'successCount': successCount,
+        'totalAttempts': totalAttempts,
+        'integrationSuccessCount': integrationSuccessCount,
+        'integrationTotalAttempts': integrationTotalAttempts,
+        'totalSuccess': successCount + integrationSuccessCount,
+        'totalAttemptsCount': totalAttempts + integrationTotalAttempts,
+      };
+
+      return AppSuccess<Map<String, dynamic>>(resultData);
+    } catch (e) {
+      return AppFailure<Map<String, dynamic>>(
+        TerraApiException('전체 동기화 중 오류 발생: $e'),
+      );
+    }
+  }
+}
