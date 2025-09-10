@@ -13,7 +13,7 @@ import '../domain/repositories/integration_repository.dart';
 // DataSource
 final Provider<IntegrationDataSource> integrationDataSourceProvider =
     Provider<IntegrationDataSource>((Ref ref) {
-      final http.Client client = ref.watch(httpClientProvider);
+      final http.Client client = ref.watch(authorizedHttpClientProvider);
       return IntegrationDataSource(client: client);
     });
 
