@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/features/auth/data/models/urban_breeze_login_response_model.dart';
@@ -49,6 +50,7 @@ class UrbanBreezeAuthRemoteDataSource extends BaseRemoteDataSource {
       final Map<String, dynamic> jsonMap = decodeResponse(response);
 
       if (statusCode == 200 || statusCode == 201) {
+        debugPrint('Kakao login success: $jsonMap');
         return UrbanBreezeLoginResponseModel.fromApi(
           jsonMap,
           LoginProvider.kakao,

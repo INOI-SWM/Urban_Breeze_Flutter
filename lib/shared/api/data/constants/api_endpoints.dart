@@ -17,4 +17,11 @@ class ApiEndpoints {
 
   //recommendation
   static const String recommendations = '/api/recommendations';
+
+  //sync
+  static const String integrationAuthentication =
+      '/api/integration/authentication';
+  static const String integrationAuthenticationWidget =
+      '/api/integration/authentication/widget';
+  static const String integrationActivity = '/api/integration/activity';
 }

@@ -1,8 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/core/di/core_providers.dart';
+import 'package:urban_breeze/features/integration/application/facades/integration_sync_facade.dart';
+import 'package:urban_breeze/features/integration/di/integration_providers.dart';
 
 import '../application/facades/terra_health_sync_facade.dart';
+import '../application/facades/workout_sync_facade.dart';
 import '../application/use_cases/connect_terra_health_app_use_case.dart';
 import '../application/use_cases/get_workout_statistics_use_case.dart';
 import '../application/use_cases/initialize_terra_use_case.dart';
@@ -180,3 +183,26 @@ final Provider<TerraHealthSyncFacade> terraHealthSyncFacadeProvider =
         syncTerraHealthDataUseCase: syncTerraHealthDataUseCase,
       );
     });
+
+// Workout Sync Facade Provider (통합 Facade)
+final Provider<WorkoutSyncFacade>
+workoutSyncFacadeProvider = Provider<WorkoutSyncFacade>((Ref ref) {
+  final TerraHealthSyncFacade terraHealthSyncFacade = ref.watch(
+    terraHealthSyncFacadeProvider,
+  );
+  final IntegrationSyncFacade integrationSyncFacade = ref.watch(
+    integrationSyncFacadeProvider,
+  );
+  final SyncAppleHealthKitDataUseCase syncAppleHealthKitDataUseCase = ref.watch(
+    syncAppleHealthKitDataUseCaseProvider,
+  );
+  final SyncGoogleHealthConnectDataUseCase syncGoogleHealthConnectDataUseCase =
+      ref.watch(syncGoogleHealthConnectDataUseCaseProvider);
+
+  return WorkoutSyncFacade(
+    terraHealthSyncFacade: terraHealthSyncFacade,
+    integrationSyncFacade: integrationSyncFacade,
+    syncAppleHealthKitDataUseCase: syncAppleHealthKitDataUseCase,
+    syncGoogleHealthConnectDataUseCase: syncGoogleHealthConnectDataUseCase,
+  );
+});

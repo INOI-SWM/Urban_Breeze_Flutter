@@ -1,10 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:urban_breeze/features/workout_history/application/use_cases/sync_apple_health_kit_data_use_case.dart';
-import 'package:urban_breeze/features/workout_history/application/use_cases/sync_google_health_connect_data_use_case.dart';
-import 'package:urban_breeze/features/workout_history/di/workout_statistics_providers.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/workout_history/application/facades/workout_sync_facade.dart';
+import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
 import 'package:urban_breeze/features/workout_history/presentation/screens/sync_screen.dart';
 import 'package:urban_breeze/features/workout_history/presentation/screens/workout_list_screen.dart';
@@ -74,103 +72,68 @@ class _RefreshButton extends ConsumerWidget {
 
     syncNotifier.setSyncing(true);
 
-    final List<WorkoutRecord> allWorkouts = <WorkoutRecord>[];
-    int successCount = 0;
-    int totalAttempts = 0;
-    final List<String> errorMessages = <String>[];
-
     try {
-      // iOS에서만 Apple Health Kit 시도
-      if (Platform.isIOS) {
-        totalAttempts++;
-        try {
-          final SyncAppleHealthKitDataUseCase appleUseCase = ref.read(
-            syncAppleHealthKitDataUseCaseProvider,
-          );
-
-          // 권한 확인
-          final bool hasPermission = await appleUseCase.checkPermissions();
-
-          if (hasPermission) {
-            final List<WorkoutRecord> appleWorkouts = await appleUseCase
-                .fetchBasicWorkoutData(
-                  startDate: DateTime.now().subtract(const Duration(days: 30)),
-                  endDate: DateTime.now(),
-                );
-            allWorkouts.addAll(appleWorkouts);
-            successCount++;
-          }
-        } catch (e) {
-          errorMessages.add('Apple Health Kit: ${e.toString()}');
-        }
-      }
-
-      // Android에서만 Google Health Connect 시도
-      if (Platform.isAndroid) {
-        totalAttempts++;
-        try {
-          final SyncGoogleHealthConnectDataUseCase googleUseCase = ref.read(
-            syncGoogleHealthConnectDataUseCaseProvider,
-          );
-
-          // 권한 확인
-          final bool hasPermission = await googleUseCase.checkPermissions();
-
-          if (hasPermission) {
-            final Map<WorkoutRecord, Map<String, dynamic>> completeData =
-                await googleUseCase.syncCompleteWorkoutData(
-                  startDate: DateTime.now().subtract(
-                    const Duration(days: 1000),
-                  ),
-                  endDate: DateTime.now(),
-                );
-            allWorkouts.addAll(completeData.keys.toList());
-            successCount++;
-          }
-        } catch (e) {
-          errorMessages.add('Google Health Connect: ${e.toString()}');
-        }
-      }
-
-      // 아무 플랫폼에서도 시도하지 않은 경우
-      if (totalAttempts == 0) {
-        errorMessages.add('지원되지 않는 플랫폼입니다. iOS 또는 Android에서만 동작합니다.');
-      }
+      final WorkoutSyncFacade facade = ref.read(workoutSyncFacadeProvider);
+      final AppResult<Map<String, dynamic>> result =
+          await facade.performFullSync();
 
       syncNotifier.setSyncing(false);
 
-      // 결과 메시지 표시 및 데이터 전달
       if (context.mounted) {
-        String message;
-        if (successCount == 0) {
-          message = '동기화할 수 있는 데이터가 없습니다.\n오류: ${errorMessages.join(', ')}';
-        } else if (successCount == totalAttempts) {
-          message = '모든 데이터 동기화 완료! 총 ${allWorkouts.length}개의 운동 기록을 가져왔습니다.';
+        if (result.isSuccess) {
+          final Map<String, dynamic> data = result.dataOrNull!;
+          final List<WorkoutRecord> allWorkouts =
+              data['allWorkouts'] as List<WorkoutRecord>;
+          final int totalSuccess = data['totalSuccess'] as int;
+          final int totalAttemptsCount = data['totalAttemptsCount'] as int;
+          final int totalAttempts = data['totalAttempts'] as int;
+
+          String message;
+
+          // 연동할 것이 없는 경우 (플랫폼 지원 안함)
+          if (totalAttempts == 0) {
+            message = '설정 버튼을 눌러, 동기화 설정을 먼저 해 주세요';
+          } else {
+            // 성공/실패 개수 기반 메시지
+            if (totalSuccess == 0) {
+              message = '동기화할 수 있는 데이터가 없습니다.';
+            } else if (totalSuccess == totalAttemptsCount) {
+              message =
+                  '모든 데이터 동기화 완료! 총 ${allWorkouts.length}개의 운동 기록을 가져왔습니다.';
+            } else {
+              message =
+                  '일부 데이터 동기화 완료! 총 ${allWorkouts.length}개의 운동 기록을 가져왔습니다.';
+            }
+          }
+
+          // WorkoutListScreen에 데이터 전달을 위해 Provider 업데이트
+          if (allWorkouts.isNotEmpty) {
+            ref.read(workoutDataProvider.notifier).updateWorkouts(allWorkouts);
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              duration: const Duration(seconds: 3),
+            ),
+          );
         } else {
-          message =
-              '일부 데이터 동기화 완료! 총 ${allWorkouts.length}개의 운동 기록을 가져왔습니다.\n오류: ${errorMessages.join(', ')}';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('동기화 실패: ${result.exceptionOrNull?.message}'),
+              duration: const Duration(seconds: 3),
+            ),
+          );
         }
-
-        // WorkoutListScreen에 데이터 전달을 위해 Provider 업데이트
-        if (allWorkouts.isNotEmpty) {
-          ref.read(workoutDataProvider.notifier).updateWorkouts(allWorkouts);
-        }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            duration: const Duration(seconds: 5), // 더 긴 시간 동안 메시지 표시
-          ),
-        );
       }
     } catch (e) {
       syncNotifier.setSyncing(false);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('동기화 중 오류가 발생했습니다: ${e.toString()}'),
-            duration: const Duration(seconds: 5),
+          const SnackBar(
+            content: Text('동기화 중 오류가 발생했습니다.'),
+            duration: Duration(seconds: 3),
           ),
         );
       }
