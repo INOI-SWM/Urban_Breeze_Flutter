@@ -50,7 +50,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         data: (Profile? profile) {
           final String nickname =
               profile?.nickname ?? widget.user.displayName ?? '이름 없음';
-          final String introduce = profile?.introduce ?? '한줄소개입니다';
+          final String introduce = profile?.introduce ?? '자신을 소개해주세요';
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
