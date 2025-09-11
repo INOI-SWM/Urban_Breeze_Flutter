@@ -1,19 +1,41 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/user_session_repository.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/get_profile_use_case.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/update_birth_use_case.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/update_gender_use_case.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/update_introduce_use_case.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/update_nickname_use_case.dart';
 
 class UserSessionNotifier extends StateNotifier<User?> {
   UserSessionNotifier({
     required UserSessionRepository repository,
+    required GetProfileUseCase getProfileUseCase,
+    required UpdateNicknameUseCase updateNicknameUseCase,
+    required UpdateIntroduceUseCase updateIntroduceUseCase,
+    required UpdateBirthUseCase updateBirthUseCase,
+    required UpdateGenderUseCase updateGenderUseCase,
     void Function()? onInitialized,
   }) : _repository = repository,
+       _getProfileUseCase = getProfileUseCase,
+       _updateNicknameUseCase = updateNicknameUseCase,
+       _updateIntroduceUseCase = updateIntroduceUseCase,
+       _updateBirthUseCase = updateBirthUseCase,
+       _updateGenderUseCase = updateGenderUseCase,
        _onInitialized = onInitialized,
        super(null) {
     loadUserSession();
   }
 
   final UserSessionRepository _repository;
+  final GetProfileUseCase _getProfileUseCase;
+  final UpdateNicknameUseCase _updateNicknameUseCase;
+  final UpdateIntroduceUseCase _updateIntroduceUseCase;
+  final UpdateBirthUseCase _updateBirthUseCase;
+  final UpdateGenderUseCase _updateGenderUseCase;
   final void Function()? _onInitialized;
 
   Future<void> setUserSession(User user) async {
@@ -61,6 +83,75 @@ class UserSessionNotifier extends StateNotifier<User?> {
   }
 
   bool get isLoggedIn => state != null;
+
+  /// 프로필 정보 새로고침
+  Future<AppResult<User>> refreshProfile() async {
+    if (state == null) {
+      return const AppFailure<User>(ValidationException('User not logged in'));
+    }
+
+    final AppResult<User> result = await _getProfileUseCase.execute();
+    if (result.isSuccess) {
+      state = result.dataOrNull;
+    }
+    return result;
+  }
+
+  /// 닉네임 수정
+  Future<AppResult<User>> updateNickname(String nickname) async {
+    if (state == null) {
+      return const AppFailure<User>(ValidationException('User not logged in'));
+    }
+
+    final AppResult<User> result = await _updateNicknameUseCase.execute(
+      nickname,
+    );
+    if (result.isSuccess) {
+      state = result.dataOrNull;
+    }
+    return result;
+  }
+
+  /// 자기소개 수정
+  Future<AppResult<User>> updateIntroduce(String introduce) async {
+    if (state == null) {
+      return const AppFailure<User>(ValidationException('User not logged in'));
+    }
+
+    final AppResult<User> result = await _updateIntroduceUseCase.execute(
+      introduce,
+    );
+    if (result.isSuccess) {
+      state = result.dataOrNull;
+    }
+    return result;
+  }
+
+  /// 생년월일 수정
+  Future<AppResult<User>> updateBirth(String birth) async {
+    if (state == null) {
+      return const AppFailure<User>(ValidationException('User not logged in'));
+    }
+
+    final AppResult<User> result = await _updateBirthUseCase.execute(birth);
+    if (result.isSuccess) {
+      state = result.dataOrNull;
+    }
+    return result;
+  }
+
+  /// 성별 수정
+  Future<AppResult<User>> updateGender(String gender) async {
+    if (state == null) {
+      return const AppFailure<User>(ValidationException('User not logged in'));
+    }
+
+    final AppResult<User> result = await _updateGenderUseCase.execute(gender);
+    if (result.isSuccess) {
+      state = result.dataOrNull;
+    }
+    return result;
+  }
 }
 
 class AuthInitializationNotifier extends StateNotifier<bool> {

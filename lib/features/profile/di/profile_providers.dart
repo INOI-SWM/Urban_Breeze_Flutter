@@ -2,10 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/core/di/core_providers.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
-import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/user_session_repository.dart';
 
-import '../application/providers/profile_notifier.dart';
 import '../application/use_cases/get_profile_use_case.dart';
 import '../application/use_cases/update_birth_use_case.dart';
 import '../application/use_cases/update_gender_use_case.dart';
@@ -19,20 +17,20 @@ import '../domain/repositories/profile_repository.dart';
 final Provider<ProfileDataSource> profileDataSourceProvider =
     Provider<ProfileDataSource>((Ref ref) {
       final http.Client client = ref.watch(authorizedHttpClientProvider);
-      final UserSessionRepository userSessionRepository = ref.watch(
-        userSessionRepositoryProvider,
-      );
-      return ProfileDataSource(
-        client: client,
-        userSessionRepository: userSessionRepository,
-      );
+      return ProfileDataSource(client: client);
     });
 
 // Repository
 final Provider<ProfileRepository> profileRepositoryProvider =
     Provider<ProfileRepository>((Ref ref) {
       final ProfileDataSource dataSource = ref.watch(profileDataSourceProvider);
-      return ProfileRepositoryImpl(dataSource: dataSource);
+      final UserSessionRepository userSessionRepository = ref.watch(
+        userSessionRepositoryProvider,
+      );
+      return ProfileRepositoryImpl(
+        dataSource: dataSource,
+        userSessionRepository: userSessionRepository,
+      );
     });
 
 // Use Cases
@@ -64,33 +62,4 @@ final Provider<UpdateGenderUseCase> updateGenderUseCaseProvider =
     Provider<UpdateGenderUseCase>((Ref ref) {
       final ProfileRepository repository = ref.watch(profileRepositoryProvider);
       return UpdateGenderUseCase(repository: repository);
-    });
-
-// Profile Notifier
-final StateNotifierProvider<ProfileNotifier, AsyncValue<User?>>
-profileNotifierProvider =
-    StateNotifierProvider<ProfileNotifier, AsyncValue<User?>>((Ref ref) {
-      final GetProfileUseCase getProfileUseCase = ref.watch(
-        getProfileUseCaseProvider,
-      );
-      final UpdateNicknameUseCase updateNicknameUseCase = ref.watch(
-        updateNicknameUseCaseProvider,
-      );
-      final UpdateIntroduceUseCase updateIntroduceUseCase = ref.watch(
-        updateIntroduceUseCaseProvider,
-      );
-      final UpdateBirthUseCase updateBirthUseCase = ref.watch(
-        updateBirthUseCaseProvider,
-      );
-      final UpdateGenderUseCase updateGenderUseCase = ref.watch(
-        updateGenderUseCaseProvider,
-      );
-
-      return ProfileNotifier(
-        getProfileUseCase: getProfileUseCase,
-        updateNicknameUseCase: updateNicknameUseCase,
-        updateIntroduceUseCase: updateIntroduceUseCase,
-        updateBirthUseCase: updateBirthUseCase,
-        updateGenderUseCase: updateGenderUseCase,
-      );
     });
