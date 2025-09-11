@@ -15,25 +15,31 @@ class ProfileDataSource extends BaseRemoteDataSource {
 
   final UserSessionRepository _userSessionRepository;
 
+  /// 현재 사용자의 loginProvider를 가져와서 User 객체를 생성하는 공통 메서드
+  Future<ApiResponseModel<User>> _createUserResponse(
+    Map<String, dynamic> responseData,
+  ) async {
+    // 현재 사용자의 loginProvider 가져오기
+    final User? currentUser = await _userSessionRepository.loadUser();
+    final LoginProvider? loginProvider = currentUser?.loginProvider;
+
+    if (loginProvider == null) {
+      throw Exception('Current user login provider not found');
+    }
+
+    return ApiResponseModel<User>.fromJson(
+      responseData,
+      (Map<String, dynamic> json) =>
+          User.fromJsonForProfile(json, loginProvider),
+    );
+  }
+
   /// 프로필 정보 조회
   Future<ApiResponseModel<User>> getProfile() async {
     try {
       final http.Response response = await get(ApiEndpoints.profile);
       final Map<String, dynamic> responseData = decodeResponse(response);
-
-      // 현재 사용자의 loginProvider 가져오기
-      final User? currentUser = await _userSessionRepository.loadUser();
-      final LoginProvider? loginProvider = currentUser?.loginProvider;
-
-      if (loginProvider == null) {
-        throw Exception('Current user login provider not found');
-      }
-
-      return ApiResponseModel<User>.fromJson(
-        responseData,
-        (Map<String, dynamic> json) =>
-            User.fromJsonForProfile(json, loginProvider),
-      );
+      return await _createUserResponse(responseData);
     } catch (e) {
       rethrow;
     }
@@ -47,20 +53,7 @@ class ProfileDataSource extends BaseRemoteDataSource {
         body: <String, String>{'nickname': nickname},
       );
       final Map<String, dynamic> responseData = decodeResponse(response);
-
-      // 현재 사용자의 loginProvider 가져오기
-      final User? currentUser = await _userSessionRepository.loadUser();
-      final LoginProvider? loginProvider = currentUser?.loginProvider;
-
-      if (loginProvider == null) {
-        throw Exception('Current user login provider not found');
-      }
-
-      return ApiResponseModel<User>.fromJson(
-        responseData,
-        (Map<String, dynamic> json) =>
-            User.fromJsonForProfile(json, loginProvider),
-      );
+      return await _createUserResponse(responseData);
     } catch (e) {
       rethrow;
     }
@@ -74,20 +67,7 @@ class ProfileDataSource extends BaseRemoteDataSource {
         body: <String, String>{'introduce': introduce},
       );
       final Map<String, dynamic> responseData = decodeResponse(response);
-
-      // 현재 사용자의 loginProvider 가져오기
-      final User? currentUser = await _userSessionRepository.loadUser();
-      final LoginProvider? loginProvider = currentUser?.loginProvider;
-
-      if (loginProvider == null) {
-        throw Exception('Current user login provider not found');
-      }
-
-      return ApiResponseModel<User>.fromJson(
-        responseData,
-        (Map<String, dynamic> json) =>
-            User.fromJsonForProfile(json, loginProvider),
-      );
+      return await _createUserResponse(responseData);
     } catch (e) {
       rethrow;
     }
@@ -101,20 +81,7 @@ class ProfileDataSource extends BaseRemoteDataSource {
         body: <String, String>{'birthYear': birth},
       );
       final Map<String, dynamic> responseData = decodeResponse(response);
-
-      // 현재 사용자의 loginProvider 가져오기
-      final User? currentUser = await _userSessionRepository.loadUser();
-      final LoginProvider? loginProvider = currentUser?.loginProvider;
-
-      if (loginProvider == null) {
-        throw Exception('Current user login provider not found');
-      }
-
-      return ApiResponseModel<User>.fromJson(
-        responseData,
-        (Map<String, dynamic> json) =>
-            User.fromJsonForProfile(json, loginProvider),
-      );
+      return await _createUserResponse(responseData);
     } catch (e) {
       rethrow;
     }
@@ -129,20 +96,7 @@ class ProfileDataSource extends BaseRemoteDataSource {
       );
       final Map<String, dynamic> responseData = decodeResponse(response);
       debugPrint('responseData: $responseData');
-
-      // 현재 사용자의 loginProvider 가져오기
-      final User? currentUser = await _userSessionRepository.loadUser();
-      final LoginProvider? loginProvider = currentUser?.loginProvider;
-
-      if (loginProvider == null) {
-        throw Exception('Current user login provider not found');
-      }
-
-      return ApiResponseModel<User>.fromJson(
-        responseData,
-        (Map<String, dynamic> json) =>
-            User.fromJsonForProfile(json, loginProvider),
-      );
+      return await _createUserResponse(responseData);
     } catch (e) {
       rethrow;
     }
