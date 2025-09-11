@@ -84,73 +84,44 @@ class UserSessionNotifier extends StateNotifier<User?> {
 
   bool get isLoggedIn => state != null;
 
-  /// 프로필 정보 새로고침
-  Future<AppResult<User>> refreshProfile() async {
+  /// 공통 업데이트 로직을 처리하는 헬퍼 메서드
+  Future<AppResult<User>> _executeUpdate(
+    Future<AppResult<User>> Function() updateFunction,
+  ) async {
     if (state == null) {
       return const AppFailure<User>(ValidationException('User not logged in'));
     }
 
-    final AppResult<User> result = await _getProfileUseCase.execute();
+    final AppResult<User> result = await updateFunction();
     if (result.isSuccess) {
       state = result.dataOrNull;
     }
     return result;
+  }
+
+  /// 프로필 정보 새로고침
+  Future<AppResult<User>> refreshProfile() async {
+    return _executeUpdate(() => _getProfileUseCase.execute());
   }
 
   /// 닉네임 수정
   Future<AppResult<User>> updateNickname(String nickname) async {
-    if (state == null) {
-      return const AppFailure<User>(ValidationException('User not logged in'));
-    }
-
-    final AppResult<User> result = await _updateNicknameUseCase.execute(
-      nickname,
-    );
-    if (result.isSuccess) {
-      state = result.dataOrNull;
-    }
-    return result;
+    return _executeUpdate(() => _updateNicknameUseCase.execute(nickname));
   }
 
   /// 자기소개 수정
   Future<AppResult<User>> updateIntroduce(String introduce) async {
-    if (state == null) {
-      return const AppFailure<User>(ValidationException('User not logged in'));
-    }
-
-    final AppResult<User> result = await _updateIntroduceUseCase.execute(
-      introduce,
-    );
-    if (result.isSuccess) {
-      state = result.dataOrNull;
-    }
-    return result;
+    return _executeUpdate(() => _updateIntroduceUseCase.execute(introduce));
   }
 
   /// 생년월일 수정
   Future<AppResult<User>> updateBirth(String birth) async {
-    if (state == null) {
-      return const AppFailure<User>(ValidationException('User not logged in'));
-    }
-
-    final AppResult<User> result = await _updateBirthUseCase.execute(birth);
-    if (result.isSuccess) {
-      state = result.dataOrNull;
-    }
-    return result;
+    return _executeUpdate(() => _updateBirthUseCase.execute(birth));
   }
 
   /// 성별 수정
   Future<AppResult<User>> updateGender(String gender) async {
-    if (state == null) {
-      return const AppFailure<User>(ValidationException('User not logged in'));
-    }
-
-    final AppResult<User> result = await _updateGenderUseCase.execute(gender);
-    if (result.isSuccess) {
-      state = result.dataOrNull;
-    }
-    return result;
+    return _executeUpdate(() => _updateGenderUseCase.execute(gender));
   }
 }
 
