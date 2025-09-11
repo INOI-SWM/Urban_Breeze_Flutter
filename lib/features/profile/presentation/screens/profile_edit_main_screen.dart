@@ -5,7 +5,6 @@ import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/profile/di/profile_providers.dart';
-import 'package:urban_breeze/features/profile/domain/entities/profile.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_bio_edit_screen.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_birth_year_edit_screen.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_gender_edit_screen.dart';
@@ -37,9 +36,7 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 이미 데이터가 없을 때만 로드 (깜빡임 방지)
-      final AsyncValue<Profile?> currentState = ref.read(
-        profileNotifierProvider,
-      );
+      final AsyncValue<User?> currentState = ref.read(profileNotifierProvider);
       if (!currentState.hasValue) {
         ref.read(profileNotifierProvider.notifier).loadProfile();
       }
@@ -50,9 +47,7 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-    final AsyncValue<Profile?> profileState = ref.watch(
-      profileNotifierProvider,
-    );
+    final AsyncValue<User?> profileState = ref.watch(profileNotifierProvider);
 
     return Scaffold(
       backgroundColor: colors.backgroundNormalNormal,
@@ -66,12 +61,12 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
         ),
       ),
       body: profileState.when(
-        data: (Profile? profile) {
+        data: (User? profile) {
           final String nickname =
               profile?.nickname ?? widget.user.displayName ?? '설정되지 않음';
           final String bio = profile?.introduce ?? '자신을 소개해주세요';
           final String gender = profile?.gender ?? '선택해주세요';
-          final String birthYear = profile?.birth ?? '선택해주세요';
+          final String birthYear = profile?.birthYear?.toString() ?? '선택해주세요';
 
           return SingleChildScrollView(
             child: Padding(
@@ -132,8 +127,7 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
 
   void _navigateToNicknameEdit() async {
     AmplitudeAnalytics.logButtonClick('profile_nickname_edit');
-    final Profile? currentProfile =
-        ref.read(profileNotifierProvider).valueOrNull;
+    final User? currentProfile = ref.read(profileNotifierProvider).valueOrNull;
     final String currentValue =
         currentProfile?.nickname ?? widget.user.displayName ?? '';
 
@@ -153,8 +147,7 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
 
   void _navigateToBioEdit() async {
     AmplitudeAnalytics.logButtonClick('profile_bio_edit');
-    final Profile? currentProfile =
-        ref.read(profileNotifierProvider).valueOrNull;
+    final User? currentProfile = ref.read(profileNotifierProvider).valueOrNull;
     final String currentValue = currentProfile?.introduce ?? '자신을 소개해주세요';
 
     final String? result = await Navigator.of(context).push<String>(
@@ -173,8 +166,7 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
 
   void _navigateToGenderEdit() async {
     AmplitudeAnalytics.logButtonClick('profile_gender_edit');
-    final Profile? currentProfile =
-        ref.read(profileNotifierProvider).valueOrNull;
+    final User? currentProfile = ref.read(profileNotifierProvider).valueOrNull;
     final String currentValue = currentProfile?.gender ?? '선택해주세요';
 
     final String? result = await Navigator.of(context).push<String>(
@@ -193,9 +185,9 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
 
   void _navigateToBirthYearEdit() async {
     AmplitudeAnalytics.logButtonClick('profile_birth_year_edit');
-    final Profile? currentProfile =
-        ref.read(profileNotifierProvider).valueOrNull;
-    final String currentValue = currentProfile?.birth ?? '선택해주세요';
+    final User? currentProfile = ref.read(profileNotifierProvider).valueOrNull;
+    final String currentValue =
+        currentProfile?.birthYear?.toString() ?? '선택해주세요';
 
     final String? result = await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(

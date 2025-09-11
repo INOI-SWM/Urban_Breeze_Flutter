@@ -4,7 +4,6 @@ import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/profile/di/profile_providers.dart';
-import 'package:urban_breeze/features/profile/domain/entities/profile.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_edit_main_screen.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
@@ -27,9 +26,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // 이미 데이터가 없을 때만 로드 (깜빡임 방지)
-      final AsyncValue<Profile?> currentState = ref.read(
-        profileNotifierProvider,
-      );
+      final AsyncValue<User?> currentState = ref.read(profileNotifierProvider);
       if (!currentState.hasValue) {
         ref.read(profileNotifierProvider.notifier).loadProfile();
       }
@@ -40,14 +37,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-    final AsyncValue<Profile?> profileState = ref.watch(
-      profileNotifierProvider,
-    );
+    final AsyncValue<User?> profileState = ref.watch(profileNotifierProvider);
 
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: profileState.when(
-        data: (Profile? profile) {
+        data: (User? profile) {
           final String nickname =
               profile?.nickname ?? widget.user.displayName ?? '이름 없음';
           final String introduce = profile?.introduce ?? '자신을 소개해주세요';

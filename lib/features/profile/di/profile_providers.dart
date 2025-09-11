@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/core/di/core_providers.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 
 import '../application/providers/profile_notifier.dart';
 import '../application/use_cases/get_profile_use_case.dart';
@@ -11,7 +12,6 @@ import '../application/use_cases/update_nickname_use_case.dart';
 import '../data/datasources/profile_datasource.dart';
 import '../data/datasources/profile_local_datasource.dart';
 import '../data/repositories/profile_repository_impl.dart';
-import '../domain/entities/profile.dart';
 import '../domain/repositories/profile_repository.dart';
 
 // DataSource
@@ -71,9 +71,9 @@ final Provider<UpdateGenderUseCase> updateGenderUseCaseProvider =
     });
 
 // Profile Notifier
-final StateNotifierProvider<ProfileNotifier, AsyncValue<Profile?>>
+final StateNotifierProvider<ProfileNotifier, AsyncValue<User?>>
 profileNotifierProvider =
-    StateNotifierProvider<ProfileNotifier, AsyncValue<Profile?>>((Ref ref) {
+    StateNotifierProvider<ProfileNotifier, AsyncValue<User?>>((Ref ref) {
       final GetProfileUseCase getProfileUseCase = ref.watch(
         getProfileUseCaseProvider,
       );
