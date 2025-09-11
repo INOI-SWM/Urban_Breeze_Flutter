@@ -1,14 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:urban_breeze/core/di/core_providers.dart';
 
+import '../application/providers/profile_notifier.dart';
 import '../application/use_cases/get_profile_use_case.dart';
 import '../application/use_cases/update_birth_use_case.dart';
 import '../application/use_cases/update_gender_use_case.dart';
 import '../application/use_cases/update_introduce_use_case.dart';
 import '../application/use_cases/update_nickname_use_case.dart';
 import '../data/datasources/profile_datasource.dart';
+import '../data/datasources/profile_local_datasource.dart';
 import '../data/repositories/profile_repository_impl.dart';
+import '../domain/entities/profile.dart';
 import '../domain/repositories/profile_repository.dart';
 
 // DataSource
@@ -18,11 +22,38 @@ final Provider<ProfileDataSource> profileDataSourceProvider =
       return ProfileDataSource(client: client);
     });
 
+final FutureProvider<SharedPreferences> sharedPreferencesProvider =
+    FutureProvider<SharedPreferences>((Ref ref) async {
+      return await SharedPreferences.getInstance();
+    });
+
+final Provider<ProfileLocalDataSource> profileLocalDataSourceProvider =
+    Provider<ProfileLocalDataSource>((Ref ref) {
+      final AsyncValue<SharedPreferences> sharedPreferences = ref.watch(
+        sharedPreferencesProvider,
+      );
+      return sharedPreferences.when(
+        data:
+            (SharedPreferences prefs) =>
+                ProfileLocalDataSource(sharedPreferences: prefs),
+        loading: () => throw Exception('SharedPreferences not loaded'),
+        error:
+            (Object error, StackTrace stack) =>
+                throw Exception('Failed to load SharedPreferences: $error'),
+      );
+    });
+
 // Repository
 final Provider<ProfileRepository> profileRepositoryProvider =
     Provider<ProfileRepository>((Ref ref) {
       final ProfileDataSource dataSource = ref.watch(profileDataSourceProvider);
-      return ProfileRepositoryImpl(dataSource: dataSource);
+      final ProfileLocalDataSource localDataSource = ref.watch(
+        profileLocalDataSourceProvider,
+      );
+      return ProfileRepositoryImpl(
+        dataSource: dataSource,
+        localDataSource: localDataSource,
+      );
     });
 
 // Use Cases
@@ -54,4 +85,12 @@ final Provider<UpdateGenderUseCase> updateGenderUseCaseProvider =
     Provider<UpdateGenderUseCase>((Ref ref) {
       final ProfileRepository repository = ref.watch(profileRepositoryProvider);
       return UpdateGenderUseCase(repository: repository);
+    });
+
+// Profile Notifier
+final StateNotifierProvider<ProfileNotifier, AsyncValue<Profile?>>
+profileNotifierProvider =
+    StateNotifierProvider<ProfileNotifier, AsyncValue<Profile?>>((Ref ref) {
+      final ProfileRepository repository = ref.watch(profileRepositoryProvider);
+      return ProfileNotifier(repository: repository);
     });
