@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/get_profile_use_case.dart';
+import 'package:urban_breeze/features/profile/di/profile_providers.dart';
+import 'package:urban_breeze/features/profile/domain/entities/profile.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_bio_edit_screen.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_birth_year_edit_screen.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_gender_edit_screen.dart';
@@ -15,16 +20,17 @@ import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_but
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
 
-class ProfileEditMainScreen extends StatefulWidget {
+class ProfileEditMainScreen extends ConsumerStatefulWidget {
   const ProfileEditMainScreen({super.key, required this.user});
 
   final User user;
 
   @override
-  State<ProfileEditMainScreen> createState() => _ProfileEditMainScreenState();
+  ConsumerState<ProfileEditMainScreen> createState() =>
+      _ProfileEditMainScreenState();
 }
 
-class _ProfileEditMainScreenState extends State<ProfileEditMainScreen>
+class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     with ErrorDisplayMixin {
   String _nickname = '';
   String _bio = '';
@@ -35,15 +41,36 @@ class _ProfileEditMainScreenState extends State<ProfileEditMainScreen>
   @override
   void initState() {
     super.initState();
-    // TODO : 프로필 정보 가져오기 api 호출 후 데이터 설정
-    _nickname = widget.user.displayName ?? '';
-    _bio = '자신을 소개해주세요';
-    _gender = '선택해주세요';
-    _birthYear = '선택해주세요';
+    _loadProfileData();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AmplitudeAnalytics.logScreenView('profile_edit_screen');
     });
+  }
+
+  Future<void> _loadProfileData() async {
+    final GetProfileUseCase getProfileUseCase = ref.read(
+      getProfileUseCaseProvider,
+    );
+    final AppResult<Profile> result = await getProfileUseCase.execute();
+
+    if (result.isSuccess) {
+      final Profile profile = result.dataOrNull!;
+      setState(() {
+        _nickname = profile.nickname;
+        _bio = profile.introduce ?? '자신을 소개해주세요';
+        _gender = profile.gender ?? '선택해주세요';
+        _birthYear = profile.birth ?? '선택해주세요';
+      });
+    } else {
+      // 기본값으로 설정
+      setState(() {
+        _nickname = widget.user.displayName ?? '';
+        _bio = '자신을 소개해주세요';
+        _gender = '선택해주세요';
+        _birthYear = '선택해주세요';
+      });
+    }
   }
 
   @override

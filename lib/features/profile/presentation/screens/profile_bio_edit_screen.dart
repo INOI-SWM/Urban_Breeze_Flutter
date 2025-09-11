@@ -1,23 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/update_introduce_use_case.dart';
+import 'package:urban_breeze/features/profile/di/profile_providers.dart';
 import 'package:urban_breeze/features/profile/presentation/mixins/profile_edit_button_mixin.dart';
 import 'package:urban_breeze/features/profile/presentation/widgets/profile_edit_app_bar.dart';
 import 'package:urban_breeze/features/profile/presentation/widgets/profile_edit_layout.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
-class ProfileBioEditScreen extends StatefulWidget {
+class ProfileBioEditScreen extends ConsumerStatefulWidget {
   const ProfileBioEditScreen({super.key, required this.currentValue});
 
   final String currentValue;
 
   @override
-  State<ProfileBioEditScreen> createState() => _ProfileBioEditScreenState();
+  ConsumerState<ProfileBioEditScreen> createState() =>
+      _ProfileBioEditScreenState();
 }
 
-class _ProfileBioEditScreenState extends State<ProfileBioEditScreen>
-    with ProfileEditButtonMixin<ProfileBioEditScreen> {
+class _ProfileBioEditScreenState extends ConsumerState<ProfileBioEditScreen>
+    with ProfileEditButtonMixin<ProfileBioEditScreen>, ErrorDisplayMixin {
   late TextEditingController _textController;
 
   @override
@@ -31,18 +37,39 @@ class _ProfileBioEditScreenState extends State<ProfileBioEditScreen>
       inputValue != null && inputValue.isNotEmpty;
 
   @override
-  void onSave() {
+  void onSave() async {
     final String? newValue = getCurrentInputValue();
+    if (newValue == null || newValue.isEmpty) return;
+
     AmplitudeAnalytics.logEvent(
       'profile_bio_saved',
       properties: <String, dynamic>{
         'old_value': widget.currentValue,
         'new_value': newValue,
-        'value_length': newValue?.length ?? 0,
+        'value_length': newValue.length,
       },
     );
 
-    Navigator.of(context).pop(getCurrentInputValue());
+    final UpdateIntroduceUseCase updateIntroduceUseCase = ref.read(
+      updateIntroduceUseCaseProvider,
+    );
+    final AppResult<void> result = await updateIntroduceUseCase.execute(
+      newValue,
+    );
+
+    if (result.isSuccess) {
+      if (mounted) {
+        showSuccessMessage(context, '자기소개가 성공적으로 변경되었습니다');
+        Navigator.of(context).pop(newValue);
+      }
+    } else {
+      if (mounted) {
+        showErrorMessage(
+          context,
+          '자기소개 변경에 실패했습니다: ${result.exceptionOrNull?.message}',
+        );
+      }
+    }
   }
 
   @override

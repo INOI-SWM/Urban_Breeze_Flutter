@@ -1,24 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/update_gender_use_case.dart';
+import 'package:urban_breeze/features/profile/di/profile_providers.dart';
 import 'package:urban_breeze/features/profile/presentation/mixins/profile_edit_button_mixin.dart';
 import 'package:urban_breeze/features/profile/presentation/widgets/profile_edit_app_bar.dart';
 import 'package:urban_breeze/features/profile/presentation/widgets/profile_edit_layout.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
-class ProfileGenderEditScreen extends StatefulWidget {
+class ProfileGenderEditScreen extends ConsumerStatefulWidget {
   const ProfileGenderEditScreen({super.key, required this.currentValue});
 
   final String currentValue;
 
   @override
-  State<ProfileGenderEditScreen> createState() =>
+  ConsumerState<ProfileGenderEditScreen> createState() =>
       _ProfileGenderEditScreenState();
 }
 
-class _ProfileGenderEditScreenState extends State<ProfileGenderEditScreen>
-    with ProfileEditButtonMixin<ProfileGenderEditScreen> {
+class _ProfileGenderEditScreenState
+    extends ConsumerState<ProfileGenderEditScreen>
+    with ProfileEditButtonMixin<ProfileGenderEditScreen>, ErrorDisplayMixin {
   String? _selectedValue;
 
   @override
@@ -31,7 +37,9 @@ class _ProfileGenderEditScreenState extends State<ProfileGenderEditScreen>
   bool isValidInput(String? inputValue) => inputValue != null;
 
   @override
-  void onSave() {
+  void onSave() async {
+    if (_selectedValue == null) return;
+
     AmplitudeAnalytics.logEvent(
       'profile_gender_saved',
       properties: <String, dynamic>{
@@ -40,7 +48,34 @@ class _ProfileGenderEditScreenState extends State<ProfileGenderEditScreen>
       },
     );
 
-    Navigator.of(context).pop(_selectedValue);
+    // 한글을 API 형식으로 변환
+    String apiGender = _selectedValue!;
+    if (_selectedValue == '남성') {
+      apiGender = 'MALE';
+    } else if (_selectedValue == '여성') {
+      apiGender = 'FEMALE';
+    } else if (_selectedValue == '기타') {
+      apiGender = 'OTHER';
+    }
+
+    final UpdateGenderUseCase updateGenderUseCase = ref.read(
+      updateGenderUseCaseProvider,
+    );
+    final AppResult<void> result = await updateGenderUseCase.execute(apiGender);
+
+    if (result.isSuccess) {
+      if (mounted) {
+        showSuccessMessage(context, '성별이 성공적으로 변경되었습니다');
+        Navigator.of(context).pop(_selectedValue);
+      }
+    } else {
+      if (mounted) {
+        showErrorMessage(
+          context,
+          '성별 변경에 실패했습니다: ${result.exceptionOrNull?.message}',
+        );
+      }
+    }
   }
 
   @override
