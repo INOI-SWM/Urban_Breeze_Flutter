@@ -114,9 +114,4 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Profile?>> {
       );
     }
   }
-
-  /// 프로필 정보 초기화
-  void clearProfile() {
-    state = const AsyncValue<Profile?>.data(null);
-  }
 }

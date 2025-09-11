@@ -62,15 +62,4 @@ class ProfileLocalDataSource {
     final SharedPreferences prefs = await _sharedPreferences;
     await prefs.setString(ProfileKeys.gender, gender);
   }
-
-  /// 프로필 정보 삭제
-  Future<void> clearProfile() async {
-    final SharedPreferences prefs = await _sharedPreferences;
-    await Future.wait(<Future<bool>>[
-      prefs.remove(ProfileKeys.nickname),
-      prefs.remove(ProfileKeys.introduce),
-      prefs.remove(ProfileKeys.birth),
-      prefs.remove(ProfileKeys.gender),
-    ]);
-  }
 }
