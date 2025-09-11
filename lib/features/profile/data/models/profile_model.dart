@@ -1,39 +1,47 @@
-import '../../domain/entities/profile.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
 
-class ProfileModel extends Profile {
+class ProfileModel {
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     return ProfileModel(
-      uuid: json['uuid'] as String?,
+      uuid: json['uuid'] as String? ?? '',
       nickname: json['nickname'] as String? ?? '',
-      email: json['email'] as String?,
+      email: json['email'] as String? ?? '',
       profileImagePath: json['profileImagePath'] as String?,
       introduce: json['introduce'] as String?,
-      birth: json['birthYear']?.toString(), // int를 String으로 변환
+      birthYear: json['birthYear'] as int?,
       gender: json['gender'] as String?,
+      displayName: json['displayName'] as String?,
+      loginProvider: LoginProviderExtension.fromJson(
+        json['loginProvider'] as String? ?? '',
+      ),
+      isFirstLogin: json['isFirstLogin'] as bool? ?? false,
     );
   }
 
-  factory ProfileModel.fromEntity(Profile profile) {
-    return ProfileModel(
-      nickname: profile.nickname,
-      introduce: profile.introduce,
-      birth: profile.birth,
-      gender: profile.gender,
-    );
-  }
   const ProfileModel({
-    required super.nickname,
-    super.introduce,
-    super.birth,
-    super.gender,
-    this.uuid,
-    this.email,
+    required this.uuid,
+    required this.nickname,
+    required this.email,
     this.profileImagePath,
+    this.introduce,
+    this.birthYear,
+    this.gender,
+    this.displayName,
+    required this.loginProvider,
+    this.isFirstLogin = false,
   });
 
-  final String? uuid;
-  final String? email;
+  final String uuid;
+  final String nickname;
+  final String email;
   final String? profileImagePath;
+  final String? introduce;
+  final int? birthYear;
+  final String? gender;
+  final String? displayName;
+  final LoginProvider loginProvider;
+  final bool isFirstLogin;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -42,17 +50,26 @@ class ProfileModel extends Profile {
       'email': email,
       'profileImagePath': profileImagePath,
       'introduce': introduce,
-      'birthYear': birth != null ? int.tryParse(birth!) : null,
+      'birthYear': birthYear,
       'gender': gender,
+      'displayName': displayName,
+      'loginProvider': loginProvider.name,
+      'isFirstLogin': isFirstLogin,
     };
   }
 
-  Profile toEntity() {
-    return Profile(
+  User toUser() {
+    return User(
+      uuid: uuid,
       nickname: nickname,
+      email: email,
+      profileImagePath: profileImagePath,
       introduce: introduce,
-      birth: birth,
+      birthYear: birthYear,
       gender: gender,
+      displayName: displayName,
+      loginProvider: loginProvider,
+      isFirstLogin: isFirstLogin,
     );
   }
 }
