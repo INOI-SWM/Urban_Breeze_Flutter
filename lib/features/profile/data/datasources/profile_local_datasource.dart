@@ -4,28 +4,31 @@ import '../../domain/entities/profile.dart';
 import '../constants/profile_keys.dart';
 
 class ProfileLocalDataSource {
-  const ProfileLocalDataSource({required SharedPreferences sharedPreferences})
-    : _sharedPreferences = sharedPreferences;
+  const ProfileLocalDataSource();
 
-  final SharedPreferences _sharedPreferences;
+  Future<SharedPreferences> get _sharedPreferences async {
+    return await SharedPreferences.getInstance();
+  }
 
   /// 프로필 정보 저장
   Future<void> saveProfile(Profile profile) async {
+    final SharedPreferences prefs = await _sharedPreferences;
     await Future.wait(<Future<bool>>[
       if (profile.nickname.isNotEmpty)
-        _sharedPreferences.setString(ProfileKeys.nickname, profile.nickname),
+        prefs.setString(ProfileKeys.nickname, profile.nickname),
       if (profile.introduce != null)
-        _sharedPreferences.setString(ProfileKeys.introduce, profile.introduce!),
+        prefs.setString(ProfileKeys.introduce, profile.introduce!),
       if (profile.birth != null)
-        _sharedPreferences.setString(ProfileKeys.birth, profile.birth!),
+        prefs.setString(ProfileKeys.birth, profile.birth!),
       if (profile.gender != null)
-        _sharedPreferences.setString(ProfileKeys.gender, profile.gender!),
+        prefs.setString(ProfileKeys.gender, profile.gender!),
     ]);
   }
 
   /// 프로필 정보 로드
-  Profile? loadProfile() {
-    final String? nickname = _sharedPreferences.getString(ProfileKeys.nickname);
+  Future<Profile?> loadProfile() async {
+    final SharedPreferences prefs = await _sharedPreferences;
+    final String? nickname = prefs.getString(ProfileKeys.nickname);
 
     if (nickname == null || nickname.isEmpty) {
       return null;
@@ -33,36 +36,41 @@ class ProfileLocalDataSource {
 
     return Profile(
       nickname: nickname,
-      introduce: _sharedPreferences.getString(ProfileKeys.introduce),
-      birth: _sharedPreferences.getString(ProfileKeys.birth),
-      gender: _sharedPreferences.getString(ProfileKeys.gender),
+      introduce: prefs.getString(ProfileKeys.introduce),
+      birth: prefs.getString(ProfileKeys.birth),
+      gender: prefs.getString(ProfileKeys.gender),
     );
   }
 
   /// 특정 필드 업데이트
   Future<void> updateNickname(String nickname) async {
-    await _sharedPreferences.setString(ProfileKeys.nickname, nickname);
+    final SharedPreferences prefs = await _sharedPreferences;
+    await prefs.setString(ProfileKeys.nickname, nickname);
   }
 
   Future<void> updateIntroduce(String introduce) async {
-    await _sharedPreferences.setString(ProfileKeys.introduce, introduce);
+    final SharedPreferences prefs = await _sharedPreferences;
+    await prefs.setString(ProfileKeys.introduce, introduce);
   }
 
   Future<void> updateBirth(String birth) async {
-    await _sharedPreferences.setString(ProfileKeys.birth, birth);
+    final SharedPreferences prefs = await _sharedPreferences;
+    await prefs.setString(ProfileKeys.birth, birth);
   }
 
   Future<void> updateGender(String gender) async {
-    await _sharedPreferences.setString(ProfileKeys.gender, gender);
+    final SharedPreferences prefs = await _sharedPreferences;
+    await prefs.setString(ProfileKeys.gender, gender);
   }
 
   /// 프로필 정보 삭제
   Future<void> clearProfile() async {
+    final SharedPreferences prefs = await _sharedPreferences;
     await Future.wait(<Future<bool>>[
-      _sharedPreferences.remove(ProfileKeys.nickname),
-      _sharedPreferences.remove(ProfileKeys.introduce),
-      _sharedPreferences.remove(ProfileKeys.birth),
-      _sharedPreferences.remove(ProfileKeys.gender),
+      prefs.remove(ProfileKeys.nickname),
+      prefs.remove(ProfileKeys.introduce),
+      prefs.remove(ProfileKeys.birth),
+      prefs.remove(ProfileKeys.gender),
     ]);
   }
 }
