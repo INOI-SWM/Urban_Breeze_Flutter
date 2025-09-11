@@ -37,7 +37,7 @@ class _ProfileBioEditScreenState extends ConsumerState<ProfileBioEditScreen>
       inputValue != null && inputValue.isNotEmpty;
 
   @override
-  void onSave() async {
+  Future<void> onSave() async {
     final String? newValue = getCurrentInputValue();
     if (newValue == null || newValue.isEmpty) return;
 
@@ -100,7 +100,7 @@ class _ProfileBioEditScreenState extends ConsumerState<ProfileBioEditScreen>
       appBar: ProfileEditAppBar(
         title: '한 줄 소개',
         isButtonEnabled: isButtonEnabled,
-        onSave: saveValue,
+        onSave: onSave,
       ),
       body: ProfileEditLayout(
         title: '한 줄 소개',

@@ -38,7 +38,7 @@ class _ProfileBirthYearEditScreenState
   bool isValidInput(String? inputValue) => inputValue != null;
 
   @override
-  void onSave() async {
+  Future<void> onSave() async {
     if (_selectedValue == null) return;
 
     AmplitudeAnalytics.logEvent(
@@ -109,7 +109,7 @@ class _ProfileBirthYearEditScreenState
       appBar: ProfileEditAppBar(
         title: '출생년도',
         isButtonEnabled: isButtonEnabled,
-        onSave: saveValue,
+        onSave: onSave,
       ),
       body: ProfileEditLayout(
         title: '출생년도',

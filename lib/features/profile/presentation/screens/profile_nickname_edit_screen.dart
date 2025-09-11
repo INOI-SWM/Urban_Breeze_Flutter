@@ -38,7 +38,7 @@ class _ProfileNicknameEditScreenState
       inputValue != null && inputValue.isNotEmpty;
 
   @override
-  void onSave() async {
+  Future<void> onSave() async {
     final String? newValue = getCurrentInputValue();
     if (newValue == null || newValue.isEmpty) return;
 
@@ -101,7 +101,7 @@ class _ProfileNicknameEditScreenState
       appBar: ProfileEditAppBar(
         title: '닉네임',
         isButtonEnabled: isButtonEnabled,
-        onSave: saveValue,
+        onSave: onSave,
       ),
       body: ProfileEditLayout(
         title: '닉네임',
