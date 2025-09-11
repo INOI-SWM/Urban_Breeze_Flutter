@@ -36,8 +36,13 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 프로필 데이터 로드
-      ref.read(profileNotifierProvider.notifier).loadProfile();
+      // 이미 데이터가 없을 때만 로드 (깜빡임 방지)
+      final AsyncValue<Profile?> currentState = ref.read(
+        profileNotifierProvider,
+      );
+      if (!currentState.hasValue) {
+        ref.read(profileNotifierProvider.notifier).loadProfile();
+      }
       AmplitudeAnalytics.logScreenView('profile_edit_screen');
     });
   }
