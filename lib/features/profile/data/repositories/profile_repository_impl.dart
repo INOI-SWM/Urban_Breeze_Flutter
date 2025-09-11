@@ -1,5 +1,4 @@
 import 'package:urban_breeze/features/profile/data/models/profile_model.dart';
-
 import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 
 import '../../domain/entities/profile.dart';
@@ -20,22 +19,30 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<void> updateNickname(String nickname) async {
-    await _dataSource.updateNickname(nickname);
+  Future<Profile> updateNickname(String nickname) async {
+    final ApiResponseModel<ProfileModel> response = await _dataSource
+        .updateNickname(nickname);
+    return response.data.toEntity();
   }
 
   @override
-  Future<void> updateIntroduce(String introduce) async {
-    await _dataSource.updateIntroduce(introduce);
+  Future<Profile> updateIntroduce(String introduce) async {
+    final ApiResponseModel<ProfileModel> response = await _dataSource
+        .updateIntroduce(introduce);
+    return response.data.toEntity();
   }
 
   @override
-  Future<void> updateBirth(String birth) async {
-    await _dataSource.updateBirth(birth);
+  Future<Profile> updateBirth(String birth) async {
+    final ApiResponseModel<ProfileModel> response = await _dataSource
+        .updateBirth(birth);
+    return response.data.toEntity();
   }
 
   @override
-  Future<void> updateGender(String gender) async {
-    await _dataSource.updateGender(gender);
+  Future<Profile> updateGender(String gender) async {
+    final ApiResponseModel<ProfileModel> response = await _dataSource
+        .updateGender(gender);
+    return response.data.toEntity();
   }
 }

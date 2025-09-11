@@ -23,7 +23,7 @@ class ProfileDataSource extends BaseRemoteDataSource {
   }
 
   /// 닉네임 수정
-  Future<ApiResponseModel<void>> updateNickname(String nickname) async {
+  Future<ApiResponseModel<ProfileModel>> updateNickname(String nickname) async {
     try {
       final http.Response response = await put(
         ApiEndpoints.profileNickname,
@@ -31,9 +31,9 @@ class ProfileDataSource extends BaseRemoteDataSource {
       );
       final Map<String, dynamic> responseData = decodeResponse(response);
 
-      return ApiResponseModel<void>.fromJson(
+      return ApiResponseModel<ProfileModel>.fromJson(
         responseData,
-        (Map<String, dynamic> json) {},
+        ProfileModel.fromJson,
       );
     } catch (e) {
       rethrow;
@@ -41,7 +41,9 @@ class ProfileDataSource extends BaseRemoteDataSource {
   }
 
   /// 자기소개 수정
-  Future<ApiResponseModel<void>> updateIntroduce(String introduce) async {
+  Future<ApiResponseModel<ProfileModel>> updateIntroduce(
+    String introduce,
+  ) async {
     try {
       final http.Response response = await put(
         ApiEndpoints.profileIntroduce,
@@ -49,9 +51,9 @@ class ProfileDataSource extends BaseRemoteDataSource {
       );
       final Map<String, dynamic> responseData = decodeResponse(response);
 
-      return ApiResponseModel<void>.fromJson(
+      return ApiResponseModel<ProfileModel>.fromJson(
         responseData,
-        (Map<String, dynamic> json) {},
+        ProfileModel.fromJson,
       );
     } catch (e) {
       rethrow;
@@ -59,7 +61,7 @@ class ProfileDataSource extends BaseRemoteDataSource {
   }
 
   /// 생년월일 수정
-  Future<ApiResponseModel<void>> updateBirth(String birth) async {
+  Future<ApiResponseModel<ProfileModel>> updateBirth(String birth) async {
     try {
       final http.Response response = await put(
         ApiEndpoints.profileBirth,
@@ -67,9 +69,9 @@ class ProfileDataSource extends BaseRemoteDataSource {
       );
       final Map<String, dynamic> responseData = decodeResponse(response);
 
-      return ApiResponseModel<void>.fromJson(
+      return ApiResponseModel<ProfileModel>.fromJson(
         responseData,
-        (Map<String, dynamic> json) {},
+        ProfileModel.fromJson,
       );
     } catch (e) {
       rethrow;
@@ -77,7 +79,7 @@ class ProfileDataSource extends BaseRemoteDataSource {
   }
 
   /// 성별 수정
-  Future<ApiResponseModel<void>> updateGender(String gender) async {
+  Future<ApiResponseModel<ProfileModel>> updateGender(String gender) async {
     try {
       final http.Response response = await put(
         ApiEndpoints.userGender,
@@ -85,9 +87,9 @@ class ProfileDataSource extends BaseRemoteDataSource {
       );
       final Map<String, dynamic> responseData = decodeResponse(response);
 
-      return ApiResponseModel<void>.fromJson(
+      return ApiResponseModel<ProfileModel>.fromJson(
         responseData,
-        (Map<String, dynamic> json) {},
+        ProfileModel.fromJson,
       );
     } catch (e) {
       rethrow;
