@@ -1,13 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/profile/application/use_cases/get_profile_use_case.dart';
 import 'package:urban_breeze/features/profile/application/use_cases/update_birth_use_case.dart';
 import 'package:urban_breeze/features/profile/application/use_cases/update_gender_use_case.dart';
 import 'package:urban_breeze/features/profile/application/use_cases/update_introduce_use_case.dart';
 import 'package:urban_breeze/features/profile/application/use_cases/update_nickname_use_case.dart';
-import 'package:urban_breeze/features/profile/domain/entities/profile.dart';
 
-class ProfileNotifier extends StateNotifier<AsyncValue<Profile?>> {
+class ProfileNotifier extends StateNotifier<AsyncValue<User?>> {
   ProfileNotifier({
     required GetProfileUseCase getProfileUseCase,
     required UpdateNicknameUseCase updateNicknameUseCase,
@@ -19,7 +19,7 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Profile?>> {
        _updateIntroduceUseCase = updateIntroduceUseCase,
        _updateBirthUseCase = updateBirthUseCase,
        _updateGenderUseCase = updateGenderUseCase,
-       super(const AsyncValue<Profile?>.loading());
+       super(const AsyncValue<User?>.loading());
 
   final GetProfileUseCase _getProfileUseCase;
   final UpdateNicknameUseCase _updateNicknameUseCase;
@@ -32,21 +32,21 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Profile?>> {
     // 로컬 데이터가 있으면 먼저 표시 (깜빡임 방지)
     if (state.hasValue && state.value != null) {
       // 이미 데이터가 있으면 서버에서 업데이트만
-      final AppResult<Profile> result = await _getProfileUseCase.execute();
+      final AppResult<User> result = await _getProfileUseCase.execute();
       if (result.isSuccess) {
-        state = AsyncValue<Profile?>.data(result.dataOrNull);
+        state = AsyncValue<User?>.data(result.dataOrNull);
       }
       return;
     }
 
     // 처음 로드할 때만 loading 상태
-    state = const AsyncValue<Profile?>.loading();
-    final AppResult<Profile> result = await _getProfileUseCase.execute();
+    state = const AsyncValue<User?>.loading();
+    final AppResult<User> result = await _getProfileUseCase.execute();
 
     if (result.isSuccess) {
-      state = AsyncValue<Profile?>.data(result.dataOrNull);
+      state = AsyncValue<User?>.data(result.dataOrNull);
     } else {
-      state = AsyncValue<Profile?>.error(
+      state = AsyncValue<User?>.error(
         result.exceptionOrNull ?? Exception('프로필 로드 실패'),
         StackTrace.current,
       );
@@ -55,14 +55,14 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Profile?>> {
 
   /// 닉네임 수정
   Future<void> updateNickname(String nickname) async {
-    final AppResult<Profile> result = await _updateNicknameUseCase.execute(
+    final AppResult<User> result = await _updateNicknameUseCase.execute(
       nickname,
     );
 
     if (result.isSuccess) {
-      state = AsyncValue<Profile?>.data(result.dataOrNull);
+      state = AsyncValue<User?>.data(result.dataOrNull);
     } else {
-      state = AsyncValue<Profile?>.error(
+      state = AsyncValue<User?>.error(
         result.exceptionOrNull ?? Exception('닉네임 수정 실패'),
         StackTrace.current,
       );
@@ -71,14 +71,14 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Profile?>> {
 
   /// 자기소개 수정
   Future<void> updateIntroduce(String introduce) async {
-    final AppResult<Profile> result = await _updateIntroduceUseCase.execute(
+    final AppResult<User> result = await _updateIntroduceUseCase.execute(
       introduce,
     );
 
     if (result.isSuccess) {
-      state = AsyncValue<Profile?>.data(result.dataOrNull);
+      state = AsyncValue<User?>.data(result.dataOrNull);
     } else {
-      state = AsyncValue<Profile?>.error(
+      state = AsyncValue<User?>.error(
         result.exceptionOrNull ?? Exception('자기소개 수정 실패'),
         StackTrace.current,
       );
@@ -87,12 +87,12 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Profile?>> {
 
   /// 생년월일 수정
   Future<void> updateBirth(String birth) async {
-    final AppResult<Profile> result = await _updateBirthUseCase.execute(birth);
+    final AppResult<User> result = await _updateBirthUseCase.execute(birth);
 
     if (result.isSuccess) {
-      state = AsyncValue<Profile?>.data(result.dataOrNull);
+      state = AsyncValue<User?>.data(result.dataOrNull);
     } else {
-      state = AsyncValue<Profile?>.error(
+      state = AsyncValue<User?>.error(
         result.exceptionOrNull ?? Exception('생년월일 수정 실패'),
         StackTrace.current,
       );
@@ -101,14 +101,12 @@ class ProfileNotifier extends StateNotifier<AsyncValue<Profile?>> {
 
   /// 성별 수정
   Future<void> updateGender(String gender) async {
-    final AppResult<Profile> result = await _updateGenderUseCase.execute(
-      gender,
-    );
+    final AppResult<User> result = await _updateGenderUseCase.execute(gender);
 
     if (result.isSuccess) {
-      state = AsyncValue<Profile?>.data(result.dataOrNull);
+      state = AsyncValue<User?>.data(result.dataOrNull);
     } else {
-      state = AsyncValue<Profile?>.error(
+      state = AsyncValue<User?>.error(
         result.exceptionOrNull ?? Exception('성별 수정 실패'),
         StackTrace.current,
       );

@@ -1,6 +1,6 @@
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
-import 'package:urban_breeze/features/profile/domain/entities/profile.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/profile/domain/repositories/profile_repository.dart';
 
 class GetProfileUseCase {
@@ -9,14 +9,14 @@ class GetProfileUseCase {
 
   final ProfileRepository _repository;
 
-  Future<AppResult<Profile>> execute() async {
+  Future<AppResult<User>> execute() async {
     try {
-      final Profile profile = await _repository.getProfile();
-      return AppSuccess<Profile>(profile);
+      final User user = await _repository.getProfile();
+      return AppSuccess<User>(user);
     } on NetworkException catch (e) {
-      return AppFailure<Profile>(e);
+      return AppFailure<User>(e);
     } catch (e) {
-      return AppFailure<Profile>(
+      return AppFailure<User>(
         ServerException('프로필 정보를 가져오는데 실패했습니다: ${e.toString()}'),
       );
     }

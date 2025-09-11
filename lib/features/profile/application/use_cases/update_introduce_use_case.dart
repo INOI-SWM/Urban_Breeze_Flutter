@@ -1,6 +1,6 @@
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
-import 'package:urban_breeze/features/profile/domain/entities/profile.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/profile/domain/repositories/profile_repository.dart';
 
 class UpdateIntroduceUseCase {
@@ -9,25 +9,25 @@ class UpdateIntroduceUseCase {
 
   final ProfileRepository _repository;
 
-  Future<AppResult<Profile>> execute(String introduce) async {
+  Future<AppResult<User>> execute(String introduce) async {
     // 자기소개 validation
     if (introduce.length > 100) {
-      return const AppFailure<Profile>(
+      return const AppFailure<User>(
         ValidationException('자기소개는 100자 이하로 입력해주세요'),
       );
     }
 
     try {
-      final Profile updatedProfile = await _repository.updateIntroduce(
+      final User updatedProfile = await _repository.updateIntroduce(
         introduce.trim(),
       );
-      return AppSuccess<Profile>(updatedProfile);
+      return AppSuccess<User>(updatedProfile);
     } on NetworkException catch (e) {
-      return AppFailure<Profile>(e);
+      return AppFailure<User>(e);
     } on ValidationException catch (e) {
-      return AppFailure<Profile>(e);
+      return AppFailure<User>(e);
     } catch (e) {
-      return AppFailure<Profile>(
+      return AppFailure<User>(
         ServerException('자기소개 수정에 실패했습니다: ${e.toString()}'),
       );
     }
