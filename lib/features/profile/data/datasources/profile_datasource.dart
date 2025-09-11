@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/features/profile/data/models/profile_model.dart';
 import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
@@ -86,7 +87,7 @@ class ProfileDataSource extends BaseRemoteDataSource {
         body: <String, String>{'gender': gender},
       );
       final Map<String, dynamic> responseData = decodeResponse(response);
-
+      debugPrint('responseData: $responseData');
       return ApiResponseModel<ProfileModel>.fromJson(
         responseData,
         ProfileModel.fromJson,

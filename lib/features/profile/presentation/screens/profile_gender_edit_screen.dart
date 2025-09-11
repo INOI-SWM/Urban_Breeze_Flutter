@@ -5,6 +5,7 @@ import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/profile/application/use_cases/update_gender_use_case.dart';
 import 'package:urban_breeze/features/profile/di/profile_providers.dart';
+import 'package:urban_breeze/features/profile/domain/entities/profile.dart';
 import 'package:urban_breeze/features/profile/presentation/mixins/profile_edit_button_mixin.dart';
 import 'package:urban_breeze/features/profile/presentation/widgets/profile_edit_app_bar.dart';
 import 'package:urban_breeze/features/profile/presentation/widgets/profile_edit_layout.dart';
@@ -61,7 +62,9 @@ class _ProfileGenderEditScreenState
     final UpdateGenderUseCase updateGenderUseCase = ref.read(
       updateGenderUseCaseProvider,
     );
-    final AppResult<void> result = await updateGenderUseCase.execute(apiGender);
+    final AppResult<Profile> result = await updateGenderUseCase.execute(
+      apiGender,
+    );
 
     if (result.isSuccess) {
       if (mounted) {

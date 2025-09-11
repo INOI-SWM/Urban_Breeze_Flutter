@@ -146,8 +146,8 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     );
 
     if (result != null) {
-      // ProfileNotifier를 통해 업데이트
-      await ref.read(profileNotifierProvider.notifier).updateNickname(result);
+      // 닉네임 수정 화면에서 이미 UseCase를 호출했으므로 ProfileNotifier만 새로고침
+      await ref.read(profileNotifierProvider.notifier).loadProfile();
     }
   }
 
@@ -166,8 +166,8 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     );
 
     if (result != null) {
-      // ProfileNotifier를 통해 업데이트
-      await ref.read(profileNotifierProvider.notifier).updateIntroduce(result);
+      // 자기소개 수정 화면에서 이미 UseCase를 호출했으므로 ProfileNotifier만 새로고침
+      await ref.read(profileNotifierProvider.notifier).loadProfile();
     }
   }
 
@@ -186,8 +186,8 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     );
 
     if (result != null) {
-      // ProfileNotifier를 통해 업데이트
-      await ref.read(profileNotifierProvider.notifier).updateGender(result);
+      // 성별 수정 화면에서 이미 UseCase를 호출했으므로 ProfileNotifier만 새로고침
+      await ref.read(profileNotifierProvider.notifier).loadProfile();
     }
   }
 
@@ -206,8 +206,8 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     );
 
     if (result != null) {
-      // ProfileNotifier를 통해 업데이트
-      await ref.read(profileNotifierProvider.notifier).updateBirth(result);
+      // 생년월일 수정 화면에서 이미 UseCase를 호출했으므로 ProfileNotifier만 새로고침
+      await ref.read(profileNotifierProvider.notifier).loadProfile();
     }
   }
 
