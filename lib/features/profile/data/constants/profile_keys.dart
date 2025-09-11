@@ -8,4 +8,5 @@ class ProfileKeys {
   static const String introduce = 'profile_introduce';
   static const String birth = 'profile_birth';
   static const String gender = 'profile_gender';
+  static const String loginProvider = 'profile_login_provider';
 }

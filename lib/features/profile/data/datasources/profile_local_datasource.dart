@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
 
-import '../../domain/entities/profile.dart';
 import '../constants/profile_keys.dart';
 
 class ProfileLocalDataSource {
@@ -11,35 +12,19 @@ class ProfileLocalDataSource {
   }
 
   /// 프로필 정보 저장
-  Future<void> saveProfile(Profile profile) async {
+  Future<void> saveProfile(User user) async {
     final SharedPreferences prefs = await _sharedPreferences;
     await Future.wait(<Future<bool>>[
-      if (profile.nickname.isNotEmpty)
-        prefs.setString(ProfileKeys.nickname, profile.nickname),
-      if (profile.introduce != null)
-        prefs.setString(ProfileKeys.introduce, profile.introduce!),
-      if (profile.birth != null)
-        prefs.setString(ProfileKeys.birth, profile.birth!),
-      if (profile.gender != null)
-        prefs.setString(ProfileKeys.gender, profile.gender!),
+      if (user.nickname.isNotEmpty)
+        prefs.setString(ProfileKeys.nickname, user.nickname),
+      if (user.introduce != null)
+        prefs.setString(ProfileKeys.introduce, user.introduce!),
+      if (user.birthYear != null)
+        prefs.setString(ProfileKeys.birth, user.birthYear!.toString()),
+      if (user.gender != null)
+        prefs.setString(ProfileKeys.gender, user.gender!),
+      prefs.setString(ProfileKeys.loginProvider, user.loginProvider.name),
     ]);
-  }
-
-  /// 프로필 정보 로드
-  Future<Profile?> loadProfile() async {
-    final SharedPreferences prefs = await _sharedPreferences;
-    final String? nickname = prefs.getString(ProfileKeys.nickname);
-
-    if (nickname == null || nickname.isEmpty) {
-      return null;
-    }
-
-    return Profile(
-      nickname: nickname,
-      introduce: prefs.getString(ProfileKeys.introduce),
-      birth: prefs.getString(ProfileKeys.birth),
-      gender: prefs.getString(ProfileKeys.gender),
-    );
   }
 
   /// 특정 필드 업데이트
