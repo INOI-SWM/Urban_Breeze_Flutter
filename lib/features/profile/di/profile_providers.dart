@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/core/di/core_providers.dart';
+import 'package:urban_breeze/features/auth/di/auth_providers.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/user_session_repository.dart';
 
 import '../application/providers/profile_notifier.dart';
 import '../application/use_cases/get_profile_use_case.dart';
@@ -17,7 +19,13 @@ import '../domain/repositories/profile_repository.dart';
 final Provider<ProfileDataSource> profileDataSourceProvider =
     Provider<ProfileDataSource>((Ref ref) {
       final http.Client client = ref.watch(authorizedHttpClientProvider);
-      return ProfileDataSource(client: client);
+      final UserSessionRepository userSessionRepository = ref.watch(
+        userSessionRepositoryProvider,
+      );
+      return ProfileDataSource(
+        client: client,
+        userSessionRepository: userSessionRepository,
+      );
     });
 
 // Repository

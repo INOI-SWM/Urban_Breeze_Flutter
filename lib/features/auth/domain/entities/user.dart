@@ -1,7 +1,7 @@
 import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
 
 class User {
-  /// JSON에서 User 객체 생성
+  /// JSON에서 User 객체 생성 (로그인 시 사용)
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       uuid: json['uuid'] as String? ?? '',
@@ -15,6 +15,25 @@ class User {
       loginProvider: LoginProviderExtension.fromJson(
         json['loginProvider'] as String? ?? '',
       ),
+      isFirstLogin: json['isFirstLogin'] as bool? ?? false,
+    );
+  }
+
+  /// JSON에서 User 객체 생성 (프로필 업데이트 시 사용 - loginProvider 제외)
+  factory User.fromJsonForProfile(
+    Map<String, dynamic> json,
+    LoginProvider loginProvider,
+  ) {
+    return User(
+      uuid: json['uuid'] as String? ?? '',
+      nickname: json['nickname'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      profileImagePath: json['profileImagePath'] as String?,
+      introduce: json['introduce'] as String?,
+      birthYear: json['birthYear'] as int?,
+      gender: json['gender'] as String?,
+      displayName: json['displayName'] as String?,
+      loginProvider: loginProvider, // 기존 loginProvider 유지
       isFirstLogin: json['isFirstLogin'] as bool? ?? false,
     );
   }
