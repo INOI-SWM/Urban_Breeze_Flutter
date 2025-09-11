@@ -74,6 +74,27 @@ final Provider<UpdateGenderUseCase> updateGenderUseCaseProvider =
 final StateNotifierProvider<ProfileNotifier, AsyncValue<Profile?>>
 profileNotifierProvider =
     StateNotifierProvider<ProfileNotifier, AsyncValue<Profile?>>((Ref ref) {
-      final ProfileRepository repository = ref.watch(profileRepositoryProvider);
-      return ProfileNotifier(repository: repository);
+      final GetProfileUseCase getProfileUseCase = ref.watch(
+        getProfileUseCaseProvider,
+      );
+      final UpdateNicknameUseCase updateNicknameUseCase = ref.watch(
+        updateNicknameUseCaseProvider,
+      );
+      final UpdateIntroduceUseCase updateIntroduceUseCase = ref.watch(
+        updateIntroduceUseCaseProvider,
+      );
+      final UpdateBirthUseCase updateBirthUseCase = ref.watch(
+        updateBirthUseCaseProvider,
+      );
+      final UpdateGenderUseCase updateGenderUseCase = ref.watch(
+        updateGenderUseCaseProvider,
+      );
+
+      return ProfileNotifier(
+        getProfileUseCase: getProfileUseCase,
+        updateNicknameUseCase: updateNicknameUseCase,
+        updateIntroduceUseCase: updateIntroduceUseCase,
+        updateBirthUseCase: updateBirthUseCase,
+        updateGenderUseCase: updateGenderUseCase,
+      );
     });

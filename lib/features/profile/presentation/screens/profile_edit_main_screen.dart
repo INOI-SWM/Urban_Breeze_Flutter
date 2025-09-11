@@ -3,9 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
-import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
-import 'package:urban_breeze/features/profile/application/use_cases/get_profile_use_case.dart';
 import 'package:urban_breeze/features/profile/di/profile_providers.dart';
 import 'package:urban_breeze/features/profile/domain/entities/profile.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_bio_edit_screen.dart';
@@ -32,50 +30,24 @@ class ProfileEditMainScreen extends ConsumerStatefulWidget {
 
 class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     with ErrorDisplayMixin {
-  String _nickname = '';
-  String _bio = '';
-  String _gender = '';
-  String _birthYear = '';
   final ImagePicker _imagePicker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    _loadProfileData();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 프로필 데이터 로드
+      ref.read(profileNotifierProvider.notifier).loadProfile();
       AmplitudeAnalytics.logScreenView('profile_edit_screen');
     });
-  }
-
-  Future<void> _loadProfileData() async {
-    final GetProfileUseCase getProfileUseCase = ref.read(
-      getProfileUseCaseProvider,
-    );
-    final AppResult<Profile> result = await getProfileUseCase.execute();
-
-    if (result.isSuccess) {
-      final Profile profile = result.dataOrNull!;
-      setState(() {
-        _nickname = profile.nickname;
-        _bio = profile.introduce ?? '자신을 소개해주세요';
-        _gender = profile.gender ?? '선택해주세요';
-        _birthYear = profile.birth ?? '선택해주세요';
-      });
-    } else {
-      // 기본값으로 설정
-      setState(() {
-        _nickname = widget.user.displayName ?? '';
-        _bio = '자신을 소개해주세요';
-        _gender = '선택해주세요';
-        _birthYear = '선택해주세요';
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
+    final AsyncValue<Profile?> profileState = ref.watch(
+      profileNotifierProvider,
+    );
 
     return Scaffold(
       backgroundColor: colors.backgroundNormalNormal,
@@ -88,121 +60,149 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
           },
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              ProfileImageEditButton(
-                //TODO : 기본 이미지 설정
-                imageUrl: widget.user.photoUrl!,
-                onPressed: () {
-                  AmplitudeAnalytics.logButtonClick('profile_image_edit');
-                  _showProfileImageOptions();
-                },
+      body: profileState.when(
+        data: (Profile? profile) {
+          final String nickname =
+              profile?.nickname ?? widget.user.displayName ?? '설정되지 않음';
+          final String bio = profile?.introduce ?? '자신을 소개해주세요';
+          final String gender = profile?.gender ?? '선택해주세요';
+          final String birthYear = profile?.birth ?? '선택해주세요';
+
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  ProfileImageEditButton(
+                    //TODO : 기본 이미지 설정
+                    imageUrl: widget.user.photoUrl!,
+                    onPressed: () {
+                      AmplitudeAnalytics.logButtonClick('profile_image_edit');
+                      _showProfileImageOptions();
+                    },
+                  ),
+
+                  ProfileEditItem(
+                    title: '닉네임',
+                    currentValue: nickname,
+                    onPressed: () => _navigateToNicknameEdit(),
+                  ),
+
+                  const SizedBox(height: 36),
+
+                  ProfileEditItem(
+                    title: '한 줄 소개',
+                    currentValue: bio,
+                    onPressed: () => _navigateToBioEdit(),
+                  ),
+
+                  const SizedBox(height: 36),
+
+                  ProfileEditItem(
+                    title: '성별',
+                    currentValue: gender,
+                    onPressed: () => _navigateToGenderEdit(),
+                  ),
+
+                  const SizedBox(height: 36),
+
+                  ProfileEditItem(
+                    title: '출생년도',
+                    currentValue: birthYear,
+                    onPressed: () => _navigateToBirthYearEdit(),
+                  ),
+                ],
               ),
-
-              ProfileEditItem(
-                title: '닉네임',
-                currentValue: _nickname.isEmpty ? '설정되지 않음' : _nickname,
-                onPressed: () => _navigateToNicknameEdit(),
-              ),
-
-              const SizedBox(height: 36),
-
-              ProfileEditItem(
-                title: '한 줄 소개',
-                currentValue: _bio,
-                onPressed: () => _navigateToBioEdit(),
-              ),
-
-              const SizedBox(height: 36),
-
-              ProfileEditItem(
-                title: '성별',
-                currentValue: _gender,
-                onPressed: () => _navigateToGenderEdit(),
-              ),
-
-              const SizedBox(height: 36),
-
-              ProfileEditItem(
-                title: '출생년도',
-                currentValue: _birthYear,
-                onPressed: () => _navigateToBirthYearEdit(),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error:
+            (Object error, StackTrace stack) =>
+                Center(child: Text('프로필을 불러오는데 실패했습니다: $error')),
       ),
     );
   }
 
   void _navigateToNicknameEdit() async {
     AmplitudeAnalytics.logButtonClick('profile_nickname_edit');
+    final Profile? currentProfile =
+        ref.read(profileNotifierProvider).valueOrNull;
+    final String currentValue =
+        currentProfile?.nickname ?? widget.user.displayName ?? '';
+
     final String? result = await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder:
             (BuildContext context) =>
-                ProfileNicknameEditScreen(currentValue: _nickname),
+                ProfileNicknameEditScreen(currentValue: currentValue),
       ),
     );
 
     if (result != null) {
-      setState(() {
-        _nickname = result;
-      });
+      // ProfileNotifier를 통해 업데이트
+      await ref.read(profileNotifierProvider.notifier).updateNickname(result);
     }
   }
 
   void _navigateToBioEdit() async {
     AmplitudeAnalytics.logButtonClick('profile_bio_edit');
+    final Profile? currentProfile =
+        ref.read(profileNotifierProvider).valueOrNull;
+    final String currentValue = currentProfile?.introduce ?? '자신을 소개해주세요';
+
     final String? result = await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder:
-            (BuildContext context) => ProfileBioEditScreen(currentValue: _bio),
+            (BuildContext context) =>
+                ProfileBioEditScreen(currentValue: currentValue),
       ),
     );
 
     if (result != null) {
-      setState(() {
-        _bio = result;
-      });
+      // ProfileNotifier를 통해 업데이트
+      await ref.read(profileNotifierProvider.notifier).updateIntroduce(result);
     }
   }
 
   void _navigateToGenderEdit() async {
     AmplitudeAnalytics.logButtonClick('profile_gender_edit');
+    final Profile? currentProfile =
+        ref.read(profileNotifierProvider).valueOrNull;
+    final String currentValue = currentProfile?.gender ?? '선택해주세요';
+
     final String? result = await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder:
             (BuildContext context) =>
-                ProfileGenderEditScreen(currentValue: _gender),
+                ProfileGenderEditScreen(currentValue: currentValue),
       ),
     );
 
     if (result != null) {
-      setState(() {
-        _gender = result;
-      });
+      // ProfileNotifier를 통해 업데이트
+      await ref.read(profileNotifierProvider.notifier).updateGender(result);
     }
   }
 
   void _navigateToBirthYearEdit() async {
     AmplitudeAnalytics.logButtonClick('profile_birth_year_edit');
+    final Profile? currentProfile =
+        ref.read(profileNotifierProvider).valueOrNull;
+    final String currentValue = currentProfile?.birth ?? '선택해주세요';
+
     final String? result = await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder:
             (BuildContext context) =>
-                ProfileBirthYearEditScreen(currentValue: _birthYear),
+                ProfileBirthYearEditScreen(currentValue: currentValue),
       ),
     );
 
     if (result != null) {
-      setState(() {
-        _birthYear = result;
-      });
+      // ProfileNotifier를 통해 업데이트
+      await ref.read(profileNotifierProvider.notifier).updateBirth(result);
     }
   }
 
