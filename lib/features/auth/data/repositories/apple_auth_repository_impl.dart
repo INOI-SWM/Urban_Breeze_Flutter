@@ -1,8 +1,8 @@
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:urban_breeze/features/auth/data/datasources/apple_auth_datasource.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/apple_auth_repository.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class AppleAuthRepositoryImpl implements AppleAuthRepository {
   AppleAuthRepositoryImpl({required AppleAuthDataSource appleAuthDataSource})
@@ -24,10 +24,11 @@ class AppleAuthRepositoryImpl implements AppleAuthRepository {
     }
 
     return User(
-      id: account.userIdentifier!,
+      uuid: account.userIdentifier!,
+      nickname: displayName ?? 'Apple User',
       email: account.email ?? '',
+      profileImagePath: null, // Apple은 프로필 사진을 제공하지 않음
       displayName: displayName,
-      photoUrl: null, // Apple은 프로필 사진을 제공하지 않음
       loginProvider: LoginProvider.apple,
     );
   }
@@ -56,10 +57,11 @@ class AppleAuthRepositoryImpl implements AppleAuthRepository {
     }
 
     return User(
-      id: account.userIdentifier!,
+      uuid: account.userIdentifier!,
+      nickname: displayName ?? 'Apple User',
       email: account.email ?? '',
+      profileImagePath: null,
       displayName: displayName,
-      photoUrl: null,
       loginProvider: LoginProvider.apple,
     );
   }

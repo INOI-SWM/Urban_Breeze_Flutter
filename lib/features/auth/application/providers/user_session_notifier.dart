@@ -19,7 +19,7 @@ class UserSessionNotifier extends StateNotifier<User?> {
   Future<void> setUserSession(User user) async {
     state = user;
     await _repository.saveUser(user);
-    await AmplitudeAnalytics.setUserId(user.id, user.loginProvider.name);
+    await AmplitudeAnalytics.setUserId(user.uuid, user.loginProvider.name);
   }
 
   Future<void> clearUserSession() async {

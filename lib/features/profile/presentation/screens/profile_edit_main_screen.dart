@@ -81,7 +81,7 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
                 children: <Widget>[
                   ProfileImageEditButton(
                     //TODO : 기본 이미지 설정
-                    imageUrl: widget.user.photoUrl!,
+                    imageUrl: widget.user.profileImagePath!,
                     onPressed: () {
                       AmplitudeAnalytics.logButtonClick('profile_image_edit');
                       _showProfileImageOptions();

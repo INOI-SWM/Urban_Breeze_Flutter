@@ -60,12 +60,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   CircleAvatar(
                     radius: 40,
                     backgroundImage:
-                        widget.user.photoUrl != null
-                            ? NetworkImage(widget.user.photoUrl!)
+                        widget.user.profileImagePath != null
+                            ? NetworkImage(widget.user.profileImagePath!)
                             : null,
                     child:
                         //TODO: 프로필 기본이미지 추가
-                        widget.user.photoUrl == null
+                        widget.user.profileImagePath == null
                             ? const Icon(
                               Icons.person,
                               size: 40,

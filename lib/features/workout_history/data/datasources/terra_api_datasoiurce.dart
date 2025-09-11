@@ -27,7 +27,7 @@ class TerraApiDataSource {
       throw Exception('로그인된 사용자가 없습니다.');
     }
 
-    final String referenceId = user.id;
+    final String referenceId = user.uuid;
 
     final SuccessMessage? result = await TerraFlutter.initTerra(
       devId,

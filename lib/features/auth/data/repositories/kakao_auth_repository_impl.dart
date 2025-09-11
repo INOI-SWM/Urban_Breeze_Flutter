@@ -44,10 +44,11 @@ class KakaoAuthRepositoryImpl implements KakaoAuthRepository {
 
   User _mapKakaoUserToUser(kakao.User kakaoUser) {
     return User(
-      id: kakaoUser.id.toString(),
+      uuid: kakaoUser.id.toString(),
+      nickname: kakaoUser.kakaoAccount?.profile?.nickname ?? 'Kakao User',
       email: kakaoUser.kakaoAccount?.email ?? '',
+      profileImagePath: kakaoUser.kakaoAccount?.profile?.profileImageUrl,
       displayName: kakaoUser.kakaoAccount?.profile?.nickname,
-      photoUrl: kakaoUser.kakaoAccount?.profile?.profileImageUrl,
       loginProvider: LoginProvider.kakao,
     );
   }
