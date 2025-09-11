@@ -15,7 +15,7 @@ class ProfileEditAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   final String title;
   final bool isButtonEnabled;
-  final VoidCallback onSave;
+  final Future<void> Function() onSave;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);

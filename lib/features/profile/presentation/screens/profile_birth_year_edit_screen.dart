@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/update_birth_use_case.dart';
+import 'package:urban_breeze/features/profile/di/profile_providers.dart';
 import 'package:urban_breeze/features/profile/presentation/mixins/profile_edit_button_mixin.dart';
 import 'package:urban_breeze/features/profile/presentation/widgets/profile_edit_app_bar.dart';
 import 'package:urban_breeze/features/profile/presentation/widgets/profile_edit_layout.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
-class ProfileBirthYearEditScreen extends StatefulWidget {
+class ProfileBirthYearEditScreen extends ConsumerStatefulWidget {
   const ProfileBirthYearEditScreen({super.key, required this.currentValue});
 
   final String currentValue;
 
   @override
-  State<ProfileBirthYearEditScreen> createState() =>
+  ConsumerState<ProfileBirthYearEditScreen> createState() =>
       _ProfileBirthYearEditScreenState();
 }
 
-class _ProfileBirthYearEditScreenState extends State<ProfileBirthYearEditScreen>
-    with ProfileEditButtonMixin<ProfileBirthYearEditScreen> {
+class _ProfileBirthYearEditScreenState
+    extends ConsumerState<ProfileBirthYearEditScreen>
+    with ProfileEditButtonMixin<ProfileBirthYearEditScreen>, ErrorDisplayMixin {
   String? _selectedValue;
   late final List<String> _yearOptions;
 
@@ -32,7 +39,9 @@ class _ProfileBirthYearEditScreenState extends State<ProfileBirthYearEditScreen>
   bool isValidInput(String? inputValue) => inputValue != null;
 
   @override
-  void onSave() {
+  Future<void> onSave() async {
+    if (_selectedValue == null) return;
+
     AmplitudeAnalytics.logEvent(
       'profile_birth_year_saved',
       properties: <String, dynamic>{
@@ -41,7 +50,26 @@ class _ProfileBirthYearEditScreenState extends State<ProfileBirthYearEditScreen>
       },
     );
 
-    Navigator.of(context).pop(_selectedValue);
+    final UpdateBirthUseCase updateBirthUseCase = ref.read(
+      updateBirthUseCaseProvider,
+    );
+    final AppResult<User> result = await updateBirthUseCase.execute(
+      _selectedValue!,
+    );
+
+    if (result.isSuccess) {
+      if (mounted) {
+        showSuccessMessage(context, '출생년도가 성공적으로 변경되었습니다');
+        Navigator.of(context).pop(_selectedValue);
+      }
+    } else {
+      if (mounted) {
+        showErrorMessage(
+          context,
+          '출생년도 변경에 실패했습니다: ${result.exceptionOrNull?.message}',
+        );
+      }
+    }
   }
 
   @override
@@ -82,7 +110,7 @@ class _ProfileBirthYearEditScreenState extends State<ProfileBirthYearEditScreen>
       appBar: ProfileEditAppBar(
         title: '출생년도',
         isButtonEnabled: isButtonEnabled,
-        onSave: saveValue,
+        onSave: onSave,
       ),
       body: ProfileEditLayout(
         title: '출생년도',

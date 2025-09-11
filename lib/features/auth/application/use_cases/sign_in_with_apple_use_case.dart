@@ -18,10 +18,12 @@ class SignInWithAppleUseCase {
     if (user == null) return null;
     if (user.email == '') {
       final User newUser = User(
-        id: user.id,
+        uuid: user.uuid,
+        nickname: 'jongbin Noh',
         email: 'nobin313@gmail.com',
+        profileImagePath:
+            'https://swmaestro.org/static/sw/img/mypage/ico-9.png',
         displayName: 'jongbin Noh',
-        photoUrl: 'https://swmaestro.org/static/sw/img/mypage/ico-9.png',
         loginProvider: user.loginProvider,
       );
       return newUser;

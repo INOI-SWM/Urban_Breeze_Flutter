@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/profile/di/profile_providers.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_edit_main_screen.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
@@ -24,6 +25,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 이미 데이터가 없을 때만 로드 (깜빡임 방지)
+      final AsyncValue<User?> currentState = ref.read(profileNotifierProvider);
+      if (!currentState.hasValue) {
+        ref.read(profileNotifierProvider.notifier).loadProfile();
+      }
       AmplitudeAnalytics.logScreenView('profile_screen');
     });
   }
@@ -31,54 +37,71 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
+    final AsyncValue<User?> profileState = ref.watch(profileNotifierProvider);
+
     return Padding(
       padding: const EdgeInsets.all(20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
+      child: profileState.when(
+        data: (User? profile) {
+          final String nickname =
+              profile?.nickname ?? widget.user.displayName ?? '이름 없음';
+          final String introduce = profile?.introduce ?? '자신을 소개해주세요';
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              CircleAvatar(
-                radius: 40,
-                backgroundImage:
-                    widget.user.photoUrl != null
-                        ? NetworkImage(widget.user.photoUrl!)
-                        : null,
-                child:
-                    //TODO: 프로필 기본이미지 추가
-                    widget.user.photoUrl == null
-                        ? const Icon(Icons.person, size: 40, color: Colors.grey)
-                        : null,
+              Row(
+                children: <Widget>[
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundImage:
+                        widget.user.profileImagePath != null
+                            ? NetworkImage(widget.user.profileImagePath!)
+                            : null,
+                    child:
+                        //TODO: 프로필 기본이미지 추가
+                        widget.user.profileImagePath == null
+                            ? const Icon(
+                              Icons.person,
+                              size: 40,
+                              color: Colors.grey,
+                            )
+                            : null,
+                  ),
+                  const Expanded(
+                    child: InfoItem(label: '총 주행시간', value: '100시간 30분'),
+                  ),
+                  const Expanded(
+                    child: InfoItem(label: '총 주행거리', value: '1000km'),
+                  ),
+                ],
               ),
-              const Expanded(
-                child: InfoItem(label: '총 주행시간', value: '100시간 30분'),
+
+              const SizedBox(height: 12),
+              Text(nickname, style: AppTextStyles.body1.readingBold),
+              Text(introduce, style: AppTextStyles.body1.normalRegular),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ButtonOutlined(
+                  textColor: colors.labelNormal,
+                  borderColor: colors.lineNormalNeutral,
+                  onPressed: () => _onProfileEditPressed(context),
+                  text: '프로필 수정',
+                  size: ButtonSize.medium,
+                ),
               ),
-              const Expanded(child: InfoItem(label: '총 주행거리', value: '1000km')),
+
+              const SizedBox(height: 30),
+
+              // 탈퇴 기능은 설정 > 계정 관리로 이동
             ],
-          ),
-
-          const SizedBox(height: 12),
-          Text(
-            widget.user.displayName ?? '이름 없음',
-            style: AppTextStyles.body1.readingBold,
-          ),
-          Text('한줄소개입니다', style: AppTextStyles.body1.normalRegular),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ButtonOutlined(
-              textColor: colors.labelNormal,
-              borderColor: colors.lineNormalNeutral,
-              onPressed: () => _onProfileEditPressed(context),
-              text: '프로필 수정',
-              size: ButtonSize.medium,
-            ),
-          ),
-
-          const SizedBox(height: 30),
-
-          // 탈퇴 기능은 설정 > 계정 관리로 이동
-        ],
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error:
+            (Object error, StackTrace stack) =>
+                Center(child: Text('프로필을 불러오는데 실패했습니다: $error')),
       ),
     );
   }

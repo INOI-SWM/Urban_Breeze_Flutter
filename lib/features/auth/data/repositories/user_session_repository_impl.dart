@@ -11,13 +11,17 @@ class UserSessionRepositoryImpl implements UserSessionRepository {
   @override
   Future<void> saveUser(User user) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final Map<String, String?> userJson = <String, String?>{
-      'id': user.id,
+    final Map<String, dynamic> userJson = <String, dynamic>{
+      'uuid': user.uuid,
+      'nickname': user.nickname,
       'email': user.email,
+      'profileImagePath': user.profileImagePath,
+      'introduce': user.introduce,
+      'birthYear': user.birthYear,
+      'gender': user.gender,
       'displayName': user.displayName,
-      'photoUrl': user.photoUrl,
       'loginProvider': user.loginProvider.name,
-      'isFirstLogin': user.isFirstLogin.toString(),
+      'isFirstLogin': user.isFirstLogin,
     };
     await prefs.setString(_userKey, jsonEncode(userJson));
   }
@@ -34,14 +38,18 @@ class UserSessionRepositoryImpl implements UserSessionRepository {
           jsonDecode(userJsonString) as Map<String, dynamic>;
 
       return User(
-        id: userJson['id'] as String,
+        uuid: userJson['uuid'] as String,
+        nickname: userJson['nickname'] as String,
         email: userJson['email'] as String,
+        profileImagePath: userJson['profileImagePath'] as String?,
+        introduce: userJson['introduce'] as String?,
+        birthYear: userJson['birthYear'] as int?,
+        gender: userJson['gender'] as String?,
         displayName: userJson['displayName'] as String?,
-        photoUrl: userJson['photoUrl'] as String?,
         loginProvider: LoginProviderExtension.fromJson(
           userJson['loginProvider'] as String,
         ),
-        isFirstLogin: userJson['isFirstLogin'].toString() == 'true',
+        isFirstLogin: userJson['isFirstLogin'] as bool? ?? false,
       );
     } catch (e) {
       return null;

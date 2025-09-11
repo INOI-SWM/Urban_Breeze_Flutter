@@ -16,10 +16,11 @@ class GoogleAuthRepositoryImpl implements GoogleAuthRepository {
     if (account == null) return null;
 
     return User(
-      id: account.id,
+      uuid: account.id,
+      nickname: account.displayName ?? 'Google User',
       email: account.email,
+      profileImagePath: account.photoUrl,
       displayName: account.displayName,
-      photoUrl: account.photoUrl,
       loginProvider: LoginProvider.google,
     );
   }
@@ -40,10 +41,11 @@ class GoogleAuthRepositoryImpl implements GoogleAuthRepository {
     if (account == null) return null;
 
     return User(
-      id: account.id,
+      uuid: account.id,
+      nickname: account.displayName ?? 'Google User',
       email: account.email,
+      profileImagePath: account.photoUrl,
       displayName: account.displayName,
-      photoUrl: account.photoUrl,
       loginProvider: LoginProvider.google,
     );
   }

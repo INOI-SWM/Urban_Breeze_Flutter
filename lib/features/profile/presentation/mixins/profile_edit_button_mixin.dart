@@ -8,7 +8,7 @@ mixin ProfileEditButtonMixin<T extends StatefulWidget> on State<T> {
   String get currentValue;
   String? getCurrentInputValue();
   bool isValidInput(String? inputValue);
-  void onSave();
+  Future<void> onSave();
 
   void checkButtonState() {
     final String? inputValue = getCurrentInputValue();

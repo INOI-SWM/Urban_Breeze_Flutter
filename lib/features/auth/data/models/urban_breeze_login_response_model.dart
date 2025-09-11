@@ -32,10 +32,17 @@ class UrbanBreezeLoginResponseModel {
     );
 
     final User user = User(
-      id: (userInfo['userId'] ?? '').toString(),
+      uuid: (userInfo['uuid'] ?? userInfo['userId'] ?? '').toString(),
+      nickname: (userInfo['nickname'] ?? '').toString(),
       email: (userInfo['email'] ?? '').toString(),
+      profileImagePath:
+          (userInfo['profileImagePath'] ??
+                  userInfo['profileImageUrl'] as String?)
+              ?.trim(),
+      introduce: (userInfo['introduce'] as String?)?.trim(),
+      birthYear: userInfo['birthYear'] as int?,
+      gender: (userInfo['gender'] as String?)?.trim(),
       displayName: (userInfo['nickname'] as String?)?.trim(),
-      photoUrl: (userInfo['profileImageUrl'] as String?)?.trim(),
       loginProvider: provider,
       isFirstLogin: (userInfo['isFirstLogin'] ?? true) as bool,
     );
