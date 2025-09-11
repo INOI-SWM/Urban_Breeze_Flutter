@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:urban_breeze/features/profile/data/models/profile_model.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
 import 'package:urban_breeze/shared/api/data/datasources/base_remote_datasource.dart';
 import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
@@ -9,22 +9,19 @@ class ProfileDataSource extends BaseRemoteDataSource {
   ProfileDataSource({super.client});
 
   /// 프로필 정보 조회
-  Future<ApiResponseModel<ProfileModel>> getProfile() async {
+  Future<ApiResponseModel<User>> getProfile() async {
     try {
       final http.Response response = await get(ApiEndpoints.profile);
       final Map<String, dynamic> responseData = decodeResponse(response);
 
-      return ApiResponseModel<ProfileModel>.fromJson(
-        responseData,
-        ProfileModel.fromJson,
-      );
+      return ApiResponseModel<User>.fromJson(responseData, User.fromJson);
     } catch (e) {
       rethrow;
     }
   }
 
   /// 닉네임 수정
-  Future<ApiResponseModel<ProfileModel>> updateNickname(String nickname) async {
+  Future<ApiResponseModel<User>> updateNickname(String nickname) async {
     try {
       final http.Response response = await put(
         ApiEndpoints.profileNickname,
@@ -32,19 +29,14 @@ class ProfileDataSource extends BaseRemoteDataSource {
       );
       final Map<String, dynamic> responseData = decodeResponse(response);
 
-      return ApiResponseModel<ProfileModel>.fromJson(
-        responseData,
-        ProfileModel.fromJson,
-      );
+      return ApiResponseModel<User>.fromJson(responseData, User.fromJson);
     } catch (e) {
       rethrow;
     }
   }
 
   /// 자기소개 수정
-  Future<ApiResponseModel<ProfileModel>> updateIntroduce(
-    String introduce,
-  ) async {
+  Future<ApiResponseModel<User>> updateIntroduce(String introduce) async {
     try {
       final http.Response response = await put(
         ApiEndpoints.profileIntroduce,
@@ -52,17 +44,14 @@ class ProfileDataSource extends BaseRemoteDataSource {
       );
       final Map<String, dynamic> responseData = decodeResponse(response);
 
-      return ApiResponseModel<ProfileModel>.fromJson(
-        responseData,
-        ProfileModel.fromJson,
-      );
+      return ApiResponseModel<User>.fromJson(responseData, User.fromJson);
     } catch (e) {
       rethrow;
     }
   }
 
   /// 생년월일 수정
-  Future<ApiResponseModel<ProfileModel>> updateBirth(String birth) async {
+  Future<ApiResponseModel<User>> updateBirth(String birth) async {
     try {
       final http.Response response = await put(
         ApiEndpoints.profileBirth,
@@ -70,17 +59,14 @@ class ProfileDataSource extends BaseRemoteDataSource {
       );
       final Map<String, dynamic> responseData = decodeResponse(response);
 
-      return ApiResponseModel<ProfileModel>.fromJson(
-        responseData,
-        ProfileModel.fromJson,
-      );
+      return ApiResponseModel<User>.fromJson(responseData, User.fromJson);
     } catch (e) {
       rethrow;
     }
   }
 
   /// 성별 수정
-  Future<ApiResponseModel<ProfileModel>> updateGender(String gender) async {
+  Future<ApiResponseModel<User>> updateGender(String gender) async {
     try {
       final http.Response response = await put(
         ApiEndpoints.userGender,
@@ -88,10 +74,7 @@ class ProfileDataSource extends BaseRemoteDataSource {
       );
       final Map<String, dynamic> responseData = decodeResponse(response);
       debugPrint('responseData: $responseData');
-      return ApiResponseModel<ProfileModel>.fromJson(
-        responseData,
-        ProfileModel.fromJson,
-      );
+      return ApiResponseModel<User>.fromJson(responseData, User.fromJson);
     } catch (e) {
       rethrow;
     }

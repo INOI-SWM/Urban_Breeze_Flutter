@@ -1,6 +1,23 @@
 import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
 
 class User {
+  /// JSON에서 User 객체 생성
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      uuid: json['uuid'] as String? ?? '',
+      nickname: json['nickname'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      profileImagePath: json['profileImagePath'] as String?,
+      introduce: json['introduce'] as String?,
+      birthYear: json['birthYear'] as int?,
+      gender: json['gender'] as String?,
+      displayName: json['displayName'] as String?,
+      loginProvider: LoginProviderExtension.fromJson(
+        json['loginProvider'] as String? ?? '',
+      ),
+      isFirstLogin: json['isFirstLogin'] as bool? ?? false,
+    );
+  }
   const User({
     required this.uuid,
     required this.nickname,
@@ -84,5 +101,21 @@ class User {
   @override
   String toString() {
     return 'User(uuid: $uuid, nickname: $nickname, email: $email, profileImagePath: $profileImagePath, introduce: $introduce, birthYear: $birthYear, gender: $gender, displayName: $displayName, loginProvider: $loginProvider, isFirstLogin: $isFirstLogin)';
+  }
+
+  /// User 객체를 JSON으로 변환
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'uuid': uuid,
+      'nickname': nickname,
+      'email': email,
+      'profileImagePath': profileImagePath,
+      'introduce': introduce,
+      'birthYear': birthYear,
+      'gender': gender,
+      'displayName': displayName,
+      'loginProvider': loginProvider.name,
+      'isFirstLogin': isFirstLogin,
+    };
   }
 }

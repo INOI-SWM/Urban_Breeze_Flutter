@@ -20,10 +20,10 @@ class UpdateNicknameUseCase {
     }
 
     try {
-      final User updatedProfile = await _repository.updateNickname(
+      final User updatedUser = await _repository.updateNickname(
         nickname.trim(),
       );
-      return AppSuccess<User>(updatedProfile);
+      return AppSuccess<User>(updatedUser);
     } on NetworkException catch (e) {
       return AppFailure<User>(e);
     } on ValidationException catch (e) {

@@ -11,8 +11,8 @@ class UpdateBirthUseCase {
 
   Future<AppResult<User>> execute(String birth) async {
     try {
-      final User updatedProfile = await _repository.updateBirth(birth.trim());
-      return AppSuccess<User>(updatedProfile);
+      final User updatedUser = await _repository.updateBirth(birth.trim());
+      return AppSuccess<User>(updatedUser);
     } on NetworkException catch (e) {
       return AppFailure<User>(e);
     } catch (e) {

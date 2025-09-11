@@ -11,10 +11,10 @@ class UpdateGenderUseCase {
 
   Future<AppResult<User>> execute(String gender) async {
     try {
-      final User updatedProfile = await _repository.updateGender(
+      final User updatedUser = await _repository.updateGender(
         gender.trim().toUpperCase(),
       );
-      return AppSuccess<User>(updatedProfile);
+      return AppSuccess<User>(updatedUser);
     } on NetworkException catch (e) {
       return AppFailure<User>(e);
     } catch (e) {

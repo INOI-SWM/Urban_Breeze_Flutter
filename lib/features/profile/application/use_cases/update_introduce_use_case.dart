@@ -18,10 +18,10 @@ class UpdateIntroduceUseCase {
     }
 
     try {
-      final User updatedProfile = await _repository.updateIntroduce(
+      final User updatedUser = await _repository.updateIntroduce(
         introduce.trim(),
       );
-      return AppSuccess<User>(updatedProfile);
+      return AppSuccess<User>(updatedUser);
     } on NetworkException catch (e) {
       return AppFailure<User>(e);
     } on ValidationException catch (e) {

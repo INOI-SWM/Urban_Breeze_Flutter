@@ -10,7 +10,6 @@ import '../application/use_cases/update_gender_use_case.dart';
 import '../application/use_cases/update_introduce_use_case.dart';
 import '../application/use_cases/update_nickname_use_case.dart';
 import '../data/datasources/profile_datasource.dart';
-import '../data/datasources/profile_local_datasource.dart';
 import '../data/repositories/profile_repository_impl.dart';
 import '../domain/repositories/profile_repository.dart';
 
@@ -21,22 +20,11 @@ final Provider<ProfileDataSource> profileDataSourceProvider =
       return ProfileDataSource(client: client);
     });
 
-final Provider<ProfileLocalDataSource> profileLocalDataSourceProvider =
-    Provider<ProfileLocalDataSource>((Ref ref) {
-      return const ProfileLocalDataSource();
-    });
-
 // Repository
 final Provider<ProfileRepository> profileRepositoryProvider =
     Provider<ProfileRepository>((Ref ref) {
       final ProfileDataSource dataSource = ref.watch(profileDataSourceProvider);
-      final ProfileLocalDataSource localDataSource = ref.watch(
-        profileLocalDataSourceProvider,
-      );
-      return ProfileRepositoryImpl(
-        dataSource: dataSource,
-        localDataSource: localDataSource,
-      );
+      return ProfileRepositoryImpl(dataSource: dataSource);
     });
 
 // Use Cases
