@@ -24,4 +24,11 @@ class ApiEndpoints {
   static const String integrationAuthenticationWidget =
       '/api/integration/authentication/widget';
   static const String integrationActivity = '/api/integration/activity';
+
+  // Profile
+  static const String profile = '/api/v1/user/profile';
+  static const String profileNickname = '/api/v1/user/profile/nickname';
+  static const String profileIntroduce = '/api/v1/user/profile/introduce';
+  static const String profileBirth = '/api/v1/user/profile/birth';
+  static const String userGender = '/api/v1/user/me/gender';
 }
