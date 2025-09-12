@@ -32,6 +32,7 @@ import 'package:urban_breeze/features/auth/domain/repositories/kakao_auth_reposi
 import 'package:urban_breeze/features/auth/domain/repositories/token_repository.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/urban_breeze_auth_repository.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/user_session_repository.dart';
+import 'package:urban_breeze/features/profile/di/profile_providers.dart';
 
 // User Session Repository Provider
 final Provider<UserSessionRepository> userSessionRepositoryProvider =
@@ -311,6 +312,11 @@ final StateNotifierProvider<UserSessionNotifier, User?>
 userSessionNotifierProvider = StateNotifierProvider<UserSessionNotifier, User?>(
   (Ref ref) => UserSessionNotifier(
     repository: ref.read(userSessionRepositoryProvider),
+    getProfileUseCase: ref.read(getProfileUseCaseProvider),
+    updateNicknameUseCase: ref.read(updateNicknameUseCaseProvider),
+    updateIntroduceUseCase: ref.read(updateIntroduceUseCaseProvider),
+    updateBirthUseCase: ref.read(updateBirthUseCaseProvider),
+    updateGenderUseCase: ref.read(updateGenderUseCaseProvider),
     onInitialized: () {
       ref.read(authInitializationNotifierProvider.notifier).markInitialized();
     },

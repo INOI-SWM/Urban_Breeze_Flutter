@@ -29,7 +29,7 @@ class ProfilePage extends ConsumerWidget implements PageWithAppBar {
     final bool isLoggedIn = ref.watch(isLoggedInProvider);
 
     if (isLoggedIn && user != null) {
-      return ProfileScreen(user: user);
+      return const ProfileScreen();
     } else {
       return const LoginRequiredScreen();
     }
