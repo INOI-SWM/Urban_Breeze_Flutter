@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +11,9 @@ import 'package:urban_breeze/features/my_route/domain/entities/my_route_detail.d
 import 'package:urban_breeze/features/route_planning/domain/services/polyline_convert_service.dart';
 import 'package:urban_breeze/features/route_sharing/application/facades/route_sharing_facade.dart';
 import 'package:urban_breeze/features/route_sharing/di/route_sharing_providers.dart';
+import 'package:urban_breeze/shared/chart/chart_axis_utils.dart';
+import 'package:urban_breeze/shared/chart/chart_builders.dart';
+import 'package:urban_breeze/shared/chart/chart_style_config.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/card/user_info_in_card.dart';
@@ -154,6 +158,8 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 20),
+                  _buildElevationChart(routeDetail, colors),
                 ],
               ),
             ),
@@ -274,7 +280,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
     return CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(20));
   }
 
-  /// LatLng 포인트들로부터 경계를 계산
+  /// LatLng 포인트들로부터 경계를 계산 //todo: 추후 서버 bbox를 통해 변경
   LatLngBounds _calculateLatLngBounds(List<LatLng> points) {
     if (points.isEmpty) {
       return LatLngBounds(
@@ -296,5 +302,138 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
     }
 
     return LatLngBounds(LatLng(minLat, minLng), LatLng(maxLat, maxLng));
+  }
+
+  /// 고도 차트 위젯 생성
+  Widget _buildElevationChart(
+    MyRouteDetail routeDetail,
+    SemanticColors colors,
+  ) {
+    if (routeDetail.trackPoints.isEmpty) {
+      return Container(
+        height: 200,
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          border: Border.all(color: colors.lineNormalNormal),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Center(
+          child: Text(
+            '고도 데이터가 없습니다',
+            style: AppTextStyles.body2.readingMedium.copyWith(
+              color: colors.labelAlternative,
+            ),
+          ),
+        ),
+      );
+    }
+
+    final List<FlSpot> spots = _extractElevationData(routeDetail.trackPoints);
+
+    if (spots.isEmpty) {
+      return Container(
+        height: 200,
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          border: Border.all(color: colors.lineNormalNormal),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Center(
+          child: Text(
+            '고도 데이터가 없습니다',
+            style: AppTextStyles.body2.readingMedium.copyWith(
+              color: colors.labelAlternative,
+            ),
+          ),
+        ),
+      );
+    }
+
+    final double minValue = ChartAxisUtils.getMinValue(
+      spots,
+      (FlSpot spot) => spot.y,
+    );
+    final double maxValue = ChartAxisUtils.getMaxValue(
+      spots,
+      (FlSpot spot) => spot.y,
+    );
+    final double range = maxValue - minValue;
+    final double interval = ChartAxisUtils.calculateInterval(range);
+    final double chartMinY = ChartAxisUtils.calculateChartMinY(
+      minValue,
+      interval,
+    );
+    final double chartMaxY = ChartAxisUtils.calculateChartMaxY(
+      maxValue,
+      interval,
+    );
+
+    return SizedBox(
+      height: 250,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            '고도',
+            style: AppTextStyles.heading2.bold.copyWith(
+              color: colors.labelStrong,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: LineChart(
+              LineChartData(
+                minY: chartMinY,
+                maxY: chartMaxY,
+                gridData: ChartBuilders.buildGridData(
+                  colors: colors,
+                  interval: interval,
+                ),
+                titlesData: ChartBuilders.buildTitlesData(
+                  colors: colors,
+                  interval: interval,
+                  unit: 'm',
+                ),
+                borderData: ChartBuilders.buildBorderData(),
+                lineTouchData: LineTouchData(
+                  enabled: true,
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipItems: (List<LineBarSpot> touchedSpots) {
+                      return touchedSpots.map((LineBarSpot touchedSpot) {
+                        return LineTooltipItem(
+                          '${touchedSpot.y.toInt()}m',
+                          AppTextStyles.caption2.regular.copyWith(
+                            color: ChartStyleConfig.getTooltipTextColor(colors),
+                          ),
+                        );
+                      }).toList();
+                    },
+                  ),
+                ),
+                lineBarsData: <LineChartBarData>[
+                  ChartBuilders.buildLineChartBarData(
+                    spots: spots,
+                    color: colors.primaryNormal.withValues(alpha: 0.8),
+                    barWidth: 1,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// TrackPoints에서 고도 데이터 추출
+  List<FlSpot> _extractElevationData(List<TrackPoint> trackPoints) {
+    final List<FlSpot> spots = <FlSpot>[];
+
+    for (int i = 0; i < trackPoints.length; i++) {
+      final TrackPoint point = trackPoints[i];
+      spots.add(FlSpot(i.toDouble(), point.elevation));
+    }
+
+    return spots;
   }
 }
