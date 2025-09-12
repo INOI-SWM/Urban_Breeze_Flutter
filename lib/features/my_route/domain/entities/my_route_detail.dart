@@ -2,6 +2,7 @@ class MyRouteDetail {
   const MyRouteDetail({
     required this.id,
     required this.title,
+    required this.polyline,
     required this.createdAt,
     required this.duration,
     required this.distance,
@@ -15,6 +16,7 @@ class MyRouteDetail {
 
   final int id;
   final String title;
+  final String polyline;
   final String createdAt;
   final int duration;
   final double distance;

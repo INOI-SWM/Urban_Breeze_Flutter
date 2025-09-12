@@ -2,6 +2,7 @@ class MyRouteDetailModel {
   const MyRouteDetailModel({
     required this.id,
     required this.title,
+    required this.polyline,
     required this.createdAt,
     required this.duration,
     required this.distance,
@@ -17,6 +18,7 @@ class MyRouteDetailModel {
     return MyRouteDetailModel(
       id: json['id'] as int,
       title: json['title'] as String,
+      polyline: json['polyline'] as String,
       createdAt: json['createdAt'] as String,
       duration: json['duration'] as int, // 분 단위
       distance: (json['distance'] as num).toDouble(),
@@ -37,6 +39,7 @@ class MyRouteDetailModel {
 
   final int id;
   final String title;
+  final String polyline;
   final String createdAt;
   final int duration;
   final double distance;
@@ -51,6 +54,7 @@ class MyRouteDetailModel {
     return <String, dynamic>{
       'id': id,
       'title': title,
+      'polyline': polyline,
       'createdAt': createdAt,
       'duration': duration,
       'distance': distance,

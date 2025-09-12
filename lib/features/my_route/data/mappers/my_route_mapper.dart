@@ -120,6 +120,7 @@ class MyRouteMapper {
     return MyRouteDetail(
       id: data.id,
       title: data.title,
+      polyline: data.polyline,
       createdAt: data.createdAt,
       duration: data.duration,
       distance: data.distance,
