@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
@@ -20,6 +21,9 @@ class MapWithBottomSheetLayout extends StatelessWidget {
     required this.onDownloadButtonTap,
     required this.onShareButtonTap,
     this.onOptionButtonTap,
+    this.initialCenter,
+    this.initialZoom,
+    this.initialCameraFit,
   });
 
   final List<Widget> mapOverlays;
@@ -32,6 +36,9 @@ class MapWithBottomSheetLayout extends StatelessWidget {
   final Function(BuildContext context) onDownloadButtonTap;
   final Function(BuildContext context) onShareButtonTap;
   final Function(BuildContext context)? onOptionButtonTap;
+  final LatLng? initialCenter;
+  final double? initialZoom;
+  final CameraFit? initialCameraFit;
 
   @override
   Widget build(BuildContext context) {
@@ -39,14 +46,18 @@ class MapWithBottomSheetLayout extends StatelessWidget {
     return Stack(
       children: <Widget>[
         FlutterMap(
-          options: const MapOptions(
-            initialCenter: MapConstants.seoulCityHall,
-            initialZoom: MapConstants.defaultZoom,
-            interactionOptions: InteractionOptions(flags: InteractiveFlag.all),
+          options: MapOptions(
+            initialCenter: initialCenter ?? MapConstants.seoulCityHall,
+            initialZoom: initialZoom ?? MapConstants.defaultZoom,
+            initialCameraFit: initialCameraFit,
+            interactionOptions: const InteractionOptions(
+              flags: InteractiveFlag.all,
+            ),
           ),
           children: <Widget>[
             CommonMapWidgets.createTileLayer(),
             ...mapOverlays,
+            CommonMapWidgets.createAttributionWidget(),
           ],
         ),
         DraggableScrollableSheet(

@@ -1,3 +1,5 @@
+import 'package:urban_breeze/features/route_planning/domain/entities/geometry_point.dart';
+
 abstract class RouteRepository {
   Future<void> saveRoute({
     required String title,
@@ -6,6 +8,6 @@ abstract class RouteRepository {
     required double distance,
     required int duration,
     required double elevationGain,
-    required List<List<double>> geometry,
+    required List<GeometryPoint> geometry,
   });
 }

@@ -1,5 +1,6 @@
 import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/geometry_point.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
 
 class PolylineConvertService {
@@ -30,13 +31,22 @@ class PolylineConvertService {
     }
   }
 
-  static List<List<double>> extractGeometryFromSegments(
+  static List<GeometryPoint> extractGeometryFromSegments(
     List<RouteSegment> routeSegments,
   ) {
-    final List<List<double>> geometry = <List<double>>[];
+    final List<GeometryPoint> geometry = <GeometryPoint>[];
 
     for (final RouteSegment segment in routeSegments) {
-      geometry.addAll(segment.originalGeometry);
+      for (final List<double> coord in segment.originalGeometry) {
+        // [longitude, latitude, elevation] 순서로 변환
+        geometry.add(
+          GeometryPoint(
+            longitude: coord[0],
+            latitude: coord[1],
+            elevation: coord.length > 2 ? coord[2] : 0.0,
+          ),
+        );
+      }
     }
 
     return geometry;

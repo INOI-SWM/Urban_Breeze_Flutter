@@ -1,3 +1,5 @@
+import 'package:urban_breeze/features/route_planning/data/models/geometry_point_model.dart';
+
 class RouteSaveRequestModel {
   const RouteSaveRequestModel({
     required this.title,
@@ -14,7 +16,7 @@ class RouteSaveRequestModel {
   final double distance;
   final int duration;
   final double elevationGain;
-  final List<List<double>> geometry; // [longitude, latitude, elevation]
+  final List<GeometryPointModel> geometry; // JSON 객체 배열
   final List<double> bbox;
 
   Map<String, dynamic> toJson() {
@@ -24,7 +26,8 @@ class RouteSaveRequestModel {
       'distance': distance,
       'duration': duration,
       'elevationGain': elevationGain,
-      'geometry': geometry,
+      'geometry':
+          geometry.map((GeometryPointModel point) => point.toJson()).toList(),
       'bbox': bbox,
     };
   }

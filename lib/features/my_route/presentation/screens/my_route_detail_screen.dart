@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/my_route/application/usecases/get_my_route_detail_usecase.dart';
 import 'package:urban_breeze/features/my_route/di/my_route_providers.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route_detail.dart';
+import 'package:urban_breeze/features/route_planning/domain/services/polyline_convert_service.dart';
 import 'package:urban_breeze/features/route_sharing/application/facades/route_sharing_facade.dart';
 import 'package:urban_breeze/features/route_sharing/di/route_sharing_providers.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
@@ -13,6 +16,7 @@ import 'package:urban_breeze/shared/design_system/widgets/card/user_info_in_card
 import 'package:urban_breeze/shared/design_system/widgets/info/info_items_row.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/layout/map_with_bottom_sheet_layout.dart';
+import 'package:urban_breeze/shared/map/map_constants.dart';
 import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
 
 class MyRouteDetailScreen extends ConsumerStatefulWidget {
@@ -62,6 +66,8 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
 
           return MapWithBottomSheetLayout(
             showOptionButton: true,
+            mapOverlays: _buildMapOverlays(routeDetail, colors),
+            initialCameraFit: _calculateCameraFit(routeDetail),
             onDownloadButtonTap: (BuildContext context) {
               AmplitudeAnalytics.logButtonClick('my_route_download');
             },
@@ -171,5 +177,122 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
     } else {
       return '$remainingMinutes분';
     }
+  }
+
+  /// 지도에 표시할 오버레이들을 생성
+  List<Widget> _buildMapOverlays(
+    MyRouteDetail routeDetail,
+    SemanticColors colors,
+  ) {
+    final List<Widget> overlays = <Widget>[];
+
+    // Polyline 디코딩 및 표시
+    if (routeDetail.polyline.isNotEmpty) {
+      final List<LatLng> routePoints = PolylineConvertService.decodeToPoints(
+        routeDetail.polyline,
+      );
+
+      if (routePoints.isNotEmpty) {
+        // PolylineLayer 추가 - WorkoutDetailMapWidget 패턴 사용
+        overlays.add(
+          PolylineLayer<LatLng>(
+            polylines: <Polyline<LatLng>>[
+              Polyline<LatLng>(
+                points: routePoints,
+                color: colors.primaryNormal,
+                strokeWidth: MapConstants.polylineStrokeWidth,
+              ),
+            ],
+          ),
+        );
+
+        // 시작점과 끝점 마커 추가 - WorkoutDetailMapWidget 패턴 사용
+        overlays.add(
+          MarkerLayer(
+            markers: <Marker>[
+              _createStartMarker(routePoints.first, colors),
+              if (routePoints.length > 1)
+                _createEndMarker(routePoints.last, colors),
+            ],
+          ),
+        );
+      }
+    }
+
+    return overlays;
+  }
+
+  /// 시작점 마커 생성
+  Marker _createStartMarker(LatLng point, SemanticColors colors) {
+    return Marker(
+      point: point,
+      child: Container(
+        width: 20,
+        height: 20,
+        decoration: BoxDecoration(
+          color: colors.statusPositive,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 2),
+        ),
+      ),
+    );
+  }
+
+  /// 끝점 마커 생성
+  Marker _createEndMarker(LatLng point, SemanticColors colors) {
+    return Marker(
+      point: point,
+      child: Container(
+        width: 20,
+        height: 20,
+        decoration: BoxDecoration(
+          color: colors.statusNegative,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 2),
+        ),
+      ),
+    );
+  }
+
+  /// Polyline에 맞춰 카메라 위치를 계산
+  CameraFit? _calculateCameraFit(MyRouteDetail routeDetail) {
+    if (routeDetail.polyline.isEmpty) {
+      return null;
+    }
+
+    final List<LatLng> routePoints = PolylineConvertService.decodeToPoints(
+      routeDetail.polyline,
+    );
+
+    if (routePoints.isEmpty) {
+      return null;
+    }
+
+    final LatLngBounds bounds = _calculateLatLngBounds(routePoints);
+    return CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(20));
+  }
+
+  /// LatLng 포인트들로부터 경계를 계산
+  LatLngBounds _calculateLatLngBounds(List<LatLng> points) {
+    if (points.isEmpty) {
+      return LatLngBounds(
+        const LatLng(37.5665, 126.9780), // 서울시청 기본값
+        const LatLng(37.5665, 126.9780),
+      );
+    }
+
+    double minLat = points.first.latitude;
+    double maxLat = points.first.latitude;
+    double minLng = points.first.longitude;
+    double maxLng = points.first.longitude;
+
+    for (final LatLng point in points) {
+      minLat = minLat < point.latitude ? minLat : point.latitude;
+      maxLat = maxLat > point.latitude ? maxLat : point.latitude;
+      minLng = minLng < point.longitude ? minLng : point.longitude;
+      maxLng = maxLng > point.longitude ? maxLng : point.longitude;
+    }
+
+    return LatLngBounds(LatLng(minLat, minLng), LatLng(maxLat, maxLng));
   }
 }

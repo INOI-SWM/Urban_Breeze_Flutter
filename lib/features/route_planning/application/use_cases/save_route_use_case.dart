@@ -1,4 +1,5 @@
 import 'package:urban_breeze/features/route_planning/application/use_cases/route_stats_use_case.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/geometry_point.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
 import 'package:urban_breeze/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 import 'package:urban_breeze/features/route_planning/domain/repositories/route_repository.dart';
@@ -38,7 +39,7 @@ class SaveRouteUseCase {
         routeSegments,
       );
 
-      final List<List<double>> geometry =
+      final List<GeometryPoint> geometry =
           PolylineConvertService.extractGeometryFromSegments(routeSegments);
 
       await _routeRepository.saveRoute(
