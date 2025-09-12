@@ -31,7 +31,6 @@ class MyRouteRemoteDataSource extends BaseRemoteDataSource {
   ) async {
     final http.Response response = await get(ApiEndpoints.routeDetail(routeId));
     final Map<String, dynamic> json = decodeResponse(response);
-
     return ApiResponseModel<MyRouteDetailModel>.fromJson(
       json,
       (Map<String, dynamic> dataJson) => MyRouteDetailModel.fromJson(dataJson),

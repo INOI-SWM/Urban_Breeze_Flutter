@@ -17,7 +17,7 @@ class MyRouteDetail {
   final int id;
   final String title;
   final String polyline;
-  final String createdAt;
+  final DateTime createdAt;
   final int duration;
   final double distance;
   final double elevationGain;

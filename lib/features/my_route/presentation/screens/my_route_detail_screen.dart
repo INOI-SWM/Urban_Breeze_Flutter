@@ -17,6 +17,7 @@ import 'package:urban_breeze/shared/design_system/widgets/info/info_items_row.da
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/layout/map_with_bottom_sheet_layout.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
+import 'package:urban_breeze/shared/utils/date_formatter.dart';
 import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
 
 class MyRouteDetailScreen extends ConsumerStatefulWidget {
@@ -129,7 +130,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    routeDetail.createdAt,
+                    DateFormatter.formatKorean(routeDetail.createdAt),
                     style: AppTextStyles.label2.medium.copyWith(
                       color: colors.labelAlternative,
                     ),
@@ -139,7 +140,8 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
                     items: <InfoItemData>[
                       InfoItemData(
                         label: '거리',
-                        value: '${routeDetail.distance.toStringAsFixed(1)} km',
+                        value:
+                            '${(routeDetail.distance / 1000).toStringAsFixed(2)} km',
                       ),
                       InfoItemData(
                         label: '운동 시간',

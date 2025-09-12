@@ -19,7 +19,7 @@ class MyRouteDetailModel {
       id: json['id'] as int,
       title: json['title'] as String,
       polyline: json['polyline'] as String,
-      createdAt: json['createdAt'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
       duration: json['duration'] as int, // 분 단위
       distance: (json['distance'] as num).toDouble(),
       elevationGain: (json['elevationGain'] as num).toDouble(),
@@ -40,7 +40,7 @@ class MyRouteDetailModel {
   final int id;
   final String title;
   final String polyline;
-  final String createdAt;
+  final DateTime createdAt;
   final int duration;
   final double distance;
   final double elevationGain;
