@@ -29,7 +29,7 @@ class MyRouteRemoteDataSource extends BaseRemoteDataSource {
   Future<ApiResponseModel<MyRouteDetailModel>> getRouteDetail(
     String routeId,
   ) async {
-    final http.Response response = await get('/api/routes/$routeId');
+    final http.Response response = await get(ApiEndpoints.routeDetail(routeId));
     final Map<String, dynamic> json = decodeResponse(response);
 
     return ApiResponseModel<MyRouteDetailModel>.fromJson(
