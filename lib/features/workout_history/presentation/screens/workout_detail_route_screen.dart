@@ -5,8 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/location_data.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
-import 'package:urban_breeze/shared/chart/chart_axis_utils.dart';
-import 'package:urban_breeze/shared/chart/chart_builders.dart';
+import 'package:urban_breeze/shared/chart/common_line_chart_widget.dart';
 import 'package:urban_breeze/shared/chart/workout_data_extractor.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
@@ -445,18 +444,6 @@ class _WorkoutChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-
-    return Container(
-      height: 200,
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[Expanded(child: _buildChart(colors))],
-      ),
-    );
-  }
-
-  Widget _buildChart(SemanticColors colors) {
     final WorkoutDataType dataType = WorkoutDataType.values[selectedIndex];
     final _ChartConfig config = _ChartConfig.configs[dataType]!;
 
@@ -472,50 +459,25 @@ class _WorkoutChart extends StatelessWidget {
       ),
     };
 
-    if (spots.isEmpty) {
-      return Center(child: Text(config.emptyMessage));
-    }
-
-    final double minValue = ChartAxisUtils.getMinValue(
-      spots,
-      (FlSpot spot) => spot.y,
-    );
-    final double maxValue = ChartAxisUtils.getMaxValue(
-      spots,
-      (FlSpot spot) => spot.y,
-    );
-    final double range = maxValue - minValue;
-    final double interval = ChartAxisUtils.calculateInterval(range);
-    final double chartMinY = ChartAxisUtils.calculateChartMinY(
-      minValue,
-      interval,
-    );
-    final double chartMaxY = ChartAxisUtils.calculateChartMaxY(
-      maxValue,
-      interval,
-    );
-
-    return LineChart(
-      LineChartData(
-        minY: chartMinY,
-        maxY: chartMaxY,
-        gridData: ChartBuilders.buildGridData(
-          colors: colors,
-          interval: interval,
-        ),
-        titlesData: ChartBuilders.buildTitlesData(
-          colors: colors,
-          interval: interval,
-          unit: config.unit,
-        ),
-        borderData: ChartBuilders.buildBorderData(),
-        lineBarsData: <LineChartBarData>[
-          ChartBuilders.buildLineChartBarData(
-            spots: spots,
-            color: config.colorGetter(colors),
-          ),
-        ],
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      child: CommonLineChartWidget(
+        title: _getChartTitle(dataType),
+        spots: spots,
+        unit: config.unit,
+        color: config.colorGetter(colors),
+        emptyMessage: config.emptyMessage,
+        height: 200,
+        showTooltip: false,
       ),
     );
+  }
+
+  String _getChartTitle(WorkoutDataType dataType) {
+    return switch (dataType) {
+      WorkoutDataType.speed => '속도',
+      WorkoutDataType.altitude => '고도',
+      WorkoutDataType.heartRate => '심박수',
+    };
   }
 }

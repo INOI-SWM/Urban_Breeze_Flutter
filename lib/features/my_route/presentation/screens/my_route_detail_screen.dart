@@ -11,9 +11,7 @@ import 'package:urban_breeze/features/my_route/domain/entities/my_route_detail.d
 import 'package:urban_breeze/features/route_planning/domain/services/polyline_convert_service.dart';
 import 'package:urban_breeze/features/route_sharing/application/facades/route_sharing_facade.dart';
 import 'package:urban_breeze/features/route_sharing/di/route_sharing_providers.dart';
-import 'package:urban_breeze/shared/chart/chart_axis_utils.dart';
-import 'package:urban_breeze/shared/chart/chart_builders.dart';
-import 'package:urban_breeze/shared/chart/chart_style_config.dart';
+import 'package:urban_breeze/shared/chart/common_line_chart_widget.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/card/user_info_in_card.dart';
@@ -148,7 +146,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
                             '${(routeDetail.distance / 1000).toStringAsFixed(2)} km',
                       ),
                       InfoItemData(
-                        label: '운동 시간',
+                        label: '예상 소요 시간',
                         value: _formatDuration(routeDetail.duration),
                       ),
                       InfoItemData(
@@ -159,7 +157,16 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  _buildElevationChart(routeDetail, colors),
+                  CommonLineChartWidget(
+                    title: '고도',
+                    spots: _extractElevationData(routeDetail.trackPoints),
+                    unit: 'm',
+                    color: colors.primaryNormal.withValues(alpha: 0.8),
+                    emptyMessage: '고도 데이터가 없습니다',
+                    height: 250,
+                    showTooltip: true,
+                    barWidth: 1,
+                  ),
                 ],
               ),
             ),
@@ -302,127 +309,6 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
     }
 
     return LatLngBounds(LatLng(minLat, minLng), LatLng(maxLat, maxLng));
-  }
-
-  /// 고도 차트 위젯 생성
-  Widget _buildElevationChart(
-    MyRouteDetail routeDetail,
-    SemanticColors colors,
-  ) {
-    if (routeDetail.trackPoints.isEmpty) {
-      return Container(
-        height: 200,
-        margin: const EdgeInsets.symmetric(horizontal: 20),
-        decoration: BoxDecoration(
-          border: Border.all(color: colors.lineNormalNormal),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Text(
-            '고도 데이터가 없습니다',
-            style: AppTextStyles.body2.readingMedium.copyWith(
-              color: colors.labelAlternative,
-            ),
-          ),
-        ),
-      );
-    }
-
-    final List<FlSpot> spots = _extractElevationData(routeDetail.trackPoints);
-
-    if (spots.isEmpty) {
-      return Container(
-        height: 200,
-        margin: const EdgeInsets.symmetric(horizontal: 20),
-        decoration: BoxDecoration(
-          border: Border.all(color: colors.lineNormalNormal),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Text(
-            '고도 데이터가 없습니다',
-            style: AppTextStyles.body2.readingMedium.copyWith(
-              color: colors.labelAlternative,
-            ),
-          ),
-        ),
-      );
-    }
-
-    final double minValue = ChartAxisUtils.getMinValue(
-      spots,
-      (FlSpot spot) => spot.y,
-    );
-    final double maxValue = ChartAxisUtils.getMaxValue(
-      spots,
-      (FlSpot spot) => spot.y,
-    );
-    final double range = maxValue - minValue;
-    final double interval = ChartAxisUtils.calculateInterval(range);
-    final double chartMinY = ChartAxisUtils.calculateChartMinY(
-      minValue,
-      interval,
-    );
-    final double chartMaxY = ChartAxisUtils.calculateChartMaxY(
-      maxValue,
-      interval,
-    );
-
-    return SizedBox(
-      height: 250,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            '고도',
-            style: AppTextStyles.heading2.bold.copyWith(
-              color: colors.labelStrong,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: LineChart(
-              LineChartData(
-                minY: chartMinY,
-                maxY: chartMaxY,
-                gridData: ChartBuilders.buildGridData(
-                  colors: colors,
-                  interval: interval,
-                ),
-                titlesData: ChartBuilders.buildTitlesData(
-                  colors: colors,
-                  interval: interval,
-                  unit: 'm',
-                ),
-                borderData: ChartBuilders.buildBorderData(),
-                lineTouchData: LineTouchData(
-                  enabled: true,
-                  touchTooltipData: LineTouchTooltipData(
-                    getTooltipItems: (List<LineBarSpot> touchedSpots) {
-                      return touchedSpots.map((LineBarSpot touchedSpot) {
-                        return LineTooltipItem(
-                          '${touchedSpot.y.toInt()}m',
-                          AppTextStyles.caption2.regular.copyWith(
-                            color: ChartStyleConfig.getTooltipTextColor(colors),
-                          ),
-                        );
-                      }).toList();
-                    },
-                  ),
-                ),
-                lineBarsData: <LineChartBarData>[
-                  ChartBuilders.buildLineChartBarData(
-                    spots: spots,
-                    color: colors.primaryNormal.withValues(alpha: 0.8),
-                    barWidth: 1,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   /// TrackPoints에서 고도 데이터 추출
