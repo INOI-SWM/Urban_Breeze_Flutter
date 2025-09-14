@@ -6,19 +6,14 @@ class SignInWithKakaoUseCase {
 
   final KakaoAuthRepository _repository;
 
-  Future<bool> execute() async {
+  Future<String?> execute() async {
     try {
-      await _repository.signIn();
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<String?> getAccessToken() async {
-    try {
+      final bool signInSuccess = await _repository.signIn();
+      if (!signInSuccess) {
+        return null;
+      }
       return await _repository.getAccessToken();
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

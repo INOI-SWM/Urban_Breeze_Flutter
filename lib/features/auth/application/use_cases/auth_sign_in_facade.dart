@@ -41,20 +41,13 @@ class AuthSignInFacade {
   final UserSessionNotifier _userSessionNotifier;
 
   Future<AppResult<User>> _runSignInFlow({
-    required Future<bool> Function() doProviderSignIn,
-    required Future<String?> Function() getCredential,
+    required Future<String?> Function() doProviderSignIn,
     required Future<AuthLoginResult> Function(String) exchange,
   }) async {
     try {
-      final bool signInSuccess = await doProviderSignIn();
-      if (!signInSuccess) {
-        return const AppFailure<User>(AuthCanceledException());
-      }
-
-      final String? credential = await getCredential();
+      final String? credential = await doProviderSignIn();
       if (credential == null || credential.isEmpty) {
-        // 로그인 sdk가 제공하는 자격증명이 없는 경우
-        return const AppFailure<User>(AuthCredentialMissingException());
+        return const AppFailure<User>(AuthCanceledException());
       }
 
       final AuthLoginResult result = await exchange(credential);
@@ -71,7 +64,6 @@ class AuthSignInFacade {
       case LoginProvider.google:
         return _runSignInFlow(
           doProviderSignIn: _signInWithGoogleUseCase.execute,
-          getCredential: _signInWithGoogleUseCase.getIdToken,
           exchange:
               (String idToken) =>
                   _loginWithGoogleIdTokenUseCase.execute(idToken: idToken),
@@ -79,7 +71,6 @@ class AuthSignInFacade {
       case LoginProvider.apple:
         return _runSignInFlow(
           doProviderSignIn: _signInWithAppleUseCase.execute,
-          getCredential: _signInWithAppleUseCase.getIdToken,
           exchange:
               (String idToken) =>
                   _loginWithAppleIdTokenUseCase.execute(idToken: idToken),
@@ -87,7 +78,6 @@ class AuthSignInFacade {
       case LoginProvider.kakao:
         return _runSignInFlow(
           doProviderSignIn: _signInWithKakaoUseCase.execute,
-          getCredential: _signInWithKakaoUseCase.getAccessToken,
           exchange:
               (String accessToken) => _loginWithKakaoAccessTokenUseCase.execute(
                 accessToken: accessToken,

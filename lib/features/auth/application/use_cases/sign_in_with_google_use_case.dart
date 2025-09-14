@@ -6,14 +6,15 @@ class SignInWithGoogleUseCase {
 
   final GoogleAuthRepository _repository;
 
-  Future<bool> execute() async {
+  Future<String?> execute() async {
     try {
-      await _repository.signIn();
-      return true;
+      final bool signInSuccess = await _repository.signIn();
+      if (!signInSuccess) {
+        return null;
+      }
+      return await _repository.getIdToken();
     } catch (e) {
-      return false;
+      return null;
     }
   }
-
-  Future<String?> getIdToken() async => _repository.getIdToken();
 }
