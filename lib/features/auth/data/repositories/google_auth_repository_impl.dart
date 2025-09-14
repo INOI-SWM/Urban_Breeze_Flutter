@@ -1,7 +1,5 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:urban_breeze/features/auth/data/datasources/google_auth_datasource.dart';
-import 'package:urban_breeze/features/auth/domain/entities/user.dart';
-import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/google_auth_repository.dart';
 
 class GoogleAuthRepositoryImpl implements GoogleAuthRepository {
@@ -11,18 +9,13 @@ class GoogleAuthRepositoryImpl implements GoogleAuthRepository {
   final GoogleAuthDataSource _googleAuthDataSource;
 
   @override
-  Future<User?> signIn() async {
-    final GoogleSignInAccount? account = await _googleAuthDataSource.signIn();
-    if (account == null) return null;
-
-    return User(
-      uuid: account.id,
-      nickname: account.displayName ?? 'Google User',
-      email: account.email,
-      profileImagePath: account.photoUrl,
-      displayName: account.displayName,
-      loginProvider: LoginProvider.google,
-    );
+  Future<bool> signIn() async {
+    try {
+      final GoogleSignInAccount? account = await _googleAuthDataSource.signIn();
+      return account != null;
+    } catch (e) {
+      return false;
+    }
   }
 
   @override
@@ -33,21 +26,6 @@ class GoogleAuthRepositoryImpl implements GoogleAuthRepository {
   @override
   Future<void> withdraw() async {
     await _googleAuthDataSource.disconnect();
-  }
-
-  @override
-  Future<User?> getCurrentUser() async {
-    final GoogleSignInAccount? account = _googleAuthDataSource.currentUser;
-    if (account == null) return null;
-
-    return User(
-      uuid: account.id,
-      nickname: account.displayName ?? 'Google User',
-      email: account.email,
-      profileImagePath: account.photoUrl,
-      displayName: account.displayName,
-      loginProvider: LoginProvider.google,
-    );
   }
 
   @override

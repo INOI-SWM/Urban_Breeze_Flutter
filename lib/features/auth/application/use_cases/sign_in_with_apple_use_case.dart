@@ -6,19 +6,14 @@ class SignInWithAppleUseCase {
 
   final AppleAuthRepository _repository;
 
-  Future<bool> execute() async {
+  Future<String?> execute() async {
     try {
-      await _repository.signIn();
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  Future<String?> getIdToken() async {
-    try {
+      final bool signInSuccess = await _repository.signIn();
+      if (!signInSuccess) {
+        return null;
+      }
       return await _repository.getIdToken();
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

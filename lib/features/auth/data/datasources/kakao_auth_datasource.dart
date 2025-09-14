@@ -4,7 +4,6 @@ abstract class KakaoAuthDataSource {
   Future<User?> signIn();
   Future<void> signOut();
   Future<void> unlink();
-  Future<User?> getCurrentUser();
   bool get isSignedIn;
   Future<String?> getAccessToken();
 }
@@ -58,17 +57,6 @@ class KakaoAuthDataSourceImpl implements KakaoAuthDataSource {
       _currentUser = null;
       _currentToken = null;
       rethrow;
-    }
-  }
-
-  @override
-  Future<User?> getCurrentUser() async {
-    try {
-      final User user = await UserApi.instance.me();
-      _currentUser = user;
-      return user;
-    } catch (error) {
-      return null;
     }
   }
 
