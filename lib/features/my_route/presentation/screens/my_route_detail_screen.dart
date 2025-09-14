@@ -147,7 +147,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
                       ),
                       InfoItemData(
                         label: '예상 소요 시간',
-                        value: _formatDuration(routeDetail.duration),
+                        value: _formatDuration(routeDetail.durationMinutes),
                       ),
                       InfoItemData(
                         label: '상승 고도',
@@ -269,46 +269,16 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
     );
   }
 
-  /// Polyline에 맞춰 카메라 위치를 계산
-  CameraFit? _calculateCameraFit(MyRouteDetail routeDetail) {
-    if (routeDetail.polyline.isEmpty) {
-      return null;
-    }
-
-    final List<LatLng> routePoints = PolylineConvertService.decodeToPoints(
-      routeDetail.polyline,
+  /// bbox를 사용하여 카메라 위치를 계산
+  CameraFit _calculateCameraFit(MyRouteDetail routeDetail) {
+    final List<double> bbox = routeDetail.bbox;
+    return CameraFit.bounds(
+      bounds: LatLngBounds(
+        LatLng(bbox[1], bbox[0]), // minLat, minLng
+        LatLng(bbox[3], bbox[2]), // maxLat, maxLng
+      ),
+      padding: const EdgeInsets.all(50),
     );
-
-    if (routePoints.isEmpty) {
-      return null;
-    }
-
-    final LatLngBounds bounds = _calculateLatLngBounds(routePoints);
-    return CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(20));
-  }
-
-  /// LatLng 포인트들로부터 경계를 계산 //todo: 추후 서버 bbox를 통해 변경
-  LatLngBounds _calculateLatLngBounds(List<LatLng> points) {
-    if (points.isEmpty) {
-      return LatLngBounds(
-        const LatLng(37.5665, 126.9780), // 서울시청 기본값
-        const LatLng(37.5665, 126.9780),
-      );
-    }
-
-    double minLat = points.first.latitude;
-    double maxLat = points.first.latitude;
-    double minLng = points.first.longitude;
-    double maxLng = points.first.longitude;
-
-    for (final LatLng point in points) {
-      minLat = minLat < point.latitude ? minLat : point.latitude;
-      maxLat = maxLat > point.latitude ? maxLat : point.latitude;
-      minLng = minLng < point.longitude ? minLng : point.longitude;
-      maxLng = maxLng > point.longitude ? maxLng : point.longitude;
-    }
-
-    return LatLngBounds(LatLng(minLat, minLng), LatLng(maxLat, maxLng));
   }
 
   /// TrackPoints에서 고도 데이터 추출

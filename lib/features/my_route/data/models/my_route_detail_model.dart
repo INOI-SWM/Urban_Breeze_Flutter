@@ -4,7 +4,7 @@ class MyRouteDetailModel {
     required this.title,
     required this.polyline,
     required this.createdAt,
-    required this.duration,
+    required this.durationMinutes,
     required this.distance,
     required this.elevationGain,
     required this.userId,
@@ -12,6 +12,7 @@ class MyRouteDetailModel {
     this.profileImageUrl,
     required this.trackPointsCount,
     required this.trackPoints,
+    required this.bbox,
   });
 
   factory MyRouteDetailModel.fromJson(Map<String, dynamic> json) {
@@ -20,7 +21,7 @@ class MyRouteDetailModel {
       title: json['title'] as String,
       polyline: json['polyline'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      duration: json['duration'] as int, // 분 단위
+      durationMinutes: json['durationMinutes'] as int, // 분 단위
       distance: (json['distance'] as num).toDouble(),
       elevationGain: (json['elevationGain'] as num).toDouble(),
       userId: json['userId'] as int,
@@ -34,6 +35,10 @@ class MyRouteDetailModel {
                     TrackPointModel.fromJson(e as Map<String, dynamic>),
               )
               .toList(),
+      bbox:
+          (json['bbox'] as List<dynamic>)
+              .map((dynamic e) => (e as num).toDouble())
+              .toList(),
     );
   }
 
@@ -41,7 +46,7 @@ class MyRouteDetailModel {
   final String title;
   final String polyline;
   final DateTime createdAt;
-  final int duration;
+  final int durationMinutes;
   final double distance;
   final double elevationGain;
   final int userId;
@@ -49,6 +54,7 @@ class MyRouteDetailModel {
   final String? profileImageUrl;
   final int trackPointsCount;
   final List<TrackPointModel> trackPoints;
+  final List<double> bbox; // [minLng, minLat, maxLng, maxLat]
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -56,7 +62,7 @@ class MyRouteDetailModel {
       'title': title,
       'polyline': polyline,
       'createdAt': createdAt,
-      'duration': duration,
+      'durationMinutes': durationMinutes,
       'distance': distance,
       'elevationGain': elevationGain,
       'userId': userId,
@@ -65,6 +71,7 @@ class MyRouteDetailModel {
       'trackPointsCount': trackPointsCount,
       'trackPoints':
           trackPoints.map((TrackPointModel e) => e.toJson()).toList(),
+      'bbox': bbox,
     };
   }
 }

@@ -4,7 +4,7 @@ class MyRouteDetail {
     required this.title,
     required this.polyline,
     required this.createdAt,
-    required this.duration,
+    required this.durationMinutes,
     required this.distance,
     required this.elevationGain,
     required this.userId,
@@ -12,13 +12,14 @@ class MyRouteDetail {
     this.profileImageUrl,
     required this.trackPointsCount,
     required this.trackPoints,
+    required this.bbox,
   });
 
   final int id;
   final String title;
   final String polyline;
   final DateTime createdAt;
-  final int duration;
+  final int durationMinutes;
   final double distance;
   final double elevationGain;
   final int userId;
@@ -26,6 +27,7 @@ class MyRouteDetail {
   final String? profileImageUrl;
   final int trackPointsCount;
   final List<TrackPoint> trackPoints;
+  final List<double> bbox; // [minLng, minLat, maxLng, maxLat]
 }
 
 class TrackPoint {

@@ -122,7 +122,7 @@ class MyRouteMapper {
       title: data.title,
       polyline: data.polyline,
       createdAt: data.createdAt,
-      duration: data.duration,
+      durationMinutes: data.durationMinutes,
       distance: data.distance,
       elevationGain: data.elevationGain,
       userId: data.userId,
@@ -136,6 +136,7 @@ class MyRouteMapper {
                     TrackPoint(index: model.index, elevation: model.elevation),
               )
               .toList(),
+      bbox: data.bbox,
     );
   }
 }
