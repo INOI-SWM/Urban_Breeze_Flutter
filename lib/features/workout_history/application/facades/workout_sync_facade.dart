@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/integration/application/facades/integration_sync_facade.dart';
 import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
@@ -7,6 +8,7 @@ import 'package:urban_breeze/features/workout_history/application/facades/terra_
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_apple_health_kit_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_google_health_connect_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
+import 'package:urban_breeze/features/workout_history/domain/exceptions/apple_health_kit_exceptions.dart';
 import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 
 /// 워크아웃 동기화 통합 Facade
@@ -40,8 +42,15 @@ class WorkoutSyncFacade {
         final bool permissionGranted =
             await syncAppleHealthKitDataUseCase.requestPermissions();
         if (!permissionGranted) {
+          // Apple Health Kit 권한 거부 이벤트
+          AmplitudeAnalytics.logEvent(
+            'apple_health_kit_permission_denied',
+            properties: <String, dynamic>{'to_webhook': toWebhook},
+          );
           return const AppFailure<Map<String, dynamic>?>(
-            TerraApiException('Apple Health Kit 권한이 거부되었습니다'),
+            HealthKitPermissionException(
+              'Apple Health Kit 권한이 거부되었습니다. 설정에서 권한을 허용해주세요.',
+            ),
           );
         }
       }
@@ -59,12 +68,25 @@ class WorkoutSyncFacade {
         'workouts': workouts,
         'count': workouts.length,
         'source': 'apple_health_kit',
+        'to_webhook': toWebhook,
       };
+
+      // Apple Health Kit 동기화 성공 이벤트
+      AmplitudeAnalytics.logEvent(
+        'apple_health_kit_sync_success',
+        properties: <String, dynamic>{'workout_count': workouts.length},
+      );
 
       return AppSuccess<Map<String, dynamic>?>(resultData);
     } catch (e) {
+      // Apple Health Kit 동기화 실패 이벤트
+      AmplitudeAnalytics.logEvent(
+        'apple_health_kit_sync_failed',
+        properties: <String, dynamic>{'error_message': e.toString()},
+      );
+
       return AppFailure<Map<String, dynamic>?>(
-        TerraApiException('Apple Health Kit 동기화 실패: $e'),
+        HealthKitDataException('Apple Health Kit 동기화 실패: $e'),
       );
     }
   }
@@ -135,6 +157,14 @@ class WorkoutSyncFacade {
                 );
             allWorkouts.addAll(appleWorkouts);
             successCount++;
+
+            // Apple Health Kit 동기화 성공 이벤트
+            AmplitudeAnalytics.logEvent(
+              'apple_health_kit_full_sync_success',
+              properties: <String, dynamic>{
+                'workout_count': appleWorkouts.length,
+              },
+            );
           } else {
             // 권한이 없으면 요청
             final bool permissionGranted =
@@ -149,10 +179,27 @@ class WorkoutSyncFacade {
                   );
               allWorkouts.addAll(appleWorkouts);
               successCount++;
+
+              // Apple Health Kit 동기화 성공 이벤트
+              AmplitudeAnalytics.logEvent(
+                'apple_health_kit_full_sync_success',
+                properties: <String, dynamic>{
+                  'workout_count': appleWorkouts.length,
+                },
+              );
+            } else {
+              // Apple Health Kit 권한 거부 이벤트
+              AmplitudeAnalytics.logEvent(
+                'apple_health_kit_full_sync_permission_denied',
+              );
             }
           }
         } catch (e) {
-          // Apple Health Kit 오류는 카운트만 하고 상세 메시지는 표시하지 않음
+          // Apple Health Kit 동기화 실패 이벤트
+          AmplitudeAnalytics.logEvent(
+            'apple_health_kit_full_sync_failed',
+            properties: <String, dynamic>{'error_message': e.toString()},
+          );
         }
       }
 
