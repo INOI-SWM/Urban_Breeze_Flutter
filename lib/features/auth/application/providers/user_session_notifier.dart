@@ -1,19 +1,41 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/user_session_repository.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/get_profile_use_case.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/update_birth_use_case.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/update_gender_use_case.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/update_introduce_use_case.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/update_nickname_use_case.dart';
 
 class UserSessionNotifier extends StateNotifier<User?> {
   UserSessionNotifier({
     required UserSessionRepository repository,
+    required GetProfileUseCase getProfileUseCase,
+    required UpdateNicknameUseCase updateNicknameUseCase,
+    required UpdateIntroduceUseCase updateIntroduceUseCase,
+    required UpdateBirthUseCase updateBirthUseCase,
+    required UpdateGenderUseCase updateGenderUseCase,
     void Function()? onInitialized,
   }) : _repository = repository,
+       _getProfileUseCase = getProfileUseCase,
+       _updateNicknameUseCase = updateNicknameUseCase,
+       _updateIntroduceUseCase = updateIntroduceUseCase,
+       _updateBirthUseCase = updateBirthUseCase,
+       _updateGenderUseCase = updateGenderUseCase,
        _onInitialized = onInitialized,
        super(null) {
     loadUserSession();
   }
 
   final UserSessionRepository _repository;
+  final GetProfileUseCase _getProfileUseCase;
+  final UpdateNicknameUseCase _updateNicknameUseCase;
+  final UpdateIntroduceUseCase _updateIntroduceUseCase;
+  final UpdateBirthUseCase _updateBirthUseCase;
+  final UpdateGenderUseCase _updateGenderUseCase;
   final void Function()? _onInitialized;
 
   Future<void> setUserSession(User user) async {
@@ -61,6 +83,46 @@ class UserSessionNotifier extends StateNotifier<User?> {
   }
 
   bool get isLoggedIn => state != null;
+
+  /// 공통 업데이트 로직을 처리하는 헬퍼 메서드
+  Future<AppResult<User>> _executeUpdate(
+    Future<AppResult<User>> Function() updateFunction,
+  ) async {
+    if (state == null) {
+      return const AppFailure<User>(ValidationException('User not logged in'));
+    }
+
+    final AppResult<User> result = await updateFunction();
+    if (result.isSuccess) {
+      state = result.dataOrNull;
+    }
+    return result;
+  }
+
+  /// 프로필 정보 새로고침
+  Future<AppResult<User>> refreshProfile() async {
+    return _executeUpdate(() => _getProfileUseCase.execute());
+  }
+
+  /// 닉네임 수정
+  Future<AppResult<User>> updateNickname(String nickname) async {
+    return _executeUpdate(() => _updateNicknameUseCase.execute(nickname));
+  }
+
+  /// 자기소개 수정
+  Future<AppResult<User>> updateIntroduce(String introduce) async {
+    return _executeUpdate(() => _updateIntroduceUseCase.execute(introduce));
+  }
+
+  /// 생년월일 수정
+  Future<AppResult<User>> updateBirth(String birth) async {
+    return _executeUpdate(() => _updateBirthUseCase.execute(birth));
+  }
+
+  /// 성별 수정
+  Future<AppResult<User>> updateGender(String gender) async {
+    return _executeUpdate(() => _updateGenderUseCase.execute(gender));
+  }
 }
 
 class AuthInitializationNotifier extends StateNotifier<bool> {

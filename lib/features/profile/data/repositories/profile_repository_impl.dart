@@ -1,50 +1,85 @@
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/user_session_repository.dart';
 import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 
 import '../../domain/repositories/profile_repository.dart';
 import '../datasources/profile_datasource.dart';
 
 class ProfileRepositoryImpl implements ProfileRepository {
-  const ProfileRepositoryImpl({required ProfileDataSource dataSource})
-    : _dataSource = dataSource;
+  const ProfileRepositoryImpl({
+    required ProfileDataSource dataSource,
+    required UserSessionRepository userSessionRepository,
+  }) : _dataSource = dataSource,
+       _userSessionRepository = userSessionRepository;
 
   final ProfileDataSource _dataSource;
+  final UserSessionRepository _userSessionRepository;
+
+  /// 공통 업데이트 로직을 처리하는 헬퍼 메서드
+  Future<User> _executeUpdate(
+    Future<ApiResponseModel<User>> Function(LoginProvider) updateFunction,
+  ) async {
+    final User? currentUser = await _userSessionRepository.loadUser();
+    final LoginProvider? loginProvider = currentUser?.loginProvider;
+
+    if (loginProvider == null) {
+      throw Exception('Current user login provider not found');
+    }
+
+    final ApiResponseModel<User> response = await updateFunction(loginProvider);
+    final User user = response.data;
+
+    _validateUser(user);
+    await _userSessionRepository.saveUser(user);
+    return user;
+  }
 
   @override
   Future<User> getProfile() async {
-    final ApiResponseModel<User> response = await _dataSource.getProfile();
-    return response.data;
+    return _executeUpdate(
+      (LoginProvider loginProvider) => _dataSource.getProfile(loginProvider),
+    );
   }
 
   @override
   Future<User> updateNickname(String nickname) async {
-    final ApiResponseModel<User> response = await _dataSource.updateNickname(
-      nickname,
+    return _executeUpdate(
+      (LoginProvider loginProvider) =>
+          _dataSource.updateNickname(nickname, loginProvider),
     );
-    return response.data;
   }
 
   @override
   Future<User> updateIntroduce(String introduce) async {
-    final ApiResponseModel<User> response = await _dataSource.updateIntroduce(
-      introduce,
+    return _executeUpdate(
+      (LoginProvider loginProvider) =>
+          _dataSource.updateIntroduce(introduce, loginProvider),
     );
-    return response.data;
   }
 
   @override
   Future<User> updateBirth(String birth) async {
-    final ApiResponseModel<User> response = await _dataSource.updateBirth(
-      birth,
+    return _executeUpdate(
+      (LoginProvider loginProvider) =>
+          _dataSource.updateBirth(birth, loginProvider),
     );
-    return response.data;
   }
 
   @override
   Future<User> updateGender(String gender) async {
-    final ApiResponseModel<User> response = await _dataSource.updateGender(
-      gender,
+    return _executeUpdate(
+      (LoginProvider loginProvider) =>
+          _dataSource.updateGender(gender, loginProvider),
     );
-    return response.data;
+  }
+
+  void _validateUser(User user) {
+    if (user.uuid.isEmpty) {
+      throw Exception('User UUID cannot be empty');
+    }
+    if (user.nickname.isEmpty) {
+      throw Exception('User nickname cannot be empty');
+    }
   }
 }
