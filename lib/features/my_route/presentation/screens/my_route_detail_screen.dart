@@ -17,6 +17,7 @@ import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_sty
 import 'package:urban_breeze/shared/design_system/widgets/card/user_info_in_card.dart';
 import 'package:urban_breeze/shared/design_system/widgets/info/info_items_row.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
+import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
 import 'package:urban_breeze/shared/layout/map_with_bottom_sheet_layout.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
 import 'package:urban_breeze/shared/utils/date_formatter.dart';
@@ -109,6 +110,29 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
             },
             onDownloadButtonTap: (BuildContext context) {
               AmplitudeAnalytics.logButtonClick('my_route_download');
+
+              showPlatformActionSheet(
+                context,
+                title: '다운로드 방식',
+                options: <PlatformActionSheetOption>[
+                  PlatformActionSheetOption(
+                    title: 'GPX로 다운로드',
+                    onSelected: () {
+                      AmplitudeAnalytics.logEvent(
+                        'my_route_download_gpx',
+                        properties: <String, dynamic>{
+                          'route_id': widget.routeId,
+                        },
+                      );
+                      //TODO : 추후 실제 API 요청 로직으로 변경
+                      routeSharingFacade.shareGpxFromAsset(
+                        context,
+                        'assets/gpx/sample.gpx',
+                      );
+                    },
+                  ),
+                ],
+              );
             },
             onShareButtonTap: (BuildContext context) {
               AmplitudeAnalytics.logButtonClick('my_route_share');
@@ -150,6 +174,26 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
             },
             onOptionButtonTap: (BuildContext context) {
               AmplitudeAnalytics.logButtonClick('my_route_options');
+
+              showPlatformActionSheet(
+                context,
+                title: '옵션',
+                options: <PlatformActionSheetOption>[
+                  PlatformActionSheetOption(
+                    title: '경로 삭제',
+                    onSelected: () {
+                      AmplitudeAnalytics.logEvent(
+                        'my_route_delete',
+                        properties: <String, dynamic>{
+                          'route_id': widget.routeId,
+                        },
+                      );
+                      //TODO : 추후 실제 삭제 API 요청 로직으로 변경
+                      _showDeleteConfirmDialog(context);
+                    },
+                  ),
+                ],
+              );
             },
             sheetChild: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -328,5 +372,30 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
     }
 
     return spots;
+  }
+
+  /// 경로 삭제 확인 다이얼로그 표시
+  void _showDeleteConfirmDialog(BuildContext context) {
+    ModalShow.show(
+      context: context,
+      title: '경로 삭제',
+      content: Text(
+        '정말 경로를 삭제하시겠습니까?',
+        style: AppTextStyles.body1.normalRegular.copyWith(
+          color: context.semanticColor.labelNormal,
+        ),
+      ),
+      primaryButtonText: '삭제',
+      secondaryButtonText: '취소',
+      onPrimaryButtonPressed: () => _deleteRoute(),
+      onSecondaryButtonPressed: () {},
+    );
+  }
+
+  /// 경로 삭제 실행
+  void _deleteRoute() {
+    //TODO : 실제 삭제 API 호출 로직 구현
+    // 성공 시 이전 화면으로 돌아가기
+    Navigator.of(context).pop();
   }
 }
