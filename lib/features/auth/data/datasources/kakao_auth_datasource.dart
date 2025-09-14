@@ -1,10 +1,9 @@
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 abstract class KakaoAuthDataSource {
-  Future<User?> signIn();
+  Future<bool> signIn();
   Future<void> signOut();
   Future<void> unlink();
-  Future<User?> getCurrentUser();
   bool get isSignedIn;
   Future<String?> getAccessToken();
 }
@@ -18,7 +17,7 @@ class KakaoAuthDataSourceImpl implements KakaoAuthDataSource {
   User? get currentUser => _currentUser;
 
   @override
-  Future<User?> signIn() async {
+  Future<bool> signIn() async {
     try {
       if (await isKakaoTalkInstalled()) {
         try {
@@ -30,9 +29,10 @@ class KakaoAuthDataSourceImpl implements KakaoAuthDataSource {
         _currentToken = await UserApi.instance.loginWithKakaoAccount();
       }
 
-      return await _getUserInfo();
+      final User? user = await _getUserInfo();
+      return user != null;
     } catch (error) {
-      return null;
+      return false;
     }
   }
 
@@ -58,17 +58,6 @@ class KakaoAuthDataSourceImpl implements KakaoAuthDataSource {
       _currentUser = null;
       _currentToken = null;
       rethrow;
-    }
-  }
-
-  @override
-  Future<User?> getCurrentUser() async {
-    try {
-      final User user = await UserApi.instance.me();
-      _currentUser = user;
-      return user;
-    } catch (error) {
-      return null;
     }
   }
 
