@@ -11,6 +11,7 @@ import 'package:urban_breeze/navigation/navigation_providers.dart';
 import 'package:urban_breeze/navigation/page_with_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
+import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/design_system/widgets/tab_bar/custom_tab_bar.dart';
 
 // 동기화 상태 관리를 위한 Provider
@@ -53,7 +54,7 @@ class _RefreshButton extends ConsumerWidget {
           child: SizedBox(
             width: 24,
             height: 24,
-            child: CircularProgressIndicator(strokeWidth: 2),
+            child: AppLoadingIndicator(strokeWidth: 2),
           ),
         )
         : CustomIconButton(
