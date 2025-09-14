@@ -18,7 +18,6 @@ class AppleHealthKitDataSource {
     WorkoutType.workoutType.identifier,
     QuantityType.heartRate.identifier,
     QuantityType.distanceCycling.identifier,
-    QuantityType.activeEnergyBurned.identifier,
     SeriesType.workoutRoute.identifier,
   ];
 
