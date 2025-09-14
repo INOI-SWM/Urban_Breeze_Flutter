@@ -1,10 +1,9 @@
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 abstract class AppleAuthDataSource {
-  Future<AuthorizationCredentialAppleID?> signIn();
+  Future<bool> signIn();
   Future<void> signOut();
   Future<void> revokeTokens();
-  AuthorizationCredentialAppleID? get currentUser;
   bool get isSignedIn;
   Future<String?> getIdToken();
 }
@@ -15,14 +14,11 @@ class AppleAuthDataSourceImpl implements AppleAuthDataSource {
   AuthorizationCredentialAppleID? _currentUser;
 
   @override
-  AuthorizationCredentialAppleID? get currentUser => _currentUser;
-
-  @override
-  Future<AuthorizationCredentialAppleID?> signIn() async {
+  Future<bool> signIn() async {
     try {
       final bool isAvailable = await SignInWithApple.isAvailable();
       if (!isAvailable) {
-        return null;
+        return false;
       }
 
       _currentUser = await SignInWithApple.getAppleIDCredential(
@@ -31,9 +27,9 @@ class AppleAuthDataSourceImpl implements AppleAuthDataSource {
           AppleIDAuthorizationScopes.fullName,
         ],
       );
-      return _currentUser;
+      return _currentUser != null;
     } catch (error) {
-      return null;
+      return false;
     }
   }
 

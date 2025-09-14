@@ -1,4 +1,3 @@
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:urban_breeze/features/auth/data/datasources/apple_auth_datasource.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/apple_auth_repository.dart';
 
@@ -11,9 +10,7 @@ class AppleAuthRepositoryImpl implements AppleAuthRepository {
   @override
   Future<bool> signIn() async {
     try {
-      final AuthorizationCredentialAppleID? account =
-          await _appleAuthDataSource.signIn();
-      return account != null;
+      return await _appleAuthDataSource.signIn();
     } catch (e) {
       return false;
     }

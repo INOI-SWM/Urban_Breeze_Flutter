@@ -1,4 +1,3 @@
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:urban_breeze/features/auth/data/datasources/google_auth_datasource.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/google_auth_repository.dart';
 
@@ -11,8 +10,7 @@ class GoogleAuthRepositoryImpl implements GoogleAuthRepository {
   @override
   Future<bool> signIn() async {
     try {
-      final GoogleSignInAccount? account = await _googleAuthDataSource.signIn();
-      return account != null;
+      return await _googleAuthDataSource.signIn();
     } catch (e) {
       return false;
     }

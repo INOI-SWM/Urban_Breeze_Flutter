@@ -3,9 +3,6 @@ import 'package:urban_breeze/features/auth/application/providers/user_session_no
 import 'package:urban_breeze/features/auth/application/use_cases/auth_sign_in_facade.dart';
 import 'package:urban_breeze/features/auth/application/use_cases/auth_sign_out_facade.dart';
 import 'package:urban_breeze/features/auth/application/use_cases/auth_withdrawal_facade.dart';
-import 'package:urban_breeze/features/auth/application/use_cases/login_with_apple_idtoken_use_case.dart';
-import 'package:urban_breeze/features/auth/application/use_cases/login_with_google_idtoken_use_case.dart';
-import 'package:urban_breeze/features/auth/application/use_cases/login_with_kakao_access_token_use_case.dart';
 import 'package:urban_breeze/features/auth/application/use_cases/sign_in_with_apple_use_case.dart';
 import 'package:urban_breeze/features/auth/application/use_cases/sign_in_with_google_use_case.dart';
 import 'package:urban_breeze/features/auth/application/use_cases/sign_in_with_kakao_use_case.dart';
@@ -109,46 +106,27 @@ final Provider<SignInWithGoogleUseCase> signInWithGoogleUseCaseProvider =
       final GoogleAuthRepository googleAuthRepository = ref.watch(
         googleAuthRepositoryProvider,
       );
-      return SignInWithGoogleUseCase(repository: googleAuthRepository);
-    });
-
-final Provider<LoginWithGoogleIdTokenUseCase>
-loginWithGoogleIdTokenUseCaseProvider = Provider<LoginWithGoogleIdTokenUseCase>(
-  (Ref<LoginWithGoogleIdTokenUseCase> ref) {
-    final UrbanBreezeAuthRepository authRepository = ref.watch(
-      authRepositoryProvider,
-    );
-    return LoginWithGoogleIdTokenUseCase(repository: authRepository);
-  },
-);
-
-final Provider<LoginWithKakaoAccessTokenUseCase>
-loginWithKakaoAccessTokenUseCaseProvider =
-    Provider<LoginWithKakaoAccessTokenUseCase>((
-      Ref<LoginWithKakaoAccessTokenUseCase> ref,
-    ) {
-      final UrbanBreezeAuthRepository authRepository = ref.watch(
+      final UrbanBreezeAuthRepository urbanBreezeAuthRepository = ref.watch(
         authRepositoryProvider,
       );
-      return LoginWithKakaoAccessTokenUseCase(repository: authRepository);
+      return SignInWithGoogleUseCase(
+        googleAuthRepository: googleAuthRepository,
+        urbanBreezeAuthRepository: urbanBreezeAuthRepository,
+      );
     });
-
-final Provider<LoginWithAppleIdTokenUseCase>
-loginWithAppleIdTokenUseCaseProvider = Provider<LoginWithAppleIdTokenUseCase>((
-  Ref<LoginWithAppleIdTokenUseCase> ref,
-) {
-  final UrbanBreezeAuthRepository authRepository = ref.watch(
-    authRepositoryProvider,
-  );
-  return LoginWithAppleIdTokenUseCase(repository: authRepository);
-});
 
 final Provider<SignInWithAppleUseCase> signInWithAppleUseCaseProvider =
     Provider<SignInWithAppleUseCase>((Ref<SignInWithAppleUseCase> ref) {
       final AppleAuthRepository appleAuthRepository = ref.watch(
         appleAuthRepositoryProvider,
       );
-      return SignInWithAppleUseCase(repository: appleAuthRepository);
+      final UrbanBreezeAuthRepository urbanBreezeAuthRepository = ref.watch(
+        authRepositoryProvider,
+      );
+      return SignInWithAppleUseCase(
+        appleAuthRepository: appleAuthRepository,
+        urbanBreezeAuthRepository: urbanBreezeAuthRepository,
+      );
     });
 
 final Provider<SignInWithKakaoUseCase> signInWithKakaoUseCaseProvider =
@@ -156,7 +134,13 @@ final Provider<SignInWithKakaoUseCase> signInWithKakaoUseCaseProvider =
       final KakaoAuthRepository kakaoAuthRepository = ref.watch(
         kakaoAuthRepositoryProvider,
       );
-      return SignInWithKakaoUseCase(repository: kakaoAuthRepository);
+      final UrbanBreezeAuthRepository urbanBreezeAuthRepository = ref.watch(
+        authRepositoryProvider,
+      );
+      return SignInWithKakaoUseCase(
+        kakaoAuthRepository: kakaoAuthRepository,
+        urbanBreezeAuthRepository: urbanBreezeAuthRepository,
+      );
     });
 
 // Sign Out Use Case Providers
@@ -215,18 +199,12 @@ final Provider<AuthSignInFacade> authSignInFacadeProvider =
       final SignInWithGoogleUseCase signInWithGoogleUseCase = ref.watch(
         signInWithGoogleUseCaseProvider,
       );
-      final LoginWithGoogleIdTokenUseCase loginWithGoogleIdTokenUseCase = ref
-          .watch(loginWithGoogleIdTokenUseCaseProvider);
       final SignInWithAppleUseCase signInWithAppleUseCase = ref.watch(
         signInWithAppleUseCaseProvider,
       );
       final SignInWithKakaoUseCase signInWithKakaoUseCase = ref.watch(
         signInWithKakaoUseCaseProvider,
       );
-      final LoginWithKakaoAccessTokenUseCase loginWithKakaoAccessTokenUseCase =
-          ref.watch(loginWithKakaoAccessTokenUseCaseProvider);
-      final LoginWithAppleIdTokenUseCase loginWithAppleIdTokenUseCase = ref
-          .watch(loginWithAppleIdTokenUseCaseProvider);
       final TokenRepository tokenRepository = ref.watch(
         tokenRepositoryProvider,
       );
@@ -236,11 +214,8 @@ final Provider<AuthSignInFacade> authSignInFacadeProvider =
 
       return AuthSignInFacade(
         signInWithGoogleUseCase: signInWithGoogleUseCase,
-        loginWithGoogleIdTokenUseCase: loginWithGoogleIdTokenUseCase,
         signInWithAppleUseCase: signInWithAppleUseCase,
         signInWithKakaoUseCase: signInWithKakaoUseCase,
-        loginWithKakaoAccessTokenUseCase: loginWithKakaoAccessTokenUseCase,
-        loginWithAppleIdTokenUseCase: loginWithAppleIdTokenUseCase,
         tokenRepository: tokenRepository,
         userSessionNotifier: userSessionNotifier,
       );

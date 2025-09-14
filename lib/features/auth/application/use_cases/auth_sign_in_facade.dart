@@ -1,8 +1,5 @@
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/application/providers/user_session_notifier.dart';
-import 'package:urban_breeze/features/auth/application/use_cases/login_with_apple_idtoken_use_case.dart';
-import 'package:urban_breeze/features/auth/application/use_cases/login_with_google_idtoken_use_case.dart';
-import 'package:urban_breeze/features/auth/application/use_cases/login_with_kakao_access_token_use_case.dart';
 import 'package:urban_breeze/features/auth/application/use_cases/sign_in_with_apple_use_case.dart';
 import 'package:urban_breeze/features/auth/application/use_cases/sign_in_with_google_use_case.dart';
 import 'package:urban_breeze/features/auth/application/use_cases/sign_in_with_kakao_use_case.dart';
@@ -17,72 +14,37 @@ class AuthSignInFacade {
     required SignInWithGoogleUseCase signInWithGoogleUseCase,
     required SignInWithAppleUseCase signInWithAppleUseCase,
     required SignInWithKakaoUseCase signInWithKakaoUseCase,
-    required LoginWithGoogleIdTokenUseCase loginWithGoogleIdTokenUseCase,
-    required LoginWithKakaoAccessTokenUseCase loginWithKakaoAccessTokenUseCase,
-    required LoginWithAppleIdTokenUseCase loginWithAppleIdTokenUseCase,
     required TokenRepository tokenRepository,
     required UserSessionNotifier userSessionNotifier,
   }) : _signInWithGoogleUseCase = signInWithGoogleUseCase,
        _signInWithAppleUseCase = signInWithAppleUseCase,
        _signInWithKakaoUseCase = signInWithKakaoUseCase,
-       _loginWithGoogleIdTokenUseCase = loginWithGoogleIdTokenUseCase,
-       _loginWithKakaoAccessTokenUseCase = loginWithKakaoAccessTokenUseCase,
-       _loginWithAppleIdTokenUseCase = loginWithAppleIdTokenUseCase,
        _tokenRepository = tokenRepository,
        _userSessionNotifier = userSessionNotifier;
 
   final SignInWithGoogleUseCase _signInWithGoogleUseCase;
   final SignInWithAppleUseCase _signInWithAppleUseCase;
   final SignInWithKakaoUseCase _signInWithKakaoUseCase;
-  final LoginWithGoogleIdTokenUseCase _loginWithGoogleIdTokenUseCase;
-  final LoginWithKakaoAccessTokenUseCase _loginWithKakaoAccessTokenUseCase;
-  final LoginWithAppleIdTokenUseCase _loginWithAppleIdTokenUseCase;
   final TokenRepository _tokenRepository;
   final UserSessionNotifier _userSessionNotifier;
 
-  Future<AppResult<User>> _runSignInFlow({
-    required Future<String?> Function() doProviderSignIn,
-    required Future<AuthLoginResult> Function(String) exchange,
-  }) async {
+  Future<AppResult<User>> signIn(LoginProvider provider) async {
     try {
-      final String? credential = await doProviderSignIn();
-      if (credential == null || credential.isEmpty) {
+      final AuthLoginResult? result = switch (provider) {
+        LoginProvider.google => await _signInWithGoogleUseCase.execute(),
+        LoginProvider.apple => await _signInWithAppleUseCase.execute(),
+        LoginProvider.kakao => await _signInWithKakaoUseCase.execute(),
+      };
+
+      if (result == null) {
         return const AppFailure<User>(AuthCanceledException());
       }
 
-      final AuthLoginResult result = await exchange(credential);
       await _tokenRepository.saveTokens(result.tokens);
       await _userSessionNotifier.setUserSession(result.user);
       return AppSuccess<User>(result.user);
     } catch (e) {
       return const AppFailure<User>(AuthExchangeFailedException());
-    }
-  }
-
-  Future<AppResult<User>> signIn(LoginProvider provider) async {
-    switch (provider) {
-      case LoginProvider.google:
-        return _runSignInFlow(
-          doProviderSignIn: _signInWithGoogleUseCase.execute,
-          exchange:
-              (String idToken) =>
-                  _loginWithGoogleIdTokenUseCase.execute(idToken: idToken),
-        );
-      case LoginProvider.apple:
-        return _runSignInFlow(
-          doProviderSignIn: _signInWithAppleUseCase.execute,
-          exchange:
-              (String idToken) =>
-                  _loginWithAppleIdTokenUseCase.execute(idToken: idToken),
-        );
-      case LoginProvider.kakao:
-        return _runSignInFlow(
-          doProviderSignIn: _signInWithKakaoUseCase.execute,
-          exchange:
-              (String accessToken) => _loginWithKakaoAccessTokenUseCase.execute(
-                accessToken: accessToken,
-              ),
-        );
     }
   }
 }
