@@ -9,7 +9,7 @@ class MyRouteDetail {
     required this.elevationGain,
     required this.userId,
     required this.nickname,
-    this.profileImageUrl,
+    required this.profileImageUrl,
     required this.trackPointsCount,
     required this.trackPoints,
     required this.bbox,
@@ -24,7 +24,7 @@ class MyRouteDetail {
   final double elevationGain;
   final int userId;
   final String nickname;
-  final String? profileImageUrl;
+  final String profileImageUrl;
   final int trackPointsCount;
   final List<TrackPoint> trackPoints;
   final List<double> bbox; // [minLng, minLat, maxLng, maxLat]

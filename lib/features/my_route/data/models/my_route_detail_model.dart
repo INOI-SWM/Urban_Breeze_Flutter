@@ -9,7 +9,7 @@ class MyRouteDetailModel {
     required this.elevationGain,
     required this.userId,
     required this.nickname,
-    this.profileImageUrl,
+    required this.profileImageUrl,
     required this.trackPointsCount,
     required this.trackPoints,
     required this.bbox,
@@ -26,7 +26,7 @@ class MyRouteDetailModel {
       elevationGain: (json['elevationGain'] as num).toDouble(),
       userId: json['userId'] as int,
       nickname: json['nickname'] as String,
-      profileImageUrl: json['profileImageUrl'] as String?,
+      profileImageUrl: json['profileImageUrl'] as String,
       trackPointsCount: json['trackPointsCount'] as int,
       trackPoints:
           (json['trackPoints'] as List<dynamic>)
@@ -51,7 +51,7 @@ class MyRouteDetailModel {
   final double elevationGain;
   final int userId;
   final String nickname;
-  final String? profileImageUrl;
+  final String profileImageUrl;
   final int trackPointsCount;
   final List<TrackPointModel> trackPoints;
   final List<double> bbox; // [minLng, minLat, maxLng, maxLat]
