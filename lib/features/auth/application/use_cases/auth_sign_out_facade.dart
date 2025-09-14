@@ -1,49 +1,63 @@
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/application/providers/user_session_notifier.dart';
-import 'package:urban_breeze/features/auth/application/use_cases/sign_out_with_apple_use_case.dart';
-import 'package:urban_breeze/features/auth/application/use_cases/sign_out_with_google_use_case.dart';
-import 'package:urban_breeze/features/auth/application/use_cases/sign_out_with_kakao_use_case.dart';
 import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/apple_auth_repository.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/google_auth_repository.dart';
+import 'package:urban_breeze/features/auth/domain/repositories/kakao_auth_repository.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/token_repository.dart';
 
 class AuthSignOutFacade {
   const AuthSignOutFacade({
-    required SignOutWithGoogleUseCase signOutWithGoogleUseCase,
-    required SignOutWithAppleUseCase signOutWithAppleUseCase,
-    required SignOutWithKakaoUseCase signOutWithKakaoUseCase,
+    required GoogleAuthRepository googleAuthRepository,
+    required AppleAuthRepository appleAuthRepository,
+    required KakaoAuthRepository kakaoAuthRepository,
     required UserSessionNotifier userSessionNotifier,
     required TokenRepository tokenRepository,
-  }) : _signOutWithGoogleUseCase = signOutWithGoogleUseCase,
-       _signOutWithAppleUseCase = signOutWithAppleUseCase,
-       _signOutWithKakaoUseCase = signOutWithKakaoUseCase,
+  }) : _googleAuthRepository = googleAuthRepository,
+       _appleAuthRepository = appleAuthRepository,
+       _kakaoAuthRepository = kakaoAuthRepository,
        _userSessionNotifier = userSessionNotifier,
        _tokenRepository = tokenRepository;
 
-  final SignOutWithGoogleUseCase _signOutWithGoogleUseCase;
-  final SignOutWithAppleUseCase _signOutWithAppleUseCase;
-  final SignOutWithKakaoUseCase _signOutWithKakaoUseCase;
+  final GoogleAuthRepository _googleAuthRepository;
+  final AppleAuthRepository _appleAuthRepository;
+  final KakaoAuthRepository _kakaoAuthRepository;
   final UserSessionNotifier _userSessionNotifier;
   final TokenRepository _tokenRepository;
 
   Future<AppResult<void>> execute(LoginProvider loginProvider) async {
     try {
-      switch (loginProvider) {
-        case LoginProvider.google:
-          await _signOutWithGoogleUseCase.execute();
-          break;
-        case LoginProvider.apple:
-          await _signOutWithAppleUseCase.execute();
-          break;
-        case LoginProvider.kakao:
-          await _signOutWithKakaoUseCase.execute();
-          break;
-      }
-      await _tokenRepository.clearTokens();
-      await _userSessionNotifier.clearUserSession();
+      await _performProviderAction(
+        loginProvider,
+        (dynamic repo) => repo.signOut(),
+      );
+      await _clearSession();
       return const AppSuccess<void>(null);
     } catch (e) {
       return const AppFailure<void>(ServerException('로그아웃에 실패했습니다'));
     }
+  }
+
+  Future<void> _performProviderAction(
+    LoginProvider loginProvider,
+    Future<void> Function(dynamic repository) action,
+  ) async {
+    switch (loginProvider) {
+      case LoginProvider.google:
+        await action(_googleAuthRepository);
+        break;
+      case LoginProvider.apple:
+        await action(_appleAuthRepository);
+        break;
+      case LoginProvider.kakao:
+        await action(_kakaoAuthRepository);
+        break;
+    }
+  }
+
+  Future<void> _clearSession() async {
+    await _tokenRepository.clearTokens();
+    await _userSessionNotifier.clearUserSession();
   }
 }

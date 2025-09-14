@@ -8,13 +8,7 @@ class AppleAuthRepositoryImpl implements AppleAuthRepository {
   final AppleAuthDataSource _appleAuthDataSource;
 
   @override
-  Future<bool> signIn() async {
-    try {
-      return await _appleAuthDataSource.signIn();
-    } catch (e) {
-      return false;
-    }
-  }
+  Future<bool> signIn() async => _appleAuthDataSource.signIn();
 
   @override
   Future<void> signOut() async {

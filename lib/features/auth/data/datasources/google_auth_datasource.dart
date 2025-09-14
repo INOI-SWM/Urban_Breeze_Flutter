@@ -3,9 +3,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 abstract class GoogleAuthDataSource {
   Future<bool> signIn();
   Future<void> signOut();
-  Future<bool> signInSilently();
   bool get isSignedIn;
-  Future<void> disconnect();
   Future<String?> getIdToken();
 }
 
@@ -37,33 +35,12 @@ class GoogleAuthDataSourceImpl implements GoogleAuthDataSource {
   }
 
   @override
-  Future<bool> signInSilently() async {
-    try {
-      _currentUser = await _googleSignIn.signInSilently();
-      return _currentUser != null;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  @override
   bool get isSignedIn => _currentUser != null;
-
-  @override
-  Future<void> disconnect() async {
-    try {
-      await _googleSignIn.disconnect();
-      _currentUser = null;
-    } catch (error) {
-      return;
-    }
-  }
 
   @override
   Future<String?> getIdToken() async {
     try {
-      GoogleSignInAccount? user = _currentUser;
-      user ??= await _googleSignIn.signInSilently();
+      final GoogleSignInAccount? user = _currentUser;
       if (user == null) return null;
 
       final GoogleSignInAuthentication auth = await user.authentication;

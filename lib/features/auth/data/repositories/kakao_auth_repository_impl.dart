@@ -8,13 +8,7 @@ class KakaoAuthRepositoryImpl implements KakaoAuthRepository {
   final KakaoAuthDataSource _kakaoAuthDataSource;
 
   @override
-  Future<bool> signIn() async {
-    try {
-      return await _kakaoAuthDataSource.signIn();
-    } catch (e) {
-      return false;
-    }
-  }
+  Future<bool> signIn() async => _kakaoAuthDataSource.signIn();
 
   @override
   Future<void> signOut() async {

@@ -8,13 +8,7 @@ class GoogleAuthRepositoryImpl implements GoogleAuthRepository {
   final GoogleAuthDataSource _googleAuthDataSource;
 
   @override
-  Future<bool> signIn() async {
-    try {
-      return await _googleAuthDataSource.signIn();
-    } catch (e) {
-      return false;
-    }
-  }
+  Future<bool> signIn() async => _googleAuthDataSource.signIn();
 
   @override
   Future<void> signOut() async {
@@ -23,7 +17,8 @@ class GoogleAuthRepositoryImpl implements GoogleAuthRepository {
 
   @override
   Future<void> withdraw() async {
-    await _googleAuthDataSource.disconnect();
+    // TODO: 탈퇴로직 개발 후 변경 필요
+    await _googleAuthDataSource.signOut();
   }
 
   @override
