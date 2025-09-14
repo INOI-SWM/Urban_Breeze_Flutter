@@ -41,13 +41,13 @@ class AuthSignInFacade {
   final UserSessionNotifier _userSessionNotifier;
 
   Future<AppResult<User>> _runSignInFlow({
-    required Future<User?> Function() doProviderSignIn,
+    required Future<bool> Function() doProviderSignIn,
     required Future<String?> Function() getCredential,
     required Future<AuthLoginResult> Function(String) exchange,
   }) async {
     try {
-      final User? providerUser = await doProviderSignIn();
-      if (providerUser == null) {
+      final bool signInSuccess = await doProviderSignIn();
+      if (!signInSuccess) {
         return const AppFailure<User>(AuthCanceledException());
       }
 

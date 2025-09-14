@@ -1,4 +1,3 @@
-import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/google_auth_repository.dart';
 
 class SignInWithGoogleUseCase {
@@ -7,8 +6,13 @@ class SignInWithGoogleUseCase {
 
   final GoogleAuthRepository _repository;
 
-  Future<User?> execute() async {
-    return await _repository.signIn();
+  Future<bool> execute() async {
+    try {
+      await _repository.signIn();
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<String?> getIdToken() async => _repository.getIdToken();

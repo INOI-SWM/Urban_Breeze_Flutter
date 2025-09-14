@@ -1,4 +1,3 @@
-import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/kakao_auth_repository.dart';
 
 class SignInWithKakaoUseCase {
@@ -7,8 +6,13 @@ class SignInWithKakaoUseCase {
 
   final KakaoAuthRepository _repository;
 
-  Future<User?> execute() async {
-    return await _repository.signIn();
+  Future<bool> execute() async {
+    try {
+      await _repository.signIn();
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<String?> getAccessToken() async {
