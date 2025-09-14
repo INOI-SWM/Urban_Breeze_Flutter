@@ -86,7 +86,7 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
       if (result.isSuccess) {
         routeList = result.dataOrNull!;
       } else {
-        errorMessage = result.exceptionOrNull?.message ?? '알 수 없는 오류가 발생했습니다';
+        errorMessage = '서버에러';
         routeList = MyRouteList.empty();
       }
     });
@@ -201,7 +201,7 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
                 isLoading
                     ? const Center(child: AppLoadingIndicator())
                     : errorMessage != null
-                    ? Center(child: Text('오류: $errorMessage'))
+                    ? Center(child: Text(errorMessage!))
                     : routeList.routes.isEmpty
                     ? const Center(child: Text('경로가 없습니다'))
                     : ListView.builder(
