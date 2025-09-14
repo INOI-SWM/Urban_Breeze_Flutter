@@ -33,12 +33,44 @@ class MyRouteDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
+  final MapController _mapController = MapController();
+  final bool _hasUserDraggedMap = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AmplitudeAnalytics.logScreenView('my_route_detail_screen');
     });
+  }
+
+  void _updateMapBounds(double bottomSheetSize, MyRouteDetail routeDetail) {
+    if (_hasUserDraggedMap) return;
+
+    final List<double> bbox = routeDetail.bbox;
+    final LatLngBounds bounds = _calculateAdjustedBounds(bbox, bottomSheetSize);
+    _mapController.fitCamera(
+      CameraFit.bounds(
+        bounds: bounds,
+        padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 30),
+      ),
+    );
+  }
+
+  LatLngBounds _calculateAdjustedBounds(
+    List<double> bbox,
+    double bottomSheetSize,
+  ) {
+    final double minLng = bbox[0];
+    final double minLat = bbox[1];
+    final double maxLng = bbox[2];
+    final double maxLat = bbox[3];
+
+    final double latDiff = maxLat - minLat;
+    final double expansionFactor = bottomSheetSize * 2.4;
+    final double adjustedMinLat = minLat - (latDiff * expansionFactor);
+
+    return LatLngBounds(LatLng(adjustedMinLat, minLng), LatLng(maxLat, maxLng));
   }
 
   @override
@@ -49,7 +81,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
     );
 
     return Scaffold(
-      backgroundColor: colors.backgroundNormalNormal,
+      backgroundColor: Colors.transparent,
       body: FutureBuilder<MyRouteDetail>(
         future: _loadRouteDetail(),
         builder: (BuildContext context, AsyncSnapshot<MyRouteDetail> snapshot) {
@@ -71,6 +103,10 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
             showOptionButton: true,
             mapOverlays: _buildMapOverlays(routeDetail, colors),
             initialCameraFit: _calculateCameraFit(routeDetail),
+            mapController: _mapController,
+            onSizeChanged: (double size) {
+              _updateMapBounds(size, routeDetail);
+            },
             onDownloadButtonTap: (BuildContext context) {
               AmplitudeAnalytics.logButtonClick('my_route_download');
             },
@@ -269,15 +305,16 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
     );
   }
 
-  /// bbox를 사용하여 카메라 위치를 계산
+  /// bbox를 사용하여 카메라 위치를 계산 (초기 로드 시 기본 크기로 조정)
   CameraFit _calculateCameraFit(MyRouteDetail routeDetail) {
     final List<double> bbox = routeDetail.bbox;
+    final LatLngBounds bounds = _calculateAdjustedBounds(
+      bbox,
+      0.5,
+    ); // 초기 크기 0.5로 설정
     return CameraFit.bounds(
-      bounds: LatLngBounds(
-        LatLng(bbox[1], bbox[0]), // minLat, minLng
-        LatLng(bbox[3], bbox[2]), // maxLat, maxLng
-      ),
-      padding: const EdgeInsets.all(50),
+      bounds: bounds,
+      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 30),
     );
   }
 

@@ -24,6 +24,8 @@ class MapWithBottomSheetLayout extends StatefulWidget {
     this.initialCenter,
     this.initialZoom,
     this.initialCameraFit,
+    this.mapController,
+    this.onSizeChanged,
   });
 
   final List<Widget> mapOverlays;
@@ -39,6 +41,8 @@ class MapWithBottomSheetLayout extends StatefulWidget {
   final LatLng? initialCenter;
   final double? initialZoom;
   final CameraFit? initialCameraFit;
+  final MapController? mapController;
+  final ValueChanged<double>? onSizeChanged;
 
   @override
   State<MapWithBottomSheetLayout> createState() =>
@@ -92,6 +96,7 @@ class _MapWithBottomSheetLayoutState extends State<MapWithBottomSheetLayout> {
         return Stack(
           children: <Widget>[
             FlutterMap(
+              mapController: widget.mapController,
               options: MapOptions(
                 initialCenter:
                     widget.initialCenter ?? MapConstants.seoulCityHall,
@@ -119,75 +124,82 @@ class _MapWithBottomSheetLayoutState extends State<MapWithBottomSheetLayout> {
     SemanticColors colors,
     BoxConstraints constraints,
   ) {
-    return DraggableScrollableSheet(
-      initialChildSize: widget.initialChildSize,
-      minChildSize: widget.minChildSize,
-      maxChildSize: _calculatedMaxChildSize,
-      snap: true,
-      snapSizes: <double>[
-        widget.minChildSize,
-        widget.initialChildSize,
-        _calculatedMaxChildSize,
-      ],
-      builder: (BuildContext context, ScrollController scrollController) {
-        return ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(12),
-            topRight: Radius.circular(12),
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: colors.backgroundNormalNormal,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
-            ),
-            child: SingleChildScrollView(
-              controller: scrollController,
-              physics: const ClampingScrollPhysics(),
-              child: Column(
-                children: <Widget>[
-                  Container(
-                    width: 40,
-                    height: 4,
-                    margin: const EdgeInsets.only(top: 12, bottom: 8),
-                    decoration: BoxDecoration(
-                      color: colors.lineNormalNormal,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  CustomAppBar(
-                    leading: CustomIconButton(
-                      icon: Icons.arrow_back_ios_new_rounded,
-                      onTap: () => Navigator.pop(context),
-                    ),
-                    actions: <Widget>[
-                      CustomIconButton(
-                        icon: Icons.file_download_outlined,
-                        onTap: () => widget.onDownloadButtonTap(context),
-                      ),
-                      CustomIconButton(
-                        icon: Icons.share_outlined,
-                        onTap: () => widget.onShareButtonTap(context),
-                      ),
-                      if (widget.showOptionButton)
-                        CustomIconButton(
-                          icon: Icons.more_horiz_outlined,
-                          onTap: () => widget.onOptionButtonTap?.call(context),
-                        ),
-                    ],
-                    enableSafeArea: false,
-                    safeAreaTop: false,
-                    safeAreaBottom: false,
-                  ),
-                  Container(key: _contentKey, child: widget.sheetChild),
-                ],
-              ),
-            ),
-          ),
-        );
+    return NotificationListener<DraggableScrollableNotification>(
+      onNotification: (DraggableScrollableNotification notification) {
+        widget.onSizeChanged?.call(notification.extent);
+        return false;
       },
+      child: DraggableScrollableSheet(
+        initialChildSize: widget.initialChildSize,
+        minChildSize: widget.minChildSize,
+        maxChildSize: _calculatedMaxChildSize,
+        snap: true,
+        snapSizes: <double>[
+          widget.minChildSize,
+          widget.initialChildSize,
+          _calculatedMaxChildSize,
+        ],
+        builder: (BuildContext context, ScrollController scrollController) {
+          return ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(12),
+              topRight: Radius.circular(12),
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: colors.backgroundNormalNormal,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
+                ),
+              ),
+              child: SingleChildScrollView(
+                controller: scrollController,
+                physics: const ClampingScrollPhysics(),
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(top: 12, bottom: 8),
+                      decoration: BoxDecoration(
+                        color: colors.lineNormalNormal,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    CustomAppBar(
+                      leading: CustomIconButton(
+                        icon: Icons.arrow_back_ios_new_rounded,
+                        onTap: () => Navigator.pop(context),
+                      ),
+                      actions: <Widget>[
+                        CustomIconButton(
+                          icon: Icons.file_download_outlined,
+                          onTap: () => widget.onDownloadButtonTap(context),
+                        ),
+                        CustomIconButton(
+                          icon: Icons.share_outlined,
+                          onTap: () => widget.onShareButtonTap(context),
+                        ),
+                        if (widget.showOptionButton)
+                          CustomIconButton(
+                            icon: Icons.more_horiz_outlined,
+                            onTap:
+                                () => widget.onOptionButtonTap?.call(context),
+                          ),
+                      ],
+                      enableSafeArea: false,
+                      safeAreaTop: false,
+                      safeAreaBottom: false,
+                    ),
+                    Container(key: _contentKey, child: widget.sheetChild),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
