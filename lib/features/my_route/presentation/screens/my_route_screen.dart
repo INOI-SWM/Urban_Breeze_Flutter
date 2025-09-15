@@ -52,7 +52,7 @@ class MyRouteScreen extends ConsumerStatefulWidget implements PageWithAppBar {
 class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
   MyRouteSortType selectedSortOption = MyRouteSortType.newest;
 
-  List<FilterItem> get filters => MyRouteFilterConfig().filters;
+  List<FilterItem> get filters => const MyRouteFilterConfig().filters;
 
   late FilterData currentFilter;
 
@@ -117,6 +117,12 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
   }
 
   void _showFilterModal({String? selectedTab}) {
+    final List<FilterItem> bottomSheetFilters =
+        MyRouteFilterConfig(
+          maxDistance: routeList.maxDistance,
+          maxElevationGain: routeList.maxElevationGain,
+        ).filters;
+
     final FilterData initialData =
         selectedTab != null
             ? currentFilter.copyWith(selectedTab: selectedTab)
@@ -124,7 +130,7 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
 
     FilterModal.show(
       context: context,
-      filters: filters,
+      filters: bottomSheetFilters,
       initialData: initialData,
       onApply: (FilterData newFilter) {
         setState(() {
@@ -136,7 +142,7 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
           properties: <String, dynamic>{
             'filter_count': FilterDisplayUtils.getAppliedFiltersCount(
               newFilter,
-              filters,
+              bottomSheetFilters,
             ),
           },
         );
@@ -145,7 +151,7 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
       },
       onReset: () {
         setState(() {
-          currentFilter = FilterData.fromFilterItems(filters);
+          currentFilter = FilterData.fromFilterItems(bottomSheetFilters);
         });
         AmplitudeAnalytics.logEvent('my_route_filter_reset');
         _loadRouteList();
