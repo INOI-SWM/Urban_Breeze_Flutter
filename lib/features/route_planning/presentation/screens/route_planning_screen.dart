@@ -71,16 +71,29 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   Future<void> _getCurrentLocation() async {
-    final LatLng? position = await _facade.getCurrentLocation.execute();
-    setState(() {
-      _currentPosition = position;
-      _isLocationLoading = false;
-    });
+    try {
+      final LatLng? position = await _facade.getCurrentLocation.execute();
+      if (mounted) {
+        setState(() {
+          _currentPosition = position;
+          _isLocationLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _currentPosition = null;
+          _isLocationLoading = false;
+        });
+      }
+    }
   }
 
   void _moveToCurrentLocation() {
     if (_currentPosition != null) {
       _mapController.move(_currentPosition!, initialZoom);
+    } else {
+      showErrorMessage(context, '휴대폰 설정에서 위치권한을 설정해주세요');
     }
   }
 

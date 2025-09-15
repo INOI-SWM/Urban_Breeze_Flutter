@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -10,6 +12,11 @@ class GeolocatorLocationDataSource {
         return false;
       }
     }
+
+    if (permission == LocationPermission.deniedForever) {
+      return false;
+    }
+
     return permission == LocationPermission.always ||
         permission == LocationPermission.whileInUse;
   }
@@ -19,10 +26,25 @@ class GeolocatorLocationDataSource {
       final bool hasPermission = await checkAndRequestPermission();
       if (!hasPermission) return null;
 
-      final Position position = await Geolocator.getCurrentPosition();
+      const LocationSettings locationSettings = LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 10, // 10미터 이상 이동 시 업데이트
+      );
+
+      final Position position = await Geolocator.getCurrentPosition(
+        locationSettings: locationSettings,
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException(
+            '위치 정보를 가져오는데 실패하였습니다.',
+            const Duration(seconds: 10),
+          );
+        },
+      );
+
       return LatLng(position.latitude, position.longitude);
     } catch (e) {
-      //todo : 위치정보 가져오는 중, 정말 의도치 않은 에러가 생겼을 때, 띄울 에러메시지 및 디자인 추가
       return null;
     }
   }
