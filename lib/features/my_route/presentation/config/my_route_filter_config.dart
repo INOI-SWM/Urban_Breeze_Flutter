@@ -3,6 +3,14 @@ import 'package:urban_breeze/shared/filter/models/filter_config.dart';
 import 'package:urban_breeze/shared/filter/models/filter_item.dart';
 
 class MyRouteFilterConfig implements FilterConfig {
+  const MyRouteFilterConfig({
+    this.maxDistance = 100.0,
+    this.maxElevationGain = 100.0,
+  });
+
+  final double maxDistance;
+  final double maxElevationGain;
+
   @override
   List<FilterItem> get filters => <FilterItem>[
     FilterItem.selection(
@@ -13,13 +21,13 @@ class MyRouteFilterConfig implements FilterConfig {
     FilterItem.range(
       id: 'elevation',
       title: '상승 고도',
-      range: const RangeValues(0, 122),
+      range: RangeValues(0, maxElevationGain),
       unit: 'm',
     ),
     FilterItem.range(
       id: 'distance',
       title: '거리',
-      range: const RangeValues(0, 999),
+      range: RangeValues(0, maxDistance),
       unit: 'km',
     ),
   ];
