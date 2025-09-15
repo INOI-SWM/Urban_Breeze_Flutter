@@ -123,10 +123,9 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
           maxElevationGain: routeList.maxElevationGain,
         ).filters;
 
-    final FilterData initialData =
-        selectedTab != null
-            ? currentFilter.copyWith(selectedTab: selectedTab)
-            : currentFilter;
+    final FilterData initialData = FilterData.fromFilterItems(
+      bottomSheetFilters,
+    );
 
     FilterModal.show(
       context: context,
