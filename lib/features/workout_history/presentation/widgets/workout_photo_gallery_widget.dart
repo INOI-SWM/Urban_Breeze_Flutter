@@ -271,6 +271,17 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
     }
   }
 
+  /// 이미지 미리보기 화면 표시
+  void _showImagePreview(BuildContext context, File imageFile) {
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder:
+            (BuildContext context) => _ImagePreviewScreen(imageFile: imageFile),
+      ),
+    );
+  }
+
   Widget _buildPhotoItem(BuildContext context, File imageFile, int index) {
     final SemanticColors colors = context.semanticColor;
     return Container(
@@ -290,12 +301,17 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
                 color: colors.fillAlternative,
                 border: Border.all(color: colors.lineNormalNormal, width: 1),
               ),
-              child: ClipRRect(
-                child: Image.file(
-                  imageFile,
-                  width: double.infinity,
-                  height: double.infinity,
-                  fit: BoxFit.cover,
+              child: GestureDetector(
+                onTap: () {
+                  _showImagePreview(context, imageFile);
+                },
+                child: ClipRRect(
+                  child: Image.file(
+                    imageFile,
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),
@@ -325,6 +341,37 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 이미지 미리보기 화면
+class _ImagePreviewScreen extends StatelessWidget {
+  const _ImagePreviewScreen({required this.imageFile});
+
+  final File imageFile;
+
+  @override
+  Widget build(BuildContext context) {
+    final SemanticColors colors = context.semanticColor;
+
+    return Scaffold(
+      backgroundColor: colors.staticBlack,
+      appBar: AppBar(
+        backgroundColor: colors.staticBlack,
+        iconTheme: IconThemeData(color: colors.staticWhite),
+      ),
+      body: InteractiveViewer(
+        panEnabled: true,
+        minScale: 0.5,
+        maxScale: 4.0,
+        child: Image.file(
+          imageFile,
+          fit: BoxFit.contain,
+          width: double.infinity,
+          height: double.infinity,
+        ),
       ),
     );
   }
