@@ -165,35 +165,8 @@ class WorkoutSyncFacade {
                 'workout_count': appleWorkouts.length,
               },
             );
-          } else {
-            // 권한이 없으면 요청
-            final bool permissionGranted =
-                await syncAppleHealthKitDataUseCase.requestPermissions();
-            if (permissionGranted) {
-              final List<WorkoutRecord> appleWorkouts =
-                  await syncAppleHealthKitDataUseCase.fetchBasicWorkoutData(
-                    startDate: DateTime.now().subtract(
-                      const Duration(days: 30),
-                    ),
-                    endDate: DateTime.now(),
-                  );
-              allWorkouts.addAll(appleWorkouts);
-              successCount++;
-
-              // Apple Health Kit 동기화 성공 이벤트
-              AmplitudeAnalytics.logEvent(
-                'apple_health_kit_full_sync_success',
-                properties: <String, dynamic>{
-                  'workout_count': appleWorkouts.length,
-                },
-              );
-            } else {
-              // Apple Health Kit 권한 거부 이벤트
-              AmplitudeAnalytics.logEvent(
-                'apple_health_kit_full_sync_permission_denied',
-              );
-            }
           }
+          // 권한이 없으면 새로고침에서는 데이터를 가져오지 않음
         } catch (e) {
           // Apple Health Kit 동기화 실패 이벤트
           AmplitudeAnalytics.logEvent(
