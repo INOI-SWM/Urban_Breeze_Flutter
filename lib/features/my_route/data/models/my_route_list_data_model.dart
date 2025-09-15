@@ -1,4 +1,4 @@
-import 'package:urban_breeze/features/my_route/data/models/my_route_filter_rage_model.dart';
+import 'package:urban_breeze/features/my_route/data/models/my_route_filter_range_model.dart';
 import 'package:urban_breeze/features/my_route/data/models/my_route_model.dart';
 import 'package:urban_breeze/features/my_route/data/models/pagination_model.dart';
 

@@ -108,6 +108,8 @@ class MyRouteMapper {
       size: data.pagination.size,
       hasNext: data.pagination.hasNext,
       hasPrevious: data.pagination.hasPrevious,
+      maxDistance: data.filterRange.maxDistance,
+      maxElevationGain: data.filterRange.maxElevationGain,
     );
   }
 
