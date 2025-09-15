@@ -10,6 +10,8 @@ class MyRouteList {
       size: 0,
       hasNext: false,
       hasPrevious: false,
+      maxDistance: 0,
+      maxElevationGain: 0,
     );
   }
   const MyRouteList({
@@ -20,6 +22,8 @@ class MyRouteList {
     required this.size,
     required this.hasNext,
     required this.hasPrevious,
+    required this.maxDistance,
+    required this.maxElevationGain,
   });
 
   final List<MyRoute> routes;
@@ -29,6 +33,8 @@ class MyRouteList {
   final int size;
   final bool hasNext;
   final bool hasPrevious;
+  final double maxDistance;
+  final double maxElevationGain;
 
   @override
   bool operator ==(Object other) {
@@ -36,16 +42,24 @@ class MyRouteList {
     return other is MyRouteList &&
         other.currentPage == currentPage &&
         other.totalPages == totalPages &&
-        other.totalElements == totalElements;
+        other.totalElements == totalElements &&
+        other.maxDistance == maxDistance &&
+        other.maxElevationGain == maxElevationGain;
   }
 
   @override
   int get hashCode {
-    return Object.hash(currentPage, totalPages, totalElements);
+    return Object.hash(
+      currentPage,
+      totalPages,
+      totalElements,
+      maxDistance,
+      maxElevationGain,
+    );
   }
 
   @override
   String toString() {
-    return 'MyRouteList(routes: ${routes.length}, currentPage: $currentPage, totalPages: $totalPages)';
+    return 'MyRouteList(routes: ${routes.length}, currentPage: $currentPage, totalPages: $totalPages, totalElements: $totalElements, size: $size, hasNext: $hasNext, hasPrevious: $hasPrevious, maxDistance: $maxDistance, maxElevationGain: $maxElevationGain)';
   }
 }
