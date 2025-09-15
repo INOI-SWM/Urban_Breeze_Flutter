@@ -88,12 +88,16 @@ class _RefreshButton extends ConsumerWidget {
           final int totalSuccess = data['totalSuccess'] as int;
           final int totalAttemptsCount = data['totalAttemptsCount'] as int;
           final int totalAttempts = data['totalAttempts'] as int;
+          final int noPermissionCount = data['noPermissionCount'] as int;
 
           String message;
 
           // 연동할 것이 없는 경우 (플랫폼 지원 안함)
           if (totalAttempts == 0) {
             message = '설정 버튼을 눌러, 동기화 설정을 먼저 해 주세요';
+          } else if (noPermissionCount == totalAttempts && totalSuccess == 0) {
+            // 모든 서비스에 권한이 없는 경우
+            message = '오른쪽 설정버튼 클릭후 동기화 설정해주세요';
           } else {
             // 성공/실패 개수 기반 메시지
             if (totalSuccess == 0) {
