@@ -140,6 +140,7 @@ class WorkoutSyncFacade {
       int totalAttempts = 0;
       int integrationSuccessCount = 0;
       int integrationTotalAttempts = 0;
+      int noPermissionCount = 0; // 권한이 없는 서비스 개수
 
       // iOS에서만 Apple Health Kit 시도 (health_kit_reporter 직접 사용)
       if (Platform.isIOS) {
@@ -152,7 +153,7 @@ class WorkoutSyncFacade {
           if (hasPermission) {
             final List<WorkoutRecord> appleWorkouts =
                 await syncAppleHealthKitDataUseCase.fetchBasicWorkoutData(
-                  startDate: DateTime.now().subtract(const Duration(days: 30)),
+                  startDate: DateTime.now().subtract(const Duration(days: 360)),
                   endDate: DateTime.now(),
                 );
             allWorkouts.addAll(appleWorkouts);
@@ -165,8 +166,9 @@ class WorkoutSyncFacade {
                 'workout_count': appleWorkouts.length,
               },
             );
+          } else {
+            noPermissionCount++;
           }
-          // 권한이 없으면 새로고침에서는 데이터를 가져오지 않음
         } catch (e) {
           // Apple Health Kit 동기화 실패 이벤트
           AmplitudeAnalytics.logEvent(
@@ -195,6 +197,9 @@ class WorkoutSyncFacade {
                     );
             allWorkouts.addAll(completeData.keys.toList());
             successCount++;
+          } else {
+            // 권한이 없으면 카운트 증가
+            noPermissionCount++;
           }
         } catch (e) {
           // Google Health Connect 오류는 카운트만 하고 상세 메시지는 표시하지 않음
@@ -223,6 +228,7 @@ class WorkoutSyncFacade {
         'integrationTotalAttempts': integrationTotalAttempts,
         'totalSuccess': successCount + integrationSuccessCount,
         'totalAttemptsCount': totalAttempts + integrationTotalAttempts,
+        'noPermissionCount': noPermissionCount,
       };
 
       return AppSuccess<Map<String, dynamic>>(resultData);
