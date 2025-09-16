@@ -7,6 +7,7 @@ import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
 import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
 import 'package:urban_breeze/shared/api/data/datasources/base_remote_datasource.dart';
 import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
+import 'package:urban_breeze/shared/utils/image_upload_utils.dart';
 
 class ProfileDataSource extends BaseRemoteDataSource {
   ProfileDataSource({super.client});
@@ -109,16 +110,13 @@ class ProfileDataSource extends BaseRemoteDataSource {
     LoginProvider loginProvider,
   ) async {
     try {
-      // 실제 파일의 확장자 추출
-      final String fileExtension = imageFile.path.split('.').last.toLowerCase();
-      final String filename = 'profile_image.$fileExtension';
-
-      final http.MultipartFile multipartFile = await http
-          .MultipartFile.fromPath(
-        'profileImage',
-        imageFile.path,
-        filename: filename,
-      );
+      // ImageUploadUtils를 사용하여 MultipartFile 생성
+      final http.MultipartFile multipartFile =
+          await ImageUploadUtils.createImageMultipartFile(
+            imageFile,
+            'profileImage',
+            maxSizeInMB: 20,
+          );
 
       final http.StreamedResponse response = await putMultipart(
         ApiEndpoints.profileImagePath,
@@ -134,8 +132,6 @@ class ProfileDataSource extends BaseRemoteDataSource {
       final Map<String, dynamic> responseData = decodeResponse(
         responseConverted,
       );
-
-      debugPrint('responseData: $responseData');
 
       return _createUserResponse(responseData, loginProvider);
     } catch (e) {

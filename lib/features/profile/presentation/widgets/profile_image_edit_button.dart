@@ -34,10 +34,7 @@ class ProfileImageEditButton extends StatelessWidget {
                     width: 1,
                   ),
                 ),
-                child: ClipOval(
-                  child: Image.network(imageUrl, fit: BoxFit.cover),
-                  //TODO : 기본 이미지 설정, 로딩 시 로딩 표시
-                ),
+                child: ClipOval(child: _buildImage()),
               ),
 
               Positioned(
@@ -65,6 +62,47 @@ class ProfileImageEditButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildImage() {
+    // 이미지 URL 유효성 검사
+    if (imageUrl.isEmpty ||
+        !imageUrl.startsWith('http') ||
+        imageUrl.startsWith('file://')) {
+      // 기본 아이콘 표시
+      return Icon(Icons.person, size: 40, color: Colors.grey[400]);
+    }
+
+    // 유효한 네트워크 이미지 표시
+    return Image.network(
+      imageUrl,
+      fit: BoxFit.cover,
+      errorBuilder: (
+        BuildContext context,
+        Object error,
+        StackTrace? stackTrace,
+      ) {
+        // 이미지 로드 실패 시 기본 아이콘 표시
+        return Icon(Icons.person, size: 40, color: Colors.grey[400]);
+      },
+      loadingBuilder: (
+        BuildContext context,
+        Widget child,
+        ImageChunkEvent? loadingProgress,
+      ) {
+        // 로딩 중일 때 로딩 인디케이터 표시
+        if (loadingProgress == null) return child;
+        return Center(
+          child: CircularProgressIndicator(
+            value:
+                loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+          ),
+        );
+      },
     );
   }
 }
