@@ -10,6 +10,7 @@ import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_sty
 import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_size.dart';
 import 'package:urban_breeze/shared/design_system/widgets/info/info_item.dart';
+import 'package:urban_breeze/shared/utils/profile_image_utils.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -55,20 +56,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     children: <Widget>[
                       Row(
                         children: <Widget>[
-                          CircleAvatar(
+                          ProfileImageUtils.buildCircleAvatarProfileImage(
+                            context: context,
+                            imageUrl: user.profileImageUrl,
                             radius: 40,
-                            backgroundImage:
-                                user.profileImageUrl != null
-                                    ? NetworkImage(user.profileImageUrl!)
-                                    : null,
-                            child:
-                                user.profileImageUrl == null
-                                    ? const Icon(
-                                      Icons.person,
-                                      size: 40,
-                                      color: Colors.grey,
-                                    )
-                                    : null,
                           ),
                           const Expanded(
                             child: InfoItem(

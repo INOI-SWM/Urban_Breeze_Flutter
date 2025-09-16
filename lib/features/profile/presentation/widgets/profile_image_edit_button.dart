@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/utils/profile_image_utils.dart';
 
 class ProfileImageEditButton extends StatelessWidget {
   const ProfileImageEditButton({
@@ -34,7 +35,13 @@ class ProfileImageEditButton extends StatelessWidget {
                     width: 1,
                   ),
                 ),
-                child: ClipOval(child: _buildImage()),
+                child: ClipOval(
+                  child: ProfileImageUtils.buildProfileImage(
+                    context: context,
+                    imageUrl: imageUrl,
+                    size: 80,
+                  ),
+                ),
               ),
 
               Positioned(
@@ -62,47 +69,6 @@ class ProfileImageEditButton extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildImage() {
-    // 이미지 URL 유효성 검사
-    if (imageUrl.isEmpty ||
-        !imageUrl.startsWith('http') ||
-        imageUrl.startsWith('file://')) {
-      // 기본 아이콘 표시
-      return Icon(Icons.person, size: 40, color: Colors.grey[400]);
-    }
-
-    // 유효한 네트워크 이미지 표시
-    return Image.network(
-      imageUrl,
-      fit: BoxFit.cover,
-      errorBuilder: (
-        BuildContext context,
-        Object error,
-        StackTrace? stackTrace,
-      ) {
-        // 이미지 로드 실패 시 기본 아이콘 표시
-        return Icon(Icons.person, size: 40, color: Colors.grey[400]);
-      },
-      loadingBuilder: (
-        BuildContext context,
-        Widget child,
-        ImageChunkEvent? loadingProgress,
-      ) {
-        // 로딩 중일 때 로딩 인디케이터 표시
-        if (loadingProgress == null) return child;
-        return Center(
-          child: CircularProgressIndicator(
-            value:
-                loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                        loadingProgress.expectedTotalBytes!
-                    : null,
-          ),
-        );
-      },
     );
   }
 }
