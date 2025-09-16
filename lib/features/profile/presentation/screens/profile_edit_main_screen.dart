@@ -252,8 +252,9 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
         imageFile,
       );
 
-      // 사용자 세션 업데이트
-      await ref.read(userSessionRepositoryProvider).saveUser(updatedUser);
+      await ref
+          .read(userSessionNotifierProvider.notifier)
+          .setUserSession(updatedUser);
 
       if (mounted) {
         showSuccessMessage(context, '프로필 사진이 성공적으로 업데이트되었습니다');
