@@ -15,4 +15,7 @@ abstract class ProfileRepository {
 
   /// 성별 수정
   Future<User> updateGender(String gender);
+
+  /// 프로필 이미지 수정
+  Future<User> updateProfileImagePath(String profileImagePath);
 }

@@ -82,4 +82,12 @@ class ProfileRepositoryImpl implements ProfileRepository {
       throw Exception('User nickname cannot be empty');
     }
   }
+
+  @override
+  Future<User> updateProfileImagePath(String profileImagePath) async {
+    return _executeUpdate(
+      (LoginProvider loginProvider) =>
+          _dataSource.updateProfileImagePath(profileImagePath, loginProvider),
+    );
+  }
 }
