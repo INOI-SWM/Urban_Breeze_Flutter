@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
@@ -5,6 +7,7 @@ import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
 import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
 import 'package:urban_breeze/shared/api/data/datasources/base_remote_datasource.dart';
 import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
+import 'package:urban_breeze/shared/utils/image_upload_utils.dart';
 
 class ProfileDataSource extends BaseRemoteDataSource {
   ProfileDataSource({super.client});
@@ -95,6 +98,41 @@ class ProfileDataSource extends BaseRemoteDataSource {
       );
       final Map<String, dynamic> responseData = decodeResponse(response);
       debugPrint('responseData: $responseData');
+      return _createUserResponse(responseData, loginProvider);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// 프로필 이미지 업로드
+  Future<ApiResponseModel<User>> uploadProfileImage(
+    File imageFile,
+    LoginProvider loginProvider,
+  ) async {
+    try {
+      // ImageUploadUtils를 사용하여 MultipartFile 생성
+      final http.MultipartFile multipartFile =
+          await ImageUploadUtils.createImageMultipartFile(
+            imageFile,
+            'profileImage',
+            maxSizeInMB: 20,
+          );
+
+      final http.StreamedResponse response = await putMultipart(
+        ApiEndpoints.profileImagePath,
+        fields: <String, String>{},
+        files: <String, http.MultipartFile>{'profileImage': multipartFile},
+      );
+
+      // StreamedResponse를 Response로 변환
+      final http.Response responseConverted = await http.Response.fromStream(
+        response,
+      );
+
+      final Map<String, dynamic> responseData = decodeResponse(
+        responseConverted,
+      );
+
       return _createUserResponse(responseData, loginProvider);
     } catch (e) {
       rethrow;

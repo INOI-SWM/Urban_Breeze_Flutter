@@ -9,6 +9,7 @@ import '../application/use_cases/update_birth_use_case.dart';
 import '../application/use_cases/update_gender_use_case.dart';
 import '../application/use_cases/update_introduce_use_case.dart';
 import '../application/use_cases/update_nickname_use_case.dart';
+import '../application/use_cases/upload_profile_image_use_case.dart';
 import '../data/datasources/profile_datasource.dart';
 import '../data/repositories/profile_repository_impl.dart';
 import '../domain/repositories/profile_repository.dart';
@@ -62,4 +63,10 @@ final Provider<UpdateGenderUseCase> updateGenderUseCaseProvider =
     Provider<UpdateGenderUseCase>((Ref ref) {
       final ProfileRepository repository = ref.watch(profileRepositoryProvider);
       return UpdateGenderUseCase(repository: repository);
+    });
+
+final Provider<UploadProfileImageUseCase> uploadProfileImageUseCaseProvider =
+    Provider<UploadProfileImageUseCase>((Ref ref) {
+      final ProfileRepository repository = ref.watch(profileRepositoryProvider);
+      return UploadProfileImageUseCase(repository: repository);
     });

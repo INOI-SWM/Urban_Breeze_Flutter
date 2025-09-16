@@ -7,7 +7,7 @@ class User {
       uuid: json['uuid'] as String? ?? '',
       nickname: json['nickname'] as String? ?? '',
       email: json['email'] as String? ?? '',
-      profileImagePath: json['profileImagePath'] as String?,
+      profileImageUrl: json['profileImageUrl'] as String?,
       introduce: json['introduce'] as String?,
       birthYear: json['birthYear'] as int?,
       gender: json['gender'] as String?,
@@ -28,7 +28,7 @@ class User {
       uuid: json['uuid'] as String? ?? '',
       nickname: json['nickname'] as String? ?? '',
       email: json['email'] as String? ?? '',
-      profileImagePath: json['profileImagePath'] as String?,
+      profileImageUrl: json['profileImageUrl'] as String?,
       introduce: json['introduce'] as String?,
       birthYear: json['birthYear'] as int?,
       gender: json['gender'] as String?,
@@ -41,7 +41,7 @@ class User {
     required this.uuid,
     required this.nickname,
     required this.email,
-    this.profileImagePath,
+    this.profileImageUrl,
     this.introduce,
     this.birthYear,
     this.gender,
@@ -53,7 +53,7 @@ class User {
   final String uuid;
   final String nickname;
   final String email;
-  final String? profileImagePath;
+  final String? profileImageUrl;
   final String? introduce;
   final int? birthYear;
   final String? gender;
@@ -65,7 +65,7 @@ class User {
     String? uuid,
     String? nickname,
     String? email,
-    String? profileImagePath,
+    String? profileImageUrl,
     String? introduce,
     int? birthYear,
     String? gender,
@@ -77,7 +77,7 @@ class User {
       uuid: uuid ?? this.uuid,
       nickname: nickname ?? this.nickname,
       email: email ?? this.email,
-      profileImagePath: profileImagePath ?? this.profileImagePath,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       introduce: introduce ?? this.introduce,
       birthYear: birthYear ?? this.birthYear,
       gender: gender ?? this.gender,
@@ -94,7 +94,7 @@ class User {
         other.uuid == uuid &&
         other.nickname == nickname &&
         other.email == email &&
-        other.profileImagePath == profileImagePath &&
+        other.profileImageUrl == profileImageUrl &&
         other.introduce == introduce &&
         other.birthYear == birthYear &&
         other.gender == gender &&
@@ -108,7 +108,7 @@ class User {
     return uuid.hashCode ^
         nickname.hashCode ^
         email.hashCode ^
-        profileImagePath.hashCode ^
+        profileImageUrl.hashCode ^
         introduce.hashCode ^
         birthYear.hashCode ^
         gender.hashCode ^
@@ -119,7 +119,7 @@ class User {
 
   @override
   String toString() {
-    return 'User(uuid: $uuid, nickname: $nickname, email: $email, profileImagePath: $profileImagePath, introduce: $introduce, birthYear: $birthYear, gender: $gender, displayName: $displayName, loginProvider: $loginProvider, isFirstLogin: $isFirstLogin)';
+    return 'User(uuid: $uuid, nickname: $nickname, email: $email, profileImageUrl: $profileImageUrl, introduce: $introduce, birthYear: $birthYear, gender: $gender, displayName: $displayName, loginProvider: $loginProvider, isFirstLogin: $isFirstLogin)';
   }
 
   /// User 객체를 JSON으로 변환
@@ -128,7 +128,7 @@ class User {
       'uuid': uuid,
       'nickname': nickname,
       'email': email,
-      'profileImagePath': profileImagePath,
+      'profileImageUrl': profileImageUrl,
       'introduce': introduce,
       'birthYear': birthYear,
       'gender': gender,

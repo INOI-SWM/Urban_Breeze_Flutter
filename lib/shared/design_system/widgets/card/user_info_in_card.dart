@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/utils/profile_image_utils.dart';
 
 class UserInfoInCard extends StatelessWidget {
   const UserInfoInCard({
@@ -35,20 +36,11 @@ class UserInfoInCard extends StatelessWidget {
               color: colors.backgroundNormalAlternative,
             ),
             child: ClipOval(
-              child:
-                  (userProfileImage?.isNotEmpty == true)
-                      ? Image.network(
-                        userProfileImage!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (
-                          BuildContext context,
-                          Object error,
-                          StackTrace? stackTrace,
-                        ) {
-                          return _buildDefaultAvatar(colors);
-                        },
-                      )
-                      : _buildDefaultAvatar(colors),
+              child: ProfileImageUtils.buildProfileImage(
+                context: context,
+                imageUrl: userProfileImage,
+                size: avatarSize,
+              ),
             ),
           ),
           const SizedBox(width: 4),
@@ -64,17 +56,6 @@ class UserInfoInCard extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildDefaultAvatar(SemanticColors colors) {
-    return Container(
-      color: colors.fillNormal,
-      child: Icon(
-        Icons.person,
-        size: avatarSize * 0.67, // 아바타 크기의 2/3 정도
-        color: colors.backgroundNormalNormal,
       ),
     );
   }

@@ -1,10 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/upload_profile_image_use_case.dart';
+import 'package:urban_breeze/features/profile/di/profile_providers.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_bio_edit_screen.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_birth_year_edit_screen.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_gender_edit_screen.dart';
@@ -80,7 +85,7 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
                         children: <Widget>[
                           ProfileImageEditButton(
                             //TODO : 기본 이미지 설정
-                            imageUrl: user.profileImagePath ?? '',
+                            imageUrl: user.profileImageUrl ?? '',
                             onPressed: () {
                               AmplitudeAnalytics.logButtonClick(
                                 'profile_image_edit',
@@ -234,16 +239,34 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     );
   }
 
-  void _handleImageUpdate(XFile? image, String operation) {
-    if (image != null) {
-      setState(() {
-        // TODO: 이미지를 서버에 업로드하고 프로필 이미지로 설정
-        // _profileImagePath = image.path;
-      });
+  Future<void> _handleImageUpdate(XFile? image, String operation) async {
+    if (image == null) return;
 
-      if (mounted) {
-        showSuccessMessage(context, '성공적으로 업데이트 했습니다');
+    try {
+      final File imageFile = File(image.path);
+      final UploadProfileImageUseCase uploadUseCase = ref.read(
+        uploadProfileImageUseCaseProvider,
+      );
+
+      // UseCase를 통해 이미지 업로드
+      final AppResult<User> result = await uploadUseCase.execute(imageFile);
+
+      if (result is AppSuccess<User>) {
+        final User updatedUser = result.data;
+
+        await ref
+            .read(userSessionNotifierProvider.notifier)
+            .setUserSession(updatedUser);
+
+        if (mounted) {
+          showSuccessMessage(context, '프로필 사진이 성공적으로 업데이트되었습니다');
+          setState(() {}); // UI 새로고침
+        }
+      } else if (result is AppFailure<User>) {
+        _handleImageError(operation, result.exception);
       }
+    } catch (e) {
+      _handleImageError(operation, e);
     }
   }
 
@@ -275,7 +298,7 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
         maxWidth: 800,
         maxHeight: 800,
       );
-      _handleImageUpdate(image, '갤러리 선택');
+      await _handleImageUpdate(image, '갤러리 선택');
     } catch (e) {
       _handleImageError('갤러리 접근', e);
     }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/user_session_repository.dart';
@@ -81,5 +83,13 @@ class ProfileRepositoryImpl implements ProfileRepository {
     if (user.nickname.isEmpty) {
       throw Exception('User nickname cannot be empty');
     }
+  }
+
+  @override
+  Future<User> uploadProfileImage(File imageFile) async {
+    return _executeUpdate(
+      (LoginProvider loginProvider) =>
+          _dataSource.uploadProfileImage(imageFile, loginProvider),
+    );
   }
 }

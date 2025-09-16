@@ -35,8 +35,8 @@ class UrbanBreezeLoginResponseModel {
       uuid: (userInfo['uuid'] ?? userInfo['userId'] ?? '').toString(),
       nickname: (userInfo['nickname'] ?? '').toString(),
       email: (userInfo['email'] ?? '').toString(),
-      profileImagePath:
-          (userInfo['profileImagePath'] ??
+      profileImageUrl:
+          (userInfo['profileImageUrl'] ??
                   userInfo['profileImageUrl'] as String?)
               ?.trim(),
       introduce: (userInfo['introduce'] as String?)?.trim(),

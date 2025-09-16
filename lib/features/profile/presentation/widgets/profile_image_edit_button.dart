@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/profile/presentation/widgets/profile_image_widget.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 
 class ProfileImageEditButton extends StatelessWidget {
@@ -23,22 +24,7 @@ class ProfileImageEditButton extends StatelessWidget {
           onTap: onPressed,
           child: Stack(
             children: <Widget>[
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: colors.backgroundElevatedNormal,
-                  border: Border.all(
-                    color: colors.lineNormalAlternative,
-                    width: 1,
-                  ),
-                ),
-                child: ClipOval(
-                  child: Image.network(imageUrl, fit: BoxFit.cover),
-                  //TODO : 기본 이미지 설정, 로딩 시 로딩 표시
-                ),
-              ),
+              ProfileImageWidget(imageUrl: imageUrl, size: 80),
 
               Positioned(
                 right: 0,

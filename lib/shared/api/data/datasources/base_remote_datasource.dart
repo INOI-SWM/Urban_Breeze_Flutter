@@ -90,6 +90,28 @@ abstract class BaseRemoteDataSource {
     );
   }
 
+  /// Multipart/form-data 요청 (파일 업로드용)
+  Future<http.StreamedResponse> putMultipart(
+    String endpoint, {
+    required Map<String, String> fields,
+    required Map<String, http.MultipartFile> files,
+    Map<String, String>? headers,
+    Map<String, String>? queryParameters,
+  }) async {
+    final Uri uri = _buildUri(endpoint, queryParameters);
+    final http.MultipartRequest request = http.MultipartRequest('PUT', uri);
+
+    // 헤더 설정 (multipart는 Content-Type을 자동으로 설정)
+    request.headers.addAll(_mergeHeaders(headers));
+    request.headers.remove('Content-Type'); // multipart는 자동 설정
+
+    // 필드와 파일 추가
+    request.fields.addAll(fields);
+    request.files.addAll(files.values);
+
+    return await _executeStreamedRequest(() => _client.send(request));
+  }
+
   Map<String, dynamic> decodeResponse(http.Response response) {
     try {
       return json.decode(response.body) as Map<String, dynamic>;
@@ -109,6 +131,23 @@ abstract class BaseRemoteDataSource {
       throw const NetworkException('인터넷 연결을 확인해주세요');
     } on FormatException {
       rethrow;
+    } on http.ClientException catch (e) {
+      throw NetworkException('클라이언트 요청 오류: ${e.message}');
+    } on HttpException catch (e) {
+      throw NetworkException('HTTP 요청 오류: ${e.message}');
+    } catch (e) {
+      throw NetworkException('네트워크 오류: ${e.toString()}');
+    }
+  }
+
+  /// StreamedResponse 요청 실행 및 기본 예외 처리
+  Future<http.StreamedResponse> _executeStreamedRequest(
+    Future<http.StreamedResponse> Function() request,
+  ) async {
+    try {
+      return await request();
+    } on SocketException {
+      throw const NetworkException('인터넷 연결을 확인해주세요');
     } on http.ClientException catch (e) {
       throw NetworkException('클라이언트 요청 오류: ${e.message}');
     } on HttpException catch (e) {

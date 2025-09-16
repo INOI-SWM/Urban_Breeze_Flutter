@@ -32,4 +32,5 @@ class ApiEndpoints {
   static const String profileIntroduce = '/api/v1/user/profile/introduce';
   static const String profileBirth = '/api/v1/user/profile/birth';
   static const String userGender = '/api/v1/user/me/gender';
+  static const String profileImagePath = '/api/v1/user/profile/image';
 }
