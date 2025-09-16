@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 
 abstract class ProfileRepository {
@@ -16,6 +18,6 @@ abstract class ProfileRepository {
   /// 성별 수정
   Future<User> updateGender(String gender);
 
-  /// 프로필 이미지 수정
-  Future<User> updateProfileImagePath(String profileImagePath);
+  /// 프로필 이미지 업로드
+  Future<User> uploadProfileImage(File imageFile);
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/user_session_repository.dart';
@@ -84,10 +86,10 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<User> updateProfileImagePath(String profileImagePath) async {
+  Future<User> uploadProfileImage(File imageFile) async {
     return _executeUpdate(
       (LoginProvider loginProvider) =>
-          _dataSource.updateProfileImagePath(profileImagePath, loginProvider),
+          _dataSource.uploadProfileImage(imageFile, loginProvider),
     );
   }
 }

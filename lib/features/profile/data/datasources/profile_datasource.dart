@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
@@ -95,6 +97,39 @@ class ProfileDataSource extends BaseRemoteDataSource {
       );
       final Map<String, dynamic> responseData = decodeResponse(response);
       debugPrint('responseData: $responseData');
+      return _createUserResponse(responseData, loginProvider);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// 프로필 이미지 업로드
+  Future<ApiResponseModel<User>> uploadProfileImage(
+    File imageFile,
+    LoginProvider loginProvider,
+  ) async {
+    try {
+      final http.MultipartFile multipartFile = await http
+          .MultipartFile.fromPath(
+        'profileImage',
+        imageFile.path,
+        filename: 'profile_image.jpg',
+      );
+
+      final http.StreamedResponse response = await postMultipart(
+        ApiEndpoints.profileImagePath,
+        fields: <String, String>{},
+        files: <String, http.MultipartFile>{'profileImage': multipartFile},
+      );
+
+      // StreamedResponse를 Response로 변환
+      final http.Response responseConverted = await http.Response.fromStream(
+        response,
+      );
+      final Map<String, dynamic> responseData = decodeResponse(
+        responseConverted,
+      );
+
       return _createUserResponse(responseData, loginProvider);
     } catch (e) {
       rethrow;
