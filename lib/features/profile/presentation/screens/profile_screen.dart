@@ -5,12 +5,12 @@ import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_edit_main_screen.dart';
+import 'package:urban_breeze/features/profile/presentation/widgets/profile_image_widget.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_size.dart';
 import 'package:urban_breeze/shared/design_system/widgets/info/info_item.dart';
-import 'package:urban_breeze/shared/utils/profile_image_utils.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -56,10 +56,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     children: <Widget>[
                       Row(
                         children: <Widget>[
-                          ProfileImageUtils.buildCircleAvatarProfileImage(
-                            context: context,
+                          ProfileImageWidget(
                             imageUrl: user.profileImageUrl,
-                            radius: 40,
+                            size: 80,
                           ),
                           const Expanded(
                             child: InfoItem(

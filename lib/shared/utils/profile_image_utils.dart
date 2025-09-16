@@ -11,11 +11,13 @@ class ProfileImageUtils {
     Color? backgroundColor,
   }) {
     final SemanticColors colors = context.semanticColor;
+    final double iconSize = size * 0.5; // 전체 크기의 1/2
+
     return Container(
-      color: backgroundColor ?? colors.fillNormal,
+      color: backgroundColor ?? colors.fillStrong,
       child: Icon(
         Icons.person,
-        size: size,
+        size: iconSize,
         color: color ?? colors.backgroundNormalNormal,
       ),
     );
@@ -97,7 +99,7 @@ class ProfileImageUtils {
         defaultWidget ??
         buildDefaultProfileIcon(
           context: context,
-          size: size * 0.67, // CircleAvatar 크기의 2/3 정도
+          size: size, // 전체 크기 사용 (내부에서 1/2로 계산됨)
           color: iconColor,
           backgroundColor: backgroundColor,
         );
@@ -125,7 +127,7 @@ class ProfileImageUtils {
         defaultWidget ??
         buildDefaultProfileIcon(
           context: context,
-          size: size * 0.67,
+          size: size, // 전체 크기 사용 (내부에서 1/2로 계산됨)
           color: iconColor,
           backgroundColor: backgroundColor,
         );
