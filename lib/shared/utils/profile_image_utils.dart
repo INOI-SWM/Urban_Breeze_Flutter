@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
@@ -53,25 +54,20 @@ class ProfileImageUtils {
       return defaultIcon;
     }
 
-    // NetworkImage로 이미지 표시
-    return Image.network(
-      imageUrl,
+    // CachedNetworkImage로 이미지 표시 (깜빡임 없는 로딩)
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
       fit: fit,
-      errorBuilder: (
-        BuildContext context,
-        Object error,
-        StackTrace? stackTrace,
-      ) {
+      placeholder: (BuildContext context, String url) {
+        // 로딩 중에는 기본 아이콘 표시
+        return defaultIcon;
+      },
+      errorWidget: (BuildContext context, String url, dynamic error) {
         // 이미지 로드 실패 시 기본 아이콘 표시
         return defaultIcon;
       },
-      loadingBuilder: (
-        BuildContext context,
-        Widget child,
-        ImageChunkEvent? loadingProgress,
-      ) {
-        return loadingProgress == null ? child : defaultIcon;
-      },
+      fadeInDuration: Duration.zero, // 페이드 인 애니메이션 제거
+      fadeOutDuration: Duration.zero, // 페이드 아웃 애니메이션 제거
     );
   }
 
@@ -97,9 +93,24 @@ class ProfileImageUtils {
     return CircleAvatar(
       radius: radius,
       backgroundColor: backgroundColor ?? Colors.transparent,
-      backgroundImage:
-          _isValidImageUrl(imageUrl) ? NetworkImage(imageUrl!) : null,
-      child: _isValidImageUrl(imageUrl) ? null : defaultIcon,
+      child:
+          _isValidImageUrl(imageUrl)
+              ? ClipOval(
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl!,
+                  width: size,
+                  height: size,
+                  fit: BoxFit.cover,
+                  placeholder:
+                      (BuildContext context, String url) => defaultIcon,
+                  errorWidget:
+                      (BuildContext context, String url, dynamic error) =>
+                          defaultIcon,
+                  fadeInDuration: Duration.zero,
+                  fadeOutDuration: Duration.zero,
+                ),
+              )
+              : defaultIcon,
     );
   }
 
