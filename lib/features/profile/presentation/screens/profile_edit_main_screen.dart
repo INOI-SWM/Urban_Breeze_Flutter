@@ -5,10 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/upload_profile_image_use_case.dart';
 import 'package:urban_breeze/features/profile/di/profile_providers.dart';
-import 'package:urban_breeze/features/profile/domain/repositories/profile_repository.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_bio_edit_screen.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_birth_year_edit_screen.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_gender_edit_screen.dart';
@@ -243,22 +244,26 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
 
     try {
       final File imageFile = File(image.path);
-      final ProfileRepository profileRepository = ref.read(
-        profileRepositoryProvider,
+      final UploadProfileImageUseCase uploadUseCase = ref.read(
+        uploadProfileImageUseCaseProvider,
       );
 
-      // 서버에 이미지 업로드
-      final User updatedUser = await profileRepository.uploadProfileImage(
-        imageFile,
-      );
+      // UseCase를 통해 이미지 업로드
+      final AppResult<User> result = await uploadUseCase.execute(imageFile);
 
-      await ref
-          .read(userSessionNotifierProvider.notifier)
-          .setUserSession(updatedUser);
+      if (result is AppSuccess<User>) {
+        final User updatedUser = result.data;
 
-      if (mounted) {
-        showSuccessMessage(context, '프로필 사진이 성공적으로 업데이트되었습니다');
-        setState(() {}); // UI 새로고침
+        await ref
+            .read(userSessionNotifierProvider.notifier)
+            .setUserSession(updatedUser);
+
+        if (mounted) {
+          showSuccessMessage(context, '프로필 사진이 성공적으로 업데이트되었습니다');
+          setState(() {}); // UI 새로고침
+        }
+      } else if (result is AppFailure<User>) {
+        _handleImageError(operation, result.exception);
       }
     } catch (e) {
       _handleImageError(operation, e);

@@ -106,7 +106,7 @@ class ProfileImageUtils {
 
     return CircleAvatar(
       radius: radius,
-      backgroundColor: backgroundColor,
+      backgroundColor: backgroundColor ?? Colors.transparent,
       backgroundImage:
           _isValidImageUrl(imageUrl) ? NetworkImage(imageUrl!) : null,
       child: _isValidImageUrl(imageUrl) ? null : defaultIcon,
