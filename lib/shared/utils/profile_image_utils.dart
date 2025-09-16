@@ -70,17 +70,7 @@ class ProfileImageUtils {
         Widget child,
         ImageChunkEvent? loadingProgress,
       ) {
-        // 로딩 중일 때 로딩 인디케이터 표시
-        if (loadingProgress == null) return child;
-        return Center(
-          child: CircularProgressIndicator(
-            value:
-                loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                        loadingProgress.expectedTotalBytes!
-                    : null,
-          ),
-        );
+        return loadingProgress == null ? child : defaultIcon;
       },
     );
   }
