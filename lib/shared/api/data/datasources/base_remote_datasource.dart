@@ -91,7 +91,7 @@ abstract class BaseRemoteDataSource {
   }
 
   /// Multipart/form-data 요청 (파일 업로드용)
-  Future<http.StreamedResponse> postMultipart(
+  Future<http.StreamedResponse> putMultipart(
     String endpoint, {
     required Map<String, String> fields,
     required Map<String, http.MultipartFile> files,
@@ -99,7 +99,7 @@ abstract class BaseRemoteDataSource {
     Map<String, String>? queryParameters,
   }) async {
     final Uri uri = _buildUri(endpoint, queryParameters);
-    final http.MultipartRequest request = http.MultipartRequest('POST', uri);
+    final http.MultipartRequest request = http.MultipartRequest('PUT', uri);
 
     // 헤더 설정 (multipart는 Content-Type을 자동으로 설정)
     request.headers.addAll(_mergeHeaders(headers));

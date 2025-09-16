@@ -109,14 +109,18 @@ class ProfileDataSource extends BaseRemoteDataSource {
     LoginProvider loginProvider,
   ) async {
     try {
+      // 실제 파일의 확장자 추출
+      final String fileExtension = imageFile.path.split('.').last.toLowerCase();
+      final String filename = 'profile_image.$fileExtension';
+
       final http.MultipartFile multipartFile = await http
           .MultipartFile.fromPath(
         'profileImage',
         imageFile.path,
-        filename: 'profile_image.jpg',
+        filename: filename,
       );
 
-      final http.StreamedResponse response = await postMultipart(
+      final http.StreamedResponse response = await putMultipart(
         ApiEndpoints.profileImagePath,
         fields: <String, String>{},
         files: <String, http.MultipartFile>{'profileImage': multipartFile},
@@ -126,9 +130,12 @@ class ProfileDataSource extends BaseRemoteDataSource {
       final http.Response responseConverted = await http.Response.fromStream(
         response,
       );
+
       final Map<String, dynamic> responseData = decodeResponse(
         responseConverted,
       );
+
+      debugPrint('responseData: $responseData');
 
       return _createUserResponse(responseData, loginProvider);
     } catch (e) {
