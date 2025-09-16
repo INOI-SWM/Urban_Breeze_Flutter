@@ -10,13 +10,11 @@ class PhotoBanner extends StatelessWidget {
     this.imageUrl,
     this.title = 'Urban Breeze',
     this.subtitle = '도시의 바람을 느껴보세요',
-    this.actionText = '새로운 경험을 시작하세요',
   });
 
   final String? imageUrl; // 서버에서 받아올 이미지 URL
   final String title;
   final String subtitle;
-  final String actionText;
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +109,7 @@ class PhotoBanner extends StatelessWidget {
     } else {
       // 로컬 이미지 사용
       return Image.asset(
-        'assets/images/png/home_Image.png',
+        'assets/images/png/home_image.png',
         width: double.infinity,
         height: double.infinity,
         fit: BoxFit.contain,
