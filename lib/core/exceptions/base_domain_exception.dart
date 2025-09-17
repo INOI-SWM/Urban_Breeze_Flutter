@@ -23,8 +23,3 @@ class ServerException extends BaseDomainException {
 class ParsingException extends BaseDomainException {
   const ParsingException(super.message, [super.code]);
 }
-
-/// 유효성 검증 오류
-class ValidationException extends BaseDomainException {
-  const ValidationException(super.message, [super.code]);
-}
