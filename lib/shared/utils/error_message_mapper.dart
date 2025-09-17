@@ -1,4 +1,5 @@
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/exceptions/validation_exception.dart';
 import 'package:urban_breeze/features/place_search/domain/exceptions/place_search_domain_exceptions.dart';
 import 'package:urban_breeze/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 import 'package:urban_breeze/features/workout_history/domain/exceptions/apple_health_kit_exceptions.dart';
@@ -53,7 +54,7 @@ class ErrorMessageMapper {
       case ParsingException():
         return '데이터 처리 중 오류가 발생했습니다';
       case ValidationException():
-        return exception.message; // ValidationException은 사용자용 메시지 그대로 사용
+        return _getValidationErrorMessage(exception as ValidationException);
       default:
         return exception.message.isNotEmpty
             ? exception.message
@@ -69,5 +70,45 @@ class ErrorMessageMapper {
     }
 
     return baseMessage;
+  }
+
+  static String _getValidationErrorMessage(ValidationException exception) {
+    switch (exception.code) {
+      // Workout History 관련
+      case 'WORKOUT_ID_EMPTY':
+        return '운동 기록을 찾을 수 없습니다';
+      case 'TITLE_EMPTY':
+        return '제목은 비어있을 수 없습니다';
+      case 'TITLE_TOO_LONG':
+        final int maxLength = exception.data['maxLength'] as int? ?? 60;
+        return '제목은 $maxLength자 이하로 입력해주세요';
+
+      // Place Search 관련
+      case 'SEARCH_QUERY_EMPTY':
+        return '검색어를 입력해주세요';
+
+      // Route Planning 관련
+      case 'INSUFFICIENT_COORDINATES':
+        return '경로에 충분한 좌표가 없습니다';
+      case 'NEGATIVE_DISTANCE':
+        return '거리는 음수일 수 없습니다';
+      case 'NEGATIVE_DURATION':
+        return '소요시간은 음수일 수 없습니다';
+
+      // Profile 관련
+      case 'INTRODUCE_TOO_LONG':
+        final int maxLength = exception.data['maxLength'] as int? ?? 100;
+        return '자기소개는 $maxLength자 이하로 입력해주세요';
+
+      // Auth 관련
+      case 'USER_NOT_LOGGED_IN':
+        return '로그인이 필요합니다';
+
+      // 기본 메시지가 있으면 사용, 없으면 기본 메시지
+      default:
+        return exception.message.isNotEmpty
+            ? exception.message
+            : '입력값이 올바르지 않습니다';
+    }
   }
 }

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/exceptions/validation_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/profile/application/use_cases/base_profile_use_case.dart';
@@ -28,13 +28,15 @@ class UploadProfileImageUseCase extends BaseProfileUseCase<File> {
 
       if (!ImageUploadUtils.isSupportedImageType(mimeType)) {
         return const AppFailure<User>(
-          ValidationException('지원하지 않는 이미지 형식입니다. JPG, PNG, WebP 형식을 사용해주세요'),
+          ValidationException(code: 'UNSUPPORTED_IMAGE_FORMAT'),
         );
       }
 
       return super.execute(input);
     } catch (e) {
-      return AppFailure<User>(ValidationException(e.toString()));
+      return const AppFailure<User>(
+        ValidationException(code: 'UPLOAD_PROFILE_IMAGE_FAILED'),
+      );
     }
   }
 

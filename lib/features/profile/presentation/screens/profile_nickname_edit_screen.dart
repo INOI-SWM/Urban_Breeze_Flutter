@@ -12,6 +12,7 @@ import 'package:urban_breeze/features/profile/presentation/widgets/profile_edit_
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/text_field/custom_text_field.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
+import 'package:urban_breeze/shared/utils/error_message_mapper.dart';
 
 class ProfileNicknameEditScreen extends ConsumerStatefulWidget {
   const ProfileNicknameEditScreen({super.key, required this.currentValue});
@@ -68,7 +69,7 @@ class _ProfileNicknameEditScreenState
       if (mounted) {
         showErrorMessage(
           context,
-          '닉네임 변경에 실패했습니다: ${result.exceptionOrNull?.message}',
+          ErrorMessageMapper.getErrorMessage(result.exceptionOrNull!),
         );
       }
     }

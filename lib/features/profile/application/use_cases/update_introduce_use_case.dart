@@ -1,4 +1,4 @@
-import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/exceptions/validation_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/profile/application/use_cases/base_profile_use_case.dart';
@@ -15,7 +15,11 @@ class UpdateIntroduceUseCase extends BaseProfileUseCase<String> {
     // 자기소개 validation
     if (input.length > 100) {
       return const AppFailure<User>(
-        ValidationException('자기소개는 100자 이하로 입력해주세요'),
+        ValidationException(
+          code: 'INTRODUCE_TOO_LONG',
+          data: <String, dynamic>{'maxLength': 100},
+          message: '자기소개는 100자 이하로 입력해주세요',
+        ),
       );
     }
 

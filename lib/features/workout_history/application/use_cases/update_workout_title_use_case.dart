@@ -1,33 +1,66 @@
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
-
-import '../../domain/exceptions/workout_history_domain_exceptions.dart';
-import '../../domain/repositories/workout_history_repository.dart';
+import 'package:urban_breeze/core/exceptions/validation_exception.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/workout_history/domain/repositories/workout_history_repository.dart';
 
 class UpdateWorkoutTitleUseCase {
-  const UpdateWorkoutTitleUseCase({
-    required WorkoutHistoryRepository workoutHistoryRepository,
-  }) : _workoutHistoryRepository = workoutHistoryRepository;
+  const UpdateWorkoutTitleUseCase({required this.repository});
 
-  final WorkoutHistoryRepository _workoutHistoryRepository;
+  final WorkoutHistoryRepository repository;
 
-  Future<void> execute({
+  static const int _maxTitleLength = 60;
+
+  Future<AppResult<void>> execute({
     required String workoutId,
     required String title,
   }) async {
-    try {
-      if (title.trim().isEmpty) {
-        throw const ValidationException('제목은 비어있을 수 없습니다.');
-      }
-
-      await _workoutHistoryRepository.updateWorkoutTitle(
-        workoutId: workoutId,
-        title: title.trim(),
-      );
-    } catch (e) {
-      if (e is WorkoutTitleUpdateException) {
-        rethrow;
-      }
-      throw WorkoutTitleUpdateException('운동기록 제목 수정 중 오류가 발생했습니다: $e');
+    // 유효성 검사
+    final AppResult<void>? validationResult = _validateInputs(workoutId, title);
+    if (validationResult != null) {
+      return validationResult;
     }
+
+    // Repository 호출
+    try {
+      await repository.updateWorkoutTitle(workoutId: workoutId, title: title);
+      return const AppSuccess<void>(null);
+    } catch (e) {
+      return _handleRepositoryError(e);
+    }
+  }
+
+  AppResult<void>? _validateInputs(String workoutId, String title) {
+    if (workoutId.trim().isEmpty) {
+      return const AppFailure<void>(
+        ValidationException(code: 'WORKOUT_ID_EMPTY'),
+      );
+    }
+
+    if (title.trim().isEmpty) {
+      return const AppFailure<void>(ValidationException(code: 'TITLE_EMPTY'));
+    }
+
+    if (title.length > _maxTitleLength) {
+      return const AppFailure<void>(
+        ValidationException(
+          code: 'TITLE_TOO_LONG',
+          data: <String, dynamic>{'maxLength': _maxTitleLength},
+        ),
+      );
+    }
+
+    return null;
+  }
+
+  AppResult<void> _handleRepositoryError(dynamic error) {
+    if (error is BaseDomainException) {
+      return AppFailure<void>(error);
+    }
+
+    // 예상치 못한 에러 타입에 대한 처리
+    return AppFailure<void>(
+      Exception('Failed to update workout title: ${error.toString()}')
+          as BaseDomainException,
+    );
   }
 }

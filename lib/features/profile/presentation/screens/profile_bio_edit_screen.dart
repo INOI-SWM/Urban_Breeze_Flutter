@@ -12,6 +12,7 @@ import 'package:urban_breeze/features/profile/presentation/widgets/profile_edit_
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
+import 'package:urban_breeze/shared/utils/error_message_mapper.dart';
 
 class ProfileBioEditScreen extends ConsumerStatefulWidget {
   const ProfileBioEditScreen({super.key, required this.currentValue});
@@ -67,7 +68,7 @@ class _ProfileBioEditScreenState extends ConsumerState<ProfileBioEditScreen>
       if (mounted) {
         showErrorMessage(
           context,
-          '자기소개 변경에 실패했습니다: ${result.exceptionOrNull?.message}',
+          ErrorMessageMapper.getErrorMessage(result.exceptionOrNull!),
         );
       }
     }
