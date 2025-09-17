@@ -52,9 +52,16 @@ class MyRouteScreen extends ConsumerStatefulWidget implements PageWithAppBar {
 class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
   MyRouteSortType selectedSortOption = MyRouteSortType.newest;
 
-  List<FilterItem> get filters => const MyRouteFilterConfig().filters;
+  List<FilterItem> get filters {
+    return MyRouteFilterConfig(
+      maxDistance: routeList.maxDistance.ceilToDouble(),
+      minDistance: routeList.minDistance.floorToDouble(),
+      maxElevationGain: routeList.maxElevationGain.ceilToDouble(),
+      minElevationGain: routeList.minElevationGain.floorToDouble(),
+    ).filters;
+  }
 
-  late FilterData currentFilter;
+  FilterData? currentFilter;
 
   MyRouteList routeList = MyRouteList.empty();
   bool isLoading = true;
@@ -63,7 +70,6 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
   @override
   void initState() {
     super.initState();
-    currentFilter = FilterData.fromFilterItems(filters);
     _loadRouteList();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -77,14 +83,19 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
       errorMessage = null;
     });
 
+    // 초기 로딩 시에는 기본 필터 사용
+    currentFilter ??= FilterData.fromFilterItems(filters);
+
     final AppResult<MyRouteList> result = await ref
         .read(getMyRouteListUseCaseProvider)
-        .execute(filterData: currentFilter, sortType: selectedSortOption);
+        .execute(filterData: currentFilter!, sortType: selectedSortOption);
 
     setState(() {
       isLoading = false;
       if (result.isSuccess) {
         routeList = result.dataOrNull!;
+        // 서버 응답 후에 서버값이 반영된 필터로 업데이트
+        currentFilter = FilterData.fromFilterItems(filters);
       } else {
         errorMessage = '서버에러';
         routeList = MyRouteList.empty();
@@ -118,8 +129,10 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
 
   void _showFilterModal({String? selectedTab}) {
     final MyRouteFilterConfig filterConfig = MyRouteFilterConfig(
-      maxDistance: routeList.maxDistance,
-      maxElevationGain: routeList.maxElevationGain,
+      maxDistance: routeList.maxDistance.ceilToDouble(),
+      minDistance: routeList.minDistance.floorToDouble(),
+      maxElevationGain: routeList.maxElevationGain.ceilToDouble(),
+      minElevationGain: routeList.minElevationGain.floorToDouble(),
     );
 
     final List<FilterItem> bottomSheetFilters = filterConfig.filters;
@@ -168,12 +181,12 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
         children: <Widget>[
           CategoryFilter(
             categories: MyRouteCategoryConfig.buildCategoryInfos(
-              currentFilter,
+              currentFilter ?? FilterData.fromFilterItems(filters),
               filters,
               selectedSortOption.displayName,
             ),
             selectedCategories: FilterDisplayUtils.getSelectedCategories(
-              currentFilter,
+              currentFilter ?? FilterData.fromFilterItems(filters),
               filters,
               selectedSortOption != MyRouteSortType.newest
                   ? selectedSortOption.displayName
@@ -193,7 +206,7 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
             mode: CategoryFilterMode.alternative,
             showFilterIndicator: true,
             filterCount: FilterDisplayUtils.getAppliedFiltersCount(
-              currentFilter,
+              currentFilter ?? FilterData.fromFilterItems(filters),
               filters,
             ),
             onFilterTap: () {

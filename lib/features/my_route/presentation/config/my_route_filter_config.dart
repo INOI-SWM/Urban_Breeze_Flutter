@@ -50,19 +50,29 @@ class MyRouteFilterConfig implements FilterConfig {
     // 거리 범위가 서버 최대/최소값을 벗어나지 않도록 조정
     final RangeValues? currentDistance = values['distance'] as RangeValues?;
     if (currentDistance != null) {
-      values['distance'] = RangeValues(
-        currentDistance.start.clamp(minDistance, maxDistance),
-        currentDistance.end.clamp(minDistance, maxDistance),
-      );
+      final bool isDefaultDistance =
+          currentDistance.start.round() == minDistance.round() &&
+          currentDistance.end.round() == maxDistance.round();
+      if (!isDefaultDistance) {
+        values['distance'] = RangeValues(
+          currentDistance.start.clamp(minDistance, maxDistance),
+          currentDistance.end.clamp(minDistance, maxDistance),
+        );
+      }
     }
 
     // 상승고도 범위가 서버 최대/최소값을 벗어나지 않도록 조정
     final RangeValues? currentElevation = values['elevation'] as RangeValues?;
     if (currentElevation != null) {
-      values['elevation'] = RangeValues(
-        currentElevation.start.clamp(minElevationGain, maxElevationGain),
-        currentElevation.end.clamp(minElevationGain, maxElevationGain),
-      );
+      final bool isDefaultElevation =
+          currentElevation.start.round() == minElevationGain.round() &&
+          currentElevation.end.round() == maxElevationGain.round();
+      if (!isDefaultElevation) {
+        values['elevation'] = RangeValues(
+          currentElevation.start.clamp(minElevationGain, maxElevationGain),
+          currentElevation.end.clamp(minElevationGain, maxElevationGain),
+        );
+      }
     }
 
     return FilterData(values: values, selectedTab: currentFilter.selectedTab);
