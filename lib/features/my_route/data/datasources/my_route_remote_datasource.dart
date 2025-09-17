@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/features/my_route/data/models/my_route_detail_model.dart';
 import 'package:urban_breeze/features/my_route/data/models/my_route_filter_model.dart';
@@ -19,7 +18,6 @@ class MyRouteRemoteDataSource extends BaseRemoteDataSource {
     );
 
     final Map<String, dynamic> json = decodeResponse(response);
-    debugPrint(json.toString());
     return ApiResponseModel<MyRouteListDataModel>.fromJson(
       json,
       (Map<String, dynamic> dataJson) =>
