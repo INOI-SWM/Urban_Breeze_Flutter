@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
-import 'package:urban_breeze/core/exceptions/validation_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/update_workout_title_use_case.dart';
+import 'package:urban_breeze/shared/utils/error_message_mapper.dart';
 
 class WorkoutTitleEditState {
   const WorkoutTitleEditState({
@@ -98,22 +98,7 @@ class WorkoutTitleEditViewModel extends ValueNotifier<WorkoutTitleEditState> {
   }
 
   String _getErrorMessage(BaseDomainException exception) {
-    if (exception is ValidationException) {
-      switch (exception.code) {
-        case 'WORKOUT_ID_EMPTY':
-          return '운동 기록을 찾을 수 없습니다';
-        case 'TITLE_EMPTY':
-          return '제목은 비어있을 수 없습니다';
-        case 'TITLE_TOO_LONG':
-          final int maxLength =
-              exception.data['maxLength'] as int? ?? _maxTitleLength;
-          return '제목은 $maxLength자 이하로 입력해주세요';
-        default:
-          return '입력값이 올바르지 않습니다';
-      }
-    }
-
-    return '제목 저장 중 오류가 발생했습니다';
+    return ErrorMessageMapper.getErrorMessage(exception);
   }
 
   bool get canSave => value.title.trim().isNotEmpty && !value.isLoading;
