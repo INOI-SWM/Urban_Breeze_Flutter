@@ -117,15 +117,16 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
   }
 
   void _showFilterModal({String? selectedTab}) {
-    final List<FilterItem> bottomSheetFilters =
-        MyRouteFilterConfig(
-          maxDistance: routeList.maxDistance,
-          maxElevationGain: routeList.maxElevationGain,
-        ).filters;
-
-    final FilterData initialData = FilterData.fromFilterItems(
-      bottomSheetFilters,
+    final MyRouteFilterConfig filterConfig = MyRouteFilterConfig(
+      maxDistance: routeList.maxDistance,
+      maxElevationGain: routeList.maxElevationGain,
     );
+
+    final List<FilterItem> bottomSheetFilters = filterConfig.filters;
+
+    // 현재 필터값을 반영한 초기 데이터 생성
+    final FilterData initialData = filterConfig
+        .createFilterDataWithCurrentValues(currentFilter);
 
     FilterModal.show(
       context: context,
