@@ -41,7 +41,7 @@ class MyRouteFilter extends BaseFilter {
     if (creatorValue != null) {
       switch (creatorValue) {
         case '내가 생성한 경로':
-          relationTypes = 'CREATED';
+          relationTypes = 'OWNER';
           break;
         case '공유 받은 경로':
           relationTypes = 'SHARED';
