@@ -56,3 +56,5 @@ app.*.map.json
 # 테스트 관련
 test/
 
+# FVM Version Cache
+.fvm/
