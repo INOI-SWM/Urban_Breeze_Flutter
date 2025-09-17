@@ -12,6 +12,8 @@ class MyRouteList {
       hasPrevious: false,
       maxDistance: 0,
       maxElevationGain: 0,
+      minDistance: 0,
+      minElevationGain: 0,
     );
   }
   const MyRouteList({
@@ -24,6 +26,8 @@ class MyRouteList {
     required this.hasPrevious,
     required this.maxDistance,
     required this.maxElevationGain,
+    required this.minDistance,
+    required this.minElevationGain,
   });
 
   final List<MyRoute> routes;
@@ -34,7 +38,9 @@ class MyRouteList {
   final bool hasNext;
   final bool hasPrevious;
   final double maxDistance;
+  final double minDistance;
   final double maxElevationGain;
+  final double minElevationGain;
 
   @override
   bool operator ==(Object other) {
@@ -44,7 +50,9 @@ class MyRouteList {
         other.totalPages == totalPages &&
         other.totalElements == totalElements &&
         other.maxDistance == maxDistance &&
-        other.maxElevationGain == maxElevationGain;
+        other.maxElevationGain == maxElevationGain &&
+        other.minDistance == minDistance &&
+        other.minElevationGain == minElevationGain;
   }
 
   @override
@@ -55,11 +63,13 @@ class MyRouteList {
       totalElements,
       maxDistance,
       maxElevationGain,
+      minDistance,
+      minElevationGain,
     );
   }
 
   @override
   String toString() {
-    return 'MyRouteList(routes: ${routes.length}, currentPage: $currentPage, totalPages: $totalPages, totalElements: $totalElements, size: $size, hasNext: $hasNext, hasPrevious: $hasPrevious, maxDistance: $maxDistance, maxElevationGain: $maxElevationGain)';
+    return 'MyRouteList(routes: ${routes.length}, currentPage: $currentPage, totalPages: $totalPages, totalElements: $totalElements, size: $size, hasNext: $hasNext, hasPrevious: $hasPrevious, maxDistance: $maxDistance, maxElevationGain: $maxElevationGain, minDistance: $minDistance, minElevationGain: $minElevationGain)';
   }
 }
