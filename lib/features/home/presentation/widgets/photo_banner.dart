@@ -109,7 +109,7 @@ class PhotoBanner extends StatelessWidget {
     } else {
       // 로컬 이미지 사용
       return Image.asset(
-        'assets/images/png/home_image.png',
+        'assets/images/png/home_default_banner.png',
         width: double.infinity,
         height: double.infinity,
         fit: BoxFit.contain,
