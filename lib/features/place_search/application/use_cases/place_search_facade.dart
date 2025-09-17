@@ -1,4 +1,5 @@
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/exceptions/validation_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 
 import '../../domain/entities/search_result.dart';

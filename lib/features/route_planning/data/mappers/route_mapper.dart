@@ -1,5 +1,5 @@
 import 'package:latlong2/latlong.dart';
-import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/exceptions/validation_exception.dart';
 import 'package:urban_breeze/features/route_planning/data/models/route_segment_api_response_model.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
 import 'package:urban_breeze/features/route_planning/domain/services/elevation_calculate_service.dart';
@@ -30,13 +30,22 @@ class RouteMapper {
 
   static void validateRouteData(RouteApiResponseModel dto) {
     if (dto.geometry.length < 2) {
-      throw const ValidationException('Route must have at least 2 coordinates');
+      throw const ValidationException(
+        code: 'INSUFFICIENT_COORDINATES',
+        message: 'Route must have at least 2 coordinates',
+      );
     }
     if (dto.totalDistance < 0) {
-      throw const ValidationException('Distance cannot be negative');
+      throw const ValidationException(
+        code: 'NEGATIVE_DISTANCE',
+        message: 'Distance cannot be negative',
+      );
     }
     if (dto.totalDuration < 0) {
-      throw const ValidationException('Duration cannot be negative');
+      throw const ValidationException(
+        code: 'NEGATIVE_DURATION',
+        message: 'Duration cannot be negative',
+      );
     }
   }
 

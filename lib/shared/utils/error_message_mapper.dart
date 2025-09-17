@@ -1,4 +1,5 @@
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/exceptions/validation_exception.dart';
 import 'package:urban_breeze/features/place_search/domain/exceptions/place_search_domain_exceptions.dart';
 import 'package:urban_breeze/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 import 'package:urban_breeze/features/workout_history/domain/exceptions/apple_health_kit_exceptions.dart';

@@ -1,4 +1,5 @@
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/exceptions/validation_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 
 import '../../domain/entities/place.dart';
@@ -28,7 +29,9 @@ class PerformRealtimeSearchUseCase {
   }) async {
     // 검색어 validation
     if (query.trim().isEmpty) {
-      return const AppFailure<SearchResult>(ValidationException('검색어를 입력해주세요'));
+      return const AppFailure<SearchResult>(
+        ValidationException(code: 'SEARCH_QUERY_EMPTY'),
+      );
     }
 
     try {

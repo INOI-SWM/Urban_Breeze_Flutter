@@ -1,8 +1,9 @@
 import 'package:latlong2/latlong.dart';
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/exceptions/validation_exception.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
 import 'package:urban_breeze/features/route_planning/domain/repositories/route_segment_repository.dart';
-import 'package:urban_breeze/core/result/app_result.dart';
-import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 
 class CreateRouteUseCase {
   CreateRouteUseCase({required RouteSegmentRepository routeRepository})
