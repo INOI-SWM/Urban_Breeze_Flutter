@@ -154,7 +154,6 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
           currentFilter = FilterData.fromFilterItems(bottomSheetFilters);
         });
         AmplitudeAnalytics.logEvent('my_route_filter_reset');
-        _loadRouteList();
       },
       showTabBar: false,
     );
