@@ -33,6 +33,7 @@ class _WorkoutTitleEditWidgetState extends ConsumerState<WorkoutTitleEditWidget>
   static const String _unsavedChangesMessage = '저장되지 않는 내용은 모두 사라집니다.';
 
   late final WorkoutTitleEditViewModel _viewModel;
+  String? _lastDisplayedErrorMessage;
 
   @override
   void initState() {
@@ -118,8 +119,9 @@ class _WorkoutTitleEditWidgetState extends ConsumerState<WorkoutTitleEditWidget>
         WorkoutTitleEditState state,
         Widget? child,
       ) {
-        // 에러 메시지가 있으면 표시
-        if (state.errorMessage != null) {
+        if (state.errorMessage != null &&
+            state.errorMessage != _lastDisplayedErrorMessage) {
+          _lastDisplayedErrorMessage = state.errorMessage;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             showErrorMessage(context, state.errorMessage!);
           });

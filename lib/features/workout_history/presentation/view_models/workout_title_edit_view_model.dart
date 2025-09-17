@@ -43,58 +43,65 @@ class WorkoutTitleEditViewModel extends ValueNotifier<WorkoutTitleEditState> {
   static const int _maxTitleLength = 60;
 
   void startEditing() {
-    value = value.copyWith(isEditing: true, errorMessage: null);
+    _updateState(isEditing: true, errorMessage: null);
   }
 
   void cancelEditing() {
-    value = value.copyWith(isEditing: false, errorMessage: null);
+    _updateState(isEditing: false, errorMessage: null);
   }
 
-  bool _isTitleChanged(String newTitle) {
-    return newTitle.trim() != value.title.trim();
+  // 공통 상태 업데이트 메서드
+  void _updateState({
+    String? title,
+    bool? isEditing,
+    bool? isLoading,
+    String? errorMessage,
+  }) {
+    value = value.copyWith(
+      title: title,
+      isEditing: isEditing,
+      isLoading: isLoading,
+      errorMessage: errorMessage,
+    );
   }
 
   Future<AppResult<void>> saveTitle({
     required String workoutId,
     required String newTitle,
   }) async {
+    final String trimmedTitle = newTitle.trim();
+
     // 변경사항이 없으면 그냥 편집 모드 종료
-    if (!_isTitleChanged(newTitle)) {
-      value = value.copyWith(isEditing: false, errorMessage: null);
+    if (trimmedTitle == value.title.trim()) {
+      _updateState(isEditing: false, errorMessage: null);
       return const AppSuccess<void>(null);
     }
 
     // 로딩 시작
-    value = value.copyWith(isLoading: true, errorMessage: null);
+    _updateState(isLoading: true, errorMessage: null);
 
-    try {
-      final AppResult<void> result = await updateWorkoutTitleUseCase.execute(
-        workoutId: workoutId,
-        title: newTitle.trim(),
+    final AppResult<void> result = await updateWorkoutTitleUseCase.execute(
+      workoutId: workoutId,
+      title: trimmedTitle,
+    );
+
+    if (result is AppSuccess<void>) {
+      // 성공 시 상태 업데이트
+      _updateState(
+        title: trimmedTitle,
+        isEditing: false,
+        isLoading: false,
+        errorMessage: null,
       );
-
-      if (result is AppSuccess<void>) {
-        // 성공 시 상태 업데이트
-        value = value.copyWith(
-          title: newTitle.trim(),
-          isEditing: false,
-          isLoading: false,
-          errorMessage: null,
-        );
-        return result;
-      } else if (result is AppFailure<void>) {
-        // 실패 시 에러 메시지 설정
-        final String errorMessage = _getErrorMessage(result.exception);
-        value = value.copyWith(isLoading: false, errorMessage: errorMessage);
-        return result;
-      }
-
       return result;
-    } catch (e) {
-      final String errorMessage = '알 수 없는 오류가 발생했습니다: ${e.toString()}';
-      value = value.copyWith(isLoading: false, errorMessage: errorMessage);
-      return AppFailure<void>(Exception(errorMessage) as BaseDomainException);
+    } else if (result is AppFailure<void>) {
+      // 실패 시 에러 메시지 설정
+      final String errorMessage = _getErrorMessage(result.exception);
+      _updateState(isLoading: false, errorMessage: errorMessage);
+      return result;
     }
+
+    return result;
   }
 
   String _getErrorMessage(BaseDomainException exception) {
