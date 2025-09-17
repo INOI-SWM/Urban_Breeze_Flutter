@@ -3,6 +3,7 @@ import 'package:urban_breeze/shared/filter/models/filter_config.dart';
 import 'package:urban_breeze/shared/filter/models/filter_data.dart';
 import 'package:urban_breeze/shared/filter/models/filter_item.dart';
 
+//TODO: API 변경 후, 초기 MAX,MIN값 없에기. (서버응답 받은후 첫 필터만들면됨. 지금은 요청 전 필터를 만들고 있음)
 class MyRouteFilterConfig implements FilterConfig {
   const MyRouteFilterConfig({
     this.maxDistance = 100.0,

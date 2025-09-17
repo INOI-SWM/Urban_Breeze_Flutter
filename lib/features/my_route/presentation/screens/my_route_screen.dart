@@ -4,6 +4,7 @@ import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/my_route/di/my_route_providers.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route.dart';
+import 'package:urban_breeze/features/my_route/domain/entities/my_route_filter.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route_list.dart';
 import 'package:urban_breeze/features/my_route/domain/enums/my_route_sort_type.dart';
 import 'package:urban_breeze/features/my_route/presentation/config/my_route_category_config.dart';
@@ -58,12 +59,17 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
 
   MyRouteList routeList = MyRouteList.empty();
   bool isLoading = true;
+  bool isLoadingMore = false;
   String? errorMessage;
+
+  late ScrollController _scrollController;
+  MyRouteFilter? _currentRouteFilter;
 
   @override
   void initState() {
     super.initState();
-    currentFilter = FilterData.fromFilterItems(filters);
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
     _loadRouteList();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -71,11 +77,27 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 400) {
+      _loadMoreRoutes();
+    }
+  }
+
   Future<void> _loadRouteList() async {
     setState(() {
       isLoading = true;
       errorMessage = null;
     });
+
+    // 초기 로딩 시에는 기본 필터 사용
+    currentFilter ??= FilterData.fromFilterItems(filters);
 
     final AppResult<MyRouteList> result = await ref
         .read(getMyRouteListUseCaseProvider)
@@ -88,6 +110,46 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
       } else {
         errorMessage = '서버에러';
         routeList = MyRouteList.empty();
+      }
+    });
+  }
+
+  Future<void> _loadMoreRoutes() async {
+    if (isLoadingMore || !routeList.hasNext || _currentRouteFilter == null) {
+      return;
+    }
+
+    setState(() {
+      isLoadingMore = true;
+    });
+
+    // 기존 필터에서 페이지만 변경
+    final MyRouteFilter nextPageFilter = _currentRouteFilter!.copyWith(
+      page: routeList.currentPage + 1,
+    );
+
+    final AppResult<MyRouteList> result = await ref
+        .read(getMyRouteListUseCaseProvider)
+        .execute(filter: nextPageFilter);
+
+    setState(() {
+      isLoadingMore = false;
+      if (result.isSuccess) {
+        final MyRouteList newRouteList = result.dataOrNull!;
+        // 기존 경로 리스트에 새 경로들 추가
+        routeList = MyRouteList(
+          routes: <MyRoute>[...routeList.routes, ...newRouteList.routes],
+          currentPage: newRouteList.currentPage,
+          totalPages: newRouteList.totalPages,
+          totalElements: newRouteList.totalElements,
+          size: newRouteList.size,
+          hasNext: newRouteList.hasNext,
+          hasPrevious: newRouteList.hasPrevious,
+          maxDistance: newRouteList.maxDistance,
+          maxElevationGain: newRouteList.maxElevationGain,
+          minDistance: newRouteList.minDistance,
+          minElevationGain: newRouteList.minElevationGain,
+        );
       }
     });
   }
@@ -210,9 +272,18 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
                     : routeList.routes.isEmpty
                     ? const Center(child: Text('경로가 없습니다'))
                     : ListView.builder(
+                      controller: _scrollController,
                       physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: routeList.routes.length,
+                      itemCount:
+                          routeList.routes.length + (isLoadingMore ? 1 : 0),
                       itemBuilder: (BuildContext context, int index) {
+                        // 로딩 인디케이터 표시
+                        if (index == routeList.routes.length) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Center(child: AppLoadingIndicator()),
+                          );
+                        }
                         final MyRoute route = routeList.routes[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
