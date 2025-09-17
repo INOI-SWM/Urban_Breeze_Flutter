@@ -4,7 +4,9 @@
     "editor.insertSpaces": true,
     "editor.formatOnSave": true,
     "editor.formatOnType": true,
-    "editor.rulers": [80],
+    "editor.rulers": [
+      80
+    ],
     "editor.selectionHighlight": false,
     "editor.suggest.snippetsPreventQuickSuggestions": false,
     "editor.suggestSelection": "first",
@@ -15,6 +17,6 @@
       "source.fixAll": "explicit"
     }
   },
-	"dart.flutterSdkPath": ".fvm/versions/3.32.2",
-	"java.configuration.updateBuildConfiguration": "automatic",
+  "dart.flutterSdkPath": ".fvm/versions/3.35.4",
+  "java.configuration.updateBuildConfiguration": "automatic"
 }
