@@ -1,33 +1,42 @@
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
-
-import '../../domain/exceptions/workout_history_domain_exceptions.dart';
-import '../../domain/repositories/workout_history_repository.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/workout_history/domain/repositories/workout_history_repository.dart';
 
 class UpdateWorkoutTitleUseCase {
-  const UpdateWorkoutTitleUseCase({
-    required WorkoutHistoryRepository workoutHistoryRepository,
-  }) : _workoutHistoryRepository = workoutHistoryRepository;
+  const UpdateWorkoutTitleUseCase({required this.repository});
 
-  final WorkoutHistoryRepository _workoutHistoryRepository;
+  final WorkoutHistoryRepository repository;
 
-  Future<void> execute({
+  Future<AppResult<void>> execute({
     required String workoutId,
     required String title,
   }) async {
-    try {
-      if (title.trim().isEmpty) {
-        throw const ValidationException('제목은 비어있을 수 없습니다.');
-      }
-
-      await _workoutHistoryRepository.updateWorkoutTitle(
-        workoutId: workoutId,
-        title: title.trim(),
+    // 입력 검증
+    if (workoutId.isEmpty) {
+      return AppFailure<void>(
+        ArgumentError('Workout ID cannot be empty') as BaseDomainException,
       );
+    }
+
+    if (title.isEmpty) {
+      return AppFailure<void>(
+        ArgumentError('Title cannot be empty') as BaseDomainException,
+      );
+    }
+
+    if (title.length > 100) {
+      return AppFailure<void>(
+        ArgumentError('Title cannot exceed 100 characters')
+            as BaseDomainException,
+      );
+    }
+
+    // Repository 호출
+    try {
+      await repository.updateWorkoutTitle(workoutId: workoutId, title: title);
+      return const AppSuccess<void>(null);
     } catch (e) {
-      if (e is WorkoutTitleUpdateException) {
-        rethrow;
-      }
-      throw WorkoutTitleUpdateException('운동기록 제목 수정 중 오류가 발생했습니다: $e');
+      return AppFailure<void>(e as BaseDomainException);
     }
   }
 }

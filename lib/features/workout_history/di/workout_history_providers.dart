@@ -112,7 +112,7 @@ final Provider<UpdateWorkoutTitleUseCase> updateWorkoutTitleUseCaseProvider =
         workoutHistoryRepositoryProvider,
       );
 
-      return UpdateWorkoutTitleUseCase(workoutHistoryRepository: repository);
+      return UpdateWorkoutTitleUseCase(repository: repository);
     });
 
 final Provider<SyncAppleHealthKitDataUseCase>
