@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
-import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
+import 'package:urban_breeze/core/exceptions/validation_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/user_session_repository.dart';
@@ -89,7 +89,9 @@ class UserSessionNotifier extends StateNotifier<User?> {
     Future<AppResult<User>> Function() updateFunction,
   ) async {
     if (state == null) {
-      return const AppFailure<User>(ValidationException('User not logged in'));
+      return const AppFailure<User>(
+        ValidationException(code: 'USER_NOT_LOGGED_IN'),
+      );
     }
 
     final AppResult<User> result = await updateFunction();
