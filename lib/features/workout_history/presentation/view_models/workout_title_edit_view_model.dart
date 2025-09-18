@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/update_workout_title_use_case.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
 import 'package:urban_breeze/shared/utils/error_message_mapper.dart';
 
 class WorkoutTitleEditState {
@@ -36,9 +37,11 @@ class WorkoutTitleEditViewModel extends ValueNotifier<WorkoutTitleEditState> {
   WorkoutTitleEditViewModel({
     required this.updateWorkoutTitleUseCase,
     required String initialTitle,
+    required this.currentWorkoutDetail,
   }) : super(WorkoutTitleEditState(title: initialTitle));
 
   final UpdateWorkoutTitleUseCase updateWorkoutTitleUseCase;
+  final WorkoutDetail currentWorkoutDetail;
 
   static const int _maxTitleLength = 60;
 
@@ -65,7 +68,7 @@ class WorkoutTitleEditViewModel extends ValueNotifier<WorkoutTitleEditState> {
     );
   }
 
-  Future<AppResult<void>> saveTitle({
+  Future<AppResult<WorkoutDetail>> saveTitle({
     required String workoutId,
     required String newTitle,
   }) async {
@@ -74,18 +77,20 @@ class WorkoutTitleEditViewModel extends ValueNotifier<WorkoutTitleEditState> {
     // 변경사항이 없으면 그냥 편집 모드 종료
     if (trimmedTitle == value.title.trim()) {
       _updateState(isEditing: false, errorMessage: null);
-      return const AppSuccess<void>(null);
+      return AppSuccess<WorkoutDetail>(currentWorkoutDetail);
     }
 
     // 로딩 시작
     _updateState(isLoading: true, errorMessage: null);
 
-    final AppResult<void> result = await updateWorkoutTitleUseCase.execute(
-      workoutId: workoutId,
-      title: trimmedTitle,
-    );
+    final AppResult<WorkoutDetail> result = await updateWorkoutTitleUseCase
+        .execute(
+          workoutId: workoutId,
+          title: trimmedTitle,
+          currentWorkoutDetail: currentWorkoutDetail,
+        );
 
-    if (result is AppSuccess<void>) {
+    if (result is AppSuccess<WorkoutDetail>) {
       // 성공 시 상태 업데이트
       _updateState(
         title: trimmedTitle,
@@ -94,7 +99,7 @@ class WorkoutTitleEditViewModel extends ValueNotifier<WorkoutTitleEditState> {
         errorMessage: null,
       );
       return result;
-    } else if (result is AppFailure<void>) {
+    } else if (result is AppFailure<WorkoutDetail>) {
       // 실패 시 에러 메시지 설정
       final String errorMessage = _getErrorMessage(result.exception);
       _updateState(isLoading: false, errorMessage: errorMessage);

@@ -85,6 +85,56 @@ class WorkoutDetail {
   /// 케이던스 표시용 문자열 반환
   String get cadenceDisplay => cadence != null ? '$cadence rpm' : '--';
 
+  /// 특정 필드만 변경된 새로운 WorkoutDetail 객체 생성
+  WorkoutDetail copyWith({
+    int? id,
+    String? title,
+    DateTime? startedAt,
+    DateTime? endedAt,
+    int? activeDurationMinutes,
+    int? totalDurationMinutes,
+    double? distance,
+    double? averageSpeed,
+    double? elevationGain,
+    double? elevationLoss,
+    int? cadence,
+    int? averageHeartRate,
+    int? maxHeartRate,
+    int? averagePower,
+    int? maxPower,
+    WorkoutUser? user,
+    String? thumbnailImageUrl,
+    List<ActivityImage>? activityImages,
+    int? trackPointsCount,
+    List<TrackPoint>? trackPoints,
+    List<double>? bbox,
+  }) {
+    return WorkoutDetail(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      startedAt: startedAt ?? this.startedAt,
+      endedAt: endedAt ?? this.endedAt,
+      activeDurationMinutes:
+          activeDurationMinutes ?? this.activeDurationMinutes,
+      totalDurationMinutes: totalDurationMinutes ?? this.totalDurationMinutes,
+      distance: distance ?? this.distance,
+      averageSpeed: averageSpeed ?? this.averageSpeed,
+      elevationGain: elevationGain ?? this.elevationGain,
+      elevationLoss: elevationLoss ?? this.elevationLoss,
+      cadence: cadence ?? this.cadence,
+      averageHeartRate: averageHeartRate ?? this.averageHeartRate,
+      maxHeartRate: maxHeartRate ?? this.maxHeartRate,
+      averagePower: averagePower ?? this.averagePower,
+      maxPower: maxPower ?? this.maxPower,
+      user: user ?? this.user,
+      thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
+      activityImages: activityImages ?? this.activityImages,
+      trackPointsCount: trackPointsCount ?? this.trackPointsCount,
+      trackPoints: trackPoints ?? this.trackPoints,
+      bbox: bbox ?? this.bbox,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

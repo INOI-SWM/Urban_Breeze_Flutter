@@ -183,6 +183,12 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
                         WorkoutTitleEditWidget(
                           workoutId: detail.id.toString(),
                           initialTitle: detail.title,
+                          currentWorkoutDetail: detail,
+                          onTitleUpdated: (WorkoutDetail updatedWorkoutDetail) {
+                            setState(() {
+                              workoutDetail = updatedWorkoutDetail;
+                            });
+                          },
                         ),
                       ],
                     ),

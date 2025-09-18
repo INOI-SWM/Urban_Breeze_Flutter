@@ -4,6 +4,7 @@ import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/update_workout_title_use_case.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
 import 'package:urban_breeze/features/workout_history/presentation/view_models/workout_title_edit_view_model.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
@@ -17,10 +18,14 @@ class WorkoutTitleEditWidget extends ConsumerStatefulWidget {
     super.key,
     required this.workoutId,
     required this.initialTitle,
+    required this.currentWorkoutDetail,
+    this.onTitleUpdated,
   });
 
   final String workoutId;
   final String initialTitle;
+  final WorkoutDetail currentWorkoutDetail;
+  final void Function(WorkoutDetail updatedWorkoutDetail)? onTitleUpdated;
 
   @override
   ConsumerState<WorkoutTitleEditWidget> createState() =>
@@ -45,6 +50,7 @@ class _WorkoutTitleEditWidgetState extends ConsumerState<WorkoutTitleEditWidget>
     _viewModel = WorkoutTitleEditViewModel(
       updateWorkoutTitleUseCase: useCase,
       initialTitle: initialTitle,
+      currentWorkoutDetail: widget.currentWorkoutDetail,
     );
   }
 
@@ -63,7 +69,7 @@ class _WorkoutTitleEditWidgetState extends ConsumerState<WorkoutTitleEditWidget>
   }
 
   Future<void> _saveTitle(String newTitle) async {
-    final AppResult<void> result = await _viewModel.saveTitle(
+    final AppResult<WorkoutDetail> result = await _viewModel.saveTitle(
       workoutId: widget.workoutId,
       newTitle: newTitle,
     );
@@ -71,6 +77,8 @@ class _WorkoutTitleEditWidgetState extends ConsumerState<WorkoutTitleEditWidget>
     if (mounted) {
       if (result.isSuccess) {
         showSuccessMessage(context, _titleSavedMessage);
+        // 제목 업데이트 성공 시 콜백 호출
+        widget.onTitleUpdated?.call(result.dataOrNull!);
       } else if (result.isFailure) {
         // ViewModel에서 이미 에러 메시지를 상태에 설정했으므로
         // 여기서는 추가 처리가 필요 없음
