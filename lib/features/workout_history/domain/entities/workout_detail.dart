@@ -14,11 +14,11 @@ class WorkoutDetail {
     required this.averageSpeed,
     required this.elevationGain,
     required this.elevationLoss,
-    required this.cadence,
-    required this.averageHeartRate,
-    required this.maxHeartRate,
-    required this.averagePower,
-    required this.maxPower,
+    this.cadence,
+    this.averageHeartRate,
+    this.maxHeartRate,
+    this.averagePower,
+    this.maxPower,
     required this.user,
     required this.thumbnailImageUrl,
     required this.activityImages,
@@ -37,11 +37,11 @@ class WorkoutDetail {
   final double averageSpeed; // km/h
   final double elevationGain; // m
   final double elevationLoss; // m
-  final int cadence; // rpm
-  final int averageHeartRate; // bpm
-  final int maxHeartRate; // bpm
-  final int averagePower; // W
-  final int maxPower; // W
+  final int? cadence; // rpm
+  final int? averageHeartRate; // bpm
+  final int? maxHeartRate; // bpm
+  final int? averagePower; // W
+  final int? maxPower; // W
   final WorkoutUser user;
   final String thumbnailImageUrl;
   final List<ActivityImage> activityImages;
@@ -68,19 +68,22 @@ class WorkoutDetail {
   String get elevationLossDisplay => '${elevationLoss.round()} m';
 
   /// 평균 심박수 표시용 문자열 반환
-  String get averageHeartRateDisplay => '$averageHeartRate bpm';
+  String get averageHeartRateDisplay =>
+      averageHeartRate != null ? '$averageHeartRate bpm' : '--';
 
   /// 최대 심박수 표시용 문자열 반환
-  String get maxHeartRateDisplay => '$maxHeartRate bpm';
+  String get maxHeartRateDisplay =>
+      maxHeartRate != null ? '$maxHeartRate bpm' : '--';
 
   /// 평균 파워 표시용 문자열 반환
-  String get averagePowerDisplay => '$averagePower W';
+  String get averagePowerDisplay =>
+      averagePower != null ? '$averagePower W' : '--';
 
   /// 최대 파워 표시용 문자열 반환
-  String get maxPowerDisplay => '$maxPower W';
+  String get maxPowerDisplay => maxPower != null ? '$maxPower W' : '--';
 
   /// 케이던스 표시용 문자열 반환
-  String get cadenceDisplay => '$cadence rpm';
+  String get cadenceDisplay => cadence != null ? '$cadence rpm' : '--';
 
   @override
   bool operator ==(Object other) {

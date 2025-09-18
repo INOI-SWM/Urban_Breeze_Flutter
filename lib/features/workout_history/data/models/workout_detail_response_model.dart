@@ -98,11 +98,11 @@ class WorkoutDetailResponseModel {
     required this.averageSpeed,
     required this.elevationGain,
     required this.elevationLoss,
-    required this.cadence,
-    required this.averageHeartRate,
-    required this.maxHeartRate,
-    required this.averagePower,
-    required this.maxPower,
+    this.cadence,
+    this.averageHeartRate,
+    this.maxHeartRate,
+    this.averagePower,
+    this.maxPower,
     required this.user,
     required this.thumbnailImageUrl,
     required this.activityImages,
@@ -123,11 +123,11 @@ class WorkoutDetailResponseModel {
       averageSpeed: (json['averageSpeed'] as num).toDouble(),
       elevationGain: (json['elevationGain'] as num).toDouble(),
       elevationLoss: (json['elevationLoss'] as num).toDouble(),
-      cadence: json['cadence'] as int,
-      averageHeartRate: json['averageHeartRate'] as int,
-      maxHeartRate: json['maxHeartRate'] as int,
-      averagePower: json['averagePower'] as int,
-      maxPower: json['maxPower'] as int,
+      cadence: json['cadence'] as int?,
+      averageHeartRate: json['averageHeartRate'] as int?,
+      maxHeartRate: json['maxHeartRate'] as int?,
+      averagePower: json['averagePower'] as int?,
+      maxPower: json['maxPower'] as int?,
       user: WorkoutUserModel.fromJson(json['user'] as Map<String, dynamic>),
       thumbnailImageUrl: json['thumbnailImageUrl'] as String,
       activityImages:
@@ -162,11 +162,11 @@ class WorkoutDetailResponseModel {
   final double averageSpeed; // km/h
   final double elevationGain; // m
   final double elevationLoss; // m
-  final int cadence; // rpm
-  final int averageHeartRate; // bpm
-  final int maxHeartRate; // bpm
-  final int averagePower; // W
-  final int maxPower; // W
+  final int? cadence; // rpm
+  final int? averageHeartRate; // bpm
+  final int? maxHeartRate; // bpm
+  final int? averagePower; // W
+  final int? maxPower; // W
   final WorkoutUserModel user;
   final String thumbnailImageUrl;
   final List<ActivityImageModel> activityImages;
