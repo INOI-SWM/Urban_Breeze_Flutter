@@ -7,6 +7,7 @@ import 'package:urban_breeze/features/integration/di/integration_providers.dart'
 import '../application/facades/terra_health_sync_facade.dart';
 import '../application/facades/workout_sync_facade.dart';
 import '../application/use_cases/connect_terra_health_app_use_case.dart';
+import '../application/use_cases/get_workout_list_use_case.dart';
 import '../application/use_cases/get_workout_statistics_use_case.dart';
 import '../application/use_cases/initialize_terra_use_case.dart';
 import '../application/use_cases/sync_apple_health_kit_data_use_case.dart';
@@ -105,6 +106,15 @@ getWorkoutStatisticsUseCaseProvider = Provider<GetWorkoutStatisticsUseCase>((
 
   return GetWorkoutStatisticsUseCase(repository);
 });
+
+final Provider<GetWorkoutListUseCase> getWorkoutListUseCaseProvider =
+    Provider<GetWorkoutListUseCase>((Ref<GetWorkoutListUseCase> ref) {
+      final WorkoutHistoryRepository repository = ref.watch(
+        workoutHistoryRepositoryProvider,
+      );
+
+      return GetWorkoutListUseCase(repository: repository);
+    });
 
 final Provider<UpdateWorkoutTitleUseCase> updateWorkoutTitleUseCaseProvider =
     Provider<UpdateWorkoutTitleUseCase>((Ref<UpdateWorkoutTitleUseCase> ref) {

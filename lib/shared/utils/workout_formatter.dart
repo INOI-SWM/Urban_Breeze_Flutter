@@ -8,6 +8,13 @@ class WorkoutFormatter {
         : '--';
   }
 
+  /// 거리를 km 단위 문자열로 변환 (이미 km 단위 → "0.0 km" 또는 "--")
+  static String toKmTextFromKm(double? distanceInKm) {
+    return distanceInKm != null && distanceInKm > 0
+        ? '${distanceInKm.toStringAsFixed(1)} km'
+        : '--';
+  }
+
   /// 시간을 동적 문자열로 변환 ("1시간 30분 45초", "30분 45초", "45초" 또는 "--")
   static String toDurationText(Duration? duration) {
     if (duration == null || duration.inSeconds <= 0) {

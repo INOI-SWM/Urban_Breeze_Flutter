@@ -2,20 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
-import 'package:urban_breeze/features/workout_history/presentation/pages/workout_history_page.dart';
-import 'package:urban_breeze/features/workout_history/presentation/screens/workout_detail_screen.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/workout_activity.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/workout_list.dart';
+import 'package:urban_breeze/features/workout_history/domain/enums/workout_sort_type.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:urban_breeze/shared/design_system/widgets/card/card_list.dart';
 import 'package:urban_breeze/shared/design_system/widgets/chip/chip_action.dart';
+import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/design_system/widgets/thumbnail/thumbnail.dart';
 import 'package:urban_breeze/shared/sort/sort_modal.dart';
 import 'package:urban_breeze/shared/utils/date_formatter.dart';
 import 'package:urban_breeze/shared/utils/workout_formatter.dart';
-
-import '../../domain/entities/workout_record.dart';
-import '../../domain/enums/workout_sort_type.dart';
 
 //TODO : 추후 api 개발 시 에러 처리 추가
 class WorkoutListScreen extends ConsumerStatefulWidget {
@@ -70,24 +71,6 @@ class _EmptyWorkoutState extends StatelessWidget {
   }
 }
 
-class _LoadingState extends StatelessWidget {
-  const _LoadingState();
-
-  @override
-  Widget build(BuildContext context) {
-    final SemanticColors colors = context.semanticColor;
-
-    return Center(
-      child: Text(
-        '데이터를 불러오는 중...',
-        style: AppTextStyles.label2.medium.copyWith(
-          color: colors.labelAlternative,
-        ),
-      ),
-    );
-  }
-}
-
 class _WorkoutListItem extends StatelessWidget {
   const _WorkoutListItem({
     required this.workout,
@@ -95,7 +78,7 @@ class _WorkoutListItem extends StatelessWidget {
     required this.onTap,
   });
 
-  final WorkoutRecord workout;
+  final WorkoutActivity workout;
   final int index;
   final VoidCallback onTap;
 
@@ -104,17 +87,25 @@ class _WorkoutListItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: CardList(
-        thumbnailPath: 'assets/images/png/thumbnail_r3_2.png',
-        sourceType: ThumbnailSourceType.asset,
-        title: '운동 ${index + 1}',
-        createDate: DateFormatter.formatKorean(workout.startTime),
+        thumbnailPath:
+            workout.thumbnailImageUrl.isNotEmpty
+                ? workout.thumbnailImageUrl
+                : 'assets/images/png/thumbnail_r3_2.png',
+        sourceType:
+            workout.thumbnailImageUrl.isNotEmpty
+                ? ThumbnailSourceType.network
+                : ThumbnailSourceType.asset,
+        title: workout.title.isNotEmpty ? workout.title : '운동 ${index + 1}',
+        createDate: DateFormatter.formatKorean(workout.startedAt),
         badges: <BadgeData>[
           BadgeData(
-            text: WorkoutFormatter.toKmText(workout.distance),
+            text: WorkoutFormatter.toKmTextFromKm(workout.distance),
             icon: Icons.route,
           ),
           BadgeData(
-            text: WorkoutFormatter.toDurationText(workout.duration),
+            text: WorkoutFormatter.toDurationText(
+              Duration(seconds: workout.duration),
+            ),
             icon: Icons.access_time,
           ),
         ],
@@ -131,7 +122,7 @@ class _WorkoutGridItem extends StatelessWidget {
     required this.onTap,
   });
 
-  final WorkoutRecord workout;
+  final WorkoutActivity workout;
   final int index;
   final VoidCallback onTap;
 
@@ -139,10 +130,16 @@ class _WorkoutGridItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: const Thumbnail(
-        path: 'assets/images/png/thumbnail_r1_1.png',
+      child: Thumbnail(
+        path:
+            workout.thumbnailImageUrl.isNotEmpty
+                ? workout.thumbnailImageUrl
+                : 'assets/images/png/thumbnail_r1_1.png',
         ratio: ThumbnailRatio.square,
-        sourceType: ThumbnailSourceType.asset,
+        sourceType:
+            workout.thumbnailImageUrl.isNotEmpty
+                ? ThumbnailSourceType.network
+                : ThumbnailSourceType.asset,
         hasRadius: false,
       ),
     );
@@ -150,40 +147,108 @@ class _WorkoutGridItem extends StatelessWidget {
 }
 
 class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
-  final bool _isLoading = false;
-  List<WorkoutRecord> _workouts = <WorkoutRecord>[];
+  WorkoutList workoutList = WorkoutList.empty();
+  bool isLoading = true;
+  bool isLoadingMore = false;
+  String? errorMessage;
   ViewMode _viewMode = ViewMode.list;
-  WorkoutSortType _sortType = WorkoutSortType.newest;
+  WorkoutSortType _sortType = WorkoutSortType.startedAtDesc;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
-    AmplitudeAnalytics.logScreenView('workout_list_screen');
-  }
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+    _loadWorkoutList();
 
-  // 데이터 업데이트 메서드
-  void _updateWorkouts(List<WorkoutRecord> workouts) {
-    setState(() {
-      _workouts = _sortWorkouts(workouts);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AmplitudeAnalytics.logScreenView('workout_list_screen');
     });
   }
 
-  void _navigateToWorkoutDetail(WorkoutRecord workout, int index) {
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 400) {
+      _loadMoreWorkouts();
+    }
+  }
+
+  Future<void> _loadWorkoutList() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    final AppResult<WorkoutList> result = await ref
+        .read(getWorkoutListUseCaseProvider)
+        .execute(page: 0, sortType: _sortType);
+
+    setState(() {
+      isLoading = false;
+      if (result.isSuccess) {
+        workoutList = result.dataOrNull!;
+      } else {
+        errorMessage = '서버에러';
+        workoutList = WorkoutList.empty();
+      }
+    });
+  }
+
+  Future<void> _loadMoreWorkouts() async {
+    if (isLoadingMore || !workoutList.hasNext) return;
+
+    setState(() {
+      isLoadingMore = true;
+    });
+
+    final AppResult<WorkoutList> result = await ref
+        .read(getWorkoutListUseCaseProvider)
+        .execute(page: workoutList.currentPage + 1, sortType: _sortType);
+
+    setState(() {
+      isLoadingMore = false;
+      if (result.isSuccess) {
+        final WorkoutList newWorkoutList = result.dataOrNull!;
+        workoutList = WorkoutList(
+          activities: <WorkoutActivity>[
+            ...workoutList.activities,
+            ...newWorkoutList.activities,
+          ],
+          currentPage: newWorkoutList.currentPage,
+          totalPages: newWorkoutList.totalPages,
+          totalElements: newWorkoutList.totalElements,
+          size: newWorkoutList.size,
+          hasNext: newWorkoutList.hasNext,
+          hasPrevious: newWorkoutList.hasPrevious,
+        );
+      }
+    });
+  }
+
+  void _navigateToWorkoutDetail(WorkoutActivity workout, int index) {
     AmplitudeAnalytics.logEvent(
       'workout_record_clicked',
       properties: <String, dynamic>{'workout_id': workout.id},
     );
 
-    Navigator.push(
-      context,
-      MaterialPageRoute<void>(
-        builder:
-            (BuildContext context) => WorkoutDetailScreen(
-              workoutRecord: workout,
-              workoutIndex: index,
-            ),
-      ),
-    );
+    // TODO: WorkoutDetailScreen을 WorkoutActivity를 지원하도록 수정 필요
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute<void>(
+    //     builder:
+    //         (BuildContext context) => WorkoutDetailScreen(
+    //           workoutRecord: workout,
+    //           workoutIndex: index,
+    //         ),
+    //   ),
+    // );
   }
 
   void _showSortModal() {
@@ -192,6 +257,10 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
       options: WorkoutSortType.values,
       selectedOption: _sortType,
       onOptionSelected: (WorkoutSortType sortType) {
+        setState(() {
+          _sortType = sortType;
+        });
+
         AmplitudeAnalytics.logEvent(
           'workout_sort_changed',
           properties: <String, dynamic>{
@@ -200,83 +269,21 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
           },
         );
 
-        setState(() {
-          _sortType = sortType;
-          _workouts = _sortWorkouts(_workouts);
-        });
+        _loadWorkoutList();
       },
       getDisplayText: (WorkoutSortType option) => option.displayName,
     );
   }
 
-  // todo : api 개발 시 삭제 예정
-  List<WorkoutRecord> _sortWorkouts(List<WorkoutRecord> workouts) {
-    final List<WorkoutRecord> sortedWorkouts = List<WorkoutRecord>.from(
-      workouts,
-    );
-
-    switch (_sortType) {
-      case WorkoutSortType.newest:
-        sortedWorkouts.sort(
-          (WorkoutRecord a, WorkoutRecord b) =>
-              b.startTime.compareTo(a.startTime),
-        );
-        break;
-      case WorkoutSortType.oldest:
-        sortedWorkouts.sort(
-          (WorkoutRecord a, WorkoutRecord b) =>
-              a.startTime.compareTo(b.startTime),
-        );
-        break;
-      case WorkoutSortType.distance:
-        sortedWorkouts.sort(
-          (WorkoutRecord a, WorkoutRecord b) =>
-              b.distance.compareTo(a.distance),
-        );
-        break;
-    }
-
-    return sortedWorkouts;
-  }
-
   @override
   Widget build(BuildContext context) {
-    // Provider에서 워크아웃 데이터 감지
-    final List<WorkoutRecord> providerWorkouts = ref.watch(workoutDataProvider);
-
-    // Provider에서 새 데이터가 있으면 업데이트
-    if (providerWorkouts.isNotEmpty && providerWorkouts != _workouts) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _updateWorkouts(providerWorkouts);
-      });
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        // 결과 표시
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 20),
-            child: _buildResultWidget(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildResultWidget() {
-    if (_workouts.isEmpty && !_isLoading) {
-      return const _EmptyWorkoutState();
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        if (_workouts.isNotEmpty) ...<Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          if (workoutList.activities.isNotEmpty) ...<Widget>[
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 ChipAction(
@@ -311,45 +318,71 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child:
-                _viewMode == ViewMode.list
-                    ? ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      itemCount: _workouts.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        final WorkoutRecord workout = _workouts[index];
-                        return _WorkoutListItem(
-                          workout: workout,
-                          index: index,
-                          onTap: () => _navigateToWorkoutDetail(workout, index),
-                        );
-                      },
-                    )
-                    : GridView.builder(
-                      padding: EdgeInsets.zero,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 1,
-                            mainAxisSpacing: 1,
-                            childAspectRatio: 1.0,
-                          ),
-                      itemCount: _workouts.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        final WorkoutRecord workout = _workouts[index];
-                        return _WorkoutGridItem(
-                          workout: workout,
-                          index: index,
-                          onTap: () => _navigateToWorkoutDetail(workout, index),
-                        );
-                      },
-                    ),
-          ),
-        ] else ...<Widget>[const _LoadingState()],
-      ],
+            const SizedBox(height: 12),
+          ],
+          Expanded(child: _buildResultWidget()),
+        ],
+      ),
     );
+  }
+
+  Widget _buildResultWidget() {
+    if (isLoading) {
+      return const Center(child: AppLoadingIndicator());
+    }
+
+    if (errorMessage != null) {
+      return Center(child: Text(errorMessage!));
+    }
+
+    if (workoutList.activities.isEmpty) {
+      return const _EmptyWorkoutState();
+    }
+
+    return _viewMode == ViewMode.list
+        ? ListView.builder(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemCount: workoutList.activities.length + (isLoadingMore ? 1 : 0),
+          itemBuilder: (BuildContext context, int index) {
+            if (index == workoutList.activities.length) {
+              return const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Center(child: AppLoadingIndicator()),
+              );
+            }
+
+            final WorkoutActivity workout = workoutList.activities[index];
+            return _WorkoutListItem(
+              workout: workout,
+              index: index,
+              onTap: () => _navigateToWorkoutDetail(workout, index),
+            );
+          },
+        )
+        : GridView.builder(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.zero,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 1,
+            mainAxisSpacing: 1,
+            childAspectRatio: 1.0,
+          ),
+          itemCount: workoutList.activities.length + (isLoadingMore ? 3 : 0),
+          itemBuilder: (BuildContext context, int index) {
+            if (index >= workoutList.activities.length) {
+              return const Center(child: AppLoadingIndicator());
+            }
+
+            final WorkoutActivity workout = workoutList.activities[index];
+            return _WorkoutGridItem(
+              workout: workout,
+              index: index,
+              onTap: () => _navigateToWorkoutDetail(workout, index),
+            );
+          },
+        );
   }
 }

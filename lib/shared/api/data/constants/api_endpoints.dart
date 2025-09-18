@@ -35,6 +35,7 @@ class ApiEndpoints {
   static const String profileImagePath = '/api/v1/user/profile/image';
 
   //workout
+  static String workoutList = '/api/v1/activities';
   static String workoutTitle(String activityId) =>
       '/api/v1/activities/$activityId/title';
 }
