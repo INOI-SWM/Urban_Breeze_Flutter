@@ -36,6 +36,8 @@ class ApiEndpoints {
 
   //workout
   static String workoutList = '/api/v1/activities';
+  static String workoutDetail(String activityId) =>
+      '/api/v1/activities/$activityId';
   static String workoutTitle(String activityId) =>
       '/api/v1/activities/$activityId/title';
 }
