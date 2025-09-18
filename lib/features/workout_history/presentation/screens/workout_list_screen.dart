@@ -99,7 +99,7 @@ class _WorkoutListItem extends StatelessWidget {
         createDate: DateFormatter.formatKorean(workout.startedAt),
         badges: <BadgeData>[
           BadgeData(
-            text: WorkoutFormatter.toKmText(workout.distance),
+            text: WorkoutFormatter.toKmTextFromKm(workout.distance),
             icon: Icons.route,
           ),
           BadgeData(
@@ -149,18 +149,35 @@ class _WorkoutGridItem extends StatelessWidget {
 class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   WorkoutList workoutList = WorkoutList.empty();
   bool isLoading = true;
+  bool isLoadingMore = false;
   String? errorMessage;
   ViewMode _viewMode = ViewMode.list;
   WorkoutSortType _sortType = WorkoutSortType.startedAtDesc;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
     _loadWorkoutList();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AmplitudeAnalytics.logScreenView('workout_list_screen');
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 400) {
+      _loadMoreWorkouts();
+    }
   }
 
   Future<void> _loadWorkoutList() async {
@@ -171,7 +188,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
 
     final AppResult<WorkoutList> result = await ref
         .read(getWorkoutListUseCaseProvider)
-        .execute(sortType: _sortType);
+        .execute(page: 0, sortType: _sortType);
 
     setState(() {
       isLoading = false;
@@ -180,6 +197,37 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
       } else {
         errorMessage = '서버에러';
         workoutList = WorkoutList.empty();
+      }
+    });
+  }
+
+  Future<void> _loadMoreWorkouts() async {
+    if (isLoadingMore || !workoutList.hasNext) return;
+
+    setState(() {
+      isLoadingMore = true;
+    });
+
+    final AppResult<WorkoutList> result = await ref
+        .read(getWorkoutListUseCaseProvider)
+        .execute(page: workoutList.currentPage + 1, sortType: _sortType);
+
+    setState(() {
+      isLoadingMore = false;
+      if (result.isSuccess) {
+        final WorkoutList newWorkoutList = result.dataOrNull!;
+        workoutList = WorkoutList(
+          activities: <WorkoutActivity>[
+            ...workoutList.activities,
+            ...newWorkoutList.activities,
+          ],
+          currentPage: newWorkoutList.currentPage,
+          totalPages: newWorkoutList.totalPages,
+          totalElements: newWorkoutList.totalElements,
+          size: newWorkoutList.size,
+          hasNext: newWorkoutList.hasNext,
+          hasPrevious: newWorkoutList.hasPrevious,
+        );
       }
     });
   }
@@ -293,9 +341,17 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
 
     return _viewMode == ViewMode.list
         ? ListView.builder(
+          controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: workoutList.activities.length,
+          itemCount: workoutList.activities.length + (isLoadingMore ? 1 : 0),
           itemBuilder: (BuildContext context, int index) {
+            if (index == workoutList.activities.length) {
+              return const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Center(child: AppLoadingIndicator()),
+              );
+            }
+
             final WorkoutActivity workout = workoutList.activities[index];
             return _WorkoutListItem(
               workout: workout,
@@ -305,6 +361,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
           },
         )
         : GridView.builder(
+          controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.zero,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -313,8 +370,12 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
             mainAxisSpacing: 1,
             childAspectRatio: 1.0,
           ),
-          itemCount: workoutList.activities.length,
+          itemCount: workoutList.activities.length + (isLoadingMore ? 3 : 0),
           itemBuilder: (BuildContext context, int index) {
+            if (index >= workoutList.activities.length) {
+              return const Center(child: AppLoadingIndicator());
+            }
+
             final WorkoutActivity workout = workoutList.activities[index];
             return _WorkoutGridItem(
               workout: workout,

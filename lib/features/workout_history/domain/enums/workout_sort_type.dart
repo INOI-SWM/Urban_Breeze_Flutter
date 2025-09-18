@@ -1,8 +1,8 @@
 enum WorkoutSortType {
   startedAtDesc('최신순'),
   startedAtAsc('오래된순'),
-  distanceAsc('주행거리 오름차순'),
-  distanceDesc('주행거리 내림차순');
+  distanceAsc('짧은 거리순'),
+  distanceDesc('긴 거리순');
 
   const WorkoutSortType(this.displayName);
   final String displayName;

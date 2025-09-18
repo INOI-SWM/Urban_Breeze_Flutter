@@ -16,7 +16,7 @@ class WorkoutActivity {
   final String title;
   final DateTime startedAt;
   final DateTime endedAt;
-  final double distance;
+  final double distance; // km 단위
   final int duration; // seconds
   final double elevationGain; // meters
   final String thumbnailImageUrl;
