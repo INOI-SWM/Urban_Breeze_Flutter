@@ -119,7 +119,7 @@ class WorkoutDetailResponseModel {
       endedAt: DateTime.parse(json['endedAt'] as String),
       activeDurationMinutes: json['activeDurationMinutes'] as int,
       totalDurationMinutes: json['totalDurationMinutes'] as int,
-      distance: (json['distance'] as num).toDouble() / 1000, // 미터를 km로 변환
+      distance: (json['distance'] as num).toDouble(), // km 단위
       averageSpeed: (json['averageSpeed'] as num).toDouble(),
       elevationGain: (json['elevationGain'] as num).toDouble(),
       elevationLoss: (json['elevationLoss'] as num).toDouble(),
@@ -182,7 +182,7 @@ class WorkoutDetailResponseModel {
       'endedAt': endedAt.toIso8601String(),
       'activeDurationMinutes': activeDurationMinutes,
       'totalDurationMinutes': totalDurationMinutes,
-      'distance': distance * 1000, // km를 미터로 변환
+      'distance': distance, // km 단위
       'averageSpeed': averageSpeed,
       'elevationGain': elevationGain,
       'elevationLoss': elevationLoss,

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
-import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
-import 'package:urban_breeze/features/workout_history/presentation/screens/workout_detail_route_screen.dart';
-import 'package:urban_breeze/features/workout_history/presentation/screens/workout_detail_stat_screen.dart';
-import 'package:urban_breeze/features/workout_history/presentation/widgets/workout_detail_map_widget.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/workout_activity.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
 import 'package:urban_breeze/features/workout_history/presentation/widgets/workout_photo_gallery_widget.dart';
 import 'package:urban_breeze/features/workout_history/presentation/widgets/workout_title_edit_widget.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
@@ -14,6 +14,7 @@ import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar
 import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:urban_breeze/shared/design_system/widgets/info/info_item.dart';
+import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/utils/date_formatter.dart';
 import 'package:urban_breeze/shared/utils/workout_formatter.dart';
 
@@ -21,11 +22,11 @@ class WorkoutDetailScreen extends ConsumerStatefulWidget {
   const WorkoutDetailScreen({
     super.key,
     required this.workoutIndex,
-    required this.workoutRecord,
+    required this.workoutActivity,
   });
 
   final int workoutIndex;
-  final WorkoutRecord workoutRecord;
+  final WorkoutActivity workoutActivity;
 
   @override
   ConsumerState<WorkoutDetailScreen> createState() =>
@@ -33,17 +34,44 @@ class WorkoutDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
+  WorkoutDetail? workoutDetail;
+  bool isLoading = true;
+  String? errorMessage;
+
   @override
   void initState() {
     super.initState();
-    // 화면 조회 이벤트
-    AmplitudeAnalytics.logScreenView(
-      'workout_detail_screen',
-      additionalProperties: <String, dynamic>{
-        'workout_id': widget.workoutRecord.id,
-        'workout_index': widget.workoutIndex,
-      },
-    );
+    _loadWorkoutDetail();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AmplitudeAnalytics.logScreenView(
+        'workout_detail_screen',
+        additionalProperties: <String, dynamic>{
+          'workout_id': widget.workoutActivity.id,
+          'workout_index': widget.workoutIndex,
+        },
+      );
+    });
+  }
+
+  Future<void> _loadWorkoutDetail() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    final AppResult<WorkoutDetail> result = await ref
+        .read(getWorkoutDetailUseCaseProvider)
+        .execute(activityId: widget.workoutActivity.id.toString());
+
+    setState(() {
+      isLoading = false;
+      if (result.isSuccess) {
+        workoutDetail = result.dataOrNull!;
+      } else {
+        errorMessage = '운동 상세 정보를 불러올 수 없습니다';
+      }
+    });
   }
 
   @override
@@ -61,11 +89,10 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
           CustomIconButton(
             icon: Icons.more_vert,
             onTap: () {
-              // 더보기 메뉴 클릭 이벤트
               AmplitudeAnalytics.logButtonClick(
                 'workout_detail_more_options',
                 additionalProperties: <String, dynamic>{
-                  'workout_id': widget.workoutRecord.id,
+                  'workout_id': widget.workoutActivity.id,
                 },
               );
               // TODO: 더보기 메뉴 구현
@@ -73,207 +100,230 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
           ),
         ],
       ),
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: colors.lineNormalNormal,
-                            width: 1,
-                          ),
+      body: _buildBody(colors),
+    );
+  }
+
+  Widget _buildBody(SemanticColors colors) {
+    if (isLoading) {
+      return const Center(child: AppLoadingIndicator());
+    }
+
+    if (errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(Icons.error_outline, size: 48, color: colors.labelAlternative),
+            const SizedBox(height: 16),
+            Text(
+              errorMessage!,
+              style: AppTextStyles.body2.normalBold,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            ButtonOutlined(
+              text: '다시 시도',
+              onPressed: _loadWorkoutDetail,
+              textColor: colors.labelNormal,
+              borderColor: colors.lineNormalNormal,
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (workoutDetail == null) {
+      return Center(
+        child: Text('운동 상세 정보가 없습니다', style: AppTextStyles.body2.normalBold),
+      );
+    }
+
+    return _buildWorkoutDetailContent(colors);
+  }
+
+  Widget _buildWorkoutDetailContent(SemanticColors colors) {
+    final WorkoutDetail detail = workoutDetail!;
+
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: colors.lineNormalNormal,
+                          width: 1,
                         ),
                       ),
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            DateFormatter.formatKorean(
-                              widget.workoutRecord.startTime,
-                            ),
-                            style: AppTextStyles.label2.bold.copyWith(
-                              color: colors.labelAlternative,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          WorkoutTitleEditWidget(
-                            workoutId: widget.workoutRecord.id,
-                            initialIndex: widget.workoutIndex,
-                          ),
-                        ],
-                      ),
                     ),
-                    const SizedBox(height: 20),
-                    Text(
-                      '이동 거리',
-                      style: AppTextStyles.label1.normalBold.copyWith(
-                        color: colors.labelAlternative,
-                      ),
-                    ),
-                    Text(
-                      WorkoutFormatter.toKmText(widget.workoutRecord.distance),
-                      style: AppTextStyles.display1.bold.copyWith(
-                        color: colors.labelStrong,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Expanded(
-                          child: InfoItem(
-                            label: '운동 시간',
-                            value: WorkoutFormatter.toDurationText(
-                              widget.workoutRecord.duration,
-                            ),
-                            alignment: CrossAxisAlignment.start,
+                        Text(
+                          DateFormatter.formatKorean(detail.startedAt),
+                          style: AppTextStyles.label2.bold.copyWith(
+                            color: colors.labelAlternative,
                           ),
                         ),
-                        Expanded(
-                          child: InfoItem(
-                            label: '평균 속도',
-                            value: WorkoutFormatter.toSpeedText(
-                              widget.workoutRecord.distance,
-                              widget.workoutRecord.duration,
-                            ),
-                            alignment: CrossAxisAlignment.start,
-                          ),
-                        ),
-                        Expanded(
-                          child: InfoItem(
-                            label: '소모 칼로리',
-                            value: WorkoutFormatter.toCaloriesText(
-                              widget.workoutRecord.calories,
-                            ),
-                            alignment: CrossAxisAlignment.start,
-                          ),
+                        const SizedBox(height: 8),
+                        WorkoutTitleEditWidget(
+                          workoutId: detail.id.toString(),
+                          initialTitle: detail.title,
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    //TODO: api 개발 후 데이터 변경
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: InfoItem(
-                            label: '전체 시간',
-                            value: WorkoutFormatter.toDurationText(
-                              widget.workoutRecord.duration,
-                            ),
-                            alignment: CrossAxisAlignment.start,
-                          ),
-                        ),
-                        Expanded(
-                          child: InfoItem(
-                            label: '케이던스',
-                            value: WorkoutFormatter.toCadenceText(
-                              null,
-                            ), // 데이터 없음
-                            alignment: CrossAxisAlignment.start,
-                          ),
-                        ),
-                        Expanded(
-                          child: InfoItem(
-                            label: '평균 심박수',
-                            value: WorkoutFormatter.toHeartRateText(
-                              widget
-                                      .workoutRecord
-                                      .heartRateData
-                                      ?.firstOrNull
-                                      ?.heartRate
-                                      .toDouble() ??
-                                  0,
-                            ),
-                            alignment: CrossAxisAlignment.start,
-                          ),
-                        ),
-                      ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    '이동 거리',
+                    style: AppTextStyles.label1.normalBold.copyWith(
+                      color: colors.labelAlternative,
                     ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ButtonOutlined(
-                        text: '상세 정보',
-                        onPressed: () {
-                          // 상세 정보 버튼 클릭 이벤트
-                          AmplitudeAnalytics.logButtonClick(
-                            'workout_detail_statistics',
-                            additionalProperties: <String, dynamic>{
-                              'workout_id': widget.workoutRecord.id,
-                            },
-                          );
+                  ),
+                  Text(
+                    WorkoutFormatter.toKmTextFromKm(detail.distance),
+                    style: AppTextStyles.display1.bold.copyWith(
+                      color: colors.labelStrong,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: InfoItem(
+                          label: '운동 시간',
+                          value: WorkoutFormatter.toDurationText(
+                            detail.totalDuration,
+                          ),
+                          alignment: CrossAxisAlignment.start,
+                        ),
+                      ),
+                      Expanded(
+                        child: InfoItem(
+                          label: '평균 속도',
+                          value: detail.averageSpeedDisplay,
+                          alignment: CrossAxisAlignment.start,
+                        ),
+                      ),
+                      const Expanded(
+                        child: InfoItem(
+                          label: '소모 칼로리',
+                          value: '--', // TODO: 칼로리 데이터 추가 필요
+                          alignment: CrossAxisAlignment.start,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: InfoItem(
+                          label: '전체 시간',
+                          value: WorkoutFormatter.toDurationText(
+                            detail.totalDuration,
+                          ),
+                          alignment: CrossAxisAlignment.start,
+                        ),
+                      ),
+                      Expanded(
+                        child: InfoItem(
+                          label: '케이던스',
+                          value: detail.cadenceDisplay,
+                          alignment: CrossAxisAlignment.start,
+                        ),
+                      ),
+                      Expanded(
+                        child: InfoItem(
+                          label: '평균 심박수',
+                          value: detail.averageHeartRateDisplay,
+                          alignment: CrossAxisAlignment.start,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ButtonOutlined(
+                      text: '상세 정보',
+                      onPressed: () {
+                        AmplitudeAnalytics.logButtonClick(
+                          'workout_detail_statistics',
+                          additionalProperties: <String, dynamic>{
+                            'workout_id': detail.id,
+                          },
+                        );
 
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder:
-                                  (BuildContext context) =>
-                                      WorkoutDetailStatScreen(
-                                        workoutIndex: widget.workoutIndex,
-                                        workoutRecord: widget.workoutRecord,
-                                      ),
-                            ),
-                          );
-                        },
-                        textColor: colors.labelNormal,
-                        borderColor: colors.lineNormalNormal,
-                      ),
+                        // TODO: WorkoutDetailStatScreen을 WorkoutActivity 지원하도록 수정 필요
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute<void>(
+                        //     builder: (BuildContext context) => WorkoutDetailStatScreen(
+                        //       workoutIndex: widget.workoutIndex,
+                        //       workoutRecord: widget.workoutActivity,
+                        //     ),
+                        //   ),
+                        // );
+                      },
+                      textColor: colors.labelNormal,
+                      borderColor: colors.lineNormalNormal,
                     ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      height: 300,
-                      child: WorkoutDetailMapWidget(
-                        workoutRecord: widget.workoutRecord,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ButtonOutlined(
-                        text: '상세 경로',
-                        onPressed: () {
-                          // 상세 경로 버튼 클릭 이벤트
-                          AmplitudeAnalytics.logButtonClick(
-                            'workout_detail_route',
-                            additionalProperties: <String, dynamic>{
-                              'workout_id': widget.workoutRecord.id,
-                            },
-                          );
+                  ),
+                  const SizedBox(height: 20),
+                  // TODO: WorkoutDetailMapWidget을 WorkoutActivity 지원하도록 수정 필요
+                  // SizedBox(
+                  //   height: 300,
+                  //   child: WorkoutDetailMapWidget(
+                  //     workoutRecord: widget.workoutActivity,
+                  //   ),
+                  // ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ButtonOutlined(
+                      text: '상세 경로',
+                      onPressed: () {
+                        AmplitudeAnalytics.logButtonClick(
+                          'workout_detail_route',
+                          additionalProperties: <String, dynamic>{
+                            'workout_id': detail.id,
+                          },
+                        );
 
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(
-                              builder:
-                                  (BuildContext context) =>
-                                      WorkoutDetailRouteScreen(
-                                        workoutRecord: widget.workoutRecord,
-                                      ),
-                            ),
-                          );
-                        },
-                        textColor: colors.labelNormal,
-                        borderColor: colors.lineNormalNormal,
-                      ),
+                        // TODO: WorkoutDetailRouteScreen을 WorkoutActivity 지원하도록 수정 필요
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute<void>(
+                        //     builder: (BuildContext context) => WorkoutDetailRouteScreen(
+                        //       workoutRecord: widget.workoutActivity,
+                        //     ),
+                        //   ),
+                        // );
+                      },
+                      textColor: colors.labelNormal,
+                      borderColor: colors.lineNormalNormal,
                     ),
-                    const SizedBox(height: 20),
-                    const WorkoutPhotoGalleryWidget(),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 20),
+                  const WorkoutPhotoGalleryWidget(),
+                ],
               ),
-              const SizedBox(height: 50), // 빈 공간 추가
-            ],
-          ),
+            ),
+            const SizedBox(height: 50),
+          ],
         ),
       ),
     );

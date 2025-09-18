@@ -18,7 +18,8 @@ import 'package:urban_breeze/shared/sort/sort_modal.dart';
 import 'package:urban_breeze/shared/utils/date_formatter.dart';
 import 'package:urban_breeze/shared/utils/workout_formatter.dart';
 
-//TODO : 추후 api 개발 시 에러 처리 추가
+import 'workout_detail_screen.dart';
+
 class WorkoutListScreen extends ConsumerStatefulWidget {
   const WorkoutListScreen({super.key});
 
@@ -238,17 +239,16 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
       properties: <String, dynamic>{'workout_id': workout.id},
     );
 
-    // TODO: WorkoutDetailScreen을 WorkoutActivity를 지원하도록 수정 필요
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute<void>(
-    //     builder:
-    //         (BuildContext context) => WorkoutDetailScreen(
-    //           workoutRecord: workout,
-    //           workoutIndex: index,
-    //         ),
-    //   ),
-    // );
+    Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder:
+            (BuildContext context) => WorkoutDetailScreen(
+              workoutActivity: workout,
+              workoutIndex: index,
+            ),
+      ),
+    );
   }
 
   void _showSortModal() {

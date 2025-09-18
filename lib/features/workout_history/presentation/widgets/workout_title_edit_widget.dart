@@ -16,11 +16,11 @@ class WorkoutTitleEditWidget extends ConsumerStatefulWidget {
   const WorkoutTitleEditWidget({
     super.key,
     required this.workoutId,
-    required this.initialIndex,
+    required this.initialTitle,
   });
 
   final String workoutId;
-  final int initialIndex;
+  final String initialTitle;
 
   @override
   ConsumerState<WorkoutTitleEditWidget> createState() =>
@@ -38,7 +38,7 @@ class _WorkoutTitleEditWidgetState extends ConsumerState<WorkoutTitleEditWidget>
   @override
   void initState() {
     super.initState();
-    final String initialTitle = '운동기록 ${widget.initialIndex + 1}';
+    final String initialTitle = widget.initialTitle;
     final UpdateWorkoutTitleUseCase useCase = ref.read(
       updateWorkoutTitleUseCaseProvider,
     );
