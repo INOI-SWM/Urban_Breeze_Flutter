@@ -6,6 +6,7 @@ import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_activity.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
+import 'package:urban_breeze/features/workout_history/presentation/screens/workout_detail_stat_screen.dart';
 import 'package:urban_breeze/features/workout_history/presentation/widgets/workout_detail_map_widget.dart';
 import 'package:urban_breeze/features/workout_history/presentation/widgets/workout_photo_gallery_widget.dart';
 import 'package:urban_breeze/features/workout_history/presentation/widgets/workout_title_edit_widget.dart';
@@ -268,16 +269,17 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
                           },
                         );
 
-                        // TODO: WorkoutDetailStatScreen을 WorkoutActivity 지원하도록 수정 필요
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute<void>(
-                        //     builder: (BuildContext context) => WorkoutDetailStatScreen(
-                        //       workoutIndex: widget.workoutIndex,
-                        //       workoutRecord: widget.workoutActivity,
-                        //     ),
-                        //   ),
-                        // );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder:
+                                (BuildContext context) =>
+                                    WorkoutDetailStatScreen(
+                                      workoutIndex: widget.workoutIndex,
+                                      workoutDetail: detail,
+                                    ),
+                          ),
+                        );
                       },
                       textColor: colors.labelNormal,
                       borderColor: colors.lineNormalNormal,
