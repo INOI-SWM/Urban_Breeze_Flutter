@@ -1,4 +1,5 @@
 import 'package:http/http.dart' as http;
+import 'package:urban_breeze/features/workout_history/domain/enums/workout_sort_type.dart';
 import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
 import 'package:urban_breeze/shared/api/data/datasources/base_remote_datasource.dart';
@@ -13,12 +14,14 @@ class RemoteWorkoutHistoryDataSource extends BaseRemoteDataSource {
   Future<ApiResponseModel<WorkoutListResponseModel>> getWorkoutList({
     int page = 0,
     int size = 10,
+    WorkoutSortType sortType = WorkoutSortType.startedAtDesc,
   }) async {
     final http.Response response = await get(
       ApiEndpoints.workoutList,
       queryParameters: <String, String>{
         'page': page.toString(),
         'size': size.toString(),
+        'sortType': sortType.apiValue,
       },
     );
 
