@@ -6,6 +6,7 @@ import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_activity.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
+import 'package:urban_breeze/features/workout_history/presentation/widgets/workout_detail_map_widget.dart';
 import 'package:urban_breeze/features/workout_history/presentation/widgets/workout_photo_gallery_widget.dart';
 import 'package:urban_breeze/features/workout_history/presentation/widgets/workout_title_edit_widget.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
@@ -283,13 +284,10 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  // TODO: WorkoutDetailMapWidget을 WorkoutActivity 지원하도록 수정 필요
-                  // SizedBox(
-                  //   height: 300,
-                  //   child: WorkoutDetailMapWidget(
-                  //     workoutRecord: widget.workoutActivity,
-                  //   ),
-                  // ),
+                  SizedBox(
+                    height: 300,
+                    child: WorkoutDetailMapWidget(workoutDetail: detail),
+                  ),
                   const SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
