@@ -22,7 +22,7 @@ class WorkoutActivityModel {
       endedAt: DateTime.parse(json['endedAt'] as String),
       distance: (json['distance'] as num).toDouble(),
       duration: json['duration'] as int,
-      elevationGain: json['elevationGain'] as int,
+      elevationGain: (json['elevationGain'] as num).toDouble(),
       thumbnailImageUrl: json['thumbnailImageUrl'] as String,
       userProfileImageUrl: json['userProfileImageUrl'] as String,
       userNickname: json['userNickname'] as String,
@@ -35,7 +35,7 @@ class WorkoutActivityModel {
   final DateTime endedAt;
   final double distance;
   final int duration;
-  final int elevationGain;
+  final double elevationGain;
   final String thumbnailImageUrl;
   final String userProfileImageUrl;
   final String userNickname;

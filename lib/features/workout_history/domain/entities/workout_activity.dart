@@ -18,7 +18,7 @@ class WorkoutActivity {
   final DateTime endedAt;
   final double distance;
   final int duration; // seconds
-  final int elevationGain; // meters
+  final double elevationGain; // meters
   final String thumbnailImageUrl;
   final String userProfileImageUrl;
   final String userNickname;
