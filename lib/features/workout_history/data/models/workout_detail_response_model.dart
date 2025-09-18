@@ -1,0 +1,206 @@
+class ActivityImageModel {
+  const ActivityImageModel({
+    required this.id,
+    required this.imageUrl,
+    required this.displayOrder,
+  });
+
+  factory ActivityImageModel.fromJson(Map<String, dynamic> json) {
+    return ActivityImageModel(
+      id: json['id'] as int,
+      imageUrl: json['imageUrl'] as String,
+      displayOrder: json['displayOrder'] as int,
+    );
+  }
+
+  final int id;
+  final String imageUrl;
+  final int displayOrder;
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'id': id,
+      'imageUrl': imageUrl,
+      'displayOrder': displayOrder,
+    };
+  }
+}
+
+class TrackPointModel {
+  const TrackPointModel({
+    required this.index,
+    required this.elevation,
+    required this.latitude,
+    required this.longitude,
+  });
+
+  factory TrackPointModel.fromJson(Map<String, dynamic> json) {
+    return TrackPointModel(
+      index: json['index'] as int,
+      elevation: (json['elevation'] as num).toDouble(),
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
+    );
+  }
+
+  final int index;
+  final double elevation;
+  final double latitude;
+  final double longitude;
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'index': index,
+      'elevation': elevation,
+      'latitude': latitude,
+      'longitude': longitude,
+    };
+  }
+}
+
+class WorkoutUserModel {
+  const WorkoutUserModel({
+    required this.uuid,
+    required this.nickname,
+    required this.profileImageUrl,
+  });
+
+  factory WorkoutUserModel.fromJson(Map<String, dynamic> json) {
+    return WorkoutUserModel(
+      uuid: json['uuid'] as String,
+      nickname: json['nickname'] as String,
+      profileImageUrl: json['profileImageUrl'] as String,
+    );
+  }
+
+  final String uuid;
+  final String nickname;
+  final String profileImageUrl;
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'uuid': uuid,
+      'nickname': nickname,
+      'profileImageUrl': profileImageUrl,
+    };
+  }
+}
+
+class WorkoutDetailResponseModel {
+  const WorkoutDetailResponseModel({
+    required this.id,
+    required this.title,
+    required this.startedAt,
+    required this.endedAt,
+    required this.activeDurationMinutes,
+    required this.totalDurationMinutes,
+    required this.distance,
+    required this.averageSpeed,
+    required this.elevationGain,
+    required this.elevationLoss,
+    required this.cadence,
+    required this.averageHeartRate,
+    required this.maxHeartRate,
+    required this.averagePower,
+    required this.maxPower,
+    required this.user,
+    required this.thumbnailImageUrl,
+    required this.activityImages,
+    required this.trackPointsCount,
+    required this.trackPoints,
+    required this.bbox,
+  });
+
+  factory WorkoutDetailResponseModel.fromJson(Map<String, dynamic> json) {
+    return WorkoutDetailResponseModel(
+      id: json['id'] as int,
+      title: json['title'] as String,
+      startedAt: DateTime.parse(json['startedAt'] as String),
+      endedAt: DateTime.parse(json['endedAt'] as String),
+      activeDurationMinutes: json['activeDurationMinutes'] as int,
+      totalDurationMinutes: json['totalDurationMinutes'] as int,
+      distance: (json['distance'] as num).toDouble() / 1000, // 미터를 km로 변환
+      averageSpeed: (json['averageSpeed'] as num).toDouble(),
+      elevationGain: (json['elevationGain'] as num).toDouble(),
+      elevationLoss: (json['elevationLoss'] as num).toDouble(),
+      cadence: json['cadence'] as int,
+      averageHeartRate: json['averageHeartRate'] as int,
+      maxHeartRate: json['maxHeartRate'] as int,
+      averagePower: json['averagePower'] as int,
+      maxPower: json['maxPower'] as int,
+      user: WorkoutUserModel.fromJson(json['user'] as Map<String, dynamic>),
+      thumbnailImageUrl: json['thumbnailImageUrl'] as String,
+      activityImages:
+          (json['activityImages'] as List<dynamic>)
+              .map(
+                (dynamic item) =>
+                    ActivityImageModel.fromJson(item as Map<String, dynamic>),
+              )
+              .toList(),
+      trackPointsCount: json['trackPointsCount'] as int,
+      trackPoints:
+          (json['trackPoints'] as List<dynamic>)
+              .map(
+                (dynamic item) =>
+                    TrackPointModel.fromJson(item as Map<String, dynamic>),
+              )
+              .toList(),
+      bbox:
+          (json['bbox'] as List<dynamic>)
+              .map((dynamic item) => (item as num).toDouble())
+              .toList(),
+    );
+  }
+
+  final int id;
+  final String title;
+  final DateTime startedAt;
+  final DateTime endedAt;
+  final int activeDurationMinutes; // 분 단위
+  final int totalDurationMinutes; // 분 단위
+  final double distance; // km 단위
+  final double averageSpeed; // km/h
+  final double elevationGain; // m
+  final double elevationLoss; // m
+  final int cadence; // rpm
+  final int averageHeartRate; // bpm
+  final int maxHeartRate; // bpm
+  final int averagePower; // W
+  final int maxPower; // W
+  final WorkoutUserModel user;
+  final String thumbnailImageUrl;
+  final List<ActivityImageModel> activityImages;
+  final int trackPointsCount;
+  final List<TrackPointModel> trackPoints;
+  final List<double> bbox; // [minLng, minLat, maxLng, maxLat]
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'id': id,
+      'title': title,
+      'startedAt': startedAt.toIso8601String(),
+      'endedAt': endedAt.toIso8601String(),
+      'activeDurationMinutes': activeDurationMinutes,
+      'totalDurationMinutes': totalDurationMinutes,
+      'distance': distance * 1000, // km를 미터로 변환
+      'averageSpeed': averageSpeed,
+      'elevationGain': elevationGain,
+      'elevationLoss': elevationLoss,
+      'cadence': cadence,
+      'averageHeartRate': averageHeartRate,
+      'maxHeartRate': maxHeartRate,
+      'averagePower': averagePower,
+      'maxPower': maxPower,
+      'user': user.toJson(),
+      'thumbnailImageUrl': thumbnailImageUrl,
+      'activityImages':
+          activityImages
+              .map((ActivityImageModel image) => image.toJson())
+              .toList(),
+      'trackPointsCount': trackPointsCount,
+      'trackPoints':
+          trackPoints.map((TrackPointModel point) => point.toJson()).toList(),
+      'bbox': bbox,
+    };
+  }
+}
