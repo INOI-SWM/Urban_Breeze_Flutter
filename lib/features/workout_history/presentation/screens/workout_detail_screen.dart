@@ -86,7 +86,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
       appBar: CustomAppBar(
         leading: CustomIconButton(
           icon: Icons.arrow_back_ios_new,
-          onTap: () => Navigator.of(context).pop(),
+          onTap: () => Navigator.of(context).pop(workoutDetail),
         ),
         actions: <Widget>[
           CustomIconButton(
