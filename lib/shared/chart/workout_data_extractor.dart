@@ -1,70 +1,37 @@
 import 'package:fl_chart/fl_chart.dart';
-import 'package:urban_breeze/features/workout_history/domain/entities/heart_rate_data.dart';
-import 'package:urban_breeze/features/workout_history/domain/entities/location_data.dart';
-import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/track_point.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
 
 class WorkoutDataExtractor {
   WorkoutDataExtractor._();
 
-  /// 범용 시계열 데이터 추출기
-  ///
-  /// [data]: 추출할 데이터 리스트
-  /// [timestampExtractor]: 타임스탬프 추출 함수
-  /// [valueExtractor]: 값 추출 함수 (null 가능)
-  /// [valueTransformer]: 값 변환 함수 (선택적)
-  static List<FlSpot> extractTimeSeriesData<T>({
-    required List<T> data,
-    required DateTime Function(T) timestampExtractor,
-    required double? Function(T) valueExtractor,
-    double Function(double)? valueTransformer,
-  }) {
-    final List<FlSpot> spots = <FlSpot>[];
+  // ========== WorkoutDetail용 메서드들 ==========
 
-    if (data.isEmpty) return spots;
+  /// WorkoutDetail에서 고도 데이터 추출 (TrackPoint → FlSpot)
+  /// index를 시간축으로 사용
+  static List<FlSpot> extractAltitudeDataFromDetail(
+    WorkoutDetail workoutDetail,
+  ) {
+    final List<TrackPoint> trackPoints = workoutDetail.trackPoints;
 
-    final DateTime startTime = timestampExtractor(data.first);
+    if (trackPoints.isEmpty) return <FlSpot>[];
 
-    for (final T item in data) {
-      final double? rawValue = valueExtractor(item);
-      if (rawValue != null) {
-        final double timeInMinutes =
-            timestampExtractor(item).difference(startTime).inMilliseconds /
-            (1000 * 60); // milliseconds to minutes
-
-        final double finalValue = valueTransformer?.call(rawValue) ?? rawValue;
-        spots.add(FlSpot(timeInMinutes, finalValue));
-      }
-    }
-
-    return spots;
+    return trackPoints.map((TrackPoint point) {
+      return FlSpot(point.index.toDouble(), point.elevation);
+    }).toList();
   }
 
-  /// 속도 데이터 추출 (LocationData → FlSpot, m/s → km/h 변환)
-  static List<FlSpot> extractSpeedData(WorkoutRecord workoutRecord) {
-    return extractTimeSeriesData<LocationData>(
-      data: workoutRecord.locationData ?? <LocationData>[],
-      timestampExtractor: (LocationData location) => location.timestamp,
-      valueExtractor: (LocationData location) => location.speed,
-      valueTransformer: (double mPerSec) => mPerSec * 3.6, // m/s to km/h
-    );
+  // TODO: WorkoutDetail에서 실제 속도 데이터 추출 함수 구현 필요
+  static List<FlSpot> extractSpeedDataFromDetail(WorkoutDetail workoutDetail) {
+    // 임시로 빈 리스트 반환
+    return <FlSpot>[];
   }
 
-  /// 고도 데이터 추출 (LocationData → FlSpot)
-  static List<FlSpot> extractAltitudeData(WorkoutRecord workoutRecord) {
-    return extractTimeSeriesData<LocationData>(
-      data: workoutRecord.locationData ?? <LocationData>[],
-      timestampExtractor: (LocationData location) => location.timestamp,
-      valueExtractor: (LocationData location) => location.altitude,
-    );
-  }
-
-  /// 심박수 데이터 추출 (HeartRateData → FlSpot)
-  static List<FlSpot> extractHeartRateData(WorkoutRecord workoutRecord) {
-    return extractTimeSeriesData<HeartRateData>(
-      data: workoutRecord.heartRateData ?? <HeartRateData>[],
-      timestampExtractor: (HeartRateData heartRate) => heartRate.timestamp,
-      valueExtractor:
-          (HeartRateData heartRate) => heartRate.heartRate.toDouble(),
-    );
+  // TODO: WorkoutDetail에서 실제 심박수 데이터 추출 함수 구현 필요
+  static List<FlSpot> extractHeartRateDataFromDetail(
+    WorkoutDetail workoutDetail,
+  ) {
+    // 임시로 빈 리스트 반환
+    return <FlSpot>[];
   }
 }
