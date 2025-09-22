@@ -182,6 +182,39 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
     }
   }
 
+  /// 현재 뷰 모드에 따른 페이지 사이즈 반환
+  int _getPageSize() {
+    return _viewMode == ViewMode.grid ? 21 : 10; // 그리드: 21개(3x7), 리스트: 10개
+  }
+
+  /// 뷰 모드 전환 시 필요한 데이터가 부족하면 추가 로딩
+  Future<void> _ensureEnoughDataForViewMode(ViewMode newMode) async {
+    final int requiredSize = newMode == ViewMode.grid ? 21 : 10;
+    final int currentSize = workoutList.activities.length;
+
+    if (currentSize < requiredSize && workoutList.hasNext) {
+      await _loadMoreToTargetSize(requiredSize);
+    }
+  }
+
+  /// 목표 사이즈까지 데이터 로딩
+  Future<void> _loadMoreToTargetSize(int targetSize) async {
+    while (workoutList.activities.length < targetSize &&
+        workoutList.hasNext &&
+        !isLoadingMore) {
+      await _loadMoreWorkouts();
+    }
+  }
+
+  Future<void> _onViewModeChanged(ViewMode newMode) async {
+    if (_viewMode == newMode) return;
+    await _ensureEnoughDataForViewMode(newMode);
+
+    setState(() {
+      _viewMode = newMode;
+    });
+  }
+
   Future<void> _loadWorkoutList() async {
     setState(() {
       isLoading = true;
@@ -190,7 +223,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
 
     final AppResult<WorkoutList> result = await ref
         .read(getWorkoutListUseCaseProvider)
-        .execute(page: 0, sortType: _sortType);
+        .execute(page: 0, size: _getPageSize(), sortType: _sortType);
 
     setState(() {
       isLoading = false;
@@ -212,7 +245,11 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
 
     final AppResult<WorkoutList> result = await ref
         .read(getWorkoutListUseCaseProvider)
-        .execute(page: workoutList.currentPage + 1, sortType: _sortType);
+        .execute(
+          page: workoutList.currentPage + 1,
+          size: _getPageSize(),
+          sortType: _sortType,
+        );
 
     setState(() {
       isLoadingMore = false;
@@ -341,7 +378,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
                 ),
                 _ViewModeToggleButton(
                   viewMode: _viewMode,
-                  onToggle: () {
+                  onToggle: () async {
                     // 뷰 모드 변경 이벤트
                     final ViewMode newViewMode =
                         _viewMode == ViewMode.list
@@ -355,9 +392,8 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
                       },
                     );
 
-                    setState(() {
-                      _viewMode = newViewMode;
-                    });
+                    // 새로운 뷰 모드에 필요한 데이터 확보 후 전환
+                    await _onViewModeChanged(newViewMode);
                   },
                 ),
               ],
