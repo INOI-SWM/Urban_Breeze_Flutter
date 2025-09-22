@@ -46,5 +46,5 @@ class ApiEndpoints {
       '/api/v1/activities/$activityId/images/$imageId';
 
   //statistics
-  static const String workoutStatistics = '/api/v1/activities/statistics';
+  static const String workoutStatistics = '/api/v1/activities/stats';
 }
