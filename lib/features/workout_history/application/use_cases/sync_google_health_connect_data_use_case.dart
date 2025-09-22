@@ -36,11 +36,9 @@ class SyncGoogleHealthConnectDataUseCase {
         };
       }
     } catch (e) {
-      // TODO: 에러 처리 로직 추가
       rethrow;
     }
 
-    // TODO: 서버 저장
     return completeData;
   }
 
@@ -55,7 +53,6 @@ class SyncGoogleHealthConnectDataUseCase {
         endDate: endDate,
       );
     } catch (e) {
-      // TODO: 에러 처리 로직 추가
       rethrow;
     }
   }
