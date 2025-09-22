@@ -2,22 +2,30 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/upload_result.dart';
 import 'package:urban_breeze/shared/design_system/tokens/decorations/app_shadows.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
-class WorkoutPhotoGalleryWidget extends StatefulWidget {
-  const WorkoutPhotoGalleryWidget({super.key});
+class WorkoutPhotoGalleryWidget extends ConsumerStatefulWidget {
+  const WorkoutPhotoGalleryWidget({super.key, required this.activityId});
+
+  final String activityId;
 
   @override
-  State<WorkoutPhotoGalleryWidget> createState() =>
+  ConsumerState<WorkoutPhotoGalleryWidget> createState() =>
       _WorkoutPhotoGalleryWidgetState();
 }
 
-class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
+class _WorkoutPhotoGalleryWidgetState
+    extends ConsumerState<WorkoutPhotoGalleryWidget>
     with ErrorDisplayMixin {
   static const int _maxPhotoCount = 30;
   static const String _maxPhotosMessage = '최대 30장까지만 추가할 수 있습니다.';
@@ -34,12 +42,58 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
 
   final List<File> _selectedImages = <File>[];
   final ImagePicker _imagePicker = ImagePicker();
+  bool _isUploading = false;
 
   // 🔄 성능 최적화: 파일 해시 캐시 (메모리 효율적)
   final Map<String, String> _fileHashCache = <String, String>{};
 
   bool _canAddMorePhotos() {
-    return _selectedImages.length < _maxPhotoCount;
+    return _selectedImages.length < _maxPhotoCount && !_isUploading;
+  }
+
+  /// 선택된 이미지들을 서버에 업로드
+  Future<void> _uploadImages() async {
+    if (_selectedImages.isEmpty || _isUploading) return;
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    try {
+      final AppResult<UploadResult> result = await ref
+          .read(uploadWorkoutImagesUseCaseProvider)
+          .execute(activityId: widget.activityId, imageFiles: _selectedImages);
+
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+
+        if (result.isSuccess) {
+          final UploadResult uploadResult = result.dataOrNull!;
+          showSuccessMessage(
+            context,
+            '${uploadResult.uploadedCount}장의 사진이 성공적으로 업로드되었습니다!',
+          );
+          // 업로드 완료 후 선택된 이미지들 초기화
+          setState(() {
+            _selectedImages.clear();
+            _fileHashCache.clear();
+          });
+        } else {
+          final String errorMessage =
+              result.exceptionOrNull?.message ?? '업로드 중 오류가 발생했습니다.';
+          showErrorMessage(context, errorMessage);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+        showErrorMessage(context, '업로드 중 예기치 못한 오류가 발생했습니다.');
+      }
+    }
   }
 
   @override
@@ -140,6 +194,18 @@ class _WorkoutPhotoGalleryWidgetState extends State<WorkoutPhotoGalleryWidget>
             ],
           ),
         ),
+        if (_selectedImages.isNotEmpty) ...<Widget>[
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ButtonOutlined(
+              text: _isUploading ? '업로드 중...' : '사진 업로드',
+              onPressed: _isUploading ? null : _uploadImages,
+              textColor: colors.labelNormal,
+              borderColor: colors.lineNormalNormal,
+            ),
+          ),
+        ],
       ],
     );
   }
