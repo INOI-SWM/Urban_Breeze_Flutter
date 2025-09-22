@@ -10,6 +10,7 @@ import 'package:urban_breeze/features/workout_history/domain/entities/activity_i
 import 'package:urban_breeze/shared/design_system/tokens/decorations/app_shadows.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
+import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
 class WorkoutPhotoGalleryWidget extends ConsumerStatefulWidget {
@@ -311,12 +312,67 @@ class _WorkoutPhotoGalleryWidgetState
     }
   }
 
-  void _removeImage(int index, bool isServerImage) {
-    // TODO: 서버 이미지 삭제 API 호출 구현
-    print('이미지 삭제 요청 - index: $index');
-    // setState(() {
-    //   _allImages.removeAt(index);
-    // });
+  Future<void> _removeImage(int index, bool isServerImage) async {
+    if (index < 0 || index >= _allImages.length) return;
+
+    final ActivityImage imageToDelete = _allImages[index];
+
+    final bool? shouldDelete = await _showDeleteConfirmationDialog();
+    if (shouldDelete != true) return;
+
+    setState(() {});
+
+    try {
+      final AppResult<void> result = await ref
+          .read(deleteWorkoutImageUseCaseProvider)
+          .execute(activityId: widget.activityId, imageId: imageToDelete.id);
+
+      if (mounted) {
+        if (result.isSuccess) {
+          setState(() {
+            _allImages.removeAt(index);
+          });
+          showSuccessMessage(context, '이미지가 삭제되었습니다.');
+        } else {
+          final String errorMessage =
+              result.exceptionOrNull?.message ?? '이미지 삭제 중 오류가 발생했습니다.';
+          showErrorMessage(context, errorMessage);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        showErrorMessage(context, '이미지 삭제 중 예기치 못한 오류가 발생했습니다.');
+      }
+    }
+  }
+
+  /// 삭제 확인 다이얼로그 표시
+  Future<bool?> _showDeleteConfirmationDialog() async {
+    final SemanticColors colors = context.semanticColor;
+    bool? result;
+
+    await ModalShow.show<void>(
+      context: context,
+      title: '이미지 삭제',
+      content: Text(
+        '이 이미지를 삭제하시겠습니까?\n삭제된 이미지는 복구할 수 없습니다.',
+        style: AppTextStyles.body1.normalMedium.copyWith(
+          color: colors.labelAlternative,
+        ),
+      ),
+      secondaryButtonText: '취소',
+      primaryButtonText: '삭제',
+      onSecondaryButtonPressed: () {
+        result = false;
+      },
+      onPrimaryButtonPressed: () {
+        result = true;
+      },
+      barrierDismissible: true,
+      showCloseButton: false,
+    );
+
+    return result;
   }
 
   /// 이미지 미리보기 화면 표시
