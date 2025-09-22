@@ -68,4 +68,15 @@ class WorkoutHistoryRepositoryImpl implements WorkoutHistoryRepository {
 
     return UploadResultMapper.fromApiResponse(response);
   }
+
+  @override
+  Future<void> deleteWorkoutImage({
+    required String activityId,
+    required int imageId,
+  }) async {
+    await remoteDataSource.deleteWorkoutImage(
+      activityId: activityId,
+      imageId: imageId,
+    );
+  }
 }

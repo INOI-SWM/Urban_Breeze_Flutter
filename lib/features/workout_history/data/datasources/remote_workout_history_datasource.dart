@@ -123,4 +123,15 @@ class RemoteWorkoutHistoryDataSource extends BaseRemoteDataSource {
       rethrow;
     }
   }
+
+  Future<void> deleteWorkoutImage({
+    required String activityId,
+    required int imageId,
+  }) async {
+    try {
+      await delete(ApiEndpoints.workoutImageDetail(activityId, imageId));
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

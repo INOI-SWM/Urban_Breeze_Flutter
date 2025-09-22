@@ -23,4 +23,9 @@ abstract class WorkoutHistoryRepository {
     required String activityId,
     required List<File> imageFiles,
   });
+
+  Future<void> deleteWorkoutImage({
+    required String activityId,
+    required int imageId,
+  });
 }
