@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class WorkoutStatistics {
   const WorkoutStatistics({
     required this.period,
@@ -125,17 +127,9 @@ class WorkoutStatisticsChartData {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is WorkoutStatisticsChartData &&
-        _listEquals(other.distancePoints, distancePoints) &&
-        _listEquals(other.elevationPoints, elevationPoints) &&
-        _listEquals(other.durationPoints, durationPoints);
-  }
-
-  bool _listEquals<T>(List<T> a, List<T> b) {
-    if (a.length != b.length) return false;
-    for (int i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
+        listEquals(other.distancePoints, distancePoints) &&
+        listEquals(other.elevationPoints, elevationPoints) &&
+        listEquals(other.durationPoints, durationPoints);
   }
 
   @override
