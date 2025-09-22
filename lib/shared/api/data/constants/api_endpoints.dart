@@ -53,5 +53,5 @@ class ApiEndpoints {
   static const String feedback = '/api/feedback';
 
   //statistics
-  static const String workoutStatistics = '/api/v1/activities/statistics';
+  static const String workoutStatistics = '/api/v1/activities/stats';
 }
