@@ -8,6 +8,7 @@ import 'package:urban_breeze/shared/api/data/datasources/base_remote_datasource.
 import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 import 'package:urban_breeze/shared/utils/image_upload_utils.dart';
 
+import '../models/upload_workout_images_response_model.dart';
 import '../models/workout_detail_response_model.dart';
 import '../models/workout_list_response_model.dart';
 import '../models/workout_title_update_request_model.dart';
@@ -80,7 +81,8 @@ class RemoteWorkoutHistoryDataSource extends BaseRemoteDataSource {
   }
 
   /// 운동 사진 업로드
-  Future<ApiResponseModel<void>> uploadWorkoutImages({
+  Future<ApiResponseModel<UploadWorkoutImagesResponseModel>>
+  uploadWorkoutImages({
     required String activityId,
     required List<File> imageFiles,
   }) async {
@@ -112,9 +114,10 @@ class RemoteWorkoutHistoryDataSource extends BaseRemoteDataSource {
         responseConverted,
       );
 
-      return ApiResponseModel<void>.fromJson(
+      return ApiResponseModel<UploadWorkoutImagesResponseModel>.fromJson(
         responseData,
-        (Map<String, dynamic> json) {},
+        (Map<String, dynamic> json) =>
+            UploadWorkoutImagesResponseModel.fromJson(json),
       );
     } catch (e) {
       rethrow;
