@@ -109,7 +109,10 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
 
     try {
       final WorkoutStatistics statistics = await _getWorkoutStatisticsUseCase
-          .execute(periodType: _selectedPeriodType);
+          .execute(
+            periodType: _selectedPeriodType,
+            periodSelection: _periodSelection,
+          );
 
       setState(() {
         _currentStatistics = statistics;
