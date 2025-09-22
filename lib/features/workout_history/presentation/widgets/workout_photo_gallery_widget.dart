@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/activity_image.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/upload_result.dart';
 import 'package:urban_breeze/shared/design_system/tokens/decorations/app_shadows.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
@@ -13,9 +14,14 @@ import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_sty
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
 class WorkoutPhotoGalleryWidget extends ConsumerStatefulWidget {
-  const WorkoutPhotoGalleryWidget({super.key, required this.activityId});
+  const WorkoutPhotoGalleryWidget({
+    super.key,
+    required this.activityId,
+    this.initialImages = const <ActivityImage>[],
+  });
 
   final String activityId;
+  final List<ActivityImage> initialImages;
 
   @override
   ConsumerState<WorkoutPhotoGalleryWidget> createState() =>
@@ -38,9 +44,19 @@ class _WorkoutPhotoGalleryWidgetState
   static const double _deleteButtonSize = 24.0; // 삭제 버튼 크기
   static const double _deleteIconSize = 16.0; // 삭제 아이콘 크기
 
-  final List<File> _selectedImages = <File>[];
+  final List<File> _selectedImages = <File>[]; // 갤러리에서 선택한 이미지들
   final ImagePicker _imagePicker = ImagePicker();
   bool _isUploading = false;
+
+  // 모든 이미지 (초기 이미지 + 업로드된 이미지)
+  List<ActivityImage> _allImages = <ActivityImage>[];
+
+  @override
+  void initState() {
+    super.initState();
+    // 초기 이미지들을 전체 이미지 리스트에 추가
+    _allImages = List<ActivityImage>.from(widget.initialImages);
+  }
 
   bool _canAddMorePhotos() {
     return _selectedImages.length < _maxPhotoCount && !_isUploading;
@@ -70,9 +86,19 @@ class _WorkoutPhotoGalleryWidgetState
             context,
             '${uploadResult.uploadedCount}장의 사진이 성공적으로 업로드되었습니다!',
           );
-          // 업로드 완료 후 선택된 이미지들 초기화
+
+          // 업로드된 이미지들을 전체 이미지 리스트에 추가
           setState(() {
-            _selectedImages.clear();
+            _allImages.addAll(
+              uploadResult.uploadedImages.map(
+                (UploadedImage uploadedImage) => ActivityImage(
+                  id: uploadedImage.id,
+                  imageUrl: uploadedImage.imageUrl,
+                  displayOrder: uploadedImage.displayOrder,
+                ),
+              ),
+            );
+            _selectedImages.clear(); // 갤러리에서 선택한 이미지들은 초기화
           });
         } else {
           final String errorMessage =
@@ -105,9 +131,7 @@ class _WorkoutPhotoGalleryWidgetState
         ),
         const SizedBox(height: _sectionSpacing),
         Text(
-          _isUploading
-              ? '업로드 중... 잠시만 기다려주세요'
-              : '${_selectedImages.length}/$_maxPhotoCount장 (최대 30장까지 추가 가능)',
+          _isUploading ? '업로드 중... 잠시만 기다려주세요' : '${_allImages.length}장',
           style: AppTextStyles.label1.readingBold.copyWith(
             color:
                 _isUploading ? colors.primaryNormal : colors.labelAlternative,
@@ -210,12 +234,18 @@ class _WorkoutPhotoGalleryWidgetState
                   ],
                 ),
               ),
-              ..._selectedImages.asMap().entries.map((
-                MapEntry<int, File> entry,
+              // 모든 업로드된 이미지들 표시 (서버 URL로 표시)
+              ..._allImages.asMap().entries.map((
+                MapEntry<int, ActivityImage> entry,
               ) {
                 final int index = entry.key;
-                final File imageFile = entry.value;
-                return _buildPhotoItem(context, imageFile, index);
+                final ActivityImage image = entry.value;
+                return _buildImageItem(
+                  context,
+                  image,
+                  index,
+                  true,
+                ); // true = 서버 이미지
               }),
             ],
           ),
@@ -281,26 +311,31 @@ class _WorkoutPhotoGalleryWidgetState
     }
   }
 
-  void _removeImage(int index) {
-    if (index >= 0 && index < _selectedImages.length) {
-      setState(() {
-        _selectedImages.removeAt(index);
-      });
-    }
+  void _removeImage(int index, bool isServerImage) {
+    // TODO: 서버 이미지 삭제 API 호출 구현
+    print('이미지 삭제 요청 - index: $index');
+    // setState(() {
+    //   _allImages.removeAt(index);
+    // });
   }
 
   /// 이미지 미리보기 화면 표시
-  void _showImagePreview(BuildContext context, File imageFile) {
+  void _showImagePreview(BuildContext context, ActivityImage image) {
     Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder:
-            (BuildContext context) => _ImagePreviewScreen(imageFile: imageFile),
+        builder: (BuildContext context) => _ImagePreviewScreen(image: image),
       ),
     );
   }
 
-  Widget _buildPhotoItem(BuildContext context, File imageFile, int index) {
+  /// 이미지 아이템 (모든 이미지에 삭제 버튼 있음)
+  Widget _buildImageItem(
+    BuildContext context,
+    ActivityImage image,
+    int index,
+    bool isServerImage,
+  ) {
     final SemanticColors colors = context.semanticColor;
     return Container(
       width: _containerSize,
@@ -321,14 +356,47 @@ class _WorkoutPhotoGalleryWidgetState
               ),
               child: GestureDetector(
                 onTap: () {
-                  _showImagePreview(context, imageFile);
+                  _showImagePreview(context, image);
                 },
                 child: ClipRRect(
-                  child: Image.file(
-                    imageFile,
+                  child: Image.network(
+                    image.imageUrl,
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,
+                    loadingBuilder: (
+                      BuildContext context,
+                      Widget child,
+                      ImageChunkEvent? loadingProgress,
+                    ) {
+                      if (loadingProgress == null) return child;
+                      return Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              colors.primaryNormal,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    errorBuilder: (
+                      BuildContext context,
+                      Object error,
+                      StackTrace? stackTrace,
+                    ) {
+                      return Container(
+                        color: colors.fillNormal,
+                        child: Icon(
+                          Icons.broken_image,
+                          color: colors.labelAlternative,
+                          size: 32,
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -339,7 +407,7 @@ class _WorkoutPhotoGalleryWidgetState
             right: 0,
             child: GestureDetector(
               onTap: () {
-                _removeImage(index);
+                _removeImage(index, isServerImage);
               },
               behavior: HitTestBehavior.opaque,
               child: Container(
@@ -366,9 +434,9 @@ class _WorkoutPhotoGalleryWidgetState
 
 /// 이미지 미리보기 화면
 class _ImagePreviewScreen extends StatelessWidget {
-  const _ImagePreviewScreen({required this.imageFile});
+  const _ImagePreviewScreen({required this.image});
 
-  final File imageFile;
+  final ActivityImage image;
 
   @override
   Widget build(BuildContext context) {
@@ -384,11 +452,44 @@ class _ImagePreviewScreen extends StatelessWidget {
         panEnabled: true,
         minScale: 0.5,
         maxScale: 4.0,
-        child: Image.file(
-          imageFile,
+        child: Image.network(
+          image.imageUrl,
           fit: BoxFit.contain,
           width: double.infinity,
           height: double.infinity,
+          loadingBuilder: (
+            BuildContext context,
+            Widget child,
+            ImageChunkEvent? loadingProgress,
+          ) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(colors.staticWhite),
+              ),
+            );
+          },
+          errorBuilder: (
+            BuildContext context,
+            Object error,
+            StackTrace? stackTrace,
+          ) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(Icons.broken_image, color: colors.staticWhite, size: 64),
+                  const SizedBox(height: 16),
+                  Text(
+                    '이미지를 불러올 수 없습니다',
+                    style: AppTextStyles.body1.normalMedium.copyWith(
+                      color: colors.staticWhite,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
