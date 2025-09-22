@@ -7,6 +7,7 @@ import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/activity_image.dart';
+import 'package:urban_breeze/features/workout_history/domain/services/activity_image_service.dart';
 import 'package:urban_breeze/shared/design_system/tokens/decorations/app_shadows.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
@@ -54,13 +55,10 @@ class _WorkoutPhotoGalleryWidgetState
   @override
   void initState() {
     super.initState();
-    // 초기 이미지들을 전체 이미지 리스트에 추가 (썸네일 제외)
-    _allImages =
-        widget.initialImages
-            .where(
-              (ActivityImage image) => image.displayOrder != 0,
-            ) // displayOrder가 0인 썸네일 제외
-            .toList();
+    // 도메인 서비스를 통한 이미지 처리 (썸네일 제외 + 정렬)
+    _allImages = ActivityImageService.getDisplayableImages(
+      widget.initialImages,
+    );
   }
 
   bool _canAddMorePhotos() {
@@ -94,11 +92,11 @@ class _WorkoutPhotoGalleryWidgetState
 
           // 업로드된 이미지들을 전체 이미지 리스트에 추가 (썸네일 제외)
           setState(() {
-            _allImages.addAll(
-              uploadedImages.where(
-                (ActivityImage image) => image.displayOrder != 0,
-              ), // 썸네일 제외
-            );
+            final List<ActivityImage> newImages =
+                ActivityImageService.excludeThumbnails(uploadedImages);
+            _allImages.addAll(newImages);
+            // 전체 이미지를 다시 정렬 (displayOrder 기준)
+            _allImages = ActivityImageService.sortByDisplayOrder(_allImages);
             _selectedImages.clear(); // 갤러리에서 선택한 이미지들은 초기화
           });
         } else {
