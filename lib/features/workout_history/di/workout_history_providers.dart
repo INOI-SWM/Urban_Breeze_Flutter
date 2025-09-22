@@ -7,6 +7,7 @@ import 'package:urban_breeze/features/integration/di/integration_providers.dart'
 import '../application/facades/terra_health_sync_facade.dart';
 import '../application/facades/workout_sync_facade.dart';
 import '../application/use_cases/connect_terra_health_app_use_case.dart';
+import '../application/use_cases/delete_workout_image_use_case.dart';
 import '../application/use_cases/get_workout_detail_use_case.dart';
 import '../application/use_cases/get_workout_list_use_case.dart';
 import '../application/use_cases/get_workout_statistics_use_case.dart';
@@ -15,6 +16,7 @@ import '../application/use_cases/sync_apple_health_kit_data_use_case.dart';
 import '../application/use_cases/sync_google_health_connect_data_use_case.dart';
 import '../application/use_cases/sync_terra_health_data_use_case.dart';
 import '../application/use_cases/update_workout_title_use_case.dart';
+import '../application/use_cases/upload_workout_images_use_case.dart';
 import '../data/datasources/google_health_connect_datasource.dart';
 import '../data/datasources/remote_workout_history_datasource.dart';
 import '../data/datasources/terra_api_datasoiurce.dart';
@@ -133,6 +135,23 @@ final Provider<UpdateWorkoutTitleUseCase> updateWorkoutTitleUseCaseProvider =
       );
 
       return UpdateWorkoutTitleUseCase(repository: repository);
+    });
+
+final Provider<UploadWorkoutImagesUseCase> uploadWorkoutImagesUseCaseProvider =
+    Provider<UploadWorkoutImagesUseCase>((Ref<UploadWorkoutImagesUseCase> ref) {
+      final WorkoutHistoryRepository repository = ref.watch(
+        workoutHistoryRepositoryProvider,
+      );
+
+      return UploadWorkoutImagesUseCase(repository: repository);
+    });
+
+final Provider<DeleteWorkoutImageUseCase> deleteWorkoutImageUseCaseProvider =
+    Provider<DeleteWorkoutImageUseCase>((Ref<DeleteWorkoutImageUseCase> ref) {
+      final WorkoutHistoryRepository repository = ref.watch(
+        workoutHistoryRepositoryProvider,
+      );
+      return DeleteWorkoutImageUseCase(repository: repository);
     });
 
 final Provider<SyncAppleHealthKitDataUseCase>

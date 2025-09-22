@@ -326,7 +326,10 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const WorkoutPhotoGalleryWidget(),
+                  WorkoutPhotoGalleryWidget(
+                    activityId: detail.id.toString(),
+                    initialImages: detail.activityImages,
+                  ),
                 ],
               ),
             ),

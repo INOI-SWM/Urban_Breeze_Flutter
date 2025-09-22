@@ -40,4 +40,8 @@ class ApiEndpoints {
       '/api/v1/activities/$activityId';
   static String workoutTitle(String activityId) =>
       '/api/v1/activities/$activityId/title';
+  static String workoutImages(String activityId) =>
+      '/api/v1/activities/$activityId/images';
+  static String workoutImageDetail(String activityId, int imageId) =>
+      '/api/v1/activities/$activityId/images/$imageId';
 }

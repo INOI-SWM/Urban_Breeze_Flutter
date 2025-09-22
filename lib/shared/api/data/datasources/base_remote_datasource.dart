@@ -90,7 +90,6 @@ abstract class BaseRemoteDataSource {
     );
   }
 
-  /// Multipart/form-data 요청 (파일 업로드용)
   Future<http.StreamedResponse> putMultipart(
     String endpoint, {
     required Map<String, String> fields,
@@ -108,6 +107,47 @@ abstract class BaseRemoteDataSource {
     // 필드와 파일 추가
     request.fields.addAll(fields);
     request.files.addAll(files.values);
+
+    return await _executeStreamedRequest(() => _client.send(request));
+  }
+
+  Future<http.StreamedResponse> postMultipart(
+    String endpoint, {
+    required Map<String, String> fields,
+    required Map<String, http.MultipartFile> files,
+    Map<String, String>? headers,
+    Map<String, String>? queryParameters,
+  }) async {
+    final Uri uri = _buildUri(endpoint, queryParameters);
+    final http.MultipartRequest request = http.MultipartRequest('POST', uri);
+
+    request.headers.addAll(_mergeHeaders(headers));
+    request.headers.remove('Content-Type');
+
+    request.fields.addAll(fields);
+    request.files.addAll(files.values);
+
+    return await _executeStreamedRequest(() => _client.send(request));
+  }
+
+  Future<http.StreamedResponse> postMultipartFiles(
+    String endpoint, {
+    required Map<String, String> fields,
+    required List<http.MultipartFile> files,
+    Map<String, String>? headers,
+    Map<String, String>? queryParameters,
+  }) async {
+    final Uri uri = _buildUri(endpoint, queryParameters);
+    final http.MultipartRequest request = http.MultipartRequest('POST', uri);
+
+    request.headers.addAll(_mergeHeaders(headers));
+    request.headers.remove('Content-Type');
+
+    request.fields.addAll(fields);
+
+    for (final http.MultipartFile file in files) {
+      request.files.add(file);
+    }
 
     return await _executeStreamedRequest(() => _client.send(request));
   }

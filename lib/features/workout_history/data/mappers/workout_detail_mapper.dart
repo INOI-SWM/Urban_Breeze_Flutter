@@ -3,6 +3,7 @@ import 'package:urban_breeze/features/workout_history/domain/entities/activity_i
 import 'package:urban_breeze/features/workout_history/domain/entities/track_point.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_user.dart';
+import 'package:urban_breeze/features/workout_history/domain/services/activity_image_service.dart';
 import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 
 class WorkoutDetailMapper {
@@ -56,7 +57,9 @@ class WorkoutDetailMapper {
       maxPower: model.maxPower,
       user: toWorkoutUserEntity(model.user),
       thumbnailImageUrl: model.thumbnailImageUrl,
-      activityImages: model.activityImages.map(toActivityImageEntity).toList(),
+      activityImages: ActivityImageService.sortByDisplayOrder(
+        model.activityImages.map(toActivityImageEntity).toList(),
+      ),
       trackPointsCount: model.trackPointsCount,
       trackPoints: model.trackPoints.map(toTrackPointEntity).toList(),
       bbox: model.bbox,

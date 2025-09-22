@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/features/workout_history/domain/enums/workout_sort_type.dart';
 import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
 import 'package:urban_breeze/shared/api/data/datasources/base_remote_datasource.dart';
 import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
+import 'package:urban_breeze/shared/utils/image_upload_utils.dart';
 
+import '../models/upload_workout_images_response_model.dart';
 import '../models/workout_detail_response_model.dart';
 import '../models/workout_list_response_model.dart';
 import '../models/workout_title_update_request_model.dart';
@@ -74,5 +78,60 @@ class RemoteWorkoutHistoryDataSource extends BaseRemoteDataSource {
       rethrow;
     }
     // BaseRemoteDataSource에서 NetworkException, ParsingException 처리
+  }
+
+  /// 운동 사진 업로드
+  Future<ApiResponseModel<UploadWorkoutImagesResponseModel>>
+  uploadWorkoutImages({
+    required String activityId,
+    required List<File> imageFiles,
+  }) async {
+    try {
+      // 여러 이미지 파일을 MultipartFile로 변환
+      final List<http.MultipartFile> multipartFiles = <http.MultipartFile>[];
+
+      for (int i = 0; i < imageFiles.length; i++) {
+        final http.MultipartFile multipartFile =
+            await ImageUploadUtils.createImageMultipartFile(
+              imageFiles[i],
+              'files',
+              maxSizeInMB: 20,
+            );
+        multipartFiles.add(multipartFile);
+      }
+
+      final http.StreamedResponse response = await postMultipartFiles(
+        ApiEndpoints.workoutImages(activityId),
+        fields: <String, String>{}, // 추가 필드가 필요하면 여기에
+        files: multipartFiles,
+      );
+
+      // StreamedResponse를 Response로 변환
+      final http.Response responseConverted = await http.Response.fromStream(
+        response,
+      );
+      final Map<String, dynamic> responseData = decodeResponse(
+        responseConverted,
+      );
+
+      return ApiResponseModel<UploadWorkoutImagesResponseModel>.fromJson(
+        responseData,
+        (Map<String, dynamic> json) =>
+            UploadWorkoutImagesResponseModel.fromJson(json),
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> deleteWorkoutImage({
+    required String activityId,
+    required int imageId,
+  }) async {
+    try {
+      await delete(ApiEndpoints.workoutImageDetail(activityId, imageId));
+    } catch (e) {
+      rethrow;
+    }
   }
 }
