@@ -77,7 +77,7 @@ class WorkoutStatisticsSummary {
   });
 
   final double totalDistance; // km
-  final int totalElevationGain; // m
+  final double totalElevationGain; // m
   final Duration totalDuration;
   final int totalActivityCount; // 횟수
 
@@ -103,7 +103,7 @@ class WorkoutStatisticsSummary {
   String toString() {
     return 'WorkoutStatisticsSummary('
         'totalDistance: $totalDistance km, '
-        'totalElevationGain: $totalElevationGain m, '
+        'totalElevationGain: $totalElevationGain km, '
         'totalDuration: $totalDuration, '
         'totalActivityCount: $totalActivityCount'
         ')';

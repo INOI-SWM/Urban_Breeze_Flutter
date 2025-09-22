@@ -588,7 +588,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
   }
 
   Widget _buildElevationItem() {
-    final int? elevation = _currentStatistics?.summary.totalElevationGain;
+    final double? elevation = _currentStatistics?.summary.totalElevationGain;
     return Expanded(
       child: InfoItem(
         label: '상승 고도',
