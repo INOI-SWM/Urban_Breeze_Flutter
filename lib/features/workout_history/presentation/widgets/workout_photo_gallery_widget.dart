@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -43,9 +42,6 @@ class _WorkoutPhotoGalleryWidgetState
   final ImagePicker _imagePicker = ImagePicker();
   bool _isUploading = false;
 
-  // 🔄 성능 최적화: 파일 해시 캐시 (메모리 효율적)
-  final Map<String, String> _fileHashCache = <String, String>{};
-
   bool _canAddMorePhotos() {
     return _selectedImages.length < _maxPhotoCount && !_isUploading;
   }
@@ -77,7 +73,6 @@ class _WorkoutPhotoGalleryWidgetState
           // 업로드 완료 후 선택된 이미지들 초기화
           setState(() {
             _selectedImages.clear();
-            _fileHashCache.clear();
           });
         } else {
           final String errorMessage =
@@ -261,7 +256,6 @@ class _WorkoutPhotoGalleryWidgetState
 
   Future<void> _addSelectedImages(List<File> imageFiles) async {
     final List<File> validImages = <File>[];
-    int duplicateCount = 0;
     int overLimitCount = 0;
 
     for (final File imageFile in imageFiles) {
@@ -270,13 +264,7 @@ class _WorkoutPhotoGalleryWidgetState
         continue;
       }
 
-      final bool isDuplicate = await _isDuplicateImage(imageFile);
-
-      if (isDuplicate) {
-        duplicateCount++;
-      } else {
-        validImages.add(imageFile);
-      }
+      validImages.add(imageFile);
     }
 
     if (validImages.isNotEmpty) {
@@ -288,11 +276,6 @@ class _WorkoutPhotoGalleryWidgetState
       await _uploadImages();
     }
 
-    // 메시지는 업로드 완료 후에 표시하므로 여기서는 제거
-    if (mounted && duplicateCount > 0) {
-      showErrorMessage(context, '$duplicateCount장은 이미 추가된 사진입니다.');
-    }
-
     if (mounted && overLimitCount > 0) {
       showErrorMessage(context, '$overLimitCount장은 최대 개수 초과로 추가되지 않았습니다.');
     }
@@ -301,45 +284,8 @@ class _WorkoutPhotoGalleryWidgetState
   void _removeImage(int index) {
     if (index >= 0 && index < _selectedImages.length) {
       setState(() {
-        final File removedFile = _selectedImages.removeAt(index);
-        _fileHashCache.remove(removedFile.path);
+        _selectedImages.removeAt(index);
       });
-    }
-  }
-
-  Future<String> _calculateFileHash(File file) async {
-    final String filePath = file.path;
-
-    if (_fileHashCache.containsKey(filePath)) {
-      return _fileHashCache[filePath]!;
-    }
-
-    try {
-      final Stream<List<int>> fileStream = file.openRead();
-      final Digest digest = await sha256.bind(fileStream).first;
-      final String hash = digest.toString();
-
-      _fileHashCache[filePath] = hash;
-      return hash;
-    } catch (e) {
-      return filePath.hashCode.toString();
-    }
-  }
-
-  Future<bool> _isDuplicateImage(File newFile) async {
-    try {
-      final String newFileHash = await _calculateFileHash(newFile);
-
-      for (final File existingFile in _selectedImages) {
-        final String existingFileHash = await _calculateFileHash(existingFile);
-        if (newFileHash == existingFileHash) {
-          return true; // 중복 발견
-        }
-      }
-
-      return false; // 중복 없음
-    } catch (e) {
-      return false; // 오류 시 중복 없음으로 처리
     }
   }
 
