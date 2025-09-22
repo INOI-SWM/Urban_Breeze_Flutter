@@ -31,12 +31,14 @@ import '../domain/repositories/workout_history_repository.dart';
 import '../domain/repositories/workout_statistics_repository.dart';
 
 // Data Source Providers
-final Provider<WorkoutStatisticsDataSource>
-workoutStatisticsDataSourceProvider = Provider<WorkoutStatisticsDataSource>((
-  Ref<WorkoutStatisticsDataSource> ref,
-) {
-  return WorkoutStatisticsDataSource();
-});
+final Provider<RemoteWorkoutStatisticsDataSource>
+remoteWorkoutStatisticsDataSourceProvider =
+    Provider<RemoteWorkoutStatisticsDataSource>((
+      Ref<RemoteWorkoutStatisticsDataSource> ref,
+    ) {
+      final http.Client client = ref.watch(authorizedHttpClientProvider);
+      return RemoteWorkoutStatisticsDataSource(client: client);
+    });
 
 final Provider<RemoteWorkoutHistoryDataSource>
 remoteWorkoutHistoryDataSourceProvider =
@@ -65,8 +67,8 @@ final Provider<WorkoutStatisticsRepository>
 workoutStatisticsRepositoryProvider = Provider<WorkoutStatisticsRepository>((
   Ref<WorkoutStatisticsRepository> ref,
 ) {
-  final WorkoutStatisticsDataSource dataSource = ref.watch(
-    workoutStatisticsDataSourceProvider,
+  final RemoteWorkoutStatisticsDataSource dataSource = ref.watch(
+    remoteWorkoutStatisticsDataSourceProvider,
   );
 
   return WorkoutStatisticsRepositoryImpl(dataSource);
