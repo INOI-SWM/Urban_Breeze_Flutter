@@ -15,6 +15,7 @@ import 'package:urban_breeze/shared/utils/workout_formatter.dart';
 
 import '../../application/use_cases/get_workout_statistics_use_case.dart';
 import '../../di/workout_history_providers.dart';
+import '../../domain/entities/period_selection.dart';
 import '../../domain/entities/workout_statistics.dart';
 import '../../domain/enums/statistic_enums.dart';
 import '../widgets/period_selector_dialog.dart';
@@ -534,7 +535,6 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     return textPainter.size.width + ChartStyleConfig.reservedSizePadding;
   }
 
-  //TODO : api 연동 후 변경 필요
   String _getPeriodDisplayText() {
     switch (_selectedPeriodType) {
       case StatisticPeriodType.week:

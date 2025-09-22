@@ -1,7 +1,7 @@
+import '../../domain/entities/period_selection.dart';
 import '../../domain/entities/workout_statistics.dart';
 import '../../domain/enums/statistic_enums.dart';
 import '../../domain/repositories/workout_statistics_repository.dart';
-import '../../presentation/widgets/period_selector_dialog.dart';
 
 class GetWorkoutStatisticsUseCase {
   const GetWorkoutStatisticsUseCase(this._repository);

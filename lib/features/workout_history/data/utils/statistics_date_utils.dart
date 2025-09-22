@@ -2,7 +2,7 @@ import '../../domain/enums/statistic_enums.dart';
 
 /// 통계 API를 위한 날짜 계산 유틸리티
 class StatisticsDateUtils {
-  /// PeriodSelection과 기간 타입으로부터 startDate, endDate를 계산합니다.
+  /// 기간 타입과 년/월/주차 정보로부터 startDate, endDate를 계산합니다.
   static DateRange calculateDateRange({
     required StatisticPeriodType periodType,
     required int year,
