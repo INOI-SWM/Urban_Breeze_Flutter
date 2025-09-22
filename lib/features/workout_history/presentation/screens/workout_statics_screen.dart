@@ -128,7 +128,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -414,7 +414,10 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
             if (index >= 0 && index < chartPoints.length) {
               // 기간 타입에 따라 라벨 표시 간격 조정
               if (_shouldShowXAxisLabel(index, chartPoints.length)) {
-                return Text(chartPoints[index].label, style: _chartLabelStyle);
+                final String formattedLabel = _formatXAxisLabel(
+                  chartPoints[index].label,
+                );
+                return Text(formattedLabel, style: _chartLabelStyle);
               }
             }
             return const Text('');
@@ -436,8 +439,11 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
           BarChartRodData rod,
           int rodIndex,
         ) {
+          final String formattedLabel = _formatTooltipLabel(
+            chartPoints[group.x].label,
+          );
           return BarTooltipItem(
-            '${chartPoints[group.x].label}\n${_formatYAxisLabel(rod.toY)}',
+            '$formattedLabel\n${_formatYAxisLabel(rod.toY)}',
             AppTextStyles.caption2.regular.copyWith(color: _tooltipTextColor),
           );
         },
@@ -467,6 +473,43 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
       case StaticDataType.duration:
         return '${value.toStringAsFixed(0)} 분';
     }
+  }
+
+  String _formatTooltipLabel(String label) {
+    switch (_selectedPeriodType) {
+      case StatisticPeriodType.week:
+        // 주간: "29" -> "6월 29일"
+        final int day = int.tryParse(label) ?? 0;
+        if (day > 0) {
+          return '${_periodSelection.month}월 $day일';
+        }
+        return label;
+
+      case StatisticPeriodType.month:
+        // 월간: "15" -> "9월 15일"
+        final int day = int.tryParse(label) ?? 0;
+        if (day > 0) {
+          return '${_periodSelection.month}월 $day일';
+        }
+        return label;
+
+      case StatisticPeriodType.year:
+        // 연간: "3" -> "3월"
+        final int month = int.tryParse(label) ?? 0;
+        if (month > 0) {
+          return '$month월';
+        }
+        return label;
+
+      case StatisticPeriodType.all:
+        // 전체: 원본 라벨 그대로 사용 (서버에서 적절한 형식으로 올 것으로 예상)
+        return label;
+    }
+  }
+
+  String _formatXAxisLabel(String label) {
+    // X축에서는 간단하게 숫자만 표시
+    return label;
   }
 
   double _calculateYAxisReservedSize(List<WorkoutStatisticsChartPoint> points) {
