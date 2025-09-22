@@ -254,6 +254,7 @@ class _DraggableBottomSheet extends StatefulWidget {
 
 class _DraggableBottomSheetState extends State<_DraggableBottomSheet> {
   int _selectedCardIndex = 0;
+  late List<WorkoutDataType> _availableDataTypes;
 
   static const double _initialChildSize = 0.5;
   static const double _maxChildSize = 0.5;
@@ -265,6 +266,91 @@ class _DraggableBottomSheetState extends State<_DraggableBottomSheet> {
   static const double _dragHandleTotalHeight = 24.0;
 
   static const double _borderRadius = 12.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeAvailableDataTypes();
+  }
+
+  void _initializeAvailableDataTypes() {
+    _availableDataTypes = <WorkoutDataType>[];
+
+    // 속도 데이터 확인
+    final List<FlSpot> speedData =
+        WorkoutDataExtractor.extractSpeedDataFromDetail(widget.workoutDetail);
+    if (speedData.isNotEmpty) {
+      _availableDataTypes.add(WorkoutDataType.speed);
+    }
+
+    // 고도 데이터 확인
+    final List<FlSpot> altitudeData =
+        WorkoutDataExtractor.extractAltitudeDataFromDetail(
+          widget.workoutDetail,
+        );
+    if (altitudeData.isNotEmpty) {
+      _availableDataTypes.add(WorkoutDataType.altitude);
+    }
+
+    // 심박수 데이터 확인
+    final List<FlSpot> heartRateData =
+        WorkoutDataExtractor.extractHeartRateDataFromDetail(
+          widget.workoutDetail,
+        );
+    if (heartRateData.isNotEmpty) {
+      _availableDataTypes.add(WorkoutDataType.heartRate);
+    }
+
+    // 첫 번째 데이터 타입을 기본 선택으로 설정
+    _selectedCardIndex = 0;
+  }
+
+  List<Widget> _buildInfoCards() {
+    final List<Widget> cards = <Widget>[];
+
+    for (int i = 0; i < _availableDataTypes.length; i++) {
+      if (i > 0) {
+        cards.add(const SizedBox(width: 8));
+      }
+
+      cards.add(_buildInfoCard(_availableDataTypes[i], i));
+    }
+
+    return cards;
+  }
+
+  Widget _buildInfoCard(WorkoutDataType dataType, int index) {
+    final String label;
+    final String value;
+
+    switch (dataType) {
+      case WorkoutDataType.speed:
+        label = '평균 속도';
+        value = '${widget.workoutDetail.averageSpeed.toStringAsFixed(1)} km/h';
+        break;
+      case WorkoutDataType.altitude:
+        label = '상승 고도';
+        value = '${widget.workoutDetail.elevationGain.toStringAsFixed(0)}m';
+        break;
+      case WorkoutDataType.heartRate:
+        label = '평균 심박수';
+        value =
+            widget.workoutDetail.averageHeartRate != null
+                ? '${widget.workoutDetail.averageHeartRate}bpm'
+                : '데이터 없음';
+        break;
+    }
+
+    return _InfoCard(
+      label: label,
+      value: value,
+      isSelected: _selectedCardIndex == index,
+      onTap:
+          () => setState(() {
+            _selectedCardIndex = index;
+          }),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -329,54 +415,21 @@ class _DraggableBottomSheetState extends State<_DraggableBottomSheet> {
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Row(
-                              children: <Widget>[
-                                _InfoCard(
-                                  label: '평균 속도',
-                                  value:
-                                      '${widget.workoutDetail.averageSpeed.toStringAsFixed(1)} km/h',
-                                  isSelected: _selectedCardIndex == 0,
-                                  onTap:
-                                      () => setState(() {
-                                        _selectedCardIndex = 0;
-                                      }),
-                                ),
-                                const SizedBox(width: 8),
-                                _InfoCard(
-                                  label: '상승 고도',
-                                  value:
-                                      '${widget.workoutDetail.elevationGain.toStringAsFixed(0)}m',
-                                  isSelected: _selectedCardIndex == 1,
-                                  onTap:
-                                      () => setState(() {
-                                        _selectedCardIndex = 1;
-                                      }),
-                                ),
-                                const SizedBox(width: 8),
-                                _InfoCard(
-                                  label: '평균 심박수',
-                                  value:
-                                      widget.workoutDetail.averageHeartRate !=
-                                              null
-                                          ? '${widget.workoutDetail.averageHeartRate}bpm'
-                                          : '데이터 없음',
-                                  isSelected: _selectedCardIndex == 2,
-                                  onTap:
-                                      () => setState(() {
-                                        _selectedCardIndex = 2;
-                                      }),
-                                ),
-                              ],
+                          if (_availableDataTypes.isNotEmpty)
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              child: Row(children: _buildInfoCards()),
                             ),
-                          ),
                           const SizedBox(height: 40),
-                          _WorkoutChart(
-                            workoutDetail: widget.workoutDetail,
-                            selectedIndex: _selectedCardIndex,
-                          ),
+                          if (_availableDataTypes.isNotEmpty)
+                            _WorkoutChart(
+                              workoutDetail: widget.workoutDetail,
+                              availableDataTypes: _availableDataTypes,
+                              selectedIndex: _selectedCardIndex,
+                            ),
                         ],
                       ),
                     ),
@@ -439,16 +492,24 @@ class _InfoCard extends StatelessWidget {
 class _WorkoutChart extends StatelessWidget {
   const _WorkoutChart({
     required this.workoutDetail,
+    required this.availableDataTypes,
     required this.selectedIndex,
   });
 
   final WorkoutDetail workoutDetail;
+  final List<WorkoutDataType> availableDataTypes;
   final int selectedIndex;
 
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-    final WorkoutDataType dataType = WorkoutDataType.values[selectedIndex];
+
+    if (availableDataTypes.isEmpty ||
+        selectedIndex >= availableDataTypes.length) {
+      return const SizedBox.shrink();
+    }
+
+    final WorkoutDataType dataType = availableDataTypes[selectedIndex];
     final _ChartConfig config = _ChartConfig.configs[dataType]!;
 
     final List<FlSpot> spots = switch (dataType) {
