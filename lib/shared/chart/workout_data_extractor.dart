@@ -21,17 +21,33 @@ class WorkoutDataExtractor {
     }).toList();
   }
 
-  // TODO: WorkoutDetail에서 실제 속도 데이터 추출 함수 구현 필요
+  /// WorkoutDetail에서 속도 데이터 추출 (TrackPoint → FlSpot)
+  /// index를 시간축으로 사용
   static List<FlSpot> extractSpeedDataFromDetail(WorkoutDetail workoutDetail) {
-    // 임시로 빈 리스트 반환
-    return <FlSpot>[];
+    final List<TrackPoint> trackPoints = workoutDetail.trackPoints;
+
+    if (trackPoints.isEmpty) return <FlSpot>[];
+
+    return trackPoints.where((TrackPoint point) => point.speed != null).map((
+      TrackPoint point,
+    ) {
+      return FlSpot(point.index.toDouble(), point.speed!);
+    }).toList();
   }
 
-  // TODO: WorkoutDetail에서 실제 심박수 데이터 추출 함수 구현 필요
+  /// WorkoutDetail에서 심박수 데이터 추출 (TrackPoint → FlSpot)
+  /// index를 시간축으로 사용
   static List<FlSpot> extractHeartRateDataFromDetail(
     WorkoutDetail workoutDetail,
   ) {
-    // 임시로 빈 리스트 반환
-    return <FlSpot>[];
+    final List<TrackPoint> trackPoints = workoutDetail.trackPoints;
+
+    if (trackPoints.isEmpty) return <FlSpot>[];
+
+    return trackPoints.where((TrackPoint point) => point.heartRate != null).map(
+      (TrackPoint point) {
+        return FlSpot(point.index.toDouble(), point.heartRate!.toDouble());
+      },
+    ).toList();
   }
 }

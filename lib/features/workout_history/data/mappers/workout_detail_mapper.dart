@@ -22,6 +22,8 @@ class WorkoutDetailMapper {
       elevation: model.elevation,
       latitude: model.latitude,
       longitude: model.longitude,
+      speed: model.speed,
+      heartRate: model.heartRate,
     );
   }
 

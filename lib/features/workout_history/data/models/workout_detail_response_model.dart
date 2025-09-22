@@ -32,6 +32,8 @@ class TrackPointModel {
     required this.elevation,
     required this.latitude,
     required this.longitude,
+    this.speed,
+    this.heartRate,
   });
 
   factory TrackPointModel.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,8 @@ class TrackPointModel {
       elevation: (json['elevation'] as num).toDouble(),
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
+      speed: json['speed'] != null ? (json['speed'] as num).toDouble() : null,
+      heartRate: json['heartRate'] != null ? json['heartRate'] as int : null,
     );
   }
 
@@ -47,6 +51,8 @@ class TrackPointModel {
   final double elevation;
   final double latitude;
   final double longitude;
+  final double? speed; // km/h
+  final int? heartRate; // bpm
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -54,6 +60,8 @@ class TrackPointModel {
       'elevation': elevation,
       'latitude': latitude,
       'longitude': longitude,
+      if (speed != null) 'speed': speed,
+      if (heartRate != null) 'heartRate': heartRate,
     };
   }
 }
