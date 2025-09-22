@@ -15,6 +15,7 @@ import '../application/use_cases/sync_apple_health_kit_data_use_case.dart';
 import '../application/use_cases/sync_google_health_connect_data_use_case.dart';
 import '../application/use_cases/sync_terra_health_data_use_case.dart';
 import '../application/use_cases/update_workout_title_use_case.dart';
+import '../application/use_cases/upload_workout_images_use_case.dart';
 import '../data/datasources/google_health_connect_datasource.dart';
 import '../data/datasources/remote_workout_history_datasource.dart';
 import '../data/datasources/terra_api_datasoiurce.dart';
@@ -133,6 +134,15 @@ final Provider<UpdateWorkoutTitleUseCase> updateWorkoutTitleUseCaseProvider =
       );
 
       return UpdateWorkoutTitleUseCase(repository: repository);
+    });
+
+final Provider<UploadWorkoutImagesUseCase> uploadWorkoutImagesUseCaseProvider =
+    Provider<UploadWorkoutImagesUseCase>((Ref<UploadWorkoutImagesUseCase> ref) {
+      final WorkoutHistoryRepository repository = ref.watch(
+        workoutHistoryRepositoryProvider,
+      );
+
+      return UploadWorkoutImagesUseCase(repository: repository);
     });
 
 final Provider<SyncAppleHealthKitDataUseCase>

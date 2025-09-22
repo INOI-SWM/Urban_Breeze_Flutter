@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:urban_breeze/features/workout_history/data/models/workout_detail_response_model.dart';
 import 'package:urban_breeze/features/workout_history/data/models/workout_list_response_model.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
@@ -47,6 +49,17 @@ class WorkoutHistoryRepositoryImpl implements WorkoutHistoryRepository {
     await remoteDataSource.updateWorkoutTitle(
       workoutId: workoutId,
       title: title,
+    );
+  }
+
+  @override
+  Future<void> uploadWorkoutImages({
+    required String activityId,
+    required List<File> imageFiles,
+  }) async {
+    await remoteDataSource.uploadWorkoutImages(
+      activityId: activityId,
+      imageFiles: imageFiles,
     );
   }
 }
