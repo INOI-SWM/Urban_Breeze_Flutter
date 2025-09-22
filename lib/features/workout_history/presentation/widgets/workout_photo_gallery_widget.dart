@@ -7,7 +7,6 @@ import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/activity_image.dart';
-import 'package:urban_breeze/features/workout_history/domain/entities/upload_result.dart';
 import 'package:urban_breeze/shared/design_system/tokens/decorations/app_shadows.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
@@ -71,7 +70,7 @@ class _WorkoutPhotoGalleryWidgetState
     });
 
     try {
-      final AppResult<UploadResult> result = await ref
+      final AppResult<List<ActivityImage>> result = await ref
           .read(uploadWorkoutImagesUseCaseProvider)
           .execute(activityId: widget.activityId, imageFiles: _selectedImages);
 
@@ -81,23 +80,15 @@ class _WorkoutPhotoGalleryWidgetState
         });
 
         if (result.isSuccess) {
-          final UploadResult uploadResult = result.dataOrNull!;
+          final List<ActivityImage> uploadedImages = result.dataOrNull!;
           showSuccessMessage(
             context,
-            '${uploadResult.uploadedCount}장의 사진이 성공적으로 업로드되었습니다!',
+            '${uploadedImages.length}장의 사진이 성공적으로 업로드되었습니다!',
           );
 
           // 업로드된 이미지들을 전체 이미지 리스트에 추가
           setState(() {
-            _allImages.addAll(
-              uploadResult.uploadedImages.map(
-                (UploadedImage uploadedImage) => ActivityImage(
-                  id: uploadedImage.id,
-                  imageUrl: uploadedImage.imageUrl,
-                  displayOrder: uploadedImage.displayOrder,
-                ),
-              ),
-            );
+            _allImages.addAll(uploadedImages);
             _selectedImages.clear(); // 갤러리에서 선택한 이미지들은 초기화
           });
         } else {
