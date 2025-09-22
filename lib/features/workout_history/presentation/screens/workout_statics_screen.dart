@@ -21,9 +21,8 @@ import '../../domain/enums/statistic_enums.dart';
 import '../widgets/period_selector_dialog.dart';
 
 class _UIConstants {
-  static const double defaultSpacing = 20.0;
-  static const double largeSpacing = 40.0;
-  static const double chartHeight = 200.0;
+  static const double defaultSpacing = 12.0;
+  static const double largeSpacing = 30.0;
   static const double barWidth = 20.0;
   static const EdgeInsets loadingPadding = EdgeInsets.symmetric(vertical: 20);
 }
@@ -129,7 +128,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,7 +140,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
           _buildDataTypeSelector(),
           const SizedBox(height: _UIConstants.defaultSpacing),
           _buildDataTypeLabel(),
-          _buildContentByState(),
+          Expanded(child: _buildContentByState()),
         ],
       ),
     );
@@ -259,7 +258,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
         const SizedBox(height: _UIConstants.defaultSpacing),
         Row(children: _buildBottomInfoItems()),
         const SizedBox(height: _UIConstants.largeSpacing),
-        _buildChart(),
+        Expanded(child: _buildChart()),
       ],
     );
   }
@@ -279,30 +278,24 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
       return _buildEmptyChart();
     }
 
-    return SizedBox(
-      height: _UIConstants.chartHeight,
-      child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          return BarChart(_buildChartData(chartPoints, constraints.maxWidth));
-        },
-      ),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return BarChart(_buildChartData(chartPoints, constraints.maxWidth));
+      },
     );
   }
 
   Widget _buildEmptyChart() {
-    return SizedBox(
-      height: _UIConstants.chartHeight,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: context.semanticColor.lineNormalNormal),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Text(
-            '데이터가 없습니다',
-            style: AppTextStyles.body2.readingMedium.copyWith(
-              color: context.semanticColor.labelAlternative,
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: context.semanticColor.lineNormalNormal),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Center(
+        child: Text(
+          '데이터가 없습니다',
+          style: AppTextStyles.body2.readingMedium.copyWith(
+            color: context.semanticColor.labelAlternative,
           ),
         ),
       ),
@@ -543,7 +536,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
           _periodSelection.month,
           _periodSelection.week,
         );
-        return '${_periodSelection.year}년 ${_periodSelection.month}월 ${_periodSelection.week}주 $weekRange';
+        return '${_periodSelection.year % 100}년 ${_periodSelection.month}월 ${_periodSelection.week}주 $weekRange';
       case StatisticPeriodType.month:
         return '${_periodSelection.year}년 ${_periodSelection.month}월';
       case StatisticPeriodType.year:
