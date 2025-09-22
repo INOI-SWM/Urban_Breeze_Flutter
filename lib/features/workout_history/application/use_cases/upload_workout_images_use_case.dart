@@ -14,6 +14,7 @@ class UploadWorkoutImagesUseCase {
   Future<AppResult<List<ActivityImage>>> execute({
     required String activityId,
     required List<File> imageFiles,
+    int currentImageCount = 0, // 현재 업로드된 이미지 개수 추가
   }) async {
     try {
       // 빈 리스트 검증
@@ -26,12 +27,29 @@ class UploadWorkoutImagesUseCase {
         );
       }
 
-      // 파일 개수 제한 (예: 최대 30개)
-      if (imageFiles.length > 30) {
+      // 전체 이미지 개수 제한 검사 (현재 업로드된 것 + 새로 업로드할 것)
+      const int maxTotalImages = 30;
+      final int totalAfterUpload = currentImageCount + imageFiles.length;
+
+      if (totalAfterUpload > maxTotalImages) {
+        final int remainingSlots = maxTotalImages - currentImageCount;
+        return AppFailure<List<ActivityImage>>(
+          ValidationException(
+            code: 'TOTAL_IMAGE_COUNT_EXCEEDED',
+            message:
+                remainingSlots > 0
+                    ? '최대 $maxTotalImages장까지 업로드 가능합니다. $remainingSlots장만 추가할 수 있습니다.'
+                    : '이미 최대 개수($maxTotalImages장)에 도달했습니다.',
+          ),
+        );
+      }
+
+      // 한 번에 업로드할 수 있는 최대 개수 제한
+      if (imageFiles.length > 10) {
         return const AppFailure<List<ActivityImage>>(
           ValidationException(
-            code: 'IMAGE_COUNT_EXCEEDED',
-            message: '이미지는 최대 30개까지 업로드할 수 있습니다',
+            code: 'BATCH_UPLOAD_LIMIT_EXCEEDED',
+            message: '한 번에 최대 10장까지 업로드할 수 있습니다',
           ),
         );
       }

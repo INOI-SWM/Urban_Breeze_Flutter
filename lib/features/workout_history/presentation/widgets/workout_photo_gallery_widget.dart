@@ -62,7 +62,9 @@ class _WorkoutPhotoGalleryWidgetState
   }
 
   bool _canAddMorePhotos() {
-    return _selectedImages.length < _maxPhotoCount && !_isUploading;
+    // 전체 이미지 개수 고려 (이미 업로드된 것 + 선택한 것)
+    final int totalImages = _allImages.length + _selectedImages.length;
+    return totalImages < _maxPhotoCount && !_isUploading;
   }
 
   /// 선택된 이미지들을 서버에 업로드
@@ -76,7 +78,11 @@ class _WorkoutPhotoGalleryWidgetState
     try {
       final AppResult<List<ActivityImage>> result = await ref
           .read(uploadWorkoutImagesUseCaseProvider)
-          .execute(activityId: widget.activityId, imageFiles: _selectedImages);
+          .execute(
+            activityId: widget.activityId,
+            imageFiles: _selectedImages,
+            currentImageCount: _allImages.length, // 현재 업로드된 이미지 개수 전달
+          );
 
       if (mounted) {
         setState(() {
@@ -130,7 +136,9 @@ class _WorkoutPhotoGalleryWidgetState
         ),
         const SizedBox(height: _sectionSpacing),
         Text(
-          _isUploading ? '업로드 중... 잠시만 기다려주세요' : '${_allImages.length}장',
+          _isUploading
+              ? '업로드 중... 잠시만 기다려주세요'
+              : '${_allImages.length}장 / $_maxPhotoCount장 (${_maxPhotoCount - _allImages.length}장 추가 가능)',
           style: AppTextStyles.label1.readingBold.copyWith(
             color:
                 _isUploading ? colors.primaryNormal : colors.labelAlternative,
