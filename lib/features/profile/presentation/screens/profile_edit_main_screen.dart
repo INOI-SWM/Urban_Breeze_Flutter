@@ -84,7 +84,6 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           ProfileImageEditButton(
-                            //TODO : 기본 이미지 설정
                             imageUrl: user.profileImageUrl ?? '',
                             onPressed: () {
                               AmplitudeAnalytics.logButtonClick(

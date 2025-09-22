@@ -104,8 +104,7 @@ class TerraHealthSyncFacade {
     }
   }
 
-  /// Apple Health에서 데이터 가져오기
-  /// TODO: apple의 경우 데이터 가져오기 최적화 작업 진행해야함.
+  /// Apple Health에서 데이터 가져오기 DEPRECATED
   Future<AppResult<Map<String, dynamic>?>> syncAppleHealthData({
     DateTime? startDate,
     DateTime? endDate,
