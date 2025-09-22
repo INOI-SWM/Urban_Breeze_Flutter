@@ -11,7 +11,6 @@ import 'package:urban_breeze/features/workout_history/domain/entities/upload_res
 import 'package:urban_breeze/shared/design_system/tokens/decorations/app_shadows.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
-import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
 class WorkoutPhotoGalleryWidget extends ConsumerStatefulWidget {
@@ -111,9 +110,12 @@ class _WorkoutPhotoGalleryWidgetState
         ),
         const SizedBox(height: _sectionSpacing),
         Text(
-          '${_selectedImages.length}/$_maxPhotoCount장 (최대 30장까지 추가 가능)',
+          _isUploading
+              ? '업로드 중... 잠시만 기다려주세요'
+              : '${_selectedImages.length}/$_maxPhotoCount장 (최대 30장까지 추가 가능)',
           style: AppTextStyles.label1.readingBold.copyWith(
-            color: colors.labelAlternative,
+            color:
+                _isUploading ? colors.primaryNormal : colors.labelAlternative,
           ),
         ),
         const SizedBox(height: _sectionSpacing),
@@ -152,31 +154,60 @@ class _WorkoutPhotoGalleryWidgetState
                                       _addPhotoFromGallery();
                                     }
                                     : null,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Icon(
-                                  Icons.add_photo_alternate_outlined,
-                                  size: 24,
-                                  color:
-                                      _canAddMorePhotos()
-                                          ? colors.labelAlternative
-                                          : colors.labelAlternative.withValues(
-                                            alpha: 0.5,
+                            child:
+                                _isUploading
+                                    ? Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  colors.primaryNormal,
+                                                ),
                                           ),
-                                ),
-                                const SizedBox(height: 4),
-                                if (!_canAddMorePhotos())
-                                  Text(
-                                    '최대',
-                                    style: AppTextStyles.caption1.regular
-                                        .copyWith(
-                                          color: colors.labelAlternative
-                                              .withValues(alpha: 0.5),
                                         ),
-                                  ),
-                              ],
-                            ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '업로드',
+                                          style: AppTextStyles.caption1.regular
+                                              .copyWith(
+                                                color: colors.labelAlternative,
+                                              ),
+                                        ),
+                                      ],
+                                    )
+                                    : Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Icon(
+                                          Icons.add_photo_alternate_outlined,
+                                          size: 24,
+                                          color:
+                                              _canAddMorePhotos()
+                                                  ? colors.labelAlternative
+                                                  : colors.labelAlternative
+                                                      .withValues(alpha: 0.5),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        if (!_canAddMorePhotos())
+                                          Text(
+                                            '최대',
+                                            style: AppTextStyles
+                                                .caption1
+                                                .regular
+                                                .copyWith(
+                                                  color: colors.labelAlternative
+                                                      .withValues(alpha: 0.5),
+                                                ),
+                                          ),
+                                      ],
+                                    ),
                           ),
                         ),
                       ),
@@ -194,18 +225,6 @@ class _WorkoutPhotoGalleryWidgetState
             ],
           ),
         ),
-        if (_selectedImages.isNotEmpty) ...<Widget>[
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ButtonOutlined(
-              text: _isUploading ? '업로드 중...' : '사진 업로드',
-              onPressed: _isUploading ? null : _uploadImages,
-              textColor: colors.labelNormal,
-              borderColor: colors.lineNormalNormal,
-            ),
-          ),
-        ],
       ],
     );
   }
@@ -264,31 +283,18 @@ class _WorkoutPhotoGalleryWidgetState
       setState(() {
         _selectedImages.addAll(validImages);
       });
+
+      // 이미지가 추가되면 바로 업로드 시작
+      await _uploadImages();
     }
 
-    if (mounted) {
-      final List<String> messages = <String>[];
+    // 메시지는 업로드 완료 후에 표시하므로 여기서는 제거
+    if (mounted && duplicateCount > 0) {
+      showErrorMessage(context, '$duplicateCount장은 이미 추가된 사진입니다.');
+    }
 
-      if (validImages.isNotEmpty) {
-        messages.add('${validImages.length}장의 사진이 추가되었습니다.');
-      }
-
-      if (duplicateCount > 0) {
-        messages.add('$duplicateCount장은 이미 추가된 사진입니다.');
-      }
-
-      if (overLimitCount > 0) {
-        messages.add('$overLimitCount장은 최대 개수 초과로 추가되지 않았습니다.');
-      }
-
-      if (messages.isNotEmpty) {
-        final String combinedMessage = messages.join(' ');
-        if (validImages.isNotEmpty) {
-          showSuccessMessage(context, combinedMessage);
-        } else {
-          showErrorMessage(context, combinedMessage);
-        }
-      }
+    if (mounted && overLimitCount > 0) {
+      showErrorMessage(context, '$overLimitCount장은 최대 개수 초과로 추가되지 않았습니다.');
     }
   }
 
