@@ -1,10 +1,13 @@
+import 'package:urban_breeze/features/workout_history/data/models/workout_detail_response_model.dart';
 import 'package:urban_breeze/features/workout_history/data/models/workout_list_response_model.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_list.dart';
 import 'package:urban_breeze/features/workout_history/domain/enums/workout_sort_type.dart';
 import 'package:urban_breeze/features/workout_history/domain/repositories/workout_history_repository.dart';
 import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 
 import '../datasources/remote_workout_history_datasource.dart';
+import '../mappers/workout_detail_mapper.dart';
 import '../mappers/workout_mapper.dart';
 
 class WorkoutHistoryRepositoryImpl implements WorkoutHistoryRepository {
@@ -26,6 +29,14 @@ class WorkoutHistoryRepositoryImpl implements WorkoutHistoryRepository {
         );
 
     return WorkoutMapper.fromApiResponse(response);
+  }
+
+  @override
+  Future<WorkoutDetail> getWorkoutDetail({required String activityId}) async {
+    final ApiResponseModel<WorkoutDetailResponseModel> response =
+        await remoteDataSource.getWorkoutDetail(activityId: activityId);
+
+    return WorkoutDetailMapper.fromApiResponse(response);
   }
 
   @override

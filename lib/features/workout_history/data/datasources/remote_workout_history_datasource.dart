@@ -5,6 +5,7 @@ import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
 import 'package:urban_breeze/shared/api/data/datasources/base_remote_datasource.dart';
 import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 
+import '../models/workout_detail_response_model.dart';
 import '../models/workout_list_response_model.dart';
 import '../models/workout_title_update_request_model.dart';
 
@@ -31,6 +32,22 @@ class RemoteWorkoutHistoryDataSource extends BaseRemoteDataSource {
       json,
       (Map<String, dynamic> dataJson) =>
           WorkoutListResponseModel.fromJson(dataJson),
+    );
+  }
+
+  Future<ApiResponseModel<WorkoutDetailResponseModel>> getWorkoutDetail({
+    required String activityId,
+  }) async {
+    final http.Response response = await get(
+      ApiEndpoints.workoutDetail(activityId),
+    );
+
+    final Map<String, dynamic> json = decodeResponse(response);
+
+    return ApiResponseModel<WorkoutDetailResponseModel>.fromJson(
+      json,
+      (Map<String, dynamic> dataJson) =>
+          WorkoutDetailResponseModel.fromJson(dataJson),
     );
   }
 

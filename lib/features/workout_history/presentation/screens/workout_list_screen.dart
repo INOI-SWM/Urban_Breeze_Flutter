@@ -5,6 +5,7 @@ import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_activity.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_list.dart';
 import 'package:urban_breeze/features/workout_history/domain/enums/workout_sort_type.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
@@ -18,7 +19,8 @@ import 'package:urban_breeze/shared/sort/sort_modal.dart';
 import 'package:urban_breeze/shared/utils/date_formatter.dart';
 import 'package:urban_breeze/shared/utils/workout_formatter.dart';
 
-//TODO : 추후 api 개발 시 에러 처리 추가
+import 'workout_detail_screen.dart';
+
 class WorkoutListScreen extends ConsumerStatefulWidget {
   const WorkoutListScreen({super.key});
 
@@ -232,23 +234,65 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
     });
   }
 
-  void _navigateToWorkoutDetail(WorkoutActivity workout, int index) {
+  Future<void> _navigateToWorkoutDetail(
+    WorkoutActivity workout,
+    int index,
+  ) async {
     AmplitudeAnalytics.logEvent(
       'workout_record_clicked',
       properties: <String, dynamic>{'workout_id': workout.id},
     );
 
-    // TODO: WorkoutDetailScreen을 WorkoutActivity를 지원하도록 수정 필요
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute<void>(
-    //     builder:
-    //         (BuildContext context) => WorkoutDetailScreen(
-    //           workoutRecord: workout,
-    //           workoutIndex: index,
-    //         ),
-    //   ),
-    // );
+    final dynamic result = await Navigator.push(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder:
+            (BuildContext context) => WorkoutDetailScreen(
+              workoutActivity: workout,
+              workoutIndex: index,
+            ),
+      ),
+    );
+
+    // 제목이 수정된 경우 리스트 아이템 업데이트
+    if (result != null && result is WorkoutDetail) {
+      _updateWorkoutTitle(index, result.title);
+    }
+  }
+
+  void _updateWorkoutTitle(int index, String newTitle) {
+    if (index < 0 || index >= workoutList.activities.length) return;
+
+    final WorkoutActivity oldActivity = workoutList.activities[index];
+    final WorkoutActivity updatedActivity = WorkoutActivity(
+      id: oldActivity.id,
+      title: newTitle, // 새로운 제목으로 업데이트
+      startedAt: oldActivity.startedAt,
+      endedAt: oldActivity.endedAt,
+      distance: oldActivity.distance,
+      duration: oldActivity.duration,
+      elevationGain: oldActivity.elevationGain,
+      thumbnailImageUrl: oldActivity.thumbnailImageUrl,
+      userProfileImageUrl: oldActivity.userProfileImageUrl,
+      userNickname: oldActivity.userNickname,
+    );
+
+    final List<WorkoutActivity> updatedActivities = List<WorkoutActivity>.from(
+      workoutList.activities,
+    );
+    updatedActivities[index] = updatedActivity;
+
+    setState(() {
+      workoutList = WorkoutList(
+        activities: updatedActivities,
+        currentPage: workoutList.currentPage,
+        totalPages: workoutList.totalPages,
+        totalElements: workoutList.totalElements,
+        size: workoutList.size,
+        hasNext: workoutList.hasNext,
+        hasPrevious: workoutList.hasPrevious,
+      );
+    });
   }
 
   void _showSortModal() {

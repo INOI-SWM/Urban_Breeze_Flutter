@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
-import 'package:urban_breeze/features/workout_history/domain/entities/location_data.dart';
-import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/track_point.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/map/common_map_widgets.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
 
-//TODO: 추후 api 연결 시 폴리곤 띄우기 방식 변경, bbox로 지도 크기 조정
 class WorkoutDetailMapWidget extends StatelessWidget {
-  const WorkoutDetailMapWidget({super.key, required this.workoutRecord});
+  const WorkoutDetailMapWidget({super.key, required this.workoutDetail});
 
-  final WorkoutRecord workoutRecord;
+  final WorkoutDetail workoutDetail;
 
   static const LatLng _defaultCenter = MapConstants.seoulCityHall;
   static const double _defaultZoom = MapConstants.defaultZoom;
@@ -21,12 +20,10 @@ class WorkoutDetailMapWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
 
-    final List<LatLng> routePoints = _convertLocationDataToLatLng(
-      workoutRecord.locationData ?? <LocationData>[],
+    final List<LatLng> routePoints = _convertTrackPointsToLatLng(
+      workoutDetail.trackPoints,
     );
-
-    // LatLngBounds를 사용한 카메라 설정
-    final CameraFit? cameraFit = _calculateCameraFit(routePoints);
+    final CameraFit? cameraFit = _calculateCameraFit();
 
     return FlutterMap(
       options: MapOptions(
@@ -55,42 +52,19 @@ class WorkoutDetailMapWidget extends StatelessWidget {
     );
   }
 
-  /// WorkoutRecord의 locationData를 LatLng 포인트들로 변환 TODO : 추후 mapper에서 변환
-  List<LatLng> _convertLocationDataToLatLng(List<LocationData> locationData) {
-    return locationData
-        .map((LocationData data) => LatLng(data.latitude, data.longitude))
+  /// WorkoutDetail의 trackPoints를 LatLng 포인트들로 변환
+  List<LatLng> _convertTrackPointsToLatLng(List<TrackPoint> trackPoints) {
+    return trackPoints
+        .map((TrackPoint point) => LatLng(point.latitude, point.longitude))
         .toList();
   }
 
-  CameraFit? _calculateCameraFit(List<LatLng> routePoints) {
-    if (routePoints.isEmpty) {
-      return null;
-    }
-
-    final LatLngBounds bounds = _calculateLatLngBounds(routePoints);
-    return CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(20));
-  }
-
-  LatLngBounds _calculateLatLngBounds(List<LatLng> points) {
-    if (points.isEmpty) {
-      throw ArgumentError('Points list cannot be empty');
-    }
-
-    double minLat = points.first.latitude;
-    double maxLat = points.first.latitude;
-    double minLng = points.first.longitude;
-    double maxLng = points.first.longitude;
-
-    for (final LatLng point in points) {
-      if (point.latitude < minLat) minLat = point.latitude;
-      if (point.latitude > maxLat) maxLat = point.latitude;
-      if (point.longitude < minLng) minLng = point.longitude;
-      if (point.longitude > maxLng) maxLng = point.longitude;
-    }
-
-    return LatLngBounds(
-      LatLng(minLat, minLng), // southwest
-      LatLng(maxLat, maxLng), // northeast
+  CameraFit? _calculateCameraFit() {
+    final List<double> bbox = workoutDetail.bbox;
+    final LatLngBounds bounds = LatLngBounds(
+      LatLng(bbox[1], bbox[0]), // minLat, minLng
+      LatLng(bbox[3], bbox[2]), // maxLat, maxLng
     );
+    return CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(20));
   }
 }

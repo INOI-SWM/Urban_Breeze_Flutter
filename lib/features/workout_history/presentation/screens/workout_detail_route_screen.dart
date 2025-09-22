@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
-import 'package:urban_breeze/features/workout_history/domain/entities/location_data.dart';
-import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/track_point.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
 import 'package:urban_breeze/shared/chart/common_line_chart_widget.dart';
 import 'package:urban_breeze/shared/chart/workout_data_extractor.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
@@ -30,7 +30,7 @@ class _ChartConfig {
   static const Map<WorkoutDataType, _ChartConfig> configs =
       <WorkoutDataType, _ChartConfig>{
         WorkoutDataType.speed: _ChartConfig(
-          unit: '',
+          unit: 'km/h',
           emptyMessage: '속도 데이터 없음',
           colorGetter: _getSpeedColor,
         ),
@@ -40,7 +40,7 @@ class _ChartConfig {
           colorGetter: _getAltitudeColor,
         ),
         WorkoutDataType.heartRate: _ChartConfig(
-          unit: '',
+          unit: 'bpm',
           emptyMessage: '심박수 데이터 없음',
           colorGetter: _getHeartRateColor,
         ),
@@ -54,9 +54,9 @@ class _ChartConfig {
 }
 
 class WorkoutDetailRouteScreen extends StatefulWidget {
-  const WorkoutDetailRouteScreen({super.key, required this.workoutRecord});
+  const WorkoutDetailRouteScreen({super.key, required this.workoutDetail});
 
-  final WorkoutRecord workoutRecord;
+  final WorkoutDetail workoutDetail;
 
   @override
   State<WorkoutDetailRouteScreen> createState() =>
@@ -71,10 +71,9 @@ class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen> {
     if (_hasUserDraggedMap) return;
 
     final List<LatLng> routePoints =
-        widget.workoutRecord.locationData
-            ?.map((LocationData data) => LatLng(data.latitude, data.longitude))
-            .toList() ??
-        <LatLng>[];
+        widget.workoutDetail.trackPoints
+            .map((TrackPoint point) => LatLng(point.latitude, point.longitude))
+            .toList();
 
     if (routePoints.isNotEmpty) {
       final LatLngBounds bounds = _calculateLatLngBounds(
@@ -130,7 +129,7 @@ class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen> {
       body: Stack(
         children: <Widget>[
           _WorkoutDetailRouteMapWidget(
-            workoutRecord: widget.workoutRecord,
+            workoutDetail: widget.workoutDetail,
             mapController: _mapController,
             onMapDragged: () {
               setState(() {
@@ -140,7 +139,7 @@ class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen> {
             calculateBounds: _calculateLatLngBounds,
           ),
           _DraggableBottomSheet(
-            workoutRecord: widget.workoutRecord,
+            workoutDetail: widget.workoutDetail,
             onSizeChanged: (double size) {
               _updateMapBounds(size);
             },
@@ -153,13 +152,13 @@ class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen> {
 
 class _WorkoutDetailRouteMapWidget extends StatelessWidget {
   const _WorkoutDetailRouteMapWidget({
-    required this.workoutRecord,
+    required this.workoutDetail,
     required this.mapController,
     required this.onMapDragged,
     required this.calculateBounds,
   });
 
-  final WorkoutRecord workoutRecord;
+  final WorkoutDetail workoutDetail;
   final MapController mapController;
   final VoidCallback onMapDragged;
   final LatLngBounds Function(List<LatLng>, double) calculateBounds;
@@ -171,10 +170,9 @@ class _WorkoutDetailRouteMapWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
     final List<LatLng> routePoints =
-        workoutRecord.locationData
-            ?.map((LocationData data) => LatLng(data.latitude, data.longitude))
-            .toList() ??
-        <LatLng>[];
+        workoutDetail.trackPoints
+            .map((TrackPoint point) => LatLng(point.latitude, point.longitude))
+            .toList();
 
     CameraFit? initialCameraFit;
     if (routePoints.isNotEmpty) {
@@ -234,7 +232,7 @@ class _WorkoutDetailRouteMapWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 2),
+          border: Border.all(color: const Color(0xFFFFFFFF), width: 2),
         ),
       ),
     );
@@ -243,11 +241,11 @@ class _WorkoutDetailRouteMapWidget extends StatelessWidget {
 
 class _DraggableBottomSheet extends StatefulWidget {
   const _DraggableBottomSheet({
-    required this.workoutRecord,
+    required this.workoutDetail,
     required this.onSizeChanged,
   });
 
-  final WorkoutRecord workoutRecord;
+  final WorkoutDetail workoutDetail;
   final ValueChanged<double> onSizeChanged;
 
   @override
@@ -256,6 +254,7 @@ class _DraggableBottomSheet extends StatefulWidget {
 
 class _DraggableBottomSheetState extends State<_DraggableBottomSheet> {
   int _selectedCardIndex = 0;
+  late List<WorkoutDataType> _availableDataTypes;
 
   static const double _initialChildSize = 0.5;
   static const double _maxChildSize = 0.5;
@@ -267,6 +266,91 @@ class _DraggableBottomSheetState extends State<_DraggableBottomSheet> {
   static const double _dragHandleTotalHeight = 24.0;
 
   static const double _borderRadius = 12.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeAvailableDataTypes();
+  }
+
+  void _initializeAvailableDataTypes() {
+    _availableDataTypes = <WorkoutDataType>[];
+
+    // 속도 데이터 확인
+    final List<FlSpot> speedData =
+        WorkoutDataExtractor.extractSpeedDataFromDetail(widget.workoutDetail);
+    if (speedData.isNotEmpty) {
+      _availableDataTypes.add(WorkoutDataType.speed);
+    }
+
+    // 고도 데이터 확인
+    final List<FlSpot> altitudeData =
+        WorkoutDataExtractor.extractAltitudeDataFromDetail(
+          widget.workoutDetail,
+        );
+    if (altitudeData.isNotEmpty) {
+      _availableDataTypes.add(WorkoutDataType.altitude);
+    }
+
+    // 심박수 데이터 확인
+    final List<FlSpot> heartRateData =
+        WorkoutDataExtractor.extractHeartRateDataFromDetail(
+          widget.workoutDetail,
+        );
+    if (heartRateData.isNotEmpty) {
+      _availableDataTypes.add(WorkoutDataType.heartRate);
+    }
+
+    // 첫 번째 데이터 타입을 기본 선택으로 설정
+    _selectedCardIndex = 0;
+  }
+
+  List<Widget> _buildInfoCards() {
+    final List<Widget> cards = <Widget>[];
+
+    for (int i = 0; i < _availableDataTypes.length; i++) {
+      if (i > 0) {
+        cards.add(const SizedBox(width: 8));
+      }
+
+      cards.add(_buildInfoCard(_availableDataTypes[i], i));
+    }
+
+    return cards;
+  }
+
+  Widget _buildInfoCard(WorkoutDataType dataType, int index) {
+    final String label;
+    final String value;
+
+    switch (dataType) {
+      case WorkoutDataType.speed:
+        label = '평균 속도';
+        value = '${widget.workoutDetail.averageSpeed.toStringAsFixed(1)} km/h';
+        break;
+      case WorkoutDataType.altitude:
+        label = '상승 고도';
+        value = '${widget.workoutDetail.elevationGain.toStringAsFixed(0)}m';
+        break;
+      case WorkoutDataType.heartRate:
+        label = '평균 심박수';
+        value =
+            widget.workoutDetail.averageHeartRate != null
+                ? '${widget.workoutDetail.averageHeartRate}bpm'
+                : '데이터 없음';
+        break;
+    }
+
+    return _InfoCard(
+      label: label,
+      value: value,
+      isSelected: _selectedCardIndex == index,
+      onTap:
+          () => setState(() {
+            _selectedCardIndex = index;
+          }),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -331,48 +415,21 @@ class _DraggableBottomSheetState extends State<_DraggableBottomSheet> {
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Row(
-                              children: <Widget>[
-                                _InfoCard(
-                                  label: '평균 속도',
-                                  value: '22.3 km/h',
-                                  isSelected: _selectedCardIndex == 0,
-                                  onTap:
-                                      () => setState(() {
-                                        _selectedCardIndex = 0;
-                                      }),
-                                ),
-                                const SizedBox(width: 8),
-                                _InfoCard(
-                                  label: '상승 고도',
-                                  value: '124m',
-                                  isSelected: _selectedCardIndex == 1,
-                                  onTap:
-                                      () => setState(() {
-                                        _selectedCardIndex = 1;
-                                      }),
-                                ),
-                                const SizedBox(width: 8),
-                                _InfoCard(
-                                  label: '평균 심박수',
-                                  value: '124bpm',
-                                  isSelected: _selectedCardIndex == 2,
-                                  onTap:
-                                      () => setState(() {
-                                        _selectedCardIndex = 2;
-                                      }),
-                                ),
-                              ],
+                          if (_availableDataTypes.isNotEmpty)
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              child: Row(children: _buildInfoCards()),
                             ),
-                          ),
                           const SizedBox(height: 40),
-                          _WorkoutChart(
-                            workoutRecord: widget.workoutRecord,
-                            selectedIndex: _selectedCardIndex,
-                          ),
+                          if (_availableDataTypes.isNotEmpty)
+                            _WorkoutChart(
+                              workoutDetail: widget.workoutDetail,
+                              availableDataTypes: _availableDataTypes,
+                              selectedIndex: _selectedCardIndex,
+                            ),
                         ],
                       ),
                     ),
@@ -434,29 +491,35 @@ class _InfoCard extends StatelessWidget {
 
 class _WorkoutChart extends StatelessWidget {
   const _WorkoutChart({
-    required this.workoutRecord,
+    required this.workoutDetail,
+    required this.availableDataTypes,
     required this.selectedIndex,
   });
 
-  final WorkoutRecord workoutRecord;
+  final WorkoutDetail workoutDetail;
+  final List<WorkoutDataType> availableDataTypes;
   final int selectedIndex;
 
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-    final WorkoutDataType dataType = WorkoutDataType.values[selectedIndex];
+
+    if (availableDataTypes.isEmpty ||
+        selectedIndex >= availableDataTypes.length) {
+      return const SizedBox.shrink();
+    }
+
+    final WorkoutDataType dataType = availableDataTypes[selectedIndex];
     final _ChartConfig config = _ChartConfig.configs[dataType]!;
 
     final List<FlSpot> spots = switch (dataType) {
-      WorkoutDataType.speed => WorkoutDataExtractor.extractSpeedData(
-        workoutRecord,
+      WorkoutDataType.speed => WorkoutDataExtractor.extractSpeedDataFromDetail(
+        workoutDetail,
       ),
-      WorkoutDataType.altitude => WorkoutDataExtractor.extractAltitudeData(
-        workoutRecord,
-      ),
-      WorkoutDataType.heartRate => WorkoutDataExtractor.extractHeartRateData(
-        workoutRecord,
-      ),
+      WorkoutDataType.altitude =>
+        WorkoutDataExtractor.extractAltitudeDataFromDetail(workoutDetail),
+      WorkoutDataType.heartRate =>
+        WorkoutDataExtractor.extractHeartRateDataFromDetail(workoutDetail),
     };
 
     return Container(

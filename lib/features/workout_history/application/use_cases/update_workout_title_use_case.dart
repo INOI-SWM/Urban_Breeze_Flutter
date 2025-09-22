@@ -1,6 +1,7 @@
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/exceptions/validation_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
 import 'package:urban_breeze/features/workout_history/domain/repositories/workout_history_repository.dart';
 
 class UpdateWorkoutTitleUseCase {
@@ -10,20 +11,27 @@ class UpdateWorkoutTitleUseCase {
 
   static const int _maxTitleLength = 60;
 
-  Future<AppResult<void>> execute({
+  Future<AppResult<WorkoutDetail>> execute({
     required String workoutId,
     required String title,
+    required WorkoutDetail currentWorkoutDetail,
   }) async {
     // 유효성 검사
     final AppResult<void>? validationResult = _validateInputs(workoutId, title);
     if (validationResult != null) {
-      return validationResult;
+      return AppFailure<WorkoutDetail>(
+        (validationResult as AppFailure<void>).exception,
+      );
     }
 
     // Repository 호출
     try {
       await repository.updateWorkoutTitle(workoutId: workoutId, title: title);
-      return const AppSuccess<void>(null);
+      // 업데이트된 WorkoutDetail 객체 반환
+      final WorkoutDetail updatedWorkoutDetail = currentWorkoutDetail.copyWith(
+        title: title,
+      );
+      return AppSuccess<WorkoutDetail>(updatedWorkoutDetail);
     } catch (e) {
       return _handleRepositoryError(e);
     }
@@ -52,13 +60,13 @@ class UpdateWorkoutTitleUseCase {
     return null;
   }
 
-  AppResult<void> _handleRepositoryError(dynamic error) {
+  AppResult<WorkoutDetail> _handleRepositoryError(dynamic error) {
     if (error is BaseDomainException) {
-      return AppFailure<void>(error);
+      return AppFailure<WorkoutDetail>(error);
     }
 
     // 예상치 못한 에러 타입에 대한 처리
-    return AppFailure<void>(
+    return AppFailure<WorkoutDetail>(
       Exception('Failed to update workout title: ${error.toString()}')
           as BaseDomainException,
     );
