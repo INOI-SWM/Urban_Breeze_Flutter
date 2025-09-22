@@ -56,7 +56,16 @@ class WorkoutDetailMapper {
       maxPower: model.maxPower,
       user: toWorkoutUserEntity(model.user),
       thumbnailImageUrl: model.thumbnailImageUrl,
-      activityImages: model.activityImages.map(toActivityImageEntity).toList(),
+      activityImages:
+          (() {
+            final List<ActivityImage> images =
+                model.activityImages.map(toActivityImageEntity).toList();
+            images.sort(
+              (ActivityImage a, ActivityImage b) =>
+                  a.displayOrder.compareTo(b.displayOrder),
+            );
+            return images;
+          })(),
       trackPointsCount: model.trackPointsCount,
       trackPoints: model.trackPoints.map(toTrackPointEntity).toList(),
       bbox: model.bbox,

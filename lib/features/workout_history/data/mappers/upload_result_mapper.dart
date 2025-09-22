@@ -14,11 +14,21 @@ class UploadResultMapper {
   static List<ActivityImage> toActivityImageList(
     UploadWorkoutImagesResponseModel model,
   ) {
-    return model.uploadedImages
-        .map(
-          (UploadedImageModel imageModel) => toActivityImageEntity(imageModel),
-        )
-        .toList();
+    final List<ActivityImage> images =
+        model.uploadedImages
+            .map(
+              (UploadedImageModel imageModel) =>
+                  toActivityImageEntity(imageModel),
+            )
+            .toList();
+
+    // disActivityImage plaActivityImage yOrder로 정렬 (오름차순)
+    images.sort(
+      (ActivityImage a, ActivityImage b) =>
+          a.displayOrder.compareTo(b.displayOrder),
+    );
+
+    return images;
   }
 
   static List<ActivityImage> fromApiResponse(
