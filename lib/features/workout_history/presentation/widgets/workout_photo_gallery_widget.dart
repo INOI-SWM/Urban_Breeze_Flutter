@@ -53,8 +53,13 @@ class _WorkoutPhotoGalleryWidgetState
   @override
   void initState() {
     super.initState();
-    // 초기 이미지들을 전체 이미지 리스트에 추가
-    _allImages = List<ActivityImage>.from(widget.initialImages);
+    // 초기 이미지들을 전체 이미지 리스트에 추가 (썸네일 제외)
+    _allImages =
+        widget.initialImages
+            .where(
+              (ActivityImage image) => image.displayOrder != 0,
+            ) // displayOrder가 0인 썸네일 제외
+            .toList();
   }
 
   bool _canAddMorePhotos() {
@@ -86,9 +91,13 @@ class _WorkoutPhotoGalleryWidgetState
             '${uploadedImages.length}장의 사진이 성공적으로 업로드되었습니다!',
           );
 
-          // 업로드된 이미지들을 전체 이미지 리스트에 추가
+          // 업로드된 이미지들을 전체 이미지 리스트에 추가 (썸네일 제외)
           setState(() {
-            _allImages.addAll(uploadedImages);
+            _allImages.addAll(
+              uploadedImages.where(
+                (ActivityImage image) => image.displayOrder != 0,
+              ), // 썸네일 제외
+            );
             _selectedImages.clear(); // 갤러리에서 선택한 이미지들은 초기화
           });
         } else {
