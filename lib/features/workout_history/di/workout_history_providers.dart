@@ -7,6 +7,7 @@ import 'package:urban_breeze/features/integration/di/integration_providers.dart'
 import '../application/facades/terra_health_sync_facade.dart';
 import '../application/facades/workout_sync_facade.dart';
 import '../application/use_cases/connect_terra_health_app_use_case.dart';
+import '../application/use_cases/delete_workout_image_use_case.dart';
 import '../application/use_cases/get_workout_detail_use_case.dart';
 import '../application/use_cases/get_workout_list_use_case.dart';
 import '../application/use_cases/get_workout_statistics_use_case.dart';
@@ -143,6 +144,14 @@ final Provider<UploadWorkoutImagesUseCase> uploadWorkoutImagesUseCaseProvider =
       );
 
       return UploadWorkoutImagesUseCase(repository: repository);
+    });
+
+final Provider<DeleteWorkoutImageUseCase> deleteWorkoutImageUseCaseProvider =
+    Provider<DeleteWorkoutImageUseCase>((Ref<DeleteWorkoutImageUseCase> ref) {
+      final WorkoutHistoryRepository repository = ref.watch(
+        workoutHistoryRepositoryProvider,
+      );
+      return DeleteWorkoutImageUseCase(repository: repository);
     });
 
 final Provider<SyncAppleHealthKitDataUseCase>
