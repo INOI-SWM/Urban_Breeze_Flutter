@@ -9,6 +9,7 @@ import 'package:urban_breeze/features/my_route/domain/entities/my_route_list.dar
 import 'package:urban_breeze/features/my_route/domain/enums/my_route_sort_type.dart';
 import 'package:urban_breeze/features/my_route/presentation/config/my_route_category_config.dart';
 import 'package:urban_breeze/features/my_route/presentation/config/my_route_filter_config.dart';
+import 'package:urban_breeze/features/my_route/presentation/mappers/my_route_filter_mapper.dart';
 import 'package:urban_breeze/features/my_route/presentation/screens/my_route_detail_screen.dart';
 import 'package:urban_breeze/features/route_planning/presentation/screens/route_planning_screen.dart';
 import 'package:urban_breeze/navigation/page_with_app_bar.dart';
@@ -54,6 +55,15 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
   MyRouteSortType selectedSortOption = MyRouteSortType.newest;
   late ScrollController _scrollController;
 
+  // 상태 관리 변수들
+  List<MyRoute> allRoutes = <MyRoute>[];
+  MyRouteList routeList = MyRouteList.empty();
+  bool isLoading = true;
+  bool isLoadingMore = false;
+  String? errorMessage;
+  FilterData? currentFilter;
+  MyRouteFilter? _currentDomainFilter;
+
   List<FilterItem> get filters {
     return MyRouteFilterConfig(
       maxDistance: routeList.maxDistance.ceilToDouble(),
@@ -62,15 +72,6 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
       minElevationGain: routeList.minElevationGain.floorToDouble(),
     ).filters;
   }
-
-  FilterData? currentFilter;
-  MyRouteFilter? _currentDomainFilter; // 현재 사용 중인 도메인 필터
-
-  MyRouteList routeList = MyRouteList.empty();
-  bool isLoading = true;
-  bool isLoadingMore = false; // 추가 로딩 상태
-  String? errorMessage;
-  List<MyRoute> allRoutes = <MyRoute>[]; // 전체 누적된 경로들
 
   @override
   void initState() {
@@ -103,43 +104,38 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
     setState(() {
       isLoading = true;
       errorMessage = null;
-      allRoutes.clear(); // 새로운 검색 시 기존 데이터 클리어
+      allRoutes.clear();
     });
 
     late AppResult<MyRouteList> result;
+    late MyRouteFilter filterModel;
 
     if (currentFilter == null) {
-      // 초기 로딩 시에는 필터 없이 호출
-      result = await ref
-          .read(getMyRouteListUseCaseProvider)
-          .executeInitial(sortType: selectedSortOption);
+      // 초기 로딩 - 기본 필터 사용
+      filterModel = MyRouteFilter(sortType: selectedSortOption);
     } else {
-      // 필터가 설정된 경우 필터 적용 호출
-      result = await ref
-          .read(getMyRouteListUseCaseProvider)
-          .execute(filterData: currentFilter!, sortType: selectedSortOption);
+      // 필터 적용 - Mapper 사용
+      filterModel = MyRouteFilterMapper.fromFilterData(
+        currentFilter!,
+        selectedSortOption,
+      );
     }
+
+    result = await ref
+        .read(getMyRouteListUseCaseProvider)
+        .execute(filter: filterModel);
 
     setState(() {
       isLoading = false;
       if (result.isSuccess) {
         routeList = result.dataOrNull!;
         allRoutes = List<MyRoute>.from(routeList.routes);
+        _currentDomainFilter = filterModel;
 
-        // 현재 도메인 필터 저장 (무한스크롤용)
-        if (currentFilter == null) {
-          _currentDomainFilter = MyRouteFilter(sortType: selectedSortOption);
-        } else {
-          _currentDomainFilter = MyRouteFilter.fromFilterData(
-            currentFilter!,
-            selectedSortOption,
-          );
-        }
-
-        // 서버 응답 후에 서버값이 반영된 필터로 업데이트 (초기 로딩 시만)
+        // 초기 로딩 시만 UI 필터 설정
         currentFilter ??= FilterData.fromFilterItems(filters);
       } else {
-        errorMessage = '서버에러';
+        errorMessage = '데이터를 불러올 수 없습니다';
         routeList = MyRouteList.empty();
         allRoutes.clear();
       }
@@ -153,21 +149,20 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
       isLoadingMore = true;
     });
 
+    final MyRouteFilter nextPageFilter = _currentDomainFilter!.copyWith(
+      page: routeList.currentPage + 1,
+    );
+
     final AppResult<MyRouteList> result = await ref
         .read(getMyRouteListUseCaseProvider)
-        .executeLoadMore(
-          currentFilter: _currentDomainFilter!,
-          nextPage: routeList.currentPage + 1,
-        );
+        .execute(filter: nextPageFilter);
 
     setState(() {
       isLoadingMore = false;
       if (result.isSuccess) {
         final MyRouteList newRouteList = result.dataOrNull!;
-        // 기존 데이터에 새로운 데이터 추가
         allRoutes.addAll(newRouteList.routes);
 
-        // 메타데이터 업데이트 (새로운 페이지 정보로)
         routeList = MyRouteList(
           routes: allRoutes,
           currentPage: newRouteList.currentPage,
@@ -219,7 +214,6 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
 
     final List<FilterItem> bottomSheetFilters = filterConfig.filters;
 
-    // 현재 필터값을 반영한 초기 데이터 생성
     final FilterData initialData = filterConfig
         .createFilterDataWithCurrentValues(currentFilter);
 
@@ -296,66 +290,70 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
             },
           ),
           const SizedBox(height: 12),
-          Expanded(
-            child:
-                isLoading
-                    ? const Center(child: AppLoadingIndicator())
-                    : errorMessage != null
-                    ? Center(child: Text(errorMessage!))
-                    : allRoutes.isEmpty
-                    ? const Center(child: Text('경로가 없습니다'))
-                    : ListView.builder(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: allRoutes.length + (isLoadingMore ? 1 : 0),
-                      itemBuilder: (BuildContext context, int index) {
-                        // 로딩 인디케이터 표시
-                        if (index >= allRoutes.length) {
-                          return const Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Center(child: AppLoadingIndicator()),
-                          );
-                        }
-
-                        final MyRoute route = allRoutes[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: RouteCard(
-                            thumbnailPath: route.thumbnailUrl,
-                            sourceType: ThumbnailSourceType.network,
-                            userProfileImage: route.profileImageUrl,
-                            userName: route.nickname,
-                            routeTitle: route.title,
-                            date: route.createdAtDisplay,
-                            distance: route.distanceDisplay,
-                            elevation: route.elevationGainDisplay,
-                            cardType: RouteCardType.myRoute,
-                            onTap: () {
-                              // 경로 클릭 이벤트
-                              AmplitudeAnalytics.logEvent(
-                                'my_route_clicked',
-                                properties: <String, dynamic>{
-                                  'route_id': route.routeId.toString(),
-                                },
-                              );
-
-                              Navigator.of(context).push(
-                                MaterialPageRoute<void>(
-                                  builder:
-                                      (BuildContext context) =>
-                                          MyRouteDetailScreen(
-                                            routeId: route.routeId.toString(),
-                                          ),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    ),
-          ),
+          Expanded(child: _buildContent()),
         ],
       ),
+    );
+  }
+
+  Widget _buildContent() {
+    if (isLoading) {
+      return const Center(child: AppLoadingIndicator());
+    }
+
+    if (errorMessage != null) {
+      return Center(child: Text(errorMessage!));
+    }
+
+    if (allRoutes.isEmpty) {
+      return const Center(child: Text('경로가 없습니다'));
+    }
+
+    return ListView.builder(
+      controller: _scrollController,
+      physics: const AlwaysScrollableScrollPhysics(),
+      itemCount: allRoutes.length + (isLoadingMore ? 1 : 0),
+      itemBuilder: (BuildContext context, int index) {
+        if (index >= allRoutes.length) {
+          return const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Center(child: AppLoadingIndicator()),
+          );
+        }
+
+        final MyRoute route = allRoutes[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: RouteCard(
+            thumbnailPath: route.thumbnailUrl,
+            sourceType: ThumbnailSourceType.network,
+            userProfileImage: route.profileImageUrl,
+            userName: route.nickname,
+            routeTitle: route.title,
+            date: route.createdAtDisplay,
+            distance: route.distanceDisplay,
+            elevation: route.elevationGainDisplay,
+            cardType: RouteCardType.myRoute,
+            onTap: () {
+              AmplitudeAnalytics.logEvent(
+                'my_route_clicked',
+                properties: <String, dynamic>{
+                  'route_id': route.routeId.toString(),
+                },
+              );
+
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder:
+                      (BuildContext context) => MyRouteDetailScreen(
+                        routeId: route.routeId.toString(),
+                      ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
