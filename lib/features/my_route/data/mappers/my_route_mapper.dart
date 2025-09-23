@@ -122,7 +122,7 @@ class MyRouteMapper {
     final MyRouteDetailModel data = response.data;
 
     return MyRouteDetail(
-      id: data.id,
+      routeId: data.routeId,
       title: data.title,
       polyline: data.polyline,
       createdAt: data.createdAt,

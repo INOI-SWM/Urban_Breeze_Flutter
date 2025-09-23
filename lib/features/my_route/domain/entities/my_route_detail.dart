@@ -1,6 +1,6 @@
 class MyRouteDetail {
   const MyRouteDetail({
-    required this.id,
+    required this.routeId,
     required this.title,
     required this.polyline,
     required this.createdAt,
@@ -15,7 +15,7 @@ class MyRouteDetail {
     required this.bbox,
   });
 
-  final int id;
+  final String routeId;
   final String title;
   final String polyline;
   final DateTime createdAt;
