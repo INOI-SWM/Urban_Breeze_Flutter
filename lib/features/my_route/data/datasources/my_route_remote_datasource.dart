@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/features/my_route/data/models/my_route_detail_model.dart';
 import 'package:urban_breeze/features/my_route/data/models/my_route_filter_model.dart';
@@ -33,6 +34,18 @@ class MyRouteRemoteDataSource extends BaseRemoteDataSource {
     return ApiResponseModel<MyRouteDetailModel>.fromJson(
       json,
       (Map<String, dynamic> dataJson) => MyRouteDetailModel.fromJson(dataJson),
+    );
+  }
+
+  Future<ApiResponseModel<String>> getRouteGPX(String routeId) async {
+    final http.Response response = await get(
+      ApiEndpoints.routeGPXDownload(routeId),
+    );
+    final Map<String, dynamic> json = decodeResponse(response);
+    debugPrint(json.toString());
+    return ApiResponseModel<String>.fromJson(
+      json,
+      (Map<String, dynamic> dataJson) => dataJson['gpx'] as String,
     );
   }
 }
