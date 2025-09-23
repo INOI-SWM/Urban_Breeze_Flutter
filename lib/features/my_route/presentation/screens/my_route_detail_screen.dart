@@ -5,7 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/my_route/application/usecases/get_my_route_detail_usecase.dart';
+import 'package:urban_breeze/features/my_route/application/usecases/get_route_gpx_usecase.dart';
 import 'package:urban_breeze/features/my_route/di/my_route_providers.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route_detail.dart';
 import 'package:urban_breeze/features/route_planning/domain/services/polyline_convert_service.dart';
@@ -20,6 +22,7 @@ import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_in
 import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
 import 'package:urban_breeze/shared/layout/map_with_bottom_sheet_layout.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
+import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 import 'package:urban_breeze/shared/utils/date_formatter.dart';
 import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
 
@@ -124,11 +127,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
                           'route_id': widget.routeId,
                         },
                       );
-                      //TODO : 추후 실제 API 요청 로직으로 변경
-                      routeSharingFacade.shareGpxFromAsset(
-                        context,
-                        'assets/gpx/sample.gpx',
-                      );
+                      _handleGpxDownloadOrShare(context, isDownload: true);
                     },
                   ),
                 ],
@@ -162,11 +161,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
                           'route_id': widget.routeId,
                         },
                       );
-                      //TODO : 추후 실제 API 요청 로직으로 변경
-                      routeSharingFacade.shareGpxFromAsset(
-                        context,
-                        'assets/gpx/sample.gpx',
-                      );
+                      _handleGpxDownloadOrShare(context, isDownload: false);
                     },
                   ),
                 ],
@@ -372,6 +367,57 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
     }
 
     return spots;
+  }
+
+  /// GPX 다운로드 및 공유 처리
+  Future<void> _handleGpxDownloadOrShare(
+    BuildContext context, {
+    required bool isDownload,
+  }) async {
+    final GetRouteGpxUseCase gpxUseCase = ref.read(getRouteGpxUseCaseProvider);
+    final RouteSharingFacade routeSharingFacade = ref.read(
+      routeSharingFacadeProvider,
+    );
+
+    try {
+      final AppResult<String> result = await gpxUseCase.execute(
+        routeId: widget.routeId,
+      );
+
+      if (!context.mounted) return;
+
+      if (result.isFailure) {
+        ErrorDisplay.showErrorMessage(
+          context,
+          result.exceptionOrNull?.message ?? 'GPX 데이터를 가져올 수 없습니다',
+        );
+        return;
+      }
+
+      final String gpxData = result.dataOrNull!;
+
+      if (isDownload) {
+        // 다운로드 모드: GPX 파일을 생성해서 공유
+        await routeSharingFacade.shareGpxFromData(
+          context,
+          gpxData,
+          widget.routeId,
+        );
+      } else {
+        // 공유 모드: GPX 파일을 생성해서 공유
+        await routeSharingFacade.shareGpxFromData(
+          context,
+          gpxData,
+          widget.routeId,
+        );
+      }
+    } catch (e) {
+      if (!context.mounted) return;
+      ErrorDisplay.showErrorMessage(
+        context,
+        'GPX 처리 중 오류가 발생했습니다: ${e.toString()}',
+      );
+    }
   }
 
   /// 경로 삭제 확인 다이얼로그 표시
