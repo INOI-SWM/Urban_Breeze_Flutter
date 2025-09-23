@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:urban_breeze/core/di/core_providers.dart';
 import 'package:urban_breeze/features/my_route/application/usecases/get_my_route_detail_usecase.dart';
 import 'package:urban_breeze/features/my_route/application/usecases/get_my_route_list_usecase.dart';
+import 'package:urban_breeze/features/my_route/application/usecases/get_route_gpx_usecase.dart';
 import 'package:urban_breeze/features/my_route/data/datasources/my_route_remote_datasource.dart';
 import 'package:urban_breeze/features/my_route/data/repositories/my_route_repository_impl.dart';
 import 'package:urban_breeze/features/my_route/domain/repositories/my_route_repository.dart';
@@ -31,4 +32,10 @@ final Provider<GetMyRouteDetailUseCase> getMyRouteDetailUseCaseProvider =
     Provider<GetMyRouteDetailUseCase>((Ref<GetMyRouteDetailUseCase> ref) {
       final MyRouteRepository repository = ref.watch(myRouteRepositoryProvider);
       return GetMyRouteDetailUseCase(repository: repository);
+    });
+
+final Provider<GetRouteGpxUseCase> getRouteGpxUseCaseProvider =
+    Provider<GetRouteGpxUseCase>((Ref<GetRouteGpxUseCase> ref) {
+      final MyRouteRepository repository = ref.watch(myRouteRepositoryProvider);
+      return GetRouteGpxUseCase(repository: repository);
     });
