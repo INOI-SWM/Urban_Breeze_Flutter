@@ -13,7 +13,7 @@ class MyRouteMapper {
   /// MyRouteModel을 MyRoute 엔티티로 변환
   static MyRoute fromModel(MyRouteModel model) {
     return MyRoute(
-      id: model.id,
+      routeId: model.routeId,
       title: model.title,
       thumbnailUrl: model.thumbnailUrl,
       createdAt: DateTime.parse(model.createdAt),

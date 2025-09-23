@@ -1,6 +1,6 @@
 class MyRoute {
   const MyRoute({
-    required this.id,
+    required this.routeId,
     required this.title,
     required this.thumbnailUrl,
     required this.createdAt,
@@ -11,7 +11,7 @@ class MyRoute {
     required this.profileImageUrl,
   });
 
-  final int id;
+  final String routeId;
   final String title;
   final String thumbnailUrl;
   final DateTime createdAt;
@@ -34,14 +34,14 @@ class MyRoute {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is MyRoute && other.id == id;
+    return other is MyRoute && other.routeId == routeId;
   }
 
   @override
-  int get hashCode => id.hashCode;
+  int get hashCode => routeId.hashCode;
 
   @override
   String toString() {
-    return 'MyRoute(id: $id, title: $title, distance: $distance, elevationGain: $elevationGain)';
+    return 'MyRoute(id: $routeId, title: $title, distance: $distance, elevationGain: $elevationGain)';
   }
 }

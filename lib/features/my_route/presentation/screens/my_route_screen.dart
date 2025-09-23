@@ -244,7 +244,7 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
                               AmplitudeAnalytics.logEvent(
                                 'my_route_clicked',
                                 properties: <String, dynamic>{
-                                  'route_id': route.id.toString(),
+                                  'route_id': route.routeId.toString(),
                                 },
                               );
 
@@ -253,7 +253,7 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
                                   builder:
                                       (BuildContext context) =>
                                           MyRouteDetailScreen(
-                                            routeId: route.id.toString(),
+                                            routeId: route.routeId.toString(),
                                           ),
                                 ),
                               );
