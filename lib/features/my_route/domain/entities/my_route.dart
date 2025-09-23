@@ -25,11 +25,11 @@ class MyRoute {
   /// 100km 이상: 소수점 없음, 10km 이상: 소수점 한자리, 10km 미만: 소수점 두자리
   String get distanceDisplay {
     if (distance >= 100) {
-      return '${distance.toStringAsFixed(0)} km';
+      return '${distance.toStringAsFixed(0)}km';
     } else if (distance >= 10) {
-      return '${distance.toStringAsFixed(1)} km';
+      return '${distance.toStringAsFixed(1)}km';
     } else {
-      return '${distance.toStringAsFixed(2)} km';
+      return '${distance.toStringAsFixed(2)}km';
     }
   }
 
@@ -37,11 +37,11 @@ class MyRoute {
   /// 100m 이상: 소수점 없음, 10m 이상: 소수점 한자리, 10m 미만: 소수점 두자리
   String get elevationGainDisplay {
     if (elevationGain >= 100) {
-      return '${elevationGain.toStringAsFixed(0)} m';
+      return '${elevationGain.toStringAsFixed(0)}m';
     } else if (elevationGain >= 10) {
-      return '${elevationGain.toStringAsFixed(1)} m';
+      return '${elevationGain.toStringAsFixed(1)}m';
     } else {
-      return '${elevationGain.toStringAsFixed(2)} m';
+      return '${elevationGain.toStringAsFixed(2)}m';
     }
   }
 
