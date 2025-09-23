@@ -33,4 +33,12 @@ class MyRouteRepositoryImpl implements MyRouteRepository {
 
     return MyRouteMapper.fromDetailApiResponse(response);
   }
+
+  @override
+  Future<String> getRouteGPX(String routeId) async {
+    final ApiResponseModel<String> response = await _remoteDataSource
+        .getRouteGPX(routeId);
+
+    return response.data;
+  }
 }

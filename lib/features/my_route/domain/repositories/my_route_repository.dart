@@ -5,4 +5,5 @@ import 'package:urban_breeze/features/my_route/domain/entities/my_route_list.dar
 abstract class MyRouteRepository {
   Future<MyRouteList> getMyRouteList(MyRouteFilter filter);
   Future<MyRouteDetail> getRouteDetail(String routeId);
+  Future<String> getRouteGPX(String routeId);
 }
