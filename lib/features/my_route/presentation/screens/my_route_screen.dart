@@ -4,7 +4,6 @@ import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/my_route/di/my_route_providers.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route.dart';
-import 'package:urban_breeze/features/my_route/domain/entities/my_route_filter.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route_list.dart';
 import 'package:urban_breeze/features/my_route/domain/enums/my_route_sort_type.dart';
 import 'package:urban_breeze/features/my_route/presentation/config/my_route_category_config.dart';
@@ -53,41 +52,29 @@ class MyRouteScreen extends ConsumerStatefulWidget implements PageWithAppBar {
 class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
   MyRouteSortType selectedSortOption = MyRouteSortType.newest;
 
-  List<FilterItem> get filters => const MyRouteFilterConfig().filters;
+  List<FilterItem> get filters {
+    return MyRouteFilterConfig(
+      maxDistance: routeList.maxDistance.ceilToDouble(),
+      minDistance: routeList.minDistance.floorToDouble(),
+      maxElevationGain: routeList.maxElevationGain.ceilToDouble(),
+      minElevationGain: routeList.minElevationGain.floorToDouble(),
+    ).filters;
+  }
 
-  late FilterData currentFilter;
+  FilterData? currentFilter;
 
   MyRouteList routeList = MyRouteList.empty();
   bool isLoading = true;
-  bool isLoadingMore = false;
   String? errorMessage;
-
-  late ScrollController _scrollController;
-  MyRouteFilter? _currentRouteFilter;
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
-    _scrollController.addListener(_onScroll);
     _loadRouteList();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AmplitudeAnalytics.logScreenView('my_route_screen');
     });
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 400) {
-      _loadMoreRoutes();
-    }
   }
 
   Future<void> _loadRouteList() async {
@@ -101,55 +88,17 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
 
     final AppResult<MyRouteList> result = await ref
         .read(getMyRouteListUseCaseProvider)
-        .execute(filterData: currentFilter, sortType: selectedSortOption);
+        .execute(filterData: currentFilter!, sortType: selectedSortOption);
 
     setState(() {
       isLoading = false;
       if (result.isSuccess) {
         routeList = result.dataOrNull!;
+        // 서버 응답 후에 서버값이 반영된 필터로 업데이트
+        currentFilter = FilterData.fromFilterItems(filters);
       } else {
         errorMessage = '서버에러';
         routeList = MyRouteList.empty();
-      }
-    });
-  }
-
-  Future<void> _loadMoreRoutes() async {
-    if (isLoadingMore || !routeList.hasNext || _currentRouteFilter == null) {
-      return;
-    }
-
-    setState(() {
-      isLoadingMore = true;
-    });
-
-    // 기존 필터에서 페이지만 변경
-    final MyRouteFilter nextPageFilter = _currentRouteFilter!.copyWith(
-      page: routeList.currentPage + 1,
-    );
-
-    final AppResult<MyRouteList> result = await ref
-        .read(getMyRouteListUseCaseProvider)
-        .execute(filter: nextPageFilter);
-
-    setState(() {
-      isLoadingMore = false;
-      if (result.isSuccess) {
-        final MyRouteList newRouteList = result.dataOrNull!;
-        // 기존 경로 리스트에 새 경로들 추가
-        routeList = MyRouteList(
-          routes: <MyRoute>[...routeList.routes, ...newRouteList.routes],
-          currentPage: newRouteList.currentPage,
-          totalPages: newRouteList.totalPages,
-          totalElements: newRouteList.totalElements,
-          size: newRouteList.size,
-          hasNext: newRouteList.hasNext,
-          hasPrevious: newRouteList.hasPrevious,
-          maxDistance: newRouteList.maxDistance,
-          maxElevationGain: newRouteList.maxElevationGain,
-          minDistance: newRouteList.minDistance,
-          minElevationGain: newRouteList.minElevationGain,
-        );
       }
     });
   }
@@ -180,8 +129,10 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
 
   void _showFilterModal({String? selectedTab}) {
     final MyRouteFilterConfig filterConfig = MyRouteFilterConfig(
-      maxDistance: routeList.maxDistance,
-      maxElevationGain: routeList.maxElevationGain,
+      maxDistance: routeList.maxDistance.ceilToDouble(),
+      minDistance: routeList.minDistance.floorToDouble(),
+      maxElevationGain: routeList.maxElevationGain.ceilToDouble(),
+      minElevationGain: routeList.minElevationGain.floorToDouble(),
     );
 
     final List<FilterItem> bottomSheetFilters = filterConfig.filters;
@@ -230,12 +181,12 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
         children: <Widget>[
           CategoryFilter(
             categories: MyRouteCategoryConfig.buildCategoryInfos(
-              currentFilter,
+              currentFilter ?? FilterData.fromFilterItems(filters),
               filters,
               selectedSortOption.displayName,
             ),
             selectedCategories: FilterDisplayUtils.getSelectedCategories(
-              currentFilter,
+              currentFilter ?? FilterData.fromFilterItems(filters),
               filters,
               selectedSortOption != MyRouteSortType.newest
                   ? selectedSortOption.displayName
@@ -255,7 +206,7 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
             mode: CategoryFilterMode.alternative,
             showFilterIndicator: true,
             filterCount: FilterDisplayUtils.getAppliedFiltersCount(
-              currentFilter,
+              currentFilter ?? FilterData.fromFilterItems(filters),
               filters,
             ),
             onFilterTap: () {
@@ -272,18 +223,9 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
                     : routeList.routes.isEmpty
                     ? const Center(child: Text('경로가 없습니다'))
                     : ListView.builder(
-                      controller: _scrollController,
                       physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount:
-                          routeList.routes.length + (isLoadingMore ? 1 : 0),
+                      itemCount: routeList.routes.length,
                       itemBuilder: (BuildContext context, int index) {
-                        // 로딩 인디케이터 표시
-                        if (index == routeList.routes.length) {
-                          return const Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Center(child: AppLoadingIndicator()),
-                          );
-                        }
                         final MyRoute route = routeList.routes[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),

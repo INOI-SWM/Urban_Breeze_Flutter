@@ -3,7 +3,6 @@ import 'package:urban_breeze/shared/filter/models/filter_config.dart';
 import 'package:urban_breeze/shared/filter/models/filter_data.dart';
 import 'package:urban_breeze/shared/filter/models/filter_item.dart';
 
-//TODO: API 변경 후, 초기 MAX,MIN값 없에기. (서버응답 받은후 첫 필터만들면됨. 지금은 요청 전 필터를 만들고 있음)
 class MyRouteFilterConfig implements FilterConfig {
   const MyRouteFilterConfig({
     this.maxDistance = 100.0,
@@ -51,19 +50,29 @@ class MyRouteFilterConfig implements FilterConfig {
     // 거리 범위가 서버 최대/최소값을 벗어나지 않도록 조정
     final RangeValues? currentDistance = values['distance'] as RangeValues?;
     if (currentDistance != null) {
-      values['distance'] = RangeValues(
-        currentDistance.start.clamp(minDistance, maxDistance),
-        currentDistance.end.clamp(minDistance, maxDistance),
-      );
+      final bool isDefaultDistance =
+          currentDistance.start.round() == minDistance.round() &&
+          currentDistance.end.round() == maxDistance.round();
+      if (!isDefaultDistance) {
+        values['distance'] = RangeValues(
+          currentDistance.start.clamp(minDistance, maxDistance),
+          currentDistance.end.clamp(minDistance, maxDistance),
+        );
+      }
     }
 
     // 상승고도 범위가 서버 최대/최소값을 벗어나지 않도록 조정
     final RangeValues? currentElevation = values['elevation'] as RangeValues?;
     if (currentElevation != null) {
-      values['elevation'] = RangeValues(
-        currentElevation.start.clamp(minElevationGain, maxElevationGain),
-        currentElevation.end.clamp(minElevationGain, maxElevationGain),
-      );
+      final bool isDefaultElevation =
+          currentElevation.start.round() == minElevationGain.round() &&
+          currentElevation.end.round() == maxElevationGain.round();
+      if (!isDefaultElevation) {
+        values['elevation'] = RangeValues(
+          currentElevation.start.clamp(minElevationGain, maxElevationGain),
+          currentElevation.end.clamp(minElevationGain, maxElevationGain),
+        );
+      }
     }
 
     return FilterData(values: values, selectedTab: currentFilter.selectedTab);
