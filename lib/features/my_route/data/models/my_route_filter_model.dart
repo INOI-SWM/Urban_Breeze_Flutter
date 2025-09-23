@@ -16,32 +16,44 @@ class MyRouteFilterModel {
     this.size = 10,
     this.sortType = ApiRouteSortType.createdAtDesc,
     this.relationTypes = '',
-    this.minDistanceKm = 0,
-    this.maxDistanceKm = 100,
-    this.minElevationGain = 0,
-    this.maxElevationGain = 100,
+    this.minDistanceKm,
+    this.maxDistanceKm,
+    this.minElevationGain,
+    this.maxElevationGain,
   });
 
   final int page;
   final int size;
   final ApiRouteSortType sortType;
   final String relationTypes;
-  final double minDistanceKm;
-  final double maxDistanceKm;
-  final double minElevationGain;
-  final double maxElevationGain;
+  final double? minDistanceKm;
+  final double? maxDistanceKm;
+  final double? minElevationGain;
+  final double? maxElevationGain;
 
   Map<String, String> toQueryParameters() {
-    return <String, String>{
+    final Map<String, String> params = <String, String>{
       'page': page.toString(),
       'size': size.toString(),
       'sortType': sortType.value,
       'relationTypes': relationTypes,
-      'minDistanceKm': minDistanceKm.toString(),
-      'maxDistanceKm': maxDistanceKm.toString(),
-      'minElevationGain': minElevationGain.toString(),
-      'maxElevationGain': maxElevationGain.toString(),
     };
+
+    // Optional 파라미터들은 null이 아닐 때만 추가
+    if (minDistanceKm != null) {
+      params['minDistanceKm'] = minDistanceKm!.toString();
+    }
+    if (maxDistanceKm != null) {
+      params['maxDistanceKm'] = maxDistanceKm!.toString();
+    }
+    if (minElevationGain != null) {
+      params['minElevationGain'] = minElevationGain!.toString();
+    }
+    if (maxElevationGain != null) {
+      params['maxElevationGain'] = maxElevationGain!.toString();
+    }
+
+    return params;
   }
 
   MyRouteFilterModel copyWith({

@@ -3,34 +3,36 @@ abstract class BaseFilter {
   const BaseFilter({
     required this.page,
     required this.size,
-    required this.minDistance,
-    required this.maxDistance,
-    required this.minElevation,
-    required this.maxElevation,
+    this.minDistance,
+    this.maxDistance,
+    this.minElevation,
+    this.maxElevation,
   });
 
   /// 페이지네이션
   final int page;
   final int size;
 
-  /// 거리 범위 (km)
-  final double minDistance;
-  final double maxDistance;
+  /// 거리 범위 (km) - null이면 필터가 적용되지 않음
+  final double? minDistance;
+  final double? maxDistance;
 
-  /// 상승 고도 범위 (m)
-  final double minElevation;
-  final double maxElevation;
+  /// 상승 고도 범위 (m) - null이면 필터가 적용되지 않음
+  final double? minElevation;
+  final double? maxElevation;
 
   /// 필터가 적용되었는지 확인
   bool get hasAppliedFilters;
 
   /// 거리 필터가 적용되었는지 확인
   bool get hasDistanceFilter =>
-      minDistance > 0 || maxDistance < getDefaultMaxDistance();
+      (minDistance != null && minDistance! > 0) ||
+      (maxDistance != null && maxDistance! < getDefaultMaxDistance());
 
   /// 고도 필터가 적용되었는지 확인
   bool get hasElevationFilter =>
-      minElevation > 0 || maxElevation < getDefaultMaxElevation();
+      (minElevation != null && minElevation! > 0) ||
+      (maxElevation != null && maxElevation! < getDefaultMaxElevation());
 
   /// 기본 최대 거리값 (하위 클래스에서 구현)
   double getDefaultMaxDistance();

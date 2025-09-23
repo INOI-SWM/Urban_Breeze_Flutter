@@ -1,6 +1,6 @@
 class MyRouteDetailModel {
   const MyRouteDetailModel({
-    required this.id,
+    required this.routeId,
     required this.title,
     required this.polyline,
     required this.createdAt,
@@ -17,7 +17,7 @@ class MyRouteDetailModel {
 
   factory MyRouteDetailModel.fromJson(Map<String, dynamic> json) {
     return MyRouteDetailModel(
-      id: json['id'] as int,
+      routeId: json['routeId'] as String,
       title: json['title'] as String,
       polyline: json['polyline'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
@@ -42,7 +42,7 @@ class MyRouteDetailModel {
     );
   }
 
-  final int id;
+  final String routeId;
   final String title;
   final String polyline;
   final DateTime createdAt;
@@ -58,7 +58,7 @@ class MyRouteDetailModel {
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'id': id,
+      'routeId': routeId,
       'title': title,
       'polyline': polyline,
       'createdAt': createdAt,

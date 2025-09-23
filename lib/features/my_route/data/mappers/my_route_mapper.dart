@@ -13,7 +13,7 @@ class MyRouteMapper {
   /// MyRouteModel을 MyRoute 엔티티로 변환
   static MyRoute fromModel(MyRouteModel model) {
     return MyRoute(
-      id: model.id,
+      routeId: model.routeId,
       title: model.title,
       thumbnailUrl: model.thumbnailUrl,
       createdAt: DateTime.parse(model.createdAt),
@@ -108,6 +108,10 @@ class MyRouteMapper {
       size: data.pagination.size,
       hasNext: data.pagination.hasNext,
       hasPrevious: data.pagination.hasPrevious,
+      maxDistance: data.filterRange.maxDistance,
+      maxElevationGain: data.filterRange.maxElevationGain,
+      minDistance: data.filterRange.minDistance,
+      minElevationGain: data.filterRange.minElevationGain,
     );
   }
 
@@ -118,7 +122,7 @@ class MyRouteMapper {
     final MyRouteDetailModel data = response.data;
 
     return MyRouteDetail(
-      id: data.id,
+      routeId: data.routeId,
       title: data.title,
       polyline: data.polyline,
       createdAt: data.createdAt,

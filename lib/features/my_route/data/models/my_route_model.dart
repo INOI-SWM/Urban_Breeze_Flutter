@@ -1,6 +1,6 @@
 class MyRouteModel {
   const MyRouteModel({
-    required this.id,
+    required this.routeId,
     required this.title,
     required this.thumbnailUrl,
     required this.createdAt,
@@ -13,7 +13,7 @@ class MyRouteModel {
 
   factory MyRouteModel.fromJson(Map<String, dynamic> json) {
     return MyRouteModel(
-      id: json['id'] as int,
+      routeId: json['routeId'] as String,
       title: json['title'] as String,
       thumbnailUrl: json['thumbnailUrl'] as String,
       createdAt: json['createdAt'] as String,
@@ -25,7 +25,7 @@ class MyRouteModel {
     );
   }
 
-  final int id;
+  final String routeId;
   final String title;
   final String thumbnailUrl;
   final String createdAt;
@@ -37,7 +37,7 @@ class MyRouteModel {
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'id': id,
+      'routeId': routeId,
       'title': title,
       'thumbnailUrl': thumbnailUrl,
       'createdAt': createdAt,
