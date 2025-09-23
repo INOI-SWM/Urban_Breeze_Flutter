@@ -136,9 +136,12 @@ class RouteSharingFacade {
 
       if (!context.mounted) return;
 
+      final String shareTitle =
+          routeTitle?.isNotEmpty == true ? routeTitle! : '라이딩 경로 GPX 파일';
+
       await SharePlus.instance.share(
         ShareParams(
-          text: '라이딩 경로 GPX 파일입니다.',
+          title: shareTitle,
           files: <XFile>[XFile(file.path, mimeType: 'application/gpx+xml')],
           sharePositionOrigin: origin,
         ),
