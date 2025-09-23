@@ -119,4 +119,50 @@ class RouteSharingFacade {
       ErrorDisplay.showErrorMessage(context, 'GPX 공유 실패: ${e.toString()}');
     }
   }
+
+  Future<void> shareGpxFromData(
+    BuildContext context,
+    String gpxData,
+    String routeId,
+  ) async {
+    final Rect origin = _getSharePositionOrigin(context);
+
+    try {
+      final Directory tempDir = await getTemporaryDirectory();
+      final String fileName = 'route_$routeId.gpx';
+      final File file = File('${tempDir.path}/$fileName');
+      await file.writeAsString(gpxData);
+
+      if (!context.mounted) return;
+
+      await SharePlus.instance.share(
+        ShareParams(
+          text: '라이딩 경로 GPX 파일입니다.',
+          files: <XFile>[XFile(file.path, mimeType: 'application/gpx+xml')],
+          sharePositionOrigin: origin,
+        ),
+      );
+
+      // GPX 공유 성공 이벤트
+      AmplitudeAnalytics.logEvent(
+        'route_sharing_gpx_success',
+        properties: <String, dynamic>{
+          'route_id': routeId,
+          'file_name': fileName,
+        },
+      );
+    } catch (e) {
+      // GPX 공유 실패 이벤트
+      AmplitudeAnalytics.logEvent(
+        'route_sharing_gpx_failed',
+        properties: <String, dynamic>{
+          'route_id': routeId,
+          'error_message': e.toString(),
+        },
+      );
+
+      if (!context.mounted) return;
+      ErrorDisplay.showErrorMessage(context, 'GPX 공유 실패: ${e.toString()}');
+    }
+  }
 }
