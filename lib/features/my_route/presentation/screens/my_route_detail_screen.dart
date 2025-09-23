@@ -127,7 +127,11 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
                           'route_id': widget.routeId,
                         },
                       );
-                      _handleGpxDownloadOrShare(context, isDownload: true);
+                      _handleGpxDownloadOrShare(
+                        context,
+                        isDownload: true,
+                        routeTitle: routeDetail.title,
+                      );
                     },
                   ),
                 ],
@@ -161,7 +165,11 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
                           'route_id': widget.routeId,
                         },
                       );
-                      _handleGpxDownloadOrShare(context, isDownload: false);
+                      _handleGpxDownloadOrShare(
+                        context,
+                        isDownload: false,
+                        routeTitle: routeDetail.title,
+                      );
                     },
                   ),
                 ],
@@ -373,6 +381,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
   Future<void> _handleGpxDownloadOrShare(
     BuildContext context, {
     required bool isDownload,
+    String? routeTitle,
   }) async {
     final GetRouteGpxUseCase gpxUseCase = ref.read(getRouteGpxUseCaseProvider);
     final RouteSharingFacade routeSharingFacade = ref.read(
@@ -402,6 +411,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
           context,
           gpxData,
           widget.routeId,
+          routeTitle: routeTitle,
         );
       } else {
         // 공유 모드: GPX 파일을 생성해서 공유
@@ -409,6 +419,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
           context,
           gpxData,
           widget.routeId,
+          routeTitle: routeTitle,
         );
       }
     } catch (e) {

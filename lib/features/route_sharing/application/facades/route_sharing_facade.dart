@@ -123,13 +123,14 @@ class RouteSharingFacade {
   Future<void> shareGpxFromData(
     BuildContext context,
     String gpxData,
-    String routeId,
-  ) async {
+    String routeId, {
+    String? routeTitle,
+  }) async {
     final Rect origin = _getSharePositionOrigin(context);
 
     try {
       final Directory tempDir = await getTemporaryDirectory();
-      final String fileName = 'route_$routeId.gpx';
+      final String fileName = _generateGpxFileName(routeId, routeTitle);
       final File file = File('${tempDir.path}/$fileName');
       await file.writeAsString(gpxData);
 
@@ -164,5 +165,25 @@ class RouteSharingFacade {
       if (!context.mounted) return;
       ErrorDisplay.showErrorMessage(context, 'GPX 공유 실패: ${e.toString()}');
     }
+  }
+
+  String _generateGpxFileName(String routeId, String? routeTitle) {
+    if (routeTitle != null && routeTitle.isNotEmpty) {
+      // 파일명에 사용할 수 없는 문자들 제거/변경
+      final String cleanTitle =
+          routeTitle
+              .replaceAll(RegExp(r'[<>:"/\\|?*]'), '_')
+              .replaceAll(' ', '_')
+              .trim();
+
+      // 파일명이 너무 길면 자르기 (확장자 포함 255자 제한)
+      final String truncatedTitle =
+          cleanTitle.length > 200 ? cleanTitle.substring(0, 200) : cleanTitle;
+
+      return '$truncatedTitle.gpx';
+    }
+
+    // 제목이 없는 경우에만 route_id 사용
+    return 'route_$routeId.gpx';
   }
 }
