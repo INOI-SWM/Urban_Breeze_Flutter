@@ -12,6 +12,22 @@ class GetMyRouteListUseCase {
 
   final MyRouteRepository _repository;
 
+  /// 초기 로딩용 - 필터 없이 기본 조회
+  Future<AppResult<MyRouteList>> executeInitial({
+    MyRouteSortType sortType = MyRouteSortType.newest,
+  }) async {
+    try {
+      final MyRouteFilter filterModel = MyRouteFilter(sortType: sortType);
+      final MyRouteList routeList = await _repository.getMyRouteList(
+        filterModel,
+      );
+      return AppSuccess<MyRouteList>(routeList);
+    } catch (e) {
+      return AppFailure<MyRouteList>(NetworkException(e.toString()));
+    }
+  }
+
+  /// 필터 적용 조회
   Future<AppResult<MyRouteList>> execute({
     MyRouteFilter? filter,
     FilterData? filterData,
@@ -33,6 +49,25 @@ class GetMyRouteListUseCase {
 
       final MyRouteList routeList = await _repository.getMyRouteList(
         filterModel,
+      );
+      return AppSuccess<MyRouteList>(routeList);
+    } catch (e) {
+      return AppFailure<MyRouteList>(NetworkException(e.toString()));
+    }
+  }
+
+  /// 다음 페이지 로드 (무한스크롤용)
+  Future<AppResult<MyRouteList>> executeLoadMore({
+    required MyRouteFilter currentFilter,
+    required int nextPage,
+  }) async {
+    try {
+      final MyRouteFilter nextPageFilter = currentFilter.copyWith(
+        page: nextPage,
+      );
+
+      final MyRouteList routeList = await _repository.getMyRouteList(
+        nextPageFilter,
       );
       return AppSuccess<MyRouteList>(routeList);
     } catch (e) {

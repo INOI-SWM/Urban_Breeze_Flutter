@@ -16,7 +16,7 @@ class RouteSaveResponseModel {
     required this.totalElevationGain,
   });
 
-  final int routeId;
+  final String routeId;
   final String title;
   final int totalDuration; // 분
   final double totalDistance; //km
