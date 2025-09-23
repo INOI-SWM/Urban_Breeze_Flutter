@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:urban_breeze/features/my_route/domain/enums/my_route_sort_type.dart';
 import 'package:urban_breeze/shared/filter/models/base_filter.dart';
 import 'package:urban_breeze/shared/filter/models/filter_data.dart';
@@ -13,24 +14,25 @@ class MyRouteFilter extends BaseFilter {
     FilterData filterData,
     MyRouteSortType sortType,
   ) {
-    // FilterConverter를 사용한 범위 값 추출
-    final (
-      double minDistance,
-      double maxDistance,
-    ) = FilterConverter.extractDistanceRange(
-      filterData,
-      defaultMin: 0,
-      defaultMax: 100,
-    );
+    // FilterConverter를 사용한 범위 값 추출 - null 가능
+    double? minDistance;
+    double? maxDistance;
+    double? minElevation;
+    double? maxElevation;
 
-    final (
-      double minElevation,
-      double maxElevation,
-    ) = FilterConverter.extractElevationRange(
-      filterData,
-      defaultMin: 0,
-      defaultMax: 100,
-    );
+    // distance 범위가 설정되었는지 확인
+    final RangeValues? distanceRange = filterData.getRangeValue('distance');
+    if (distanceRange != null) {
+      minDistance = distanceRange.start;
+      maxDistance = distanceRange.end;
+    }
+
+    // elevation 범위가 설정되었는지 확인
+    final RangeValues? elevationRange = filterData.getRangeValue('elevation');
+    if (elevationRange != null) {
+      minElevation = elevationRange.start;
+      maxElevation = elevationRange.end;
+    }
 
     // 생성자 필터 추출 및 변환
     String relationTypes = '';
@@ -66,10 +68,10 @@ class MyRouteFilter extends BaseFilter {
     super.size = 10,
     this.sortType = MyRouteSortType.newest,
     this.relationTypes = '',
-    double minDistanceKm = 0,
-    double maxDistanceKm = 100,
-    double minElevationGain = 0,
-    double maxElevationGain = 100,
+    double? minDistanceKm,
+    double? maxDistanceKm,
+    double? minElevationGain,
+    double? maxElevationGain,
   }) : super(
          minDistance: minDistanceKm,
          maxDistance: maxDistanceKm,
@@ -81,10 +83,10 @@ class MyRouteFilter extends BaseFilter {
   final String relationTypes;
 
   // BaseFilter의 값들을 더 명확한 이름으로 접근하기 위한 getter들
-  double get minDistanceKm => minDistance;
-  double get maxDistanceKm => maxDistance;
-  double get minElevationGain => minElevation;
-  double get maxElevationGain => maxElevation;
+  double? get minDistanceKm => minDistance;
+  double? get maxDistanceKm => maxDistance;
+  double? get minElevationGain => minElevation;
+  double? get maxElevationGain => maxElevation;
 
   @override
   double getDefaultMaxDistance() => 100.0;

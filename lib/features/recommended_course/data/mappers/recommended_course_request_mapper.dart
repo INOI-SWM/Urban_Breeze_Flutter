@@ -1,5 +1,6 @@
 import 'package:urban_breeze/features/recommended_course/data/mappers/recommended_course_field_converter.dart';
 import 'package:urban_breeze/features/recommended_course/data/models/recommended_course_request_model.dart';
+import 'package:urban_breeze/features/recommended_course/domain/constants/recommended_course_constants.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_filter.dart';
 
 /// 추천 코스 요청 관련 매핑
@@ -25,10 +26,14 @@ class RecommendedCourseRequestMapper {
           RecommendedCourseFieldConverter.convertRecommendationTypesToApi(
             filter.recommendationTypes,
           ),
-      minDistance: filter.minDistance,
-      maxDistance: filter.maxDistance,
-      minElevation: filter.minElevation,
-      maxElevation: filter.maxElevation,
+      minDistance:
+          filter.minDistance ?? RecommendedCourseConstants.defaultMinDistance,
+      maxDistance:
+          filter.maxDistance ?? RecommendedCourseConstants.defaultMaxDistance,
+      minElevation:
+          filter.minElevation ?? RecommendedCourseConstants.defaultMinElevation,
+      maxElevation:
+          filter.maxElevation ?? RecommendedCourseConstants.defaultMaxElevation,
       userLon: filter.userLon,
       userLat: filter.userLat,
     );
