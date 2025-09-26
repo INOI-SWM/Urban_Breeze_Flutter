@@ -138,18 +138,13 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     final User? currentUser = ref.read(userSessionNotifierProvider);
     final String currentValue = currentUser?.nickname ?? '';
 
-    final String? result = await Navigator.of(context).push<String>(
+    await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder:
             (BuildContext context) =>
                 ProfileNicknameEditScreen(currentValue: currentValue),
       ),
     );
-
-    if (result != null) {
-      // 닉네임 수정 화면에서 이미 UseCase를 호출했으므로 UserSessionNotifier만 새로고침
-      await ref.read(userSessionNotifierProvider.notifier).refreshProfile();
-    }
   }
 
   void _navigateToBioEdit() async {
@@ -157,18 +152,13 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     final User? currentUser = ref.read(userSessionNotifierProvider);
     final String currentValue = currentUser?.introduce ?? '자신을 소개해주세요';
 
-    final String? result = await Navigator.of(context).push<String>(
+    await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder:
             (BuildContext context) =>
                 ProfileBioEditScreen(currentValue: currentValue),
       ),
     );
-
-    if (result != null) {
-      // 자기소개 수정 화면에서 이미 UseCase를 호출했으므로 UserSessionNotifier만 새로고침
-      await ref.read(userSessionNotifierProvider.notifier).refreshProfile();
-    }
   }
 
   void _navigateToGenderEdit() async {
@@ -176,18 +166,13 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     final User? currentUser = ref.read(userSessionNotifierProvider);
     final String currentValue = currentUser?.gender ?? '선택해주세요';
 
-    final String? result = await Navigator.of(context).push<String>(
+    await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder:
             (BuildContext context) =>
                 ProfileGenderEditScreen(currentValue: currentValue),
       ),
     );
-
-    if (result != null) {
-      // 성별 수정 화면에서 이미 UseCase를 호출했으므로 UserSessionNotifier만 새로고침
-      await ref.read(userSessionNotifierProvider.notifier).refreshProfile();
-    }
   }
 
   void _navigateToBirthYearEdit() async {
@@ -195,18 +180,13 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     final User? currentUser = ref.read(userSessionNotifierProvider);
     final String currentValue = currentUser?.birthYear?.toString() ?? '선택해주세요';
 
-    final String? result = await Navigator.of(context).push<String>(
+    await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder:
             (BuildContext context) =>
                 ProfileBirthYearEditScreen(currentValue: currentValue),
       ),
     );
-
-    if (result != null) {
-      // 생년월일 수정 화면에서 이미 UseCase를 호출했으므로 UserSessionNotifier만 새로고침
-      await ref.read(userSessionNotifierProvider.notifier).refreshProfile();
-    }
   }
 
   void _showProfileImageOptions() {
