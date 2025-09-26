@@ -8,6 +8,7 @@ import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/delete_profile_image_use_case.dart';
 import 'package:urban_breeze/features/profile/application/use_cases/upload_profile_image_use_case.dart';
 import 'package:urban_breeze/features/profile/di/profile_providers.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_bio_edit_screen.dart';
@@ -137,18 +138,13 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     final User? currentUser = ref.read(userSessionNotifierProvider);
     final String currentValue = currentUser?.nickname ?? '';
 
-    final String? result = await Navigator.of(context).push<String>(
+    await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder:
             (BuildContext context) =>
                 ProfileNicknameEditScreen(currentValue: currentValue),
       ),
     );
-
-    if (result != null) {
-      // 닉네임 수정 화면에서 이미 UseCase를 호출했으므로 UserSessionNotifier만 새로고침
-      await ref.read(userSessionNotifierProvider.notifier).refreshProfile();
-    }
   }
 
   void _navigateToBioEdit() async {
@@ -156,18 +152,13 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     final User? currentUser = ref.read(userSessionNotifierProvider);
     final String currentValue = currentUser?.introduce ?? '자신을 소개해주세요';
 
-    final String? result = await Navigator.of(context).push<String>(
+    await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder:
             (BuildContext context) =>
                 ProfileBioEditScreen(currentValue: currentValue),
       ),
     );
-
-    if (result != null) {
-      // 자기소개 수정 화면에서 이미 UseCase를 호출했으므로 UserSessionNotifier만 새로고침
-      await ref.read(userSessionNotifierProvider.notifier).refreshProfile();
-    }
   }
 
   void _navigateToGenderEdit() async {
@@ -175,18 +166,13 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     final User? currentUser = ref.read(userSessionNotifierProvider);
     final String currentValue = currentUser?.gender ?? '선택해주세요';
 
-    final String? result = await Navigator.of(context).push<String>(
+    await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder:
             (BuildContext context) =>
                 ProfileGenderEditScreen(currentValue: currentValue),
       ),
     );
-
-    if (result != null) {
-      // 성별 수정 화면에서 이미 UseCase를 호출했으므로 UserSessionNotifier만 새로고침
-      await ref.read(userSessionNotifierProvider.notifier).refreshProfile();
-    }
   }
 
   void _navigateToBirthYearEdit() async {
@@ -194,18 +180,13 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     final User? currentUser = ref.read(userSessionNotifierProvider);
     final String currentValue = currentUser?.birthYear?.toString() ?? '선택해주세요';
 
-    final String? result = await Navigator.of(context).push<String>(
+    await Navigator.of(context).push<String>(
       MaterialPageRoute<String>(
         builder:
             (BuildContext context) =>
                 ProfileBirthYearEditScreen(currentValue: currentValue),
       ),
     );
-
-    if (result != null) {
-      // 생년월일 수정 화면에서 이미 UseCase를 호출했으므로 UserSessionNotifier만 새로고침
-      await ref.read(userSessionNotifierProvider.notifier).refreshProfile();
-    }
   }
 
   void _showProfileImageOptions() {
@@ -304,13 +285,30 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     }
   }
 
-  void _deleteProfileImage() {
-    // TODO: 프로필 사진 삭제 API 호출
-    setState(() {
-      // 기본 이미지로 설정
-      // _profileImagePath = null;
-    });
+  Future<void> _deleteProfileImage() async {
+    try {
+      final DeleteProfileImageUseCase deleteUseCase = ref.read(
+        deleteProfileImageUseCaseProvider,
+      );
 
-    showSuccessMessage(context, '성공적으로 업데이트 했습니다');
+      final AppResult<User> result = await deleteUseCase.execute(null);
+
+      if (result is AppSuccess<User>) {
+        final User updatedUser = result.data;
+
+        await ref
+            .read(userSessionNotifierProvider.notifier)
+            .setUserSession(updatedUser);
+
+        if (mounted) {
+          showSuccessMessage(context, '프로필 사진이 성공적으로 삭제되었습니다');
+          setState(() {}); // UI 새로고침
+        }
+      } else if (result is AppFailure<User>) {
+        _handleImageError('프로필 사진 삭제', result.exception);
+      }
+    } catch (e) {
+      _handleImageError('프로필 사진 삭제', e);
+    }
   }
 }

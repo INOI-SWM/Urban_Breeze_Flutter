@@ -4,6 +4,7 @@ import 'package:urban_breeze/core/di/core_providers.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/user_session_repository.dart';
 
+import '../application/use_cases/delete_profile_image_use_case.dart';
 import '../application/use_cases/get_profile_use_case.dart';
 import '../application/use_cases/update_birth_use_case.dart';
 import '../application/use_cases/update_gender_use_case.dart';
@@ -69,4 +70,10 @@ final Provider<UploadProfileImageUseCase> uploadProfileImageUseCaseProvider =
     Provider<UploadProfileImageUseCase>((Ref ref) {
       final ProfileRepository repository = ref.watch(profileRepositoryProvider);
       return UploadProfileImageUseCase(repository: repository);
+    });
+
+final Provider<DeleteProfileImageUseCase> deleteProfileImageUseCaseProvider =
+    Provider<DeleteProfileImageUseCase>((Ref ref) {
+      final ProfileRepository repository = ref.watch(profileRepositoryProvider);
+      return DeleteProfileImageUseCase(repository: repository);
     });
