@@ -20,4 +20,7 @@ abstract class ProfileRepository {
 
   /// 프로필 이미지 업로드
   Future<User> uploadProfileImage(File imageFile);
+
+  /// 프로필 이미지 삭제
+  Future<User> deleteProfileImage();
 }

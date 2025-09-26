@@ -138,4 +138,18 @@ class ProfileDataSource extends BaseRemoteDataSource {
       rethrow;
     }
   }
+
+  Future<ApiResponseModel<User>> deleteProfileImage(
+    LoginProvider loginProvider,
+  ) async {
+    try {
+      final http.Response response = await delete(
+        ApiEndpoints.profileImagePath,
+      );
+      final Map<String, dynamic> responseData = decodeResponse(response);
+      return _createUserResponse(responseData, loginProvider);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

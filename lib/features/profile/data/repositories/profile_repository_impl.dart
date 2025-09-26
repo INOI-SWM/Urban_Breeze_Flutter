@@ -92,4 +92,12 @@ class ProfileRepositoryImpl implements ProfileRepository {
           _dataSource.uploadProfileImage(imageFile, loginProvider),
     );
   }
+
+  @override
+  Future<User> deleteProfileImage() async {
+    return _executeUpdate(
+      (LoginProvider loginProvider) =>
+          _dataSource.deleteProfileImage(loginProvider),
+    );
+  }
 }
