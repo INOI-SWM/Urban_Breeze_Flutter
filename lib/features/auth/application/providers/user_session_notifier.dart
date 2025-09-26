@@ -76,8 +76,21 @@ class UserSessionNotifier extends StateNotifier<User?> {
   Future<void> loadUserSession() async {
     // 최소 1초 지연으로 스플래시 화면이 충분히 보이도록
     await Future<void>.delayed(_splashScreenDuration);
-    final User? user = await _repository.loadUser();
-    state = user;
+
+    final User? savedUser = await _repository.loadUser();
+
+    if (savedUser != null) {
+      final AppResult<User> profileResult = await _getProfileUseCase.execute();
+
+      if (profileResult.isSuccess) {
+        state = profileResult.dataOrNull;
+      } else {
+        await clearUserSession();
+      }
+    } else {
+      state = null;
+    }
+
     // 초기화 완료 알림
     _onInitialized?.call();
   }
