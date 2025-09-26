@@ -8,6 +8,7 @@ import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/profile/application/use_cases/delete_profile_image_use_case.dart';
 import 'package:urban_breeze/features/profile/application/use_cases/upload_profile_image_use_case.dart';
 import 'package:urban_breeze/features/profile/di/profile_providers.dart';
 import 'package:urban_breeze/features/profile/presentation/screens/profile_bio_edit_screen.dart';
@@ -304,13 +305,30 @@ class _ProfileEditMainScreenState extends ConsumerState<ProfileEditMainScreen>
     }
   }
 
-  void _deleteProfileImage() {
-    // TODO: 프로필 사진 삭제 API 호출
-    setState(() {
-      // 기본 이미지로 설정
-      // _profileImagePath = null;
-    });
+  Future<void> _deleteProfileImage() async {
+    try {
+      final DeleteProfileImageUseCase deleteUseCase = ref.read(
+        deleteProfileImageUseCaseProvider,
+      );
 
-    showSuccessMessage(context, '성공적으로 업데이트 했습니다');
+      final AppResult<User> result = await deleteUseCase.execute(null);
+
+      if (result is AppSuccess<User>) {
+        final User updatedUser = result.data;
+
+        await ref
+            .read(userSessionNotifierProvider.notifier)
+            .setUserSession(updatedUser);
+
+        if (mounted) {
+          showSuccessMessage(context, '프로필 사진이 성공적으로 삭제되었습니다');
+          setState(() {}); // UI 새로고침
+        }
+      } else if (result is AppFailure<User>) {
+        _handleImageError('프로필 사진 삭제', result.exception);
+      }
+    } catch (e) {
+      _handleImageError('프로필 사진 삭제', e);
+    }
   }
 }
