@@ -469,8 +469,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
           properties: <String, dynamic>{'route_id': widget.routeId},
         );
 
-        // 성공 시 이전 화면으로 돌아가기
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(true);
       } else {
         ErrorDisplay.showErrorMessage(
           context,
