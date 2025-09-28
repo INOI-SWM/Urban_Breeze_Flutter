@@ -104,7 +104,10 @@ class AccountManagementScreen extends ConsumerWidget {
         properties: <String, dynamic>{'error_message': e.toString()},
       );
 
-      ErrorDisplay.showErrorMessage(context, '탈퇴 실패: ${e.toString()}');
+      ErrorDisplay.showErrorMessage(
+        context,
+        '탈퇴 실패: 문제가 반복될 경우 문의창을 통하여 문의해주세요',
+      );
       Navigator.of(context).pop();
     }
   }
