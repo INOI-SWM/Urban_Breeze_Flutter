@@ -255,7 +255,9 @@ class _RecommendedCourseScreenState
                                 MaterialPageRoute<void>(
                                   builder:
                                       (BuildContext context) =>
-                                          const RecommendedCourseDetailScreen(),
+                                          RecommendedCourseDetailScreen(
+                                            routeId: course.routeId,
+                                          ),
                                 ),
                               );
                             },
