@@ -15,7 +15,7 @@ import 'package:urban_breeze/features/route_sharing/di/route_sharing_providers.d
 import 'package:urban_breeze/shared/chart/common_line_chart_widget.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
-import 'package:urban_breeze/shared/design_system/widgets/card/user_info_in_card.dart';
+import 'package:urban_breeze/shared/design_system/widgets/badge/content_badge.dart';
 import 'package:urban_breeze/shared/design_system/widgets/info/info_items_row.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/layout/map_with_bottom_sheet_layout.dart';
@@ -259,9 +259,33 @@ class _RecommendedCourseDetailScreenState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          UserInfoInCard(
-            userName: courseDetail.nickname,
-            userProfileImage: courseDetail.profileImageUrl,
+          // 카테고리와 난이도 badge
+          Wrap(
+            spacing: 6,
+            runSpacing: 8,
+            children: <Widget>[
+              ContentBadge(
+                text: courseDetail.recommendationType,
+                size: ContentBadgeSize.xsmall,
+                type: ContentBadgeType.solid,
+                backgroundColor: colors.fillNormal,
+                textColor: colors.labelAlternative,
+              ),
+              ContentBadge(
+                text: courseDetail.landscapeType,
+                size: ContentBadgeSize.xsmall,
+                type: ContentBadgeType.solid,
+                backgroundColor: colors.fillNormal,
+                textColor: colors.labelAlternative,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            courseDetail.region,
+            style: AppTextStyles.label1.normalMedium.copyWith(
+              color: colors.labelAlternative,
+            ),
           ),
           Text(
             courseDetail.title,
@@ -271,9 +295,9 @@ class _RecommendedCourseDetailScreenState
           ),
           const SizedBox(height: 4),
           Text(
-            courseDetail.region,
-            style: AppTextStyles.label2.medium.copyWith(
-              color: colors.labelAlternative,
+            courseDetail.description,
+            style: AppTextStyles.label1.normalBold.copyWith(
+              color: colors.labelNeutral,
             ),
           ),
           const SizedBox(height: 17),
