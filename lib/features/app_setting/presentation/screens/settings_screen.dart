@@ -22,7 +22,7 @@ import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 import 'package:urban_breeze/shared/screens/webview_constant.dart';
 import 'package:urban_breeze/shared/utils/webview_navigation.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerWidget with ErrorDisplayMixin {
   const SettingsScreen({super.key});
 
   @override
@@ -247,17 +247,16 @@ class SettingsScreen extends ConsumerWidget {
         );
 
         if (context.mounted) {
-          ErrorDisplay.showSuccessMessage(context, '피드백이 전송되었습니다. 감사합니다!');
-          Navigator.of(context).pop();
+          showSuccessMessage(context, '피드백이 전송되었습니다.');
         }
       } else {
         if (context.mounted) {
-          ErrorDisplay.showErrorMessage(context, '피드백 전송에 실패했습니다. 다시 시도해주세요.');
+          showErrorMessage(context, '피드백 전송에 실패했습니다. 다시 시도해주세요.');
         }
       }
     } catch (e) {
       if (context.mounted) {
-        ErrorDisplay.showErrorMessage(context, '피드백 전송 중 오류가 발생했습니다.');
+        showErrorMessage(context, '피드백 전송 중 오류가 발생했습니다.');
       }
     }
   }
