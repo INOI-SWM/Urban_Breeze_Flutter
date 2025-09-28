@@ -4,30 +4,17 @@ import 'package:urban_breeze/features/auth/domain/repositories/agreement_reposit
 import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 
 class AgreementRepositoryImpl implements AgreementRepository {
-  const AgreementRepositoryImpl({
-    required AgreementDataSource dataSource,
-  }) : _dataSource = dataSource;
+  const AgreementRepositoryImpl({required AgreementDataSource dataSource})
+    : _dataSource = dataSource;
 
   final AgreementDataSource _dataSource;
 
   @override
   Future<UserAgreement> updateAgreement(UserAgreement agreement) async {
     try {
-      final ApiResponseModel<UserAgreement> response = 
-          await _dataSource.updateAgreement(agreement);
-      
-      return response.data;
-    } catch (e) {
-      rethrow;
-    }
-  }
+      final ApiResponseModel<UserAgreement> response = await _dataSource
+          .updateAgreement(agreement);
 
-  @override
-  Future<UserAgreement> getAgreement() async {
-    try {
-      final ApiResponseModel<UserAgreement> response = 
-          await _dataSource.getAgreement();
-      
       return response.data;
     } catch (e) {
       rethrow;
