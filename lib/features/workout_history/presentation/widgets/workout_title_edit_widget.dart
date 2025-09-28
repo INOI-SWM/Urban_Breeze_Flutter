@@ -69,6 +69,11 @@ class _WorkoutTitleEditWidgetState extends ConsumerState<WorkoutTitleEditWidget>
   }
 
   Future<void> _saveTitle(String newTitle) async {
+    if (newTitle.trim() == widget.initialTitle.trim()) {
+      _cancelEditing();
+      return;
+    }
+
     final AppResult<WorkoutDetail> result = await _viewModel.saveTitle(
       workoutId: widget.workoutId,
       newTitle: newTitle,
