@@ -57,18 +57,29 @@ class RecommendedCourseResponseMapper {
     final RecommendedCourseDetailResponseModel data = response.data;
 
     return RecommendedCourseDetail(
-      courseId: data.courseId,
+      routeId: data.routeId,
       title: data.title,
       description: data.description,
       polyline: data.polyline,
+      createdAt: data.createdAt,
+      durationMinutes: data.durationMinutes,
       distance: data.distance,
       elevationGain: data.elevationGain,
-      estimatedDurationMinutes: data.estimatedDurationMinutes,
-      recommendationType: data.recommendationType,
-      difficulty: data.difficulty,
-      region: data.region,
-      thumbnailImageUrl: data.thumbnailImageUrl,
+      userId: data.userId,
+      nickname: data.nickname,
+      profileImageUrl: data.profileImageUrl,
+      trackPointsCount: data.trackPointsCount,
+      trackPoints:
+          data.trackPoints
+              .map(
+                (TrackPointModel model) =>
+                    TrackPoint(index: model.index, elevation: model.elevation),
+              )
+              .toList(),
       bbox: data.bbox,
+      recommendationType: data.recommendationType,
+      landscapeType: data.landscapeType,
+      region: data.region,
     );
   }
 }
