@@ -121,4 +121,9 @@ class RecommendedCourseConstants {
   static const double defaultMaxDistance = 1000.0;
   static const double defaultMinElevation = 0.0;
   static const double defaultMaxElevation = 1000.0;
+
+  /// 정렬 타입 옵션
+  static const List<String> sortTypeOptions = <String>[
+    'NEAREST', // 가까운 순 (기본값)
+  ];
 }

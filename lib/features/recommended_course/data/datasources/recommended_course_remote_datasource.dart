@@ -16,7 +16,6 @@ class RecommendedCourseRemoteDataSource extends BaseRemoteDataSource {
     );
 
     final Map<String, dynamic> json = decodeResponse(response);
-
     return ApiResponseModel<RecommendedCourseListDataModel>.fromJson(
       json,
       (Map<String, dynamic> dataJson) =>
