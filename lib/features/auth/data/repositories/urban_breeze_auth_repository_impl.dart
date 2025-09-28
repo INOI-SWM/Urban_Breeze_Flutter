@@ -36,4 +36,9 @@ class UrbanBreezeAuthRepositoryImpl implements UrbanBreezeAuthRepository {
         .loginWithAppleIdToken(idToken: idToken);
     return model.toDomain();
   }
+
+  @override
+  Future<void> deleteUser() async {
+    await _remoteDataSource.deleteUser();
+  }
 }

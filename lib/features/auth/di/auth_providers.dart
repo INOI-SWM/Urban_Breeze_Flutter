@@ -220,6 +220,12 @@ final Provider<AuthWithdrawalFacade> authWithdrawalFacadeProvider =
       final TokenRepository tokenRepository = ref.watch(
         tokenRepositoryProvider,
       );
+      final UrbanBreezeAuthRepository urbanBreezeAuthRepository = ref.watch(
+        authRepositoryProvider,
+      );
+      final UserAgreementNotifier userAgreementNotifier = ref.watch(
+        userAgreementNotifierProvider.notifier,
+      );
 
       return AuthWithdrawalFacade(
         googleAuthRepository: googleAuthRepository,
@@ -227,6 +233,8 @@ final Provider<AuthWithdrawalFacade> authWithdrawalFacadeProvider =
         kakaoAuthRepository: kakaoAuthRepository,
         userSessionNotifier: userSessionNotifier,
         tokenRepository: tokenRepository,
+        urbanBreezeAuthRepository: urbanBreezeAuthRepository,
+        userAgreementNotifier: userAgreementNotifier,
       );
     });
 
