@@ -220,7 +220,7 @@ class _RecommendedCourseScreenState
                               AmplitudeAnalytics.logEvent(
                                 'recommended_course_clicked',
                                 properties: <String, dynamic>{
-                                  'course_id': course.id,
+                                  'course_id': course.routeId,
                                 },
                               );
 
