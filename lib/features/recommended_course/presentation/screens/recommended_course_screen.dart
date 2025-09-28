@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/recommended_course/data/mappers/recommended_course_request_mapper.dart';
 import 'package:urban_breeze/features/recommended_course/di/recommended_course_providers.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course.dart';
+import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_filter.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_list.dart';
 import 'package:urban_breeze/features/recommended_course/domain/enums/recommended_course_sort_type.dart';
 import 'package:urban_breeze/features/recommended_course/presentation/config/recommended_course_category_config.dart';
@@ -52,7 +54,7 @@ class _RecommendedCourseScreenState
   List<RecommendedCourse> courseList = <RecommendedCourse>[];
   bool isLoading = true;
   String? errorMessage;
-  RecommendedCourseList? courseListData;
+  RecommendedCourseList courseListData = RecommendedCourseList.empty();
 
   @override
   void initState() {
@@ -71,19 +73,31 @@ class _RecommendedCourseScreenState
       errorMessage = null;
     });
 
-    final AppResult<RecommendedCourseList> result = await ref
+    late AppResult<RecommendedCourseList> result;
+    late RecommendedCourseFilter filterModel;
+
+    // 필터 적용 - Mapper 사용
+    filterModel = RecommendedCourseRequestMapper.fromFilterData(
+      currentFilter,
+      selectedSortOption,
+    );
+
+    result = await ref
         .read(getRecommendedCourseListUseCaseProvider)
-        .execute(filterData: currentFilter, sortType: selectedSortOption);
+        .execute(filter: filterModel);
 
     setState(() {
       isLoading = false;
       if (result.isSuccess) {
         courseListData = result.dataOrNull!;
-        courseList = courseListData!.courses;
+        courseList = courseListData.courses;
+
+        // 초기 로딩 시만 UI 필터 설정
+        currentFilter = FilterData.fromFilterItems(filters);
       } else {
-        errorMessage = result.exceptionOrNull?.message ?? '알 수 없는 오류가 발생했습니다';
-        courseList = <RecommendedCourse>[];
-        courseListData = null;
+        errorMessage = '데이터를 불러올 수 없습니다';
+        courseListData = RecommendedCourseList.empty();
+        courseList.clear();
       }
     });
   }
@@ -114,19 +128,13 @@ class _RecommendedCourseScreenState
   }
 
   void _showFilterModal({String? selectedTab}) {
-    // 서버에서 받은 필터 범위가 0.0인 경우 기본값 사용
-    final double serverMaxDistance = courseListData?.maxDistance ?? 0.0;
-    final double serverMaxElevation = courseListData?.maxElevationGain ?? 0.0;
-
-    final RecommendedCourseFilterConfig
-    filterConfig = RecommendedCourseFilterConfig(
-      maxDistance:
-          serverMaxDistance > 0 ? serverMaxDistance.ceilToDouble() : 100.0,
-      minDistance: courseListData?.minDistance.floorToDouble() ?? 0.0,
-      maxElevationGain:
-          serverMaxElevation > 0 ? serverMaxElevation.ceilToDouble() : 1000.0,
-      minElevationGain: courseListData?.minElevationGain.floorToDouble() ?? 0.0,
-    );
+    final RecommendedCourseFilterConfig filterConfig =
+        RecommendedCourseFilterConfig(
+          maxDistance: courseListData.maxDistance.ceilToDouble(),
+          minDistance: courseListData.minDistance.floorToDouble(),
+          maxElevationGain: courseListData.maxElevationGain.ceilToDouble(),
+          minElevationGain: courseListData.minElevationGain.floorToDouble(),
+        );
 
     final List<FilterItem> bottomSheetFilters = filterConfig.filters;
 
