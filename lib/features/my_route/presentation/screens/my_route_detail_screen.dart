@@ -37,7 +37,8 @@ class MyRouteDetailScreen extends ConsumerStatefulWidget {
       _MyRouteDetailScreenState();
 }
 
-class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
+class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
+    with ErrorDisplayMixin {
   final MapController _mapController = MapController();
   final bool _hasUserDraggedMap = false;
 
@@ -453,6 +454,14 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
   /// 경로 삭제 실행
   Future<void> _deleteRoute() async {
     try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (BuildContext context) =>
+                const Center(child: CircularProgressIndicator()),
+      );
+
       final DeleteRouteUseCase deleteRouteUseCase = ref.read(
         deleteRouteUseCaseProvider,
       );
@@ -461,6 +470,10 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
         widget.routeId,
       );
 
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+
       if (!mounted) return;
 
       if (result.isSuccess) {
@@ -468,6 +481,8 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
           'my_route_delete_success',
           properties: <String, dynamic>{'route_id': widget.routeId},
         );
+
+        showSuccessMessage(context, '경로가 삭제되었습니다');
 
         Navigator.of(context).pop(true);
       } else {

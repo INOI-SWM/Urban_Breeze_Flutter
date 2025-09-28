@@ -142,17 +142,18 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
     });
   }
 
-  /// 로컬 배열에서 특정 경로 제거
   void _removeRouteFromList(String routeId) {
     setState(() {
       allRoutes.removeWhere((MyRoute route) => route.routeId == routeId);
-      // routeList도 업데이트
+
       final List<MyRoute> updatedRoutes = List<MyRoute>.from(allRoutes);
+      final int newTotalElements = routeList.totalElements - 1;
+
       routeList = MyRouteList(
         routes: updatedRoutes,
         currentPage: routeList.currentPage,
         totalPages: routeList.totalPages,
-        totalElements: routeList.totalElements - 1, // 총 개수 1 감소
+        totalElements: newTotalElements,
         size: routeList.size,
         hasNext: routeList.hasNext,
         hasPrevious: routeList.hasPrevious,
