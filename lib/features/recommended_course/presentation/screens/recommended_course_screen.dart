@@ -4,6 +4,7 @@ import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/recommended_course/di/recommended_course_providers.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course.dart';
+import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_list.dart';
 import 'package:urban_breeze/features/recommended_course/domain/enums/recommended_course_sort_type.dart';
 import 'package:urban_breeze/features/recommended_course/presentation/config/recommended_course_category_config.dart';
 import 'package:urban_breeze/features/recommended_course/presentation/config/recommended_course_filter_config.dart';
@@ -44,13 +45,14 @@ class _RecommendedCourseScreenState
       RecommendedCourseSortType.nearest;
 
   // 필터 생성
-  List<FilterItem> get filters => RecommendedCourseFilterConfig().filters;
+  List<FilterItem> get filters => const RecommendedCourseFilterConfig().filters;
 
   late FilterData currentFilter;
 
   List<RecommendedCourse> courseList = <RecommendedCourse>[];
   bool isLoading = true;
   String? errorMessage;
+  RecommendedCourseList? courseListData;
 
   @override
   void initState() {
@@ -77,9 +79,11 @@ class _RecommendedCourseScreenState
       isLoading = false;
       if (result.isSuccess) {
         courseList = result.dataOrNull!;
+        // TODO: courseListData를 설정해야 함 (UseCase에서 RecommendedCourseList 반환하도록 수정 필요)
       } else {
         errorMessage = result.exceptionOrNull?.message ?? '알 수 없는 오류가 발생했습니다';
         courseList = <RecommendedCourse>[];
+        courseListData = null;
       }
     });
   }
@@ -110,14 +114,24 @@ class _RecommendedCourseScreenState
   }
 
   void _showFilterModal({String? selectedTab}) {
-    final FilterData initialData =
-        selectedTab != null
-            ? currentFilter.copyWith(selectedTab: selectedTab)
-            : currentFilter;
+    final RecommendedCourseFilterConfig filterConfig =
+        RecommendedCourseFilterConfig(
+          maxDistance: courseListData?.maxDistance.ceilToDouble() ?? 100.0,
+          minDistance: courseListData?.minDistance.floorToDouble() ?? 0.0,
+          maxElevationGain:
+              courseListData?.maxElevationGain.ceilToDouble() ?? 1000.0,
+          minElevationGain:
+              courseListData?.minElevationGain.floorToDouble() ?? 0.0,
+        );
+
+    final List<FilterItem> bottomSheetFilters = filterConfig.filters;
+
+    final FilterData initialData = filterConfig
+        .createFilterDataWithCurrentValues(currentFilter);
 
     FilterModal.show(
       context: context,
-      filters: filters,
+      filters: bottomSheetFilters,
       initialData: initialData,
       onApply: (FilterData newFilter) {
         setState(() {
@@ -129,7 +143,7 @@ class _RecommendedCourseScreenState
           properties: <String, dynamic>{
             'filter_count': FilterDisplayUtils.getAppliedFiltersCount(
               newFilter,
-              filters,
+              bottomSheetFilters,
             ),
           },
         );
@@ -139,7 +153,7 @@ class _RecommendedCourseScreenState
       },
       onReset: () {
         setState(() {
-          currentFilter = FilterData.fromFilterItems(filters);
+          currentFilter = FilterData.fromFilterItems(bottomSheetFilters);
         });
 
         AmplitudeAnalytics.logEvent('recommended_course_filter_reset');
