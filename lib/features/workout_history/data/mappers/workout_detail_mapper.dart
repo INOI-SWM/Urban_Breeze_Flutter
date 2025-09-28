@@ -40,7 +40,7 @@ class WorkoutDetailMapper {
   /// WorkoutDetailResponseModel을 WorkoutDetail 엔티티로 변환
   static WorkoutDetail toEntity(WorkoutDetailResponseModel model) {
     return WorkoutDetail(
-      id: model.id,
+      id: model.activityId,
       title: model.title,
       startedAt: model.startedAt,
       endedAt: model.endedAt,

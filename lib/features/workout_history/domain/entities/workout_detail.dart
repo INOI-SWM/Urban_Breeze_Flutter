@@ -27,7 +27,7 @@ class WorkoutDetail {
     required this.bbox,
   });
 
-  final int id;
+  final String id;
   final String title;
   final DateTime startedAt;
   final DateTime endedAt;
@@ -87,7 +87,7 @@ class WorkoutDetail {
 
   /// 특정 필드만 변경된 새로운 WorkoutDetail 객체 생성
   WorkoutDetail copyWith({
-    int? id,
+    String? id,
     String? title,
     DateTime? startedAt,
     DateTime? endedAt,
