@@ -1,4 +1,5 @@
 import 'package:http/http.dart' as http;
+import 'package:urban_breeze/features/recommended_course/data/models/recommended_course_detail_response_model.dart';
 import 'package:urban_breeze/features/recommended_course/data/models/recommended_course_list_data_model.dart';
 import 'package:urban_breeze/features/recommended_course/data/models/recommended_course_request_model.dart';
 import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
@@ -20,6 +21,20 @@ class RecommendedCourseRemoteDataSource extends BaseRemoteDataSource {
       json,
       (Map<String, dynamic> dataJson) =>
           RecommendedCourseListDataModel.fromJson(dataJson),
+    );
+  }
+
+  Future<ApiResponseModel<RecommendedCourseDetailResponseModel>>
+  getCourseDetail(String routeId) async {
+    final http.Response response = await get(
+      ApiEndpoints.recommendationDetail(routeId),
+    );
+
+    final Map<String, dynamic> json = decodeResponse(response);
+    return ApiResponseModel<RecommendedCourseDetailResponseModel>.fromJson(
+      json,
+      (Map<String, dynamic> dataJson) =>
+          RecommendedCourseDetailResponseModel.fromJson(dataJson),
     );
   }
 }
