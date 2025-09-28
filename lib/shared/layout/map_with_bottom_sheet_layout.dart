@@ -80,7 +80,7 @@ class _MapWithBottomSheetLayoutState extends State<MapWithBottomSheetLayout> {
 
         setState(() {
           _calculatedMaxChildSize = calculatedRatio.clamp(
-            widget.minChildSize,
+            widget.initialChildSize,
             0.95,
           );
         });
