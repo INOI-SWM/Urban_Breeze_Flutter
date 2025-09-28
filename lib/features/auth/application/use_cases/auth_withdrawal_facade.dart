@@ -35,12 +35,12 @@ class AuthWithdrawalFacade {
 
   Future<AppResult<void>> execute(LoginProvider loginProvider) async {
     try {
-      await _urbanBreezeAuthRepository.deleteUser();
-
       await _performProviderAction(
         loginProvider,
         (dynamic repo) => repo.withdraw(),
       );
+
+      await _urbanBreezeAuthRepository.deleteUser();
 
       return const AppSuccess<void>(null);
     } catch (e) {
