@@ -4,7 +4,7 @@ import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/recommended_course/di/recommended_course_providers.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course.dart';
-import 'package:urban_breeze/features/recommended_course/domain/enums/course_sort_type.dart';
+import 'package:urban_breeze/features/recommended_course/domain/enums/recommended_course_sort_type.dart';
 import 'package:urban_breeze/features/recommended_course/presentation/config/recommended_course_category_config.dart';
 import 'package:urban_breeze/features/recommended_course/presentation/config/recommended_course_filter_config.dart';
 import 'package:urban_breeze/features/recommended_course/presentation/screens/recommended_course_detail_screen.dart';
@@ -40,7 +40,8 @@ class RecommendedCourseScreen extends ConsumerStatefulWidget
 class _RecommendedCourseScreenState
     extends ConsumerState<RecommendedCourseScreen> {
   // 추천 코스용 정렬 옵션 (API 기본값: 가까운 순)
-  CourseSortType selectedSortOption = CourseSortType.nearest;
+  RecommendedCourseSortType selectedSortOption =
+      RecommendedCourseSortType.nearest;
 
   // 필터 생성
   List<FilterItem> get filters => RecommendedCourseFilterConfig().filters;
@@ -84,11 +85,11 @@ class _RecommendedCourseScreenState
   }
 
   void _showSortModal() {
-    SortModal.show<CourseSortType>(
+    SortModal.show<RecommendedCourseSortType>(
       context: context,
-      options: CourseSortType.values,
+      options: RecommendedCourseSortType.values,
       selectedOption: selectedSortOption,
-      onOptionSelected: (CourseSortType option) {
+      onOptionSelected: (RecommendedCourseSortType option) {
         setState(() {
           selectedSortOption = option;
         });
@@ -104,7 +105,7 @@ class _RecommendedCourseScreenState
         // 정렬 변경시 데이터 새로고침
         _loadCourseList();
       },
-      getDisplayText: (CourseSortType option) => option.displayName,
+      getDisplayText: (RecommendedCourseSortType option) => option.displayName,
     );
   }
 
@@ -164,7 +165,7 @@ class _RecommendedCourseScreenState
             selectedCategories: FilterDisplayUtils.getSelectedCategories(
               currentFilter,
               filters,
-              selectedSortOption != CourseSortType.nearest
+              selectedSortOption != RecommendedCourseSortType.nearest
                   ? selectedSortOption.displayName
                   : null,
             ),
