@@ -23,11 +23,29 @@ class RecommendedCourse {
   final String recommendationType; // 추천 타입
   final String thumbnailImagePath; // 썸네일 이미지 경로
 
-  /// 거리 표시용 문자열 반환
-  String get distanceDisplay => '${distanceKm}km';
+  /// 거리 표시용 문자열 반환 km
+  /// 100km 이상: 소수점 없음, 10km 이상: 소수점 한자리, 10km 미만: 소수점 두자리
+  String get distanceDisplay {
+    if (distanceKm >= 100) {
+      return '${distanceKm.toStringAsFixed(0)}km';
+    } else if (distanceKm >= 10) {
+      return '${distanceKm.toStringAsFixed(1)}km';
+    } else {
+      return '${distanceKm.toStringAsFixed(2)}km';
+    }
+  }
 
-  /// 상승 고도 표시용 문자열 반환
-  String get elevationGainDisplay => '${elevationGain}m';
+  /// 상승 고도 표시용 문자열 반환 m
+  /// 100m 이상: 소수점 없음, 10m 이상: 소수점 한자리, 10m 미만: 소수점 두자리
+  String get elevationGainDisplay {
+    if (elevationGain >= 100) {
+      return '${elevationGain.toStringAsFixed(0)}m';
+    } else if (elevationGain >= 10) {
+      return '${elevationGain.toStringAsFixed(1)}m';
+    } else {
+      return '${elevationGain.toStringAsFixed(2)}m';
+    }
+  }
 
   /// 예상 소요 시간 표시용 문자열 반환 (시간:분 형식)
   String get durationDisplay {
