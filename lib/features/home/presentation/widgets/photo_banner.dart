@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/shared/design_system/tokens/decorations/app_shadows.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
@@ -85,26 +87,26 @@ class PhotoBanner extends StatelessWidget {
   Widget _buildBackgroundImage() {
     if (imageUrl != null && imageUrl!.isNotEmpty) {
       // 서버에서 받아온 이미지 URL 사용
-      return Image.network(
-        imageUrl!,
+      return CachedNetworkImage(
+        imageUrl: imageUrl!,
         width: double.infinity,
         height: double.infinity,
         fit: BoxFit.contain,
-        errorBuilder: (
-          BuildContext context,
-          Object error,
-          StackTrace? stackTrace,
-        ) {
+        placeholder: (BuildContext context, String url) {
           return _buildFallbackImage();
         },
-        loadingBuilder: (
-          BuildContext context,
-          Widget child,
-          ImageChunkEvent? loadingProgress,
-        ) {
-          if (loadingProgress == null) return child;
+        errorWidget: (BuildContext context, String url, dynamic error) {
           return _buildFallbackImage();
         },
+        fadeInDuration: Duration.zero,
+        fadeOutDuration: Duration.zero,
+        cacheManager: CacheManager(
+          Config(
+            'banner_images',
+            stalePeriod: const Duration(days: 5), // 5일간 캐시 유지
+            maxNrOfCacheObjects: 50, // 최대 50개 배너 이미지 캐시
+          ),
+        ),
       );
     } else {
       // 로컬 이미지 사용

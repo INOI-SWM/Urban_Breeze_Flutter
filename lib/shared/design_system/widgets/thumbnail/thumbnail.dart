@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 
 enum ThumbnailRatio {
@@ -43,27 +45,27 @@ class Thumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Image imageWidget = switch (sourceType) {
+    final Widget imageWidget = switch (sourceType) {
       ThumbnailSourceType.asset => Image.asset(path, fit: fit),
       ThumbnailSourceType.file => Image.file(File(path), fit: fit),
-      ThumbnailSourceType.network => Image.network(
-        path,
+      ThumbnailSourceType.network => CachedNetworkImage(
+        imageUrl: path,
         fit: fit,
-        loadingBuilder: (
-          BuildContext context,
-          Widget child,
-          ImageChunkEvent? loadingProgress,
-        ) {
-          if (loadingProgress == null) return child;
+        placeholder: (BuildContext context, String url) {
           return const Center(child: AppLoadingIndicator());
         },
-        errorBuilder: (
-          BuildContext context,
-          Object error,
-          StackTrace? stackTrace,
-        ) {
+        errorWidget: (BuildContext context, String url, dynamic error) {
           return const Center(child: Icon(Icons.broken_image));
         },
+        fadeInDuration: Duration.zero,
+        fadeOutDuration: Duration.zero,
+        cacheManager: CacheManager(
+          Config(
+            'thumbnails',
+            stalePeriod: const Duration(days: 3), // 3일간 캐시 유지
+            maxNrOfCacheObjects: 200, // 최대 200개 썸네일 캐시
+          ),
+        ),
       ),
     };
 
