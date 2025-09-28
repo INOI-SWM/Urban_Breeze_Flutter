@@ -1,6 +1,5 @@
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
-import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_filter.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_list.dart';
 import 'package:urban_breeze/features/recommended_course/domain/enums/recommended_course_sort_type.dart';
@@ -16,7 +15,7 @@ class GetRecommendedCourseListUseCase {
 
   final RecommendedCourseRepository _repository;
 
-  Future<AppResult<List<RecommendedCourse>>> execute({
+  Future<AppResult<RecommendedCourseList>> execute({
     FilterData? filterData,
     RecommendedCourseSortType? sortType,
   }) async {
@@ -37,20 +36,18 @@ class GetRecommendedCourseListUseCase {
         final RecommendedCourseList courseList = await _repository
             .getRecommendedCourseList(filter);
 
-        return AppSuccess<List<RecommendedCourse>>(courseList.courses);
+        return AppSuccess<RecommendedCourseList>(courseList);
       } on NetworkException catch (e) {
-        return AppFailure<List<RecommendedCourse>>(e);
+        return AppFailure<RecommendedCourseList>(e);
       } on ServerException catch (e) {
-        return AppFailure<List<RecommendedCourse>>(e);
+        return AppFailure<RecommendedCourseList>(e);
       } catch (e) {
-        return AppFailure<List<RecommendedCourse>>(
+        return AppFailure<RecommendedCourseList>(
           ServerException('추천 코스 목록을 불러올 수 없습니다: ${e.toString()}'),
         );
       }
     } catch (e) {
-      return AppFailure<List<RecommendedCourse>>(
-        NetworkException(e.toString()),
-      );
+      return AppFailure<RecommendedCourseList>(NetworkException(e.toString()));
     }
   }
 }

@@ -71,15 +71,15 @@ class _RecommendedCourseScreenState
       errorMessage = null;
     });
 
-    final AppResult<List<RecommendedCourse>> result = await ref
+    final AppResult<RecommendedCourseList> result = await ref
         .read(getRecommendedCourseListUseCaseProvider)
         .execute(filterData: currentFilter, sortType: selectedSortOption);
 
     setState(() {
       isLoading = false;
       if (result.isSuccess) {
-        courseList = result.dataOrNull!;
-        // TODO: courseListData를 설정해야 함 (UseCase에서 RecommendedCourseList 반환하도록 수정 필요)
+        courseListData = result.dataOrNull!;
+        courseList = courseListData!.courses;
       } else {
         errorMessage = result.exceptionOrNull?.message ?? '알 수 없는 오류가 발생했습니다';
         courseList = <RecommendedCourse>[];
@@ -114,15 +114,19 @@ class _RecommendedCourseScreenState
   }
 
   void _showFilterModal({String? selectedTab}) {
-    final RecommendedCourseFilterConfig filterConfig =
-        RecommendedCourseFilterConfig(
-          maxDistance: courseListData?.maxDistance.ceilToDouble() ?? 100.0,
-          minDistance: courseListData?.minDistance.floorToDouble() ?? 0.0,
-          maxElevationGain:
-              courseListData?.maxElevationGain.ceilToDouble() ?? 1000.0,
-          minElevationGain:
-              courseListData?.minElevationGain.floorToDouble() ?? 0.0,
-        );
+    // 서버에서 받은 필터 범위가 0.0인 경우 기본값 사용
+    final double serverMaxDistance = courseListData?.maxDistance ?? 0.0;
+    final double serverMaxElevation = courseListData?.maxElevationGain ?? 0.0;
+
+    final RecommendedCourseFilterConfig
+    filterConfig = RecommendedCourseFilterConfig(
+      maxDistance:
+          serverMaxDistance > 0 ? serverMaxDistance.ceilToDouble() : 100.0,
+      minDistance: courseListData?.minDistance.floorToDouble() ?? 0.0,
+      maxElevationGain:
+          serverMaxElevation > 0 ? serverMaxElevation.ceilToDouble() : 1000.0,
+      minElevationGain: courseListData?.minElevationGain.floorToDouble() ?? 0.0,
+    );
 
     final List<FilterItem> bottomSheetFilters = filterConfig.filters;
 
