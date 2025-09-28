@@ -277,7 +277,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
   ) async {
     AmplitudeAnalytics.logEvent(
       'workout_record_clicked',
-      properties: <String, dynamic>{'workout_id': workout.id},
+      properties: <String, dynamic>{'workout_id': workout.activityId},
     );
 
     final dynamic result = await Navigator.push(
@@ -302,7 +302,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
 
     final WorkoutActivity oldActivity = workoutList.activities[index];
     final WorkoutActivity updatedActivity = WorkoutActivity(
-      id: oldActivity.id,
+      activityId: oldActivity.activityId,
       title: newTitle, // 새로운 제목으로 업데이트
       startedAt: oldActivity.startedAt,
       endedAt: oldActivity.endedAt,

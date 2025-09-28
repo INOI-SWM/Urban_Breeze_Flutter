@@ -1,6 +1,6 @@
 class WorkoutActivity {
   const WorkoutActivity({
-    required this.id,
+    required this.activityId,
     required this.title,
     required this.startedAt,
     required this.endedAt,
@@ -12,7 +12,7 @@ class WorkoutActivity {
     required this.userNickname,
   });
 
-  final int id;
+  final String activityId;
   final String title;
   final DateTime startedAt;
   final DateTime endedAt;
@@ -26,16 +26,16 @@ class WorkoutActivity {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is WorkoutActivity && other.id == id;
+    return other is WorkoutActivity && other.activityId == activityId;
   }
 
   @override
-  int get hashCode => id.hashCode;
+  int get hashCode => activityId.hashCode;
 
   @override
   String toString() {
     return 'WorkoutActivity{'
-        'id: $id, '
+        'activityId: $activityId, '
         'title: $title, '
         'startedAt: $startedAt, '
         'endedAt: $endedAt, '

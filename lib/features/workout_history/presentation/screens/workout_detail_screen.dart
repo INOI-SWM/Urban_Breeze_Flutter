@@ -50,7 +50,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
       AmplitudeAnalytics.logScreenView(
         'workout_detail_screen',
         additionalProperties: <String, dynamic>{
-          'workout_id': widget.workoutActivity.id,
+          'workout_id': widget.workoutActivity.activityId,
           'workout_index': widget.workoutIndex,
         },
       );
@@ -65,7 +65,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
 
     final AppResult<WorkoutDetail> result = await ref
         .read(getWorkoutDetailUseCaseProvider)
-        .execute(activityId: widget.workoutActivity.id.toString());
+        .execute(activityId: widget.workoutActivity.activityId.toString());
 
     setState(() {
       isLoading = false;
@@ -95,7 +95,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
               AmplitudeAnalytics.logButtonClick(
                 'workout_detail_more_options',
                 additionalProperties: <String, dynamic>{
-                  'workout_id': widget.workoutActivity.id,
+                  'workout_id': widget.workoutActivity.activityId,
                 },
               );
               // TODO: 더보기 메뉴 구현

@@ -6,7 +6,7 @@ import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 class WorkoutMapper {
   static WorkoutActivity toEntity(WorkoutActivityModel model) {
     return WorkoutActivity(
-      id: model.id,
+      activityId: model.activityId,
       title: model.title,
       startedAt: model.startedAt,
       endedAt: model.endedAt,

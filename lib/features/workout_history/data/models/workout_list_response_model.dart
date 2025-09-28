@@ -2,7 +2,7 @@ import 'package:urban_breeze/features/my_route/data/models/pagination_model.dart
 
 class WorkoutActivityModel {
   const WorkoutActivityModel({
-    required this.id,
+    required this.activityId,
     required this.title,
     required this.startedAt,
     required this.endedAt,
@@ -16,7 +16,7 @@ class WorkoutActivityModel {
 
   factory WorkoutActivityModel.fromJson(Map<String, dynamic> json) {
     return WorkoutActivityModel(
-      id: json['id'] as int,
+      activityId: json['activityId'] as String,
       title: json['title'] as String,
       startedAt: DateTime.parse(json['startedAt'] as String),
       endedAt: DateTime.parse(json['endedAt'] as String),
@@ -29,7 +29,7 @@ class WorkoutActivityModel {
     );
   }
 
-  final int id;
+  final String activityId;
   final String title;
   final DateTime startedAt;
   final DateTime endedAt;
@@ -42,7 +42,7 @@ class WorkoutActivityModel {
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'id': id,
+      'activityId': activityId,
       'title': title,
       'startedAt': startedAt.toIso8601String(),
       'endedAt': endedAt.toIso8601String(),
