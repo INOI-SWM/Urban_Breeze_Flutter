@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
 import 'package:urban_breeze/shared/api/data/datasources/base_remote_datasource.dart';
@@ -37,7 +38,7 @@ class RemoteWorkoutStatisticsDataSource extends BaseRemoteDataSource {
       );
 
       final Map<String, dynamic> responseData = decodeResponse(response);
-
+      debugPrint('responseData: $responseData');
       return ApiResponseModel<WorkoutStatisticsResponseModel>.fromJson(
         responseData,
         (Map<String, dynamic> json) =>

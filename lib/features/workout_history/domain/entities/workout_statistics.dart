@@ -5,11 +5,13 @@ class WorkoutStatistics {
     required this.period,
     required this.summary,
     required this.chartData,
+    required this.oldestActivityDate,
   });
 
   final WorkoutStatisticsPeriod period;
   final WorkoutStatisticsSummary summary;
   final WorkoutStatisticsChartData chartData; // 그래프용 데이터
+  final DateTime oldestActivityDate;
 
   @override
   bool operator ==(Object other) {
@@ -17,18 +19,21 @@ class WorkoutStatistics {
     return other is WorkoutStatistics &&
         other.period == period &&
         other.summary == summary &&
-        other.chartData == chartData;
+        other.chartData == chartData &&
+        other.oldestActivityDate == oldestActivityDate;
   }
 
   @override
-  int get hashCode => Object.hash(period, summary, chartData);
+  int get hashCode =>
+      Object.hash(period, summary, chartData, oldestActivityDate);
 
   @override
   String toString() {
     return 'WorkoutStatistics('
         'period: $period, '
         'summary: $summary, '
-        'chartData: $chartData'
+        'chartData: $chartData, '
+        'oldestActivityDate: $oldestActivityDate'
         ')';
   }
 }
