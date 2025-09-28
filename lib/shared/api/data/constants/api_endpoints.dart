@@ -16,6 +16,7 @@ class ApiEndpoints {
   static String routeTitle(String workoutId) =>
       '/api/activities/$workoutId/title';
   static String routeGPXDownload(String routeId) => '/api/routes/$routeId/gpx';
+  static String routeDelete(String routeId) => '/api/routes/$routeId';
 
   //recommendation
   static const String recommendations = '/api/recommendations';
@@ -50,4 +51,7 @@ class ApiEndpoints {
 
   // Feedback
   static const String feedback = '/api/feedback';
+
+  //statistics
+  static const String workoutStatistics = '/api/v1/activities/statistics';
 }

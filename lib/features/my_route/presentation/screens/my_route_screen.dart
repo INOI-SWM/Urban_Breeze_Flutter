@@ -142,6 +142,29 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
     });
   }
 
+  void _removeRouteFromList(String routeId) {
+    setState(() {
+      allRoutes.removeWhere((MyRoute route) => route.routeId == routeId);
+
+      final List<MyRoute> updatedRoutes = List<MyRoute>.from(allRoutes);
+      final int newTotalElements = routeList.totalElements - 1;
+
+      routeList = MyRouteList(
+        routes: updatedRoutes,
+        currentPage: routeList.currentPage,
+        totalPages: routeList.totalPages,
+        totalElements: newTotalElements,
+        size: routeList.size,
+        hasNext: routeList.hasNext,
+        hasPrevious: routeList.hasPrevious,
+        maxDistance: routeList.maxDistance,
+        maxElevationGain: routeList.maxElevationGain,
+        minDistance: routeList.minDistance,
+        minElevationGain: routeList.minElevationGain,
+      );
+    });
+  }
+
   Future<void> _loadMoreRoutes() async {
     if (_currentDomainFilter == null) return;
 
@@ -342,14 +365,21 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
                 },
               );
 
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder:
-                      (BuildContext context) => MyRouteDetailScreen(
-                        routeId: route.routeId.toString(),
-                      ),
-                ),
-              );
+              Navigator.of(context)
+                  .push<bool>(
+                    MaterialPageRoute<bool>(
+                      builder:
+                          (BuildContext context) => MyRouteDetailScreen(
+                            routeId: route.routeId.toString(),
+                          ),
+                    ),
+                  )
+                  .then((bool? wasDeleted) {
+                    // 삭제된 경우 로컬 배열에서 해당 경로 제거
+                    if (wasDeleted == true) {
+                      _removeRouteFromList(route.routeId);
+                    }
+                  });
             },
           ),
         );

@@ -19,7 +19,7 @@ class MyRouteModel {
       createdAt: json['createdAt'] as String,
       distance: (json['distance'] as num).toDouble(),
       elevationGain: (json['elevationGain'] as num).toDouble(),
-      userId: json['userId'] as int,
+      userId: json['userId'] as String,
       nickname: json['nickname'] as String,
       profileImageUrl: json['profileImageUrl'] as String,
     );
@@ -31,7 +31,7 @@ class MyRouteModel {
   final String createdAt;
   final double distance;
   final double elevationGain;
-  final int userId;
+  final String userId;
   final String nickname;
   final String profileImageUrl;
 
