@@ -6,4 +6,5 @@ abstract class MyRouteRepository {
   Future<MyRouteList> getMyRouteList(MyRouteFilter filter);
   Future<MyRouteDetail> getRouteDetail(String routeId);
   Future<String> getRouteGPX(String routeId);
+  Future<void> deleteRoute(String routeId);
 }

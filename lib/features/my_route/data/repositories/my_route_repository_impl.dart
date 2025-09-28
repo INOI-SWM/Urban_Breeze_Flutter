@@ -41,4 +41,9 @@ class MyRouteRepositoryImpl implements MyRouteRepository {
 
     return response.data;
   }
+
+  @override
+  Future<void> deleteRoute(String routeId) async {
+    await _remoteDataSource.deleteRoute(routeId);
+  }
 }
