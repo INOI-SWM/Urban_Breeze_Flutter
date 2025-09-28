@@ -1,11 +1,12 @@
 import 'package:urban_breeze/features/recommended_course/domain/constants/recommended_course_constants.dart';
+import 'package:urban_breeze/features/recommended_course/domain/enums/recommended_course_sort_type.dart';
 import 'package:urban_breeze/shared/filter/models/base_filter.dart';
 
 class RecommendedCourseFilter extends BaseFilter {
   const RecommendedCourseFilter({
     super.page = 0,
     super.size = RecommendedCourseConstants.defaultPageSize,
-    this.sortType = RecommendedCourseConstants.defaultSortType,
+    this.sortType = RecommendedCourseSortType.nearest,
     this.regions,
     this.difficulty,
     this.recommendationTypes,
@@ -17,7 +18,7 @@ class RecommendedCourseFilter extends BaseFilter {
     this.userLat,
   });
 
-  final String sortType; // 정렬 타입
+  final RecommendedCourseSortType sortType; // 정렬 타입
   final List<String>? regions; // 지역 필터
   final List<String>? difficulty; // 난이도 필터
   final List<String>? recommendationTypes; // 추천 타입 필터
@@ -49,7 +50,7 @@ class RecommendedCourseFilter extends BaseFilter {
     double? maxDistance,
     double? minElevation,
     double? maxElevation,
-    String? sortType,
+    RecommendedCourseSortType? sortType,
     List<String>? regions,
     List<String>? difficulty,
     List<String>? recommendationTypes,

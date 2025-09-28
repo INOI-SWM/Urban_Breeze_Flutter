@@ -1,6 +1,6 @@
 import 'package:urban_breeze/features/recommended_course/domain/constants/recommended_course_constants.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_filter.dart';
-import 'package:urban_breeze/features/recommended_course/domain/enums/course_sort_type.dart';
+import 'package:urban_breeze/features/recommended_course/domain/enums/recommended_course_sort_type.dart';
 import 'package:urban_breeze/shared/filter/models/filter_data.dart';
 import 'package:urban_breeze/shared/filter/utils/filter_converter.dart';
 
@@ -10,7 +10,7 @@ class RecommendedCourseFilterMapper {
   /// UI FilterData를 Domain RecommendedCourseFilter로 변환
   static RecommendedCourseFilter fromFilterData(
     FilterData filterData,
-    CourseSortType sortType,
+    RecommendedCourseSortType sortType,
   ) {
     // FilterConverter를 사용한 범위 값 추출
     final (
@@ -38,7 +38,7 @@ class RecommendedCourseFilterMapper {
         _extractSelectedRecommendationTypes(filterData);
 
     return RecommendedCourseFilter(
-      sortType: sortType.apiValue,
+      sortType: sortType,
       regions: regions,
       difficulty: difficulties,
       recommendationTypes: recommendationTypes,

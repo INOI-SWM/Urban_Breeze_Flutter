@@ -1,3 +1,14 @@
+enum ApiRecommendedCourseSortType {
+  nearest('NEAREST'),
+  distanceLong('DISTANCE_LONG'),
+  distanceShort('DISTANCE_SHORT'),
+  difficultyHigh('DIFFICULTY_HIGH'),
+  difficultyLow('DIFFICULTY_LOW');
+
+  const ApiRecommendedCourseSortType(this.value);
+  final String value;
+}
+
 class RecommendedCourseRequestModel {
   const RecommendedCourseRequestModel({
     this.page,
