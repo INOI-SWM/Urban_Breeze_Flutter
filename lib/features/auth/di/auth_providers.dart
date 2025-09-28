@@ -22,6 +22,7 @@ import 'package:urban_breeze/features/auth/data/repositories/token_repository_im
 import 'package:urban_breeze/features/auth/data/repositories/urban_breeze_auth_repository_impl.dart';
 import 'package:urban_breeze/features/auth/data/repositories/user_session_repository_impl.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user_agreement.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/agreement_repository.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/apple_auth_repository.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/google_auth_repository.dart';
@@ -161,6 +162,9 @@ final Provider<AuthSignInFacade> authSignInFacadeProvider =
       final UserSessionNotifier userSessionNotifier = ref.watch(
         userSessionNotifierProvider.notifier,
       );
+      final UserAgreementNotifier userAgreementNotifier = ref.watch(
+        userAgreementNotifierProvider.notifier,
+      );
 
       return AuthSignInFacade(
         signInWithGoogleUseCase: signInWithGoogleUseCase,
@@ -168,6 +172,7 @@ final Provider<AuthSignInFacade> authSignInFacadeProvider =
         signInWithKakaoUseCase: signInWithKakaoUseCase,
         tokenRepository: tokenRepository,
         userSessionNotifier: userSessionNotifier,
+        userAgreementNotifier: userAgreementNotifier,
       );
     });
 
@@ -255,6 +260,26 @@ final Provider<bool> isLoggedInProvider = Provider<bool>(
 final Provider<bool> isAuthInitializedProvider = Provider<bool>(
   (Ref<bool> ref) => ref.watch(authInitializationNotifierProvider),
 );
+
+// UserAgreement Providers
+final StateNotifierProvider<UserAgreementNotifier, UserAgreement?>
+userAgreementNotifierProvider =
+    StateNotifierProvider<UserAgreementNotifier, UserAgreement?>((Ref ref) {
+      final UserSessionRepository repository = ref.watch(
+        userSessionRepositoryProvider,
+      );
+      return UserAgreementNotifier(repository: repository);
+    });
+
+final Provider<bool> shouldShowConsentScreenProvider = Provider<bool>((
+  Ref<bool> ref,
+) {
+  final User? user = ref.watch(userSessionNotifierProvider);
+  final UserAgreementNotifier agreementNotifier = ref.watch(
+    userAgreementNotifierProvider.notifier,
+  );
+  return agreementNotifier.shouldShowConsentScreen(user);
+});
 
 // Agreement Providers
 final Provider<AgreementDataSource> agreementDataSourceProvider =

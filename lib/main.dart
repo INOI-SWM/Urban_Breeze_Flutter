@@ -11,7 +11,6 @@ import 'package:urban_breeze/core/services/app_tracking_service.dart';
 import 'package:urban_breeze/core/services/deep_link_service.dart';
 import 'package:urban_breeze/core/theme/app_theme.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
-import 'package:urban_breeze/features/auth/domain/entities/user.dart' as auth;
 import 'package:urban_breeze/features/auth/presentation/screens/consent_screen.dart';
 import 'package:urban_breeze/features/auth/presentation/screens/login_screen.dart';
 import 'package:urban_breeze/navigation/navigation_scaffold.dart';
@@ -94,7 +93,7 @@ class MyApp extends ConsumerWidget {
   Widget _buildHomeScreen({
     required bool isAuthInitialized,
     required bool isLoggedIn,
-    required auth.User? user,
+    required bool shouldShowConsent,
   }) {
     if (!isAuthInitialized) {
       return const SplashScreen();
@@ -104,8 +103,8 @@ class MyApp extends ConsumerWidget {
       return const LoginScreen();
     }
 
-    // 첫 로그인인 경우 동의창으로 이동
-    if (user!.isFirstLogin == true) {
+    // 약관동의가 완료되지 않은 경우 동의창으로 이동
+    if (shouldShowConsent) {
       return const ConsentScreen();
     }
 
@@ -116,7 +115,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isAuthInitialized = ref.watch(isAuthInitializedProvider);
     final bool isLoggedIn = ref.watch(isLoggedInProvider);
-    final auth.User? user = ref.watch(userSessionNotifierProvider);
+    final bool shouldShowConsent = ref.watch(shouldShowConsentScreenProvider);
 
     return MaterialApp(
       title: 'Urban Breeze',
@@ -128,7 +127,7 @@ class MyApp extends ConsumerWidget {
       home: _buildHomeScreen(
         isAuthInitialized: isAuthInitialized,
         isLoggedIn: isLoggedIn,
-        user: user,
+        shouldShowConsent: shouldShowConsent,
       ),
       builder: (BuildContext context, Widget? child) {
         final SemanticColors semanticColors = AppTheme.getSemanticColors(

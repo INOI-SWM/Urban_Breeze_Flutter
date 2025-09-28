@@ -5,7 +5,6 @@ import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/application/use_cases/update_agreement_use_case.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
-import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user_agreement.dart';
 import 'package:urban_breeze/navigation/navigation_scaffold.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
@@ -99,14 +98,9 @@ class _ConsentScreenState extends ConsumerState<ConsentScreen>
       if (result.isSuccess) {
         AmplitudeAnalytics.logButtonClick('consent_agree_success');
 
-        // 약관동의 완료 후 사용자의 isFirstLogin 상태를 false로 업데이트
-        final User? currentUser = ref.read(userSessionNotifierProvider);
-        if (currentUser != null) {
-          final User updatedUser = currentUser.copyWith(isFirstLogin: false);
-          await ref
-              .read(userSessionNotifierProvider.notifier)
-              .setUserSession(updatedUser);
-        }
+        await ref
+            .read(userAgreementNotifierProvider.notifier)
+            .setUserAgreement(result.dataOrNull!);
 
         if (mounted) {
           Navigator.of(context).pushReplacement(

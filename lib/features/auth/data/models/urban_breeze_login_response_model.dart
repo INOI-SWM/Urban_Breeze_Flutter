@@ -48,7 +48,6 @@ class UrbanBreezeLoginResponseModel {
       gender: (userInfo['gender'] as String?)?.trim(),
       displayName: (userInfo['nickname'] as String?)?.trim(),
       loginProvider: provider,
-      isFirstLogin: (userInfo['isFirstLogin'] ?? true) as bool,
     );
 
     final UserAgreement agreement = UserAgreement(
