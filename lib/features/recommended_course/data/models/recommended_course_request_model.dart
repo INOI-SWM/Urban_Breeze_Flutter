@@ -1,58 +1,85 @@
+enum ApiRecommendedCourseSortType {
+  nearest('NEAREST'),
+  distanceLong('DISTANCE_LONG'),
+  distanceShort('DISTANCE_SHORT'),
+  difficultyHigh('DIFFICULTY_HIGH'),
+  difficultyLow('DIFFICULTY_LOW');
+
+  const ApiRecommendedCourseSortType(this.value);
+  final String value;
+}
+
 class RecommendedCourseRequestModel {
   const RecommendedCourseRequestModel({
-    required this.page,
-    required this.size,
-    required this.sortType,
-    this.regions,
-    this.difficulty,
+    this.page,
+    this.size,
+    this.sortType,
     this.recommendationTypes,
-    required this.minDistance,
-    required this.maxDistance,
-    required this.minElevation,
-    required this.maxElevation,
+    this.regions,
+    this.minDistanceKm,
+    this.maxDistanceKm,
+    this.minElevationGain,
+    this.maxElevationGain,
+    this.difficulties,
     this.userLon,
     this.userLat,
   });
 
-  final int page;
-  final int size;
-  final String sortType;
+  final int? page;
+  final int? size;
+  final String? sortType;
   final List<String>? recommendationTypes;
   final List<String>? regions;
-  final double minDistance;
-  final double maxDistance;
-  final double minElevation;
-  final double maxElevation;
-  final List<String>? difficulty;
+  final double? minDistanceKm;
+  final double? maxDistanceKm;
+  final double? minElevationGain;
+  final double? maxElevationGain;
+  final List<String>? difficulties;
   final double? userLon;
   final double? userLat;
 
   /// API 요청시 사용할 쿼리 파라미터로 변환
   Map<String, String> toQueryParameters() {
-    final Map<String, String> params = <String, String>{
-      'page': page.toString(),
-      'size': size.toString(),
-      'sortType': sortType,
-      'minDistance': minDistance.toString(),
-      'maxDistance': maxDistance.toString(),
-      'minElevation': minElevation.toString(),
-      'maxElevation': maxElevation.toString(),
-    };
+    final Map<String, String> params = <String, String>{};
 
-    if (regions != null && regions!.isNotEmpty) {
-      params['regions'] = regions!.join(',');
+    // 필수 파라미터들 (null이 아닐 때만 추가)
+    if (page != null) {
+      params['page'] = page.toString();
     }
-    if (difficulty != null && difficulty!.isNotEmpty) {
-      params['difficulty'] = difficulty!.join(',');
+    if (size != null) {
+      params['size'] = size.toString();
     }
+    if (sortType != null) {
+      params['sortType'] = sortType!;
+    }
+
+    // 선택적 파라미터들
     if (recommendationTypes != null && recommendationTypes!.isNotEmpty) {
       params['recommendationTypes'] = recommendationTypes!.join(',');
     }
+    if (regions != null && regions!.isNotEmpty) {
+      params['regions'] = regions!.join(',');
+    }
+    if (minDistanceKm != null) {
+      params['minDistanceKm'] = minDistanceKm.toString();
+    }
+    if (maxDistanceKm != null) {
+      params['maxDistanceKm'] = maxDistanceKm.toString();
+    }
+    if (minElevationGain != null) {
+      params['minElevationGain'] = minElevationGain.toString();
+    }
+    if (maxElevationGain != null) {
+      params['maxElevationGain'] = maxElevationGain.toString();
+    }
+    if (difficulties != null && difficulties!.isNotEmpty) {
+      params['difficulties'] = difficulties!.join(',');
+    }
     if (userLon != null) {
-      params['userLon'] = userLon!.toString();
+      params['userLon'] = userLon.toString();
     }
     if (userLat != null) {
-      params['userLat'] = userLat!.toString();
+      params['userLat'] = userLat.toString();
     }
 
     return params;

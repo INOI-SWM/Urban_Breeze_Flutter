@@ -1,6 +1,8 @@
+import 'package:urban_breeze/features/recommended_course/data/models/recommended_course_detail_response_model.dart';
 import 'package:urban_breeze/features/recommended_course/data/models/recommended_course_list_data_model.dart';
 import 'package:urban_breeze/features/recommended_course/data/models/recommended_course_response_model.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course.dart';
+import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_detail.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_list.dart';
 import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 
@@ -14,11 +16,11 @@ class RecommendedCourseResponseMapper {
     RecommendedCourseResponseModel model,
   ) {
     return RecommendedCourse(
-      id: model.id,
+      routeId: model.routeId,
       title: model.title,
       description: model.description,
       distanceKm: model.distanceKm,
-      durationSeconds: model.durationSeconds,
+      durationMinutes: model.durationMinutes,
       elevationGain: model.elevationGain,
       region: model.region,
       difficulty: model.difficulty,
@@ -41,6 +43,43 @@ class RecommendedCourseResponseMapper {
       size: data.pagination.size,
       hasNext: data.pagination.hasNext,
       hasPrevious: data.pagination.hasPrevious,
+      maxDistance: data.filterRange.maxDistance,
+      maxElevationGain: data.filterRange.maxElevationGain,
+      minDistance: data.filterRange.minDistance,
+      minElevationGain: data.filterRange.minElevationGain,
+    );
+  }
+
+  /// 상세 API 응답을 도메인 엔티티로 변환
+  static RecommendedCourseDetail fromDetailApiResponse(
+    ApiResponseModel<RecommendedCourseDetailResponseModel> response,
+  ) {
+    final RecommendedCourseDetailResponseModel data = response.data;
+
+    return RecommendedCourseDetail(
+      routeId: data.routeId,
+      title: data.title,
+      description: data.description,
+      polyline: data.polyline,
+      createdAt: data.createdAt,
+      durationMinutes: data.durationMinutes,
+      distance: data.distance,
+      elevationGain: data.elevationGain,
+      userId: data.userId,
+      nickname: data.nickname,
+      profileImageUrl: data.profileImageUrl,
+      trackPointsCount: data.trackPointsCount,
+      trackPoints:
+          data.trackPoints
+              .map(
+                (TrackPointModel model) =>
+                    TrackPoint(index: model.index, elevation: model.elevation),
+              )
+              .toList(),
+      bbox: data.bbox,
+      recommendationType: data.recommendationType,
+      landscapeType: data.landscapeType,
+      region: data.region,
     );
   }
 }

@@ -1,10 +1,10 @@
 class RecommendedCourseResponseModel {
   const RecommendedCourseResponseModel({
-    required this.id,
+    required this.routeId,
     required this.title,
     required this.description,
     required this.distanceKm,
-    required this.durationSeconds,
+    required this.durationMinutes,
     required this.elevationGain,
     required this.region,
     required this.difficulty,
@@ -14,11 +14,11 @@ class RecommendedCourseResponseModel {
 
   factory RecommendedCourseResponseModel.fromJson(Map<String, dynamic> json) {
     return RecommendedCourseResponseModel(
-      id: (json['id'] as num).toString(),
+      routeId: json['routeId'] as String,
       title: json['title'] as String,
       description: json['description'] as String,
       distanceKm: (json['distanceKm'] as num).toDouble(),
-      durationSeconds: json['durationSeconds'] as int,
+      durationMinutes: json['durationMinutes'] as int,
       elevationGain: (json['elevationGain'] as num).toDouble(),
       region: json['region'] as String,
       difficulty: json['difficulty'] as String,
@@ -27,11 +27,11 @@ class RecommendedCourseResponseModel {
     );
   }
 
-  final String id;
+  final String routeId;
   final String title;
   final String description;
   final double distanceKm;
-  final int durationSeconds;
+  final int durationMinutes;
   final double elevationGain;
   final String region;
   final String difficulty;
@@ -40,11 +40,11 @@ class RecommendedCourseResponseModel {
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'id': int.parse(id),
+      'routeId': routeId,
       'title': title,
       'description': description,
       'distanceKm': distanceKm,
-      'durationSeconds': durationSeconds,
+      'durationMinutes': durationMinutes,
       'elevationGain': elevationGain,
       'region': region,
       'difficulty': difficulty,

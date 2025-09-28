@@ -30,7 +30,7 @@ class RecommendedCourseConstants {
   /// 지역 필터 옵션 ('전체' 포함)
   static const List<String> regionFilterOptions = <String>[
     '전체',
-    '서울/경기',
+    '서울',
     '강원',
     '충청',
     '전라',
@@ -58,7 +58,7 @@ class RecommendedCourseConstants {
 
   /// 한글 지역명 → API 코드 매핑
   static const Map<String, String> regionToApiMapping = <String, String>{
-    '서울/경기': 'SEOUL',
+    '서울': 'SEOUL',
     '강원': 'GANGWON',
     '충청': 'CHUNGCHEONG',
     '전라': 'JEOLLA',
@@ -68,7 +68,7 @@ class RecommendedCourseConstants {
 
   /// API 코드 → 한글 지역명 매핑
   static const Map<String, String> apiToRegionMapping = <String, String>{
-    'SEOUL': '서울/경기',
+    'SEOUL': '서울',
     'GANGWON': '강원',
     'CHUNGCHEONG': '충청',
     'JEOLLA': '전라',
@@ -121,4 +121,9 @@ class RecommendedCourseConstants {
   static const double defaultMaxDistance = 1000.0;
   static const double defaultMinElevation = 0.0;
   static const double defaultMaxElevation = 1000.0;
+
+  /// 정렬 타입 옵션
+  static const List<String> sortTypeOptions = <String>[
+    'NEAREST', // 가까운 순 (기본값)
+  ];
 }
