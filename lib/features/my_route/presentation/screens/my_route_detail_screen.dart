@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/my_route/application/usecases/delete_route_usecase.dart';
 import 'package:urban_breeze/features/my_route/application/usecases/get_my_route_detail_usecase.dart';
 import 'package:urban_breeze/features/my_route/application/usecases/get_route_gpx_usecase.dart';
 import 'package:urban_breeze/features/my_route/di/my_route_providers.dart';
@@ -36,7 +37,8 @@ class MyRouteDetailScreen extends ConsumerStatefulWidget {
       _MyRouteDetailScreenState();
 }
 
-class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
+class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
+    with ErrorDisplayMixin {
   final MapController _mapController = MapController();
   final bool _hasUserDraggedMap = false;
 
@@ -450,9 +452,60 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen> {
   }
 
   /// 경로 삭제 실행
-  void _deleteRoute() {
-    //TODO : 실제 삭제 API 호출 로직 구현
-    // 성공 시 이전 화면으로 돌아가기
-    Navigator.of(context).pop();
+  Future<void> _deleteRoute() async {
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (BuildContext context) =>
+                const Center(child: CircularProgressIndicator()),
+      );
+
+      final DeleteRouteUseCase deleteRouteUseCase = ref.read(
+        deleteRouteUseCaseProvider,
+      );
+
+      final AppResult<void> result = await deleteRouteUseCase.execute(
+        widget.routeId,
+      );
+
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+
+      if (!mounted) return;
+
+      if (result.isSuccess) {
+        AmplitudeAnalytics.logEvent(
+          'my_route_delete_success',
+          properties: <String, dynamic>{'route_id': widget.routeId},
+        );
+
+        showSuccessMessage(context, '경로가 삭제되었습니다');
+
+        Navigator.of(context).pop(true);
+      } else {
+        ErrorDisplay.showErrorMessage(
+          context,
+          result.exceptionOrNull?.message ?? '경로 삭제에 실패했습니다',
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      AmplitudeAnalytics.logEvent(
+        'my_route_delete_error',
+        properties: <String, dynamic>{
+          'route_id': widget.routeId,
+          'error': e.toString(),
+        },
+      );
+
+      ErrorDisplay.showErrorMessage(
+        context,
+        '경로 삭제 중 오류가 발생했습니다: ${e.toString()}',
+      );
+    }
   }
 }

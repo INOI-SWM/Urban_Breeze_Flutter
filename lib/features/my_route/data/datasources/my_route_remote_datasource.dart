@@ -66,4 +66,27 @@ class MyRouteRemoteDataSource extends BaseRemoteDataSource {
       data: gpxData,
     );
   }
+
+  /// 경로 삭제
+  Future<void> deleteRoute(String routeId) async {
+    try {
+      final http.Response response = await delete(
+        ApiEndpoints.routeDelete(routeId),
+      );
+
+      final int statusCode = response.statusCode;
+
+      if (statusCode == 200 || statusCode == 204) {
+        return; // 삭제 성공
+      } else {
+        final Map<String, dynamic> jsonMap = decodeResponse(response);
+        final String errorMessage =
+            (jsonMap['errorMessage'] ?? jsonMap['message'] ?? '경로 삭제 실패')
+                .toString();
+        throw ServerException('경로 삭제 실패 ($statusCode): $errorMessage');
+      }
+    } on ServerException {
+      rethrow;
+    }
+  }
 }

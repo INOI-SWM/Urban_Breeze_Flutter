@@ -22,7 +22,7 @@ class MyRouteDetail {
   final int durationMinutes;
   final double distance;
   final double elevationGain;
-  final int userId;
+  final String userId;
   final String nickname;
   final String profileImageUrl;
   final int trackPointsCount;
