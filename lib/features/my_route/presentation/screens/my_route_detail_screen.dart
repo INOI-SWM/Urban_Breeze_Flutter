@@ -23,6 +23,7 @@ import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_in
 import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
 import 'package:urban_breeze/shared/layout/map_with_bottom_sheet_layout.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
+import 'package:urban_breeze/shared/map/map_marker_widget.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 import 'package:urban_breeze/shared/utils/date_formatter.dart';
 import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
@@ -193,7 +194,6 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
                           'route_id': widget.routeId,
                         },
                       );
-                      //TODO : 추후 실제 삭제 API 요청 로직으로 변경
                       _showDeleteConfirmDialog(context);
                     },
                   ),
@@ -306,13 +306,21 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
           ),
         );
 
-        // 시작점과 끝점 마커 추가 - WorkoutDetailMapWidget 패턴 사용
+        // 시작점과 끝점 마커 추가 - 공통 위젯 사용
         overlays.add(
           MarkerLayer(
             markers: <Marker>[
-              _createStartMarker(routePoints.first, colors),
+              MapMarkerWidget.createStartMarker(
+                routePoints.first,
+                colors.statusPositive,
+                colors,
+              ),
               if (routePoints.length > 1)
-                _createEndMarker(routePoints.last, colors),
+                MapMarkerWidget.createEndMarker(
+                  routePoints.last,
+                  colors.statusNegative,
+                  colors,
+                ),
             ],
           ),
         );
@@ -320,38 +328,6 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
     }
 
     return overlays;
-  }
-
-  /// 시작점 마커 생성
-  Marker _createStartMarker(LatLng point, SemanticColors colors) {
-    return Marker(
-      point: point,
-      child: Container(
-        width: 20,
-        height: 20,
-        decoration: BoxDecoration(
-          color: colors.statusPositive,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 2),
-        ),
-      ),
-    );
-  }
-
-  /// 끝점 마커 생성
-  Marker _createEndMarker(LatLng point, SemanticColors colors) {
-    return Marker(
-      point: point,
-      child: Container(
-        width: 20,
-        height: 20,
-        decoration: BoxDecoration(
-          color: colors.statusNegative,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 2),
-        ),
-      ),
-    );
   }
 
   /// bbox를 사용하여 카메라 위치를 계산 (초기 로드 시 기본 크기로 조정)

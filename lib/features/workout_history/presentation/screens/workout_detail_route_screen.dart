@@ -13,6 +13,7 @@ import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_but
 import 'package:urban_breeze/shared/design_system/widgets/info/info_item.dart';
 import 'package:urban_breeze/shared/map/common_map_widgets.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
+import 'package:urban_breeze/shared/map/map_marker_widget.dart';
 
 enum WorkoutDataType { speed, altitude, heartRate }
 
@@ -212,29 +213,21 @@ class _WorkoutDetailRouteMapWidget extends StatelessWidget {
           ),
           MarkerLayer(
             markers: <Marker>[
-              _createMarker(routePoints.first, colors.statusPositive),
-              _createMarker(routePoints.last, colors.statusNegative),
+              MapMarkerWidget.createStartMarker(
+                routePoints.first,
+                colors.statusPositive,
+                colors,
+              ),
+              MapMarkerWidget.createEndMarker(
+                routePoints.last,
+                colors.statusNegative,
+                colors,
+              ),
             ],
           ),
         ],
         CommonMapWidgets.createAttributionWidget(),
       ],
-    );
-  }
-
-  //TODO: 디자인 수정 필요
-  Marker _createMarker(LatLng point, Color color) {
-    return Marker(
-      point: point,
-      child: Container(
-        width: 20,
-        height: 20,
-        decoration: BoxDecoration(
-          color: color,
-          shape: BoxShape.circle,
-          border: Border.all(color: const Color(0xFFFFFFFF), width: 2),
-        ),
-      ),
     );
   }
 }
