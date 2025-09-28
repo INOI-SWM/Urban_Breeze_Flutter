@@ -10,10 +10,10 @@ class RecommendedCourseList {
       size: 0,
       hasNext: false,
       hasPrevious: false,
-      maxDistance: 0,
-      maxElevationGain: 0,
-      minDistance: 0,
-      minElevationGain: 0,
+      maxDistance: 0.0,
+      maxElevationGain: 0.0,
+      minDistance: 0.0,
+      minElevationGain: 0.0,
     );
   }
 
