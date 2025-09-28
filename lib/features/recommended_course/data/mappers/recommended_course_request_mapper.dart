@@ -1,6 +1,4 @@
-import 'package:urban_breeze/features/recommended_course/data/mappers/recommended_course_field_converter.dart';
 import 'package:urban_breeze/features/recommended_course/data/models/recommended_course_request_model.dart';
-import 'package:urban_breeze/features/recommended_course/domain/constants/recommended_course_constants.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_filter.dart';
 
 /// 추천 코스 요청 관련 매핑
@@ -16,24 +14,13 @@ class RecommendedCourseRequestMapper {
       page: filter.page,
       size: filter.size,
       sortType: filter.sortType,
-      regions: RecommendedCourseFieldConverter.convertRegionsToApi(
-        filter.regions,
-      ),
-      difficulty: RecommendedCourseFieldConverter.convertDifficultiestoApi(
-        filter.difficulty,
-      ),
-      recommendationTypes:
-          RecommendedCourseFieldConverter.convertRecommendationTypesToApi(
-            filter.recommendationTypes,
-          ),
-      minDistance:
-          filter.minDistance ?? RecommendedCourseConstants.defaultMinDistance,
-      maxDistance:
-          filter.maxDistance ?? RecommendedCourseConstants.defaultMaxDistance,
-      minElevation:
-          filter.minElevation ?? RecommendedCourseConstants.defaultMinElevation,
-      maxElevation:
-          filter.maxElevation ?? RecommendedCourseConstants.defaultMaxElevation,
+      regions: filter.regions,
+      difficulties: filter.difficulty,
+      recommendationTypes: filter.recommendationTypes,
+      minDistanceKm: filter.minDistance,
+      maxDistanceKm: filter.maxDistance,
+      minElevationGain: filter.minElevation,
+      maxElevationGain: filter.maxElevation,
       userLon: filter.userLon,
       userLat: filter.userLat,
     );
@@ -42,23 +29,16 @@ class RecommendedCourseRequestMapper {
   /// API 요청 모델을 도메인 필터로 변환
   static RecommendedCourseFilter toFilter(RecommendedCourseRequestModel model) {
     return RecommendedCourseFilter(
-      page: model.page,
-      size: model.size,
-      sortType: model.sortType,
-      regions: RecommendedCourseFieldConverter.convertRegionsFromApi(
-        model.regions,
-      ),
-      difficulty: RecommendedCourseFieldConverter.convertDifficultiesFromApi(
-        model.difficulty,
-      ),
-      recommendationTypes:
-          RecommendedCourseFieldConverter.convertRecommendationTypesFromApi(
-            model.recommendationTypes,
-          ),
-      minDistance: model.minDistance,
-      maxDistance: model.maxDistance,
-      minElevation: model.minElevation,
-      maxElevation: model.maxElevation,
+      page: model.page ?? 0,
+      size: model.size ?? 10,
+      sortType: model.sortType ?? 'NEAREST',
+      regions: model.regions,
+      difficulty: model.difficulties,
+      recommendationTypes: model.recommendationTypes,
+      minDistance: model.minDistanceKm,
+      maxDistance: model.maxDistanceKm,
+      minElevation: model.minElevationGain,
+      maxElevation: model.maxElevationGain,
       userLon: model.userLon,
       userLat: model.userLat,
     );
