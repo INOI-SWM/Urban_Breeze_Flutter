@@ -3,6 +3,7 @@ import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/exceptions/validation_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user_agreement.dart';
 import 'package:urban_breeze/features/auth/domain/repositories/user_session_repository.dart';
 import 'package:urban_breeze/features/profile/application/use_cases/get_profile_use_case.dart';
 import 'package:urban_breeze/features/profile/application/use_cases/update_birth_use_case.dart';
@@ -69,6 +70,7 @@ class UserSessionNotifier extends StateNotifier<User?> {
 
     state = null;
     await _repository.clearUser();
+    await _repository.clearUserAgreement();
   }
 
   static const Duration _splashScreenDuration = Duration(milliseconds: 1000);
@@ -145,5 +147,38 @@ class AuthInitializationNotifier extends StateNotifier<bool> {
 
   void markInitialized() {
     state = true;
+  }
+}
+
+class UserAgreementNotifier extends StateNotifier<UserAgreement?> {
+  UserAgreementNotifier({required UserSessionRepository repository})
+    : _repository = repository,
+      super(null) {
+    loadUserAgreement();
+  }
+
+  final UserSessionRepository _repository;
+
+  Future<void> setUserAgreement(UserAgreement agreement) async {
+    state = agreement;
+    await _repository.saveUserAgreement(agreement);
+  }
+
+  Future<void> loadUserAgreement() async {
+    final UserAgreement? savedAgreement = await _repository.loadUserAgreement();
+    state = savedAgreement;
+  }
+
+  Future<void> clearUserAgreement() async {
+    state = null;
+    await _repository.clearUserAgreement();
+  }
+
+  /// 약관동의가 완료되었는지 확인
+  bool get isAgreementCompleted => state?.isCompleted == true;
+
+  /// 약관동의 화면을 표시해야 하는지 확인 (로그인되어 있지만 약관동의가 완료되지 않은 경우)
+  bool shouldShowConsentScreen(User? user) {
+    return user != null && !isAgreementCompleted;
   }
 }

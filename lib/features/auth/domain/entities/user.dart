@@ -15,7 +15,6 @@ class User {
       loginProvider: LoginProviderExtension.fromJson(
         json['loginProvider'] as String? ?? '',
       ),
-      isFirstLogin: json['isFirstLogin'] as bool? ?? false,
     );
   }
 
@@ -34,7 +33,6 @@ class User {
       gender: json['gender'] as String?,
       displayName: json['displayName'] as String?,
       loginProvider: loginProvider, // 기존 loginProvider 유지
-      isFirstLogin: json['isFirstLogin'] as bool? ?? false,
     );
   }
   const User({
@@ -47,7 +45,6 @@ class User {
     this.gender,
     this.displayName,
     required this.loginProvider,
-    this.isFirstLogin = false,
   });
 
   final String uuid;
@@ -59,7 +56,6 @@ class User {
   final String? gender;
   final String? displayName;
   final LoginProvider loginProvider;
-  final bool isFirstLogin;
 
   User copyWith({
     String? uuid,
@@ -71,7 +67,6 @@ class User {
     String? gender,
     String? displayName,
     LoginProvider? loginProvider,
-    bool? isFirstLogin,
   }) {
     return User(
       uuid: uuid ?? this.uuid,
@@ -83,7 +78,6 @@ class User {
       gender: gender ?? this.gender,
       displayName: displayName ?? this.displayName,
       loginProvider: loginProvider ?? this.loginProvider,
-      isFirstLogin: isFirstLogin ?? this.isFirstLogin,
     );
   }
 
@@ -99,8 +93,7 @@ class User {
         other.birthYear == birthYear &&
         other.gender == gender &&
         other.displayName == displayName &&
-        other.loginProvider == loginProvider &&
-        other.isFirstLogin == isFirstLogin;
+        other.loginProvider == loginProvider;
   }
 
   @override
@@ -113,13 +106,12 @@ class User {
         birthYear.hashCode ^
         gender.hashCode ^
         displayName.hashCode ^
-        loginProvider.hashCode ^
-        isFirstLogin.hashCode;
+        loginProvider.hashCode;
   }
 
   @override
   String toString() {
-    return 'User(uuid: $uuid, nickname: $nickname, email: $email, profileImageUrl: $profileImageUrl, introduce: $introduce, birthYear: $birthYear, gender: $gender, displayName: $displayName, loginProvider: $loginProvider, isFirstLogin: $isFirstLogin)';
+    return 'User(uuid: $uuid, nickname: $nickname, email: $email, profileImageUrl: $profileImageUrl, introduce: $introduce, birthYear: $birthYear, gender: $gender, displayName: $displayName, loginProvider: $loginProvider)';
   }
 
   /// User 객체를 JSON으로 변환
@@ -134,7 +126,6 @@ class User {
       'gender': gender,
       'displayName': displayName,
       'loginProvider': loginProvider.name,
-      'isFirstLogin': isFirstLogin,
     };
   }
 }

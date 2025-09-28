@@ -16,17 +16,20 @@ class AuthSignInFacade {
     required SignInWithKakaoUseCase signInWithKakaoUseCase,
     required TokenRepository tokenRepository,
     required UserSessionNotifier userSessionNotifier,
+    required UserAgreementNotifier userAgreementNotifier,
   }) : _signInWithGoogleUseCase = signInWithGoogleUseCase,
        _signInWithAppleUseCase = signInWithAppleUseCase,
        _signInWithKakaoUseCase = signInWithKakaoUseCase,
        _tokenRepository = tokenRepository,
-       _userSessionNotifier = userSessionNotifier;
+       _userSessionNotifier = userSessionNotifier,
+       _userAgreementNotifier = userAgreementNotifier;
 
   final SignInWithGoogleUseCase _signInWithGoogleUseCase;
   final SignInWithAppleUseCase _signInWithAppleUseCase;
   final SignInWithKakaoUseCase _signInWithKakaoUseCase;
   final TokenRepository _tokenRepository;
   final UserSessionNotifier _userSessionNotifier;
+  final UserAgreementNotifier _userAgreementNotifier;
 
   Future<AppResult<User>> signIn(LoginProvider provider) async {
     try {
@@ -42,6 +45,7 @@ class AuthSignInFacade {
 
       await _tokenRepository.saveTokens(result.tokens);
       await _userSessionNotifier.setUserSession(result.user);
+      await _userAgreementNotifier.setUserAgreement(result.agreement);
       return AppSuccess<User>(result.user);
     } catch (e) {
       return const AppFailure<User>(AuthExchangeFailedException());
