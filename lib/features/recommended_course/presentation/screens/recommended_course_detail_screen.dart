@@ -170,7 +170,7 @@ class _RecommendedCourseDetailScreenState
           final RecommendedCourseDetail courseDetail = snapshot.data!;
 
           return MapWithBottomSheetLayout(
-            showOptionButton: true,
+            showOptionButton: false,
             mapOverlays: _buildMapOverlays(courseDetail, colors),
             initialCameraFit: _calculateCameraFit(courseDetail),
             mapController: _mapController,
@@ -196,20 +196,6 @@ class _RecommendedCourseDetailScreenState
                       _downloadGpx(context, courseDetail, routeSharingFacade);
                     },
                   ),
-                ],
-              );
-            },
-            onShareButtonTap: (BuildContext context) {
-              AmplitudeAnalytics.logButtonClick('recommended_course_share');
-              _shareGpx(context, courseDetail, routeSharingFacade);
-            },
-            onOptionButtonTap: (BuildContext context) {
-              AmplitudeAnalytics.logButtonClick('recommended_course_options');
-
-              showPlatformActionSheet(
-                context,
-                title: '옵션',
-                options: <PlatformActionSheetOption>[
                   PlatformActionSheetOption(
                     title: '나의 경로에 저장',
                     onSelected: () {
@@ -224,6 +210,10 @@ class _RecommendedCourseDetailScreenState
                   ),
                 ],
               );
+            },
+            onShareButtonTap: (BuildContext context) {
+              AmplitudeAnalytics.logButtonClick('recommended_course_share');
+              _shareGpx(context, courseDetail, routeSharingFacade);
             },
             sheetChild: _buildBottomSheetContent(courseDetail, colors),
           );
