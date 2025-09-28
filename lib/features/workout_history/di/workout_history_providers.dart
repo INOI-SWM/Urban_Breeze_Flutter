@@ -8,6 +8,7 @@ import '../application/facades/terra_health_sync_facade.dart';
 import '../application/facades/workout_sync_facade.dart';
 import '../application/use_cases/connect_terra_health_app_use_case.dart';
 import '../application/use_cases/delete_workout_image_use_case.dart';
+import '../application/use_cases/delete_workout_use_case.dart';
 import '../application/use_cases/get_workout_detail_use_case.dart';
 import '../application/use_cases/get_workout_list_use_case.dart';
 import '../application/use_cases/get_workout_statistics_use_case.dart';
@@ -154,6 +155,14 @@ final Provider<DeleteWorkoutImageUseCase> deleteWorkoutImageUseCaseProvider =
         workoutHistoryRepositoryProvider,
       );
       return DeleteWorkoutImageUseCase(repository: repository);
+    });
+
+final Provider<DeleteWorkoutUseCase> deleteWorkoutUseCaseProvider =
+    Provider<DeleteWorkoutUseCase>((Ref<DeleteWorkoutUseCase> ref) {
+      final WorkoutHistoryRepository repository = ref.watch(
+        workoutHistoryRepositoryProvider,
+      );
+      return DeleteWorkoutUseCase(repository: repository);
     });
 
 final Provider<SyncAppleHealthKitDataUseCase>
