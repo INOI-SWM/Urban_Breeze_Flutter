@@ -1,10 +1,10 @@
 class RecommendedCourse {
   const RecommendedCourse({
-    required this.id,
+    required this.routeId,
     required this.title,
     required this.description,
     required this.distanceKm,
-    required this.durationSeconds,
+    required this.durationMinutes,
     required this.elevationGain,
     required this.region,
     required this.difficulty,
@@ -12,11 +12,11 @@ class RecommendedCourse {
     required this.thumbnailImagePath,
   });
 
-  final String id;
+  final String routeId;
   final String title;
   final String description;
   final double distanceKm; // km
-  final int durationSeconds; // 예상 소요 시간 (초)
+  final int durationMinutes; // 예상 소요 시간 (분)
   final double elevationGain; // 상승 고도 (m)
   final String region; // 지역
   final String difficulty; // 난이도
@@ -31,8 +31,8 @@ class RecommendedCourse {
 
   /// 예상 소요 시간 표시용 문자열 반환 (시간:분 형식)
   String get durationDisplay {
-    final int hours = durationSeconds ~/ 3600;
-    final int minutes = (durationSeconds % 3600) ~/ 60;
+    final int hours = durationMinutes ~/ 60;
+    final int minutes = durationMinutes % 60;
     if (hours > 0) {
       return '${hours}h ${minutes}m';
     }
@@ -42,14 +42,14 @@ class RecommendedCourse {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is RecommendedCourse && other.id == id;
+    return other is RecommendedCourse && other.routeId == routeId;
   }
 
   @override
-  int get hashCode => id.hashCode;
+  int get hashCode => routeId.hashCode;
 
   @override
   String toString() {
-    return 'RecommendedCourse(id: $id, title: $title, distance: $distanceKm, elevationGain: $elevationGain)';
+    return 'RecommendedCourse(routeId: $routeId, title: $title, distance: $distanceKm, elevationGain: $elevationGain)';
   }
 }

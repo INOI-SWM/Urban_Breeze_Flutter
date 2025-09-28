@@ -14,11 +14,11 @@ class RecommendedCourseResponseMapper {
     RecommendedCourseResponseModel model,
   ) {
     return RecommendedCourse(
-      id: model.id,
+      routeId: model.routeId,
       title: model.title,
       description: model.description,
       distanceKm: model.distanceKm,
-      durationSeconds: model.durationSeconds,
+      durationMinutes: model.durationMinutes,
       elevationGain: model.elevationGain,
       region: model.region,
       difficulty: model.difficulty,
