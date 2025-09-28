@@ -4,6 +4,7 @@ import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/app_setting/application/services/account_management_controller.dart';
 import 'package:urban_breeze/features/app_setting/presentation/widgets/settings_list.dart';
+import 'package:urban_breeze/main.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
@@ -92,8 +93,8 @@ class AccountManagementScreen extends ConsumerWidget {
       // 탈퇴 성공 이벤트
       AmplitudeAnalytics.logEvent('account_withdrawal_success');
 
-      ErrorDisplay.showSuccessMessage(context, '탈퇴가 완료되었습니다.');
-      Navigator.of(context).pop();
+      // 앱 재시작
+      restartableAppKey.currentState?.restart();
     } catch (e) {
       if (!context.mounted) return;
 
@@ -103,7 +104,10 @@ class AccountManagementScreen extends ConsumerWidget {
         properties: <String, dynamic>{'error_message': e.toString()},
       );
 
-      ErrorDisplay.showErrorMessage(context, '탈퇴 실패: ${e.toString()}');
+      ErrorDisplay.showErrorMessage(
+        context,
+        '탈퇴 실패: 문제가 반복될 경우 문의창을 통하여 문의해주세요',
+      );
       Navigator.of(context).pop();
     }
   }

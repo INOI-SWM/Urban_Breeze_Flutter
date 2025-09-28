@@ -6,4 +6,5 @@ abstract class UrbanBreezeAuthRepository {
     required String accessToken,
   });
   Future<AuthLoginResult> loginWithAppleIdToken({required String idToken});
+  Future<void> deleteUser();
 }

@@ -17,8 +17,7 @@ class GoogleAuthRepositoryImpl implements GoogleAuthRepository {
 
   @override
   Future<void> withdraw() async {
-    // TODO: 탈퇴로직 개발 후 변경 필요
-    await _googleAuthDataSource.signOut();
+    await _googleAuthDataSource.disconnect();
   }
 
   @override

@@ -91,4 +91,24 @@ class UrbanBreezeAuthRemoteDataSource extends BaseRemoteDataSource {
       rethrow;
     }
   }
+
+  Future<void> deleteUser() async {
+    try {
+      final http.Response response = await delete(ApiEndpoints.userWithdrawal);
+
+      final int statusCode = response.statusCode;
+      final Map<String, dynamic> jsonMap = decodeResponse(response);
+
+      if (statusCode == 200 || statusCode == 204) {
+        return;
+      } else {
+        final String errorMessage =
+            (jsonMap['errorMessage'] ?? jsonMap['message'] ?? '탈퇴 요청 실패')
+                .toString();
+        throw ServerException('탈퇴 요청 실패 ($statusCode): $errorMessage');
+      }
+    } on ServerException {
+      rethrow;
+    }
+  }
 }
