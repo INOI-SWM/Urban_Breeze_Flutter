@@ -690,7 +690,8 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
         });
         _loadStatistics();
       },
-      startDate: DateTime(2020, 7, 22),
+      startDate:
+          _currentStatistics?.oldestActivityDate ?? DateTime(2025, 10, 1),
     );
   }
 }
