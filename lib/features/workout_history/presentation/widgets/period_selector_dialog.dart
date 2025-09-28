@@ -4,6 +4,7 @@ import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_sty
 import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
 import 'package:urban_breeze/shared/utils/period_utils.dart';
 
+import '../../domain/entities/period_selection.dart';
 import '../../domain/enums/statistic_enums.dart';
 
 class _PeriodSelectorConstants {
@@ -15,38 +16,6 @@ class _PeriodSelectorConstants {
   static const int firstMonth = 1;
   static const int lastMonth = 12;
   static const int firstWeek = 1;
-}
-
-class PeriodSelection {
-  const PeriodSelection({
-    required this.year,
-    required this.month,
-    required this.week,
-  });
-  final int year;
-  final int month;
-  final int week;
-
-  PeriodSelection copyWith({int? year, int? month, int? week}) {
-    return PeriodSelection(
-      year: year ?? this.year,
-      month: month ?? this.month,
-      week: week ?? this.week,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is PeriodSelection &&
-        other.year == year &&
-        other.month == month &&
-        other.week == week;
-  }
-
-  @override
-  int get hashCode => year.hashCode ^ month.hashCode ^ week.hashCode;
 }
 
 class PeriodSelectorDialog {

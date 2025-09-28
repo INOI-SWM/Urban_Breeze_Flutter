@@ -32,8 +32,8 @@ class WorkoutStatisticsPeriodModel {
 class WorkoutStatisticsSummaryModel {
   factory WorkoutStatisticsSummaryModel.fromJson(Map<String, dynamic> json) {
     return WorkoutStatisticsSummaryModel(
-      totalDistance: (json['totalDistance'] as num).toDouble(),
-      totalElevationGain: json['totalElevationGain'] as int,
+      totalDistance: json['totalDistance'] as double,
+      totalElevationGain: json['totalElevationGain'] as double,
       totalDuration: json['totalDuration'] as int,
       totalActivityCount: json['totalActivityCount'] as int,
     );
@@ -46,7 +46,7 @@ class WorkoutStatisticsSummaryModel {
   });
 
   final double totalDistance; // km
-  final int totalElevationGain; // m
+  final double totalElevationGain; // m
   final int totalDuration; // 초
   final int totalActivityCount;
 
@@ -65,8 +65,8 @@ class WorkoutStatisticsDetailValueModel {
     Map<String, dynamic> json,
   ) {
     return WorkoutStatisticsDetailValueModel(
-      distanceKm: (json['distanceKm'] as num).toDouble(),
-      elevationGainM: json['elevationGainM'] as int,
+      distanceKm: json['distanceKm'] as double,
+      elevationGainM: json['elevationGainM'] as double,
       durationSec: json['durationSec'] as int,
     );
   }
@@ -77,7 +77,7 @@ class WorkoutStatisticsDetailValueModel {
   });
 
   final double distanceKm;
-  final int elevationGainM;
+  final double elevationGainM;
   final int durationSec;
 
   Map<String, dynamic> toJson() {
@@ -130,17 +130,20 @@ class WorkoutStatisticsResponseModel {
                 ),
               )
               .toList(),
+      oldestActivityDate: json['oldestActivityDate'] as String,
     );
   }
   const WorkoutStatisticsResponseModel({
     required this.period,
     required this.summary,
     required this.details,
+    required this.oldestActivityDate,
   });
 
   final WorkoutStatisticsPeriodModel period;
   final WorkoutStatisticsSummaryModel summary;
   final List<WorkoutStatisticsDetailModel> details;
+  final String oldestActivityDate;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -150,6 +153,7 @@ class WorkoutStatisticsResponseModel {
           details
               .map((WorkoutStatisticsDetailModel detail) => detail.toJson())
               .toList(),
+      'oldestActivityDate': oldestActivityDate,
     };
   }
 }

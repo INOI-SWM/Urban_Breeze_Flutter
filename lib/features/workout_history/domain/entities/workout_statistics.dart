@@ -1,13 +1,17 @@
+import 'package:flutter/foundation.dart';
+
 class WorkoutStatistics {
   const WorkoutStatistics({
     required this.period,
     required this.summary,
     required this.chartData,
+    required this.oldestActivityDate,
   });
 
   final WorkoutStatisticsPeriod period;
   final WorkoutStatisticsSummary summary;
   final WorkoutStatisticsChartData chartData; // 그래프용 데이터
+  final DateTime oldestActivityDate;
 
   @override
   bool operator ==(Object other) {
@@ -15,18 +19,21 @@ class WorkoutStatistics {
     return other is WorkoutStatistics &&
         other.period == period &&
         other.summary == summary &&
-        other.chartData == chartData;
+        other.chartData == chartData &&
+        other.oldestActivityDate == oldestActivityDate;
   }
 
   @override
-  int get hashCode => Object.hash(period, summary, chartData);
+  int get hashCode =>
+      Object.hash(period, summary, chartData, oldestActivityDate);
 
   @override
   String toString() {
     return 'WorkoutStatistics('
         'period: $period, '
         'summary: $summary, '
-        'chartData: $chartData'
+        'chartData: $chartData, '
+        'oldestActivityDate: $oldestActivityDate'
         ')';
   }
 }
@@ -77,7 +84,7 @@ class WorkoutStatisticsSummary {
   });
 
   final double totalDistance; // km
-  final int totalElevationGain; // m
+  final double totalElevationGain; // m
   final Duration totalDuration;
   final int totalActivityCount; // 횟수
 
@@ -103,7 +110,7 @@ class WorkoutStatisticsSummary {
   String toString() {
     return 'WorkoutStatisticsSummary('
         'totalDistance: $totalDistance km, '
-        'totalElevationGain: $totalElevationGain m, '
+        'totalElevationGain: $totalElevationGain km, '
         'totalDuration: $totalDuration, '
         'totalActivityCount: $totalActivityCount'
         ')';
@@ -125,17 +132,9 @@ class WorkoutStatisticsChartData {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is WorkoutStatisticsChartData &&
-        _listEquals(other.distancePoints, distancePoints) &&
-        _listEquals(other.elevationPoints, elevationPoints) &&
-        _listEquals(other.durationPoints, durationPoints);
-  }
-
-  bool _listEquals<T>(List<T> a, List<T> b) {
-    if (a.length != b.length) return false;
-    for (int i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
+        listEquals(other.distancePoints, distancePoints) &&
+        listEquals(other.elevationPoints, elevationPoints) &&
+        listEquals(other.durationPoints, durationPoints);
   }
 
   @override

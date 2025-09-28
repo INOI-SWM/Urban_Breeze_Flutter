@@ -15,14 +15,14 @@ import 'package:urban_breeze/shared/utils/workout_formatter.dart';
 
 import '../../application/use_cases/get_workout_statistics_use_case.dart';
 import '../../di/workout_history_providers.dart';
+import '../../domain/entities/period_selection.dart';
 import '../../domain/entities/workout_statistics.dart';
 import '../../domain/enums/statistic_enums.dart';
 import '../widgets/period_selector_dialog.dart';
 
 class _UIConstants {
-  static const double defaultSpacing = 20.0;
-  static const double largeSpacing = 40.0;
-  static const double chartHeight = 200.0;
+  static const double defaultSpacing = 12.0;
+  static const double largeSpacing = 30.0;
   static const double barWidth = 20.0;
   static const EdgeInsets loadingPadding = EdgeInsets.symmetric(vertical: 20);
 }
@@ -109,7 +109,10 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
 
     try {
       final WorkoutStatistics statistics = await _getWorkoutStatisticsUseCase
-          .execute(periodType: _selectedPeriodType);
+          .execute(
+            periodType: _selectedPeriodType,
+            periodSelection: _periodSelection,
+          );
 
       setState(() {
         _currentStatistics = statistics;
@@ -137,7 +140,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
           _buildDataTypeSelector(),
           const SizedBox(height: _UIConstants.defaultSpacing),
           _buildDataTypeLabel(),
-          _buildContentByState(),
+          Expanded(child: _buildContentByState()),
         ],
       ),
     );
@@ -255,7 +258,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
         const SizedBox(height: _UIConstants.defaultSpacing),
         Row(children: _buildBottomInfoItems()),
         const SizedBox(height: _UIConstants.largeSpacing),
-        _buildChart(),
+        Expanded(child: _buildChart()),
       ],
     );
   }
@@ -275,30 +278,24 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
       return _buildEmptyChart();
     }
 
-    return SizedBox(
-      height: _UIConstants.chartHeight,
-      child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          return BarChart(_buildChartData(chartPoints, constraints.maxWidth));
-        },
-      ),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return BarChart(_buildChartData(chartPoints, constraints.maxWidth));
+      },
     );
   }
 
   Widget _buildEmptyChart() {
-    return SizedBox(
-      height: _UIConstants.chartHeight,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: context.semanticColor.lineNormalNormal),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Text(
-            '데이터가 없습니다',
-            style: AppTextStyles.body2.readingMedium.copyWith(
-              color: context.semanticColor.labelAlternative,
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: context.semanticColor.lineNormalNormal),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Center(
+        child: Text(
+          '데이터가 없습니다',
+          style: AppTextStyles.body2.readingMedium.copyWith(
+            color: context.semanticColor.labelAlternative,
           ),
         ),
       ),
@@ -411,7 +408,10 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
             if (index >= 0 && index < chartPoints.length) {
               // 기간 타입에 따라 라벨 표시 간격 조정
               if (_shouldShowXAxisLabel(index, chartPoints.length)) {
-                return Text(chartPoints[index].label, style: _chartLabelStyle);
+                final String formattedLabel = _formatXAxisLabel(
+                  chartPoints[index].label,
+                );
+                return Text(formattedLabel, style: _chartLabelStyle);
               }
             }
             return const Text('');
@@ -433,8 +433,11 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
           BarChartRodData rod,
           int rodIndex,
         ) {
+          final String formattedLabel = _formatTooltipLabel(
+            chartPoints[group.x].label,
+          );
           return BarTooltipItem(
-            '${chartPoints[group.x].label}\n${_formatYAxisLabel(rod.toY)}',
+            '$formattedLabel\n${_formatYAxisLabel(rod.toY)}',
             AppTextStyles.caption2.regular.copyWith(color: _tooltipTextColor),
           );
         },
@@ -466,6 +469,43 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     }
   }
 
+  String _formatTooltipLabel(String label) {
+    switch (_selectedPeriodType) {
+      case StatisticPeriodType.week:
+        // 주간: "29" -> "6월 29일"
+        final int day = int.tryParse(label) ?? 0;
+        if (day > 0) {
+          return '${_periodSelection.month}월 $day일';
+        }
+        return label;
+
+      case StatisticPeriodType.month:
+        // 월간: "15" -> "9월 15일"
+        final int day = int.tryParse(label) ?? 0;
+        if (day > 0) {
+          return '${_periodSelection.month}월 $day일';
+        }
+        return label;
+
+      case StatisticPeriodType.year:
+        // 연간: "3" -> "3월"
+        final int month = int.tryParse(label) ?? 0;
+        if (month > 0) {
+          return '$month월';
+        }
+        return label;
+
+      case StatisticPeriodType.all:
+        // 전체: 원본 라벨 그대로 사용 (서버에서 적절한 형식으로 올 것으로 예상)
+        return label;
+    }
+  }
+
+  String _formatXAxisLabel(String label) {
+    // X축에서는 간단하게 숫자만 표시
+    return label;
+  }
+
   double _calculateYAxisReservedSize(List<WorkoutStatisticsChartPoint> points) {
     final double maxValue = ChartAxisUtils.getMaxValue(
       points,
@@ -488,7 +528,6 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     return textPainter.size.width + ChartStyleConfig.reservedSizePadding;
   }
 
-  //TODO : api 연동 후 변경 필요
   String _getPeriodDisplayText() {
     switch (_selectedPeriodType) {
       case StatisticPeriodType.week:
@@ -497,7 +536,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
           _periodSelection.month,
           _periodSelection.week,
         );
-        return '${_periodSelection.year}년 ${_periodSelection.month}월 ${_periodSelection.week}주 $weekRange';
+        return '${_periodSelection.year % 100}년 ${_periodSelection.month}월 ${_periodSelection.week}주 $weekRange';
       case StatisticPeriodType.month:
         return '${_periodSelection.year}년 ${_periodSelection.month}월';
       case StatisticPeriodType.year:
@@ -585,7 +624,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
   }
 
   Widget _buildElevationItem() {
-    final int? elevation = _currentStatistics?.summary.totalElevationGain;
+    final double? elevation = _currentStatistics?.summary.totalElevationGain;
     return Expanded(
       child: InfoItem(
         label: '상승 고도',
@@ -651,7 +690,8 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
         });
         _loadStatistics();
       },
-      startDate: DateTime(2020, 7, 22),
+      startDate:
+          _currentStatistics?.oldestActivityDate ?? DateTime(2025, 10, 1),
     );
   }
 }

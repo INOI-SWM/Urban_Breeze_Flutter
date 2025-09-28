@@ -1,3 +1,4 @@
+import '../../domain/entities/period_selection.dart';
 import '../../domain/entities/workout_statistics.dart';
 import '../../domain/enums/statistic_enums.dart';
 import '../../domain/repositories/workout_statistics_repository.dart';
@@ -9,13 +10,13 @@ class GetWorkoutStatisticsUseCase {
 
   Future<WorkoutStatistics> execute({
     required StatisticPeriodType periodType,
-    DateTime? startDate,
-    DateTime? endDate,
+    required PeriodSelection periodSelection,
   }) async {
     return await _repository.getWorkoutStatistics(
       periodType: periodType,
-      startDate: startDate,
-      endDate: endDate,
+      year: periodSelection.year,
+      month: periodSelection.month,
+      week: periodSelection.week,
     );
   }
 }
