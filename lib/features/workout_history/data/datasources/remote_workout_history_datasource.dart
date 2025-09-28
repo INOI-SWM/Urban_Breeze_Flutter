@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/features/workout_history/domain/enums/workout_sort_type.dart';
 import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
@@ -133,5 +134,28 @@ class RemoteWorkoutHistoryDataSource extends BaseRemoteDataSource {
     } catch (e) {
       rethrow;
     }
+  }
+
+  /// 운동 기록 삭제
+  Future<void> deleteWorkout(String activityId) async {
+    try {
+      final http.Response response = await delete(
+        ApiEndpoints.workoutDelete(activityId),
+      );
+      final int statusCode = response.statusCode;
+
+      if (statusCode == 200 || statusCode == 204) {
+        return; // 삭제 성공
+      } else {
+        final Map<String, dynamic> jsonMap = decodeResponse(response);
+        final String errorMessage =
+            (jsonMap['errorMessage'] ?? jsonMap['message'] ?? '운동 기록 삭제 실패')
+                .toString();
+        throw ServerException('운동 기록 삭제 실패 ($statusCode): $errorMessage');
+      }
+    } on ServerException {
+      rethrow;
+    }
+    // BaseRemoteDataSource에서 NetworkException, ParsingException 처리
   }
 }
