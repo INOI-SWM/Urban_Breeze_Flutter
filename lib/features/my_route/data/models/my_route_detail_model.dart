@@ -24,7 +24,7 @@ class MyRouteDetailModel {
       durationMinutes: json['durationMinutes'] as int, // 분 단위
       distance: (json['distance'] as num).toDouble(),
       elevationGain: (json['elevationGain'] as num).toDouble(),
-      userId: json['userId'] as int,
+      userId: json['userId'] as String,
       nickname: json['nickname'] as String,
       profileImageUrl: json['profileImageUrl'] as String,
       trackPointsCount: json['trackPointsCount'] as int,
@@ -49,7 +49,7 @@ class MyRouteDetailModel {
   final int durationMinutes;
   final double distance;
   final double elevationGain;
-  final int userId;
+  final String userId;
   final String nickname;
   final String profileImageUrl;
   final int trackPointsCount;
