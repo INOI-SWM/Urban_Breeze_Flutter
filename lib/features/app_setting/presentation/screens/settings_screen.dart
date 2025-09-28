@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/app_setting/application/use_cases/submit_feedback_use_case.dart';
+import 'package:urban_breeze/features/app_setting/data/models/feedback_response_model.dart';
+import 'package:urban_breeze/features/app_setting/di/app_setting_providers.dart';
 import 'package:urban_breeze/features/app_setting/presentation/screens/account_management_screen.dart';
 import 'package:urban_breeze/features/app_setting/presentation/widgets/settings_list.dart';
 import 'package:urban_breeze/features/auth/application/use_cases/auth_sign_out_facade.dart';
@@ -18,7 +22,7 @@ import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 import 'package:urban_breeze/shared/screens/webview_constant.dart';
 import 'package:urban_breeze/shared/utils/webview_navigation.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerWidget with ErrorDisplayMixin {
   const SettingsScreen({super.key});
 
   @override
@@ -83,7 +87,7 @@ class SettingsScreen extends ConsumerWidget {
                   title: '피드백 및 문의',
                   onPressed: () {
                     AmplitudeAnalytics.logButtonClick('settings_feedback');
-                    _showFeedbackDialog(context);
+                    _showFeedbackDialog(context, ref);
                   },
                 ),
               ],
@@ -150,7 +154,7 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
-  void _showFeedbackDialog(BuildContext context) {
+  void _showFeedbackDialog(BuildContext context, WidgetRef ref) {
     final SemanticColors colors = context.semanticColor;
     final TextEditingController controller = TextEditingController();
     final ValueNotifier<bool> isSendEnabled = ValueNotifier<bool>(
@@ -214,17 +218,47 @@ class SettingsScreen extends ConsumerWidget {
       primaryButtonText: '보내기',
       secondaryButtonText: '취소',
       primaryEnabledListenable: isSendEnabled,
-      onPrimaryButtonPressed: () {
+      onPrimaryButtonPressed:
+          () => _submitFeedback(context, ref, controller.text),
+      onSecondaryButtonPressed: () {},
+    );
+  }
+
+  Future<void> _submitFeedback(
+    BuildContext context,
+    WidgetRef ref,
+    String content,
+  ) async {
+    try {
+      final SubmitFeedbackUseCase submitFeedbackUseCase = ref.read(
+        submitFeedbackUseCaseProvider,
+      );
+
+      final AppResult<FeedbackResponseModel> result =
+          await submitFeedbackUseCase.execute(content);
+
+      if (result.isSuccess) {
         AmplitudeAnalytics.logEvent(
           'feedback_submitted',
           properties: <String, dynamic>{
-            'feedback_length': controller.text.length,
+            'feedback_length': content.length,
+            'feedback_id': result.dataOrNull?.id,
           },
         );
-        ErrorDisplay.showSuccessMessage(context, '피드백이 전송되었습니다. 감사합니다!');
-      },
-      onSecondaryButtonPressed: () {},
-    );
+
+        if (context.mounted) {
+          showSuccessMessage(context, '피드백이 전송되었습니다.');
+        }
+      } else {
+        if (context.mounted) {
+          showErrorMessage(context, '피드백 전송에 실패했습니다. 다시 시도해주세요.');
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        showErrorMessage(context, '피드백 전송 중 오류가 발생했습니다.');
+      }
+    }
   }
 
   void _showLogoutDialog(BuildContext context, WidgetRef ref) {

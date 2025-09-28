@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
@@ -421,17 +423,12 @@ class _WorkoutPhotoGalleryWidgetState
                   _showImagePreview(context, image);
                 },
                 child: ClipRRect(
-                  child: Image.network(
-                    image.imageUrl,
+                  child: CachedNetworkImage(
+                    imageUrl: image.imageUrl,
                     width: double.infinity,
                     height: double.infinity,
                     fit: BoxFit.cover,
-                    loadingBuilder: (
-                      BuildContext context,
-                      Widget child,
-                      ImageChunkEvent? loadingProgress,
-                    ) {
-                      if (loadingProgress == null) return child;
+                    placeholder: (BuildContext context, String url) {
                       return Center(
                         child: SizedBox(
                           width: 24,
@@ -445,10 +442,10 @@ class _WorkoutPhotoGalleryWidgetState
                         ),
                       );
                     },
-                    errorBuilder: (
+                    errorWidget: (
                       BuildContext context,
-                      Object error,
-                      StackTrace? stackTrace,
+                      String url,
+                      dynamic error,
                     ) {
                       return Container(
                         color: colors.fillNormal,
@@ -459,6 +456,15 @@ class _WorkoutPhotoGalleryWidgetState
                         ),
                       );
                     },
+                    fadeInDuration: Duration.zero,
+                    fadeOutDuration: Duration.zero,
+                    cacheManager: CacheManager(
+                      Config(
+                        'workout_photos',
+                        stalePeriod: const Duration(days: 7), // 7일간 캐시 유지
+                        maxNrOfCacheObjects: 500, // 최대 500개 운동 사진 캐시
+                      ),
+                    ),
                   ),
                 ),
               ),

@@ -5,6 +5,15 @@ import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 
 class ProfileImageUtils {
+  // 공통 CacheManager 인스턴스
+  static final CacheManager _profileImageCacheManager = CacheManager(
+    Config(
+      'profile_images',
+      stalePeriod: const Duration(days: 7), // 7일간 캐시 유지
+      maxNrOfCacheObjects: 100, // 최대 100개 이미지 캐시
+    ),
+  );
+
   /// 기본 프로필 아이콘 생성
   static Widget buildDefaultProfileIcon({
     required BuildContext context,
@@ -69,13 +78,7 @@ class ProfileImageUtils {
       },
       fadeInDuration: Duration.zero, // 페이드 인 애니메이션 제거
       fadeOutDuration: Duration.zero, // 페이드 아웃 애니메이션 제거
-      cacheManager: CacheManager(
-        Config(
-          'profile_images',
-          stalePeriod: const Duration(days: 7), // 7일간 캐시 유지
-          maxNrOfCacheObjects: 100, // 최대 100개 이미지 캐시
-        ),
-      ),
+      cacheManager: _profileImageCacheManager,
     );
   }
 
@@ -117,13 +120,7 @@ class ProfileImageUtils {
                           defaultIcon,
                   fadeInDuration: Duration.zero,
                   fadeOutDuration: Duration.zero,
-                  cacheManager: CacheManager(
-                    Config(
-                      'profile_images',
-                      stalePeriod: const Duration(days: 7), // 7일간 캐시 유지
-                      maxNrOfCacheObjects: 100, // 최대 100개 이미지 캐시
-                    ),
-                  ),
+                  cacheManager: _profileImageCacheManager,
                 ),
               )
               : defaultIcon,
@@ -156,14 +153,24 @@ class ProfileImageUtils {
           decoration ??
           BoxDecoration(shape: BoxShape.circle, color: backgroundColor),
       child: ClipOval(
-        child: buildProfileImage(
-          context: context,
-          imageUrl: imageUrl,
-          size: size,
-          iconColor: iconColor,
-          backgroundColor: backgroundColor,
-          defaultWidget: defaultIcon,
-        ),
+        child:
+            _isValidImageUrl(imageUrl)
+                ? CachedNetworkImage(
+                  imageUrl: imageUrl!,
+                  width: size,
+                  height: size,
+                  fit: BoxFit.cover,
+                  placeholder:
+                      (BuildContext context, String url) =>
+                          const SizedBox.shrink(),
+                  errorWidget:
+                      (BuildContext context, String url, dynamic error) =>
+                          defaultIcon,
+                  fadeInDuration: Duration.zero,
+                  fadeOutDuration: Duration.zero,
+                  cacheManager: _profileImageCacheManager,
+                )
+                : defaultIcon,
       ),
     );
   }
