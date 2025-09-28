@@ -1,4 +1,5 @@
 import 'package:urban_breeze/features/recommended_course/data/models/recommended_course_request_model.dart';
+import 'package:urban_breeze/features/recommended_course/domain/constants/recommended_course_constants.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_filter.dart';
 import 'package:urban_breeze/features/recommended_course/domain/enums/recommended_course_sort_type.dart';
 import 'package:urban_breeze/shared/filter/models/filter_data.dart';
@@ -148,8 +149,12 @@ class RecommendedCourseRequestMapper {
       'region',
     );
     if (regionValue != null && regionValue != '전체') {
-      // TODO: 지역 매핑 상수 추가 필요
-      return <String>[regionValue];
+      // 한글 지역명을 API 코드로 변환
+      final String? apiCode =
+          RecommendedCourseConstants.regionToApiMapping[regionValue];
+      if (apiCode != null) {
+        return <String>[apiCode];
+      }
     }
     return null;
   }
@@ -161,8 +166,12 @@ class RecommendedCourseRequestMapper {
       'difficulty',
     );
     if (difficultyValue != null && difficultyValue != '전체') {
-      // TODO: 난이도 매핑 상수 추가 필요
-      return <String>[difficultyValue];
+      // 한글 난이도를 API 코드로 변환
+      final String? apiCode =
+          RecommendedCourseConstants.difficultyToApiMapping[difficultyValue];
+      if (apiCode != null) {
+        return <String>[apiCode];
+      }
     }
     return null;
   }
@@ -176,8 +185,12 @@ class RecommendedCourseRequestMapper {
       'recommendationType',
     );
     if (typeValue != null && typeValue != '전체') {
-      // TODO: 추천타입 매핑 상수 추가 필요
-      return <String>[typeValue];
+      // 한글 추천타입을 API 코드로 변환
+      final String? apiCode =
+          RecommendedCourseConstants.recommendationTypeToApiMapping[typeValue];
+      if (apiCode != null) {
+        return <String>[apiCode];
+      }
     }
     return null;
   }
