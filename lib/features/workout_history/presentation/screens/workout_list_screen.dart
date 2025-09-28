@@ -295,6 +295,10 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
     if (result != null && result is WorkoutDetail) {
       _updateWorkoutTitle(index, result.title);
     }
+    // 삭제된 경우 리스트에서 해당 아이템 제거
+    else if (result == true) {
+      _removeWorkoutFromList(index);
+    }
   }
 
   void _updateWorkoutTitle(int index, String newTitle) {
@@ -325,6 +329,27 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
         currentPage: workoutList.currentPage,
         totalPages: workoutList.totalPages,
         totalElements: workoutList.totalElements,
+        size: workoutList.size,
+        hasNext: workoutList.hasNext,
+        hasPrevious: workoutList.hasPrevious,
+      );
+    });
+  }
+
+  void _removeWorkoutFromList(int index) {
+    if (index < 0 || index >= workoutList.activities.length) return;
+
+    final List<WorkoutActivity> updatedActivities = List<WorkoutActivity>.from(
+      workoutList.activities,
+    );
+    updatedActivities.removeAt(index);
+
+    setState(() {
+      workoutList = WorkoutList(
+        activities: updatedActivities,
+        currentPage: workoutList.currentPage,
+        totalPages: workoutList.totalPages,
+        totalElements: workoutList.totalElements - 1, // 총 개수 1 감소
         size: workoutList.size,
         hasNext: workoutList.hasNext,
         hasPrevious: workoutList.hasPrevious,
