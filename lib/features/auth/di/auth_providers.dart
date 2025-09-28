@@ -58,7 +58,8 @@ final Provider<UrbanBreezeAuthRemoteDataSource> authRemoteDataSourceProvider =
     Provider<UrbanBreezeAuthRemoteDataSource>((
       Ref<UrbanBreezeAuthRemoteDataSource> ref,
     ) {
-      return UrbanBreezeAuthRemoteDataSource();
+      final http.Client client = ref.watch(authorizedHttpClientProvider);
+      return UrbanBreezeAuthRemoteDataSource(client: client);
     });
 
 // Repository Providers

@@ -42,12 +42,14 @@ class AuthWithdrawalFacade {
         (dynamic repo) => repo.withdraw(),
       );
 
-      await _clearSession();
-
       return const AppSuccess<void>(null);
     } catch (e) {
       return const AppFailure<void>(ServerException('탈퇴 처리에 실패했습니다'));
     }
+  }
+
+  Future<void> clearLocalSession() async {
+    await _clearSession();
   }
 
   Future<void> _performProviderAction(
@@ -68,8 +70,10 @@ class AuthWithdrawalFacade {
   }
 
   Future<void> _clearSession() async {
-    await _tokenRepository.clearTokens();
+    // User와 UserAgreement 먼저 정리
     await _userSessionNotifier.clearUserSession();
     await _userAgreementNotifier.clearUserAgreement();
+    // 토큰을 가장 마지막에 정리
+    await _tokenRepository.clearTokens();
   }
 }

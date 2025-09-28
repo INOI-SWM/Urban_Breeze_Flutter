@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/auth/application/use_cases/auth_withdrawal_facade.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
@@ -17,7 +18,17 @@ class AccountManagementController {
     final AuthWithdrawalFacade authWithdrawalFacade = _ref.read(
       authWithdrawalFacadeProvider,
     );
-    await authWithdrawalFacade.execute(user.loginProvider);
+
+    final AppResult<void> result = await authWithdrawalFacade.execute(
+      user.loginProvider,
+    );
+
+    if (result.isFailure) {
+      throw Exception(result.exceptionOrNull?.toString());
+    }
+
+    // 탈퇴 성공 후 로컬 세션 정리
+    await authWithdrawalFacade.clearLocalSession();
   }
 }
 

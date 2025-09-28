@@ -24,6 +24,7 @@ class UserAgreement {
       'termsOfServiceAgreed': termsOfServiceAgreed,
       'privacyPolicyAgreed': privacyPolicyAgreed,
       'locationServiceAgreed': locationServiceAgreed,
+      'isCompleted': isCompleted,
     };
   }
 
