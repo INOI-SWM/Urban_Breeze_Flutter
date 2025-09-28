@@ -1,12 +1,14 @@
 import 'package:urban_breeze/features/auth/domain/entities/auth_login_result.dart';
 import 'package:urban_breeze/features/auth/domain/entities/auth_tokens.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
+import 'package:urban_breeze/features/auth/domain/entities/user_agreement.dart';
 import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
 
 class UrbanBreezeLoginResponseModel {
   const UrbanBreezeLoginResponseModel({
     required this.tokens,
     required this.user,
+    required this.agreement,
   });
 
   factory UrbanBreezeLoginResponseModel.fromApi(
@@ -19,6 +21,8 @@ class UrbanBreezeLoginResponseModel {
         data['tokenInfo'] as Map<String, dynamic>? ?? data;
     final Map<String, dynamic> userInfo =
         data['userInfo'] as Map<String, dynamic>? ?? <String, dynamic>{};
+    final Map<String, dynamic> agreementStatus =
+        data['agreementStatus'] as Map<String, dynamic>? ?? <String, dynamic>{};
 
     final AuthTokens tokens = AuthTokens(
       accessToken: (tokenInfo['accessToken'] ?? '').toString(),
@@ -47,11 +51,27 @@ class UrbanBreezeLoginResponseModel {
       isFirstLogin: (userInfo['isFirstLogin'] ?? true) as bool,
     );
 
-    return UrbanBreezeLoginResponseModel(tokens: tokens, user: user);
+    final UserAgreement agreement = UserAgreement(
+      termsOfServiceAgreed:
+          agreementStatus['termsOfServiceAgreed'] as bool? ?? false,
+      privacyPolicyAgreed:
+          agreementStatus['privacyPolicyAgreed'] as bool? ?? false,
+      locationServiceAgreed:
+          agreementStatus['locationServiceAgreed'] as bool? ?? false,
+      isCompleted: agreementStatus['isCompleted'] as bool? ?? false,
+    );
+
+    return UrbanBreezeLoginResponseModel(
+      tokens: tokens,
+      user: user,
+      agreement: agreement,
+    );
   }
 
   final AuthTokens tokens;
   final User user;
+  final UserAgreement agreement;
 
-  AuthLoginResult toDomain() => AuthLoginResult(tokens: tokens, user: user);
+  AuthLoginResult toDomain() =>
+      AuthLoginResult(tokens: tokens, user: user, agreement: agreement);
 }
