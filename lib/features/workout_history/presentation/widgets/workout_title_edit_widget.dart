@@ -39,6 +39,7 @@ class _WorkoutTitleEditWidgetState extends ConsumerState<WorkoutTitleEditWidget>
 
   late final WorkoutTitleEditViewModel _viewModel;
   String? _lastDisplayedErrorMessage;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -69,6 +70,14 @@ class _WorkoutTitleEditWidgetState extends ConsumerState<WorkoutTitleEditWidget>
   }
 
   Future<void> _saveTitle(String newTitle) async {
+    if (newTitle.trim() == widget.initialTitle.trim()) {
+      _cancelEditing();
+      return;
+    }
+
+    if (_isSaving) return; // 이미 저장 중이면 중복 실행 방지
+    _isSaving = true;
+
     final AppResult<WorkoutDetail> result = await _viewModel.saveTitle(
       workoutId: widget.workoutId,
       newTitle: newTitle,
@@ -79,7 +88,9 @@ class _WorkoutTitleEditWidgetState extends ConsumerState<WorkoutTitleEditWidget>
         showSuccessMessage(context, _titleSavedMessage);
         // 제목 업데이트 성공 시 콜백 호출
         widget.onTitleUpdated?.call(result.dataOrNull!);
+        _isSaving = false; // 저장 완료
       } else if (result.isFailure) {
+        _isSaving = false; // 저장 실패
         // ViewModel에서 이미 에러 메시지를 상태에 설정했으므로
         // 여기서는 추가 처리가 필요 없음
       }
@@ -92,6 +103,11 @@ class _WorkoutTitleEditWidgetState extends ConsumerState<WorkoutTitleEditWidget>
     // ViewModel에서 검증
     if (state.errorMessage != null) {
       return; // 이미 에러 메시지가 표시됨
+    }
+
+    // 이미 저장 중이면 다이얼로그 표시 안 함
+    if (_isSaving) {
+      return;
     }
 
     // 변경사항이 없으면 그냥 편집 모드 종료

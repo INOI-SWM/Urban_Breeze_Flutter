@@ -79,4 +79,9 @@ class WorkoutHistoryRepositoryImpl implements WorkoutHistoryRepository {
       imageId: imageId,
     );
   }
+
+  @override
+  Future<void> deleteWorkout(String activityId) async {
+    await remoteDataSource.deleteWorkout(activityId);
+  }
 }

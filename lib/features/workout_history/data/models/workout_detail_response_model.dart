@@ -96,7 +96,7 @@ class WorkoutUserModel {
 
 class WorkoutDetailResponseModel {
   const WorkoutDetailResponseModel({
-    required this.id,
+    required this.activityId,
     required this.title,
     required this.startedAt,
     required this.endedAt,
@@ -121,7 +121,7 @@ class WorkoutDetailResponseModel {
 
   factory WorkoutDetailResponseModel.fromJson(Map<String, dynamic> json) {
     return WorkoutDetailResponseModel(
-      id: json['id'] as int,
+      activityId: json['activityId'] as String,
       title: json['title'] as String,
       startedAt: DateTime.parse(json['startedAt'] as String),
       endedAt: DateTime.parse(json['endedAt'] as String),
@@ -160,7 +160,7 @@ class WorkoutDetailResponseModel {
     );
   }
 
-  final int id;
+  final String activityId;
   final String title;
   final DateTime startedAt;
   final DateTime endedAt;
@@ -184,7 +184,7 @@ class WorkoutDetailResponseModel {
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'id': id,
+      'activityId': activityId,
       'title': title,
       'startedAt': startedAt.toIso8601String(),
       'endedAt': endedAt.toIso8601String(),

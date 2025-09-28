@@ -28,4 +28,6 @@ abstract class WorkoutHistoryRepository {
     required String activityId,
     required int imageId,
   });
+
+  Future<void> deleteWorkout(String activityId);
 }

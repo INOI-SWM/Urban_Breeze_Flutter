@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/delete_workout_use_case.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_activity.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
@@ -18,7 +19,10 @@ import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:urban_breeze/shared/design_system/widgets/info/info_item.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
+import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
+import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 import 'package:urban_breeze/shared/utils/date_formatter.dart';
+import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
 import 'package:urban_breeze/shared/utils/workout_formatter.dart';
 
 class WorkoutDetailScreen extends ConsumerStatefulWidget {
@@ -36,7 +40,8 @@ class WorkoutDetailScreen extends ConsumerStatefulWidget {
       _WorkoutDetailScreenState();
 }
 
-class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
+class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
+    with ErrorDisplayMixin {
   WorkoutDetail? workoutDetail;
   bool isLoading = true;
   String? errorMessage;
@@ -50,7 +55,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
       AmplitudeAnalytics.logScreenView(
         'workout_detail_screen',
         additionalProperties: <String, dynamic>{
-          'workout_id': widget.workoutActivity.id,
+          'workout_id': widget.workoutActivity.activityId,
           'workout_index': widget.workoutIndex,
         },
       );
@@ -65,7 +70,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
 
     final AppResult<WorkoutDetail> result = await ref
         .read(getWorkoutDetailUseCaseProvider)
-        .execute(activityId: widget.workoutActivity.id.toString());
+        .execute(activityId: widget.workoutActivity.activityId.toString());
 
     setState(() {
       isLoading = false;
@@ -95,10 +100,10 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
               AmplitudeAnalytics.logButtonClick(
                 'workout_detail_more_options',
                 additionalProperties: <String, dynamic>{
-                  'workout_id': widget.workoutActivity.id,
+                  'workout_id': widget.workoutActivity.activityId,
                 },
               );
-              // TODO: 더보기 메뉴 구현
+              _showMoreOptionsMenu(context);
             },
           ),
         ],
@@ -338,5 +343,108 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
         ),
       ),
     );
+  }
+
+  /// 더보기 옵션 메뉴 표시
+  void _showMoreOptionsMenu(BuildContext context) {
+    showPlatformActionSheet(
+      context,
+      title: '옵션',
+      options: <PlatformActionSheetOption>[
+        PlatformActionSheetOption(
+          title: '운동기록 삭제',
+          onSelected: () {
+            AmplitudeAnalytics.logEvent(
+              'workout_delete',
+              properties: <String, dynamic>{
+                'workout_id': widget.workoutActivity.activityId,
+              },
+            );
+            _showDeleteConfirmDialog(context);
+          },
+        ),
+      ],
+    );
+  }
+
+  /// 삭제 확인 다이얼로그 표시
+  void _showDeleteConfirmDialog(BuildContext context) {
+    final SemanticColors colors = context.semanticColor;
+
+    ModalShow.show<void>(
+      context: context,
+      title: '운동기록 삭제',
+      content: Text(
+        '이 운동기록을 삭제하시겠습니까?\n삭제된 운동기록은 복구할 수 없습니다.',
+        style: AppTextStyles.body1.normalMedium.copyWith(
+          color: colors.labelAlternative,
+        ),
+      ),
+      secondaryButtonText: '취소',
+      primaryButtonText: '삭제',
+      onSecondaryButtonPressed: () {
+        Navigator.of(context).pop();
+      },
+      onPrimaryButtonPressed: () => _deleteWorkout(),
+      barrierDismissible: true,
+      showCloseButton: false,
+    );
+  }
+
+  /// 운동기록 삭제 실행
+  Future<void> _deleteWorkout() async {
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (BuildContext context) =>
+                const Center(child: CircularProgressIndicator()),
+      );
+
+      final DeleteWorkoutUseCase deleteWorkoutUseCase = ref.read(
+        deleteWorkoutUseCaseProvider,
+      );
+
+      final AppResult<void> result = await deleteWorkoutUseCase.execute(
+        widget.workoutActivity.activityId,
+      );
+
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+
+      if (!mounted) return;
+
+      if (result.isSuccess) {
+        AmplitudeAnalytics.logEvent(
+          'workout_delete_success',
+          properties: <String, dynamic>{
+            'workout_id': widget.workoutActivity.activityId,
+          },
+        );
+
+        showSuccessMessage(context, '운동기록이 삭제되었습니다');
+
+        Navigator.of(context).pop(true);
+      } else {
+        showErrorMessage(
+          context,
+          result.exceptionOrNull?.message ?? '운동기록 삭제에 실패했습니다',
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      AmplitudeAnalytics.logEvent(
+        'workout_delete_error',
+        properties: <String, dynamic>{
+          'workout_id': widget.workoutActivity.activityId,
+          'error': e.toString(),
+        },
+      );
+
+      showErrorMessage(context, '운동기록 삭제 중 오류가 발생했습니다: ${e.toString()}');
+    }
   }
 }
