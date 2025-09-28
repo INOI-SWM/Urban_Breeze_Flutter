@@ -47,4 +47,7 @@ class ApiEndpoints {
       '/api/v1/activities/$activityId/images';
   static String workoutImageDetail(String activityId, int imageId) =>
       '/api/v1/activities/$activityId/images/$imageId';
+
+  // Feedback
+  static const String feedback = '/api/feedback';
 }
