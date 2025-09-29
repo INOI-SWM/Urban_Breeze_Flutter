@@ -5,8 +5,12 @@ import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/integration/application/facades/integration_sync_facade.dart';
 import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/terra_health_sync_facade.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/import_apple_health_workouts_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_apple_health_kit_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_google_health_connect_data_use_case.dart';
+import 'package:urban_breeze/features/workout_history/data/models/apple_health_workout_model.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/heart_rate_data.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/location_data.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
 import 'package:urban_breeze/features/workout_history/domain/exceptions/apple_health_kit_exceptions.dart';
 import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
@@ -19,12 +23,14 @@ class WorkoutSyncFacade {
     required this.integrationSyncFacade,
     required this.syncAppleHealthKitDataUseCase,
     required this.syncGoogleHealthConnectDataUseCase,
+    required this.importAppleHealthWorkoutsUseCase,
   });
 
   final TerraHealthSyncFacade terraHealthSyncFacade;
   final IntegrationSyncFacade integrationSyncFacade;
   final SyncAppleHealthKitDataUseCase syncAppleHealthKitDataUseCase;
   final SyncGoogleHealthConnectDataUseCase syncGoogleHealthConnectDataUseCase;
+  final ImportAppleHealthWorkoutsUseCase importAppleHealthWorkoutsUseCase;
 
   /// Apple Health에서 데이터 가져오기 (health_kit_reporter 직접 사용)
   Future<AppResult<Map<String, dynamic>?>> syncAppleHealthData({
@@ -159,6 +165,50 @@ class WorkoutSyncFacade {
             allWorkouts.addAll(appleWorkouts);
             successCount++;
 
+            // HealthKit 데이터를 서버로 전송
+            if (appleWorkouts.isNotEmpty) {
+              try {
+                final List<AppleHealthWorkoutModel> workoutModels =
+                    appleWorkouts
+                        .map(
+                          (WorkoutRecord workout) =>
+                              _convertToAppleHealthWorkoutModel(workout),
+                        )
+                        .toList();
+
+                final AppResult<void> uploadResult =
+                    await importAppleHealthWorkoutsUseCase.execute(
+                      workouts: workoutModels,
+                    );
+
+                if (uploadResult.isSuccess) {
+                  // 서버 업로드 성공 이벤트
+                  AmplitudeAnalytics.logEvent(
+                    'apple_health_kit_server_upload_success',
+                    properties: <String, dynamic>{
+                      'workout_count': appleWorkouts.length,
+                    },
+                  );
+                } else {
+                  // 서버 업로드 실패 이벤트
+                  AmplitudeAnalytics.logEvent(
+                    'apple_health_kit_server_upload_failed',
+                    properties: <String, dynamic>{
+                      'error_message':
+                          uploadResult.exceptionOrNull?.toString() ??
+                          'Unknown error',
+                    },
+                  );
+                }
+              } catch (e) {
+                // 서버 업로드 예외 이벤트
+                AmplitudeAnalytics.logEvent(
+                  'apple_health_kit_server_upload_exception',
+                  properties: <String, dynamic>{'error_message': e.toString()},
+                );
+              }
+            }
+
             // Apple Health Kit 동기화 성공 이벤트
             AmplitudeAnalytics.logEvent(
               'apple_health_kit_full_sync_success',
@@ -237,5 +287,47 @@ class WorkoutSyncFacade {
         TerraApiException('전체 동기화 중 오류 발생: $e'),
       );
     }
+  }
+
+  /// WorkoutRecord를 AppleHealthWorkoutModel로 변환하는 헬퍼 메서드
+  AppleHealthWorkoutModel _convertToAppleHealthWorkoutModel(
+    WorkoutRecord workout,
+  ) {
+    return AppleHealthWorkoutModel(
+      externalId: workout.id,
+      startTime: workout.startTime.toIso8601String(),
+      endTime: workout.endTime.toIso8601String(),
+      duration: workout.duration.inSeconds,
+      distance: workout.distance,
+      calories: workout.calories.round(),
+      source: 'Apple Health',
+      title: 'Cycling Workout',
+      heartRateData:
+          workout.heartRateData
+              ?.map(
+                (HeartRateData data) => HeartRateDataModel(
+                  timestamp: data.timestamp.toIso8601String(),
+                  heartRate: data.heartRate,
+                ),
+              )
+              .toList() ??
+          <HeartRateDataModel>[],
+      locationData:
+          workout.locationData
+              ?.map(
+                (LocationData data) => LocationDataModel(
+                  latitude: data.latitude,
+                  longitude: data.longitude,
+                  timestamp: data.timestamp.toIso8601String(),
+                  altitude: data.altitude ?? 0.0,
+                  speed: data.speed ?? 0.0,
+                  horizontalAccuracy: data.horizontalAccuracy ?? 0.0,
+                  verticalAccuracy: data.verticalAccuracy ?? 0.0,
+                  course: data.course ?? 0.0,
+                ),
+              )
+              .toList() ??
+          <LocationDataModel>[],
+    );
   }
 }
