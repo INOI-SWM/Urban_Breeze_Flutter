@@ -3,18 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/add_to_my_route_use_case.dart';
-import 'package:urban_breeze/features/recommended_course/application/use_cases/get_course_gpx_use_case.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/get_recommended_course_detail_use_case.dart';
+import 'package:urban_breeze/features/recommended_course/application/use_cases/share_recommended_course_use_case.dart';
 import 'package:urban_breeze/features/recommended_course/di/recommended_course_providers.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_detail.dart';
 import 'package:urban_breeze/features/route_planning/domain/services/polyline_convert_service.dart';
-import 'package:urban_breeze/features/route_sharing/application/facades/route_sharing_facade.dart';
-import 'package:urban_breeze/features/route_sharing/di/route_sharing_providers.dart';
 import 'package:urban_breeze/shared/chart/common_line_chart_widget.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
@@ -405,42 +402,21 @@ class _RecommendedCourseDetailScreenState
     BuildContext context,
     RecommendedCourseDetail courseDetail,
   ) async {
-    try {
-      // 추천경로용 딥링크 생성
-      final String deepLink = 'urbanbreeze://course?courseId=${widget.routeId}';
-      final String shareMessage = '어반브리즈에서 추천하는 경로를 확인해보세요!\n$deepLink';
+    final ShareRecommendedCourseUseCase shareUseCase = ref.read(
+      shareRecommendedCourseUseCaseProvider,
+    );
 
-      // 공유 위치 계산
-      final Rect sharePositionOrigin = _getSharePositionOrigin(context);
+    final AppResult<void> result = await shareUseCase.shareDeepLink(
+      context,
+      widget.routeId,
+    );
 
-      // 딥링크 공유
-      await SharePlus.instance.share(
-        ShareParams(
-          text: shareMessage,
-          sharePositionOrigin: sharePositionOrigin,
-        ),
-      );
-
-      // 공유 성공 이벤트
-      AmplitudeAnalytics.logEvent(
-        'recommended_course_share_success',
-        properties: <String, dynamic>{
-          'course_id': widget.routeId,
-          'share_url': deepLink,
-        },
-      );
-    } catch (e) {
-      // 공유 실패 이벤트
-      AmplitudeAnalytics.logEvent(
-        'recommended_course_share_failed',
-        properties: <String, dynamic>{
-          'course_id': widget.routeId,
-          'error_message': e.toString(),
-        },
-      );
-
+    if (result.isFailure) {
       if (!context.mounted) return;
-      showErrorMessage(context, '공유에 실패했습니다: ${e.toString()}');
+      showErrorMessage(
+        context,
+        result.exceptionOrNull?.message ?? '공유에 실패했습니다',
+      );
     }
   }
 
@@ -449,40 +425,22 @@ class _RecommendedCourseDetailScreenState
     BuildContext context,
     RecommendedCourseDetail courseDetail,
   ) async {
-    final GetCourseGpxUseCase gpxUseCase = ref.read(
-      getCourseGpxUseCaseProvider,
-    );
-    final RouteSharingFacade routeSharingFacade = ref.read(
-      routeSharingFacadeProvider,
+    final ShareRecommendedCourseUseCase shareUseCase = ref.read(
+      shareRecommendedCourseUseCaseProvider,
     );
 
-    try {
-      final AppResult<String> result = await gpxUseCase.execute(
-        courseId: widget.routeId,
-      );
+    final AppResult<void> result = await shareUseCase.shareGpx(
+      context,
+      widget.routeId,
+      courseDetail.title,
+    );
 
+    if (result.isFailure) {
       if (!context.mounted) return;
-
-      if (result.isFailure) {
-        showErrorMessage(
-          context,
-          result.exceptionOrNull?.message ?? 'GPX 데이터를 가져올 수 없습니다',
-        );
-        return;
-      }
-
-      final String gpxData = result.dataOrNull!;
-
-      // GPX 파일을 생성해서 공유
-      await routeSharingFacade.shareGpxFromData(
+      showErrorMessage(
         context,
-        gpxData,
-        widget.routeId,
-        routeTitle: courseDetail.title,
+        result.exceptionOrNull?.message ?? 'GPX 공유에 실패했습니다',
       );
-    } catch (e) {
-      if (!context.mounted) return;
-      showErrorMessage(context, 'GPX 공유 중 오류가 발생했습니다: ${e.toString()}');
     }
   }
 
@@ -491,50 +449,22 @@ class _RecommendedCourseDetailScreenState
     BuildContext context,
     RecommendedCourseDetail courseDetail,
   ) async {
-    final GetCourseGpxUseCase gpxUseCase = ref.read(
-      getCourseGpxUseCaseProvider,
-    );
-    final RouteSharingFacade routeSharingFacade = ref.read(
-      routeSharingFacadeProvider,
+    final ShareRecommendedCourseUseCase shareUseCase = ref.read(
+      shareRecommendedCourseUseCaseProvider,
     );
 
-    try {
-      final AppResult<String> result = await gpxUseCase.execute(
-        courseId: widget.routeId,
-      );
+    final AppResult<void> result = await shareUseCase.downloadGpx(
+      context,
+      widget.routeId,
+      courseDetail.title,
+    );
 
+    if (result.isFailure) {
       if (!context.mounted) return;
-
-      if (result.isFailure) {
-        showErrorMessage(
-          context,
-          result.exceptionOrNull?.message ?? 'GPX 데이터를 가져올 수 없습니다',
-        );
-        return;
-      }
-
-      final String gpxData = result.dataOrNull!;
-
-      // GPX 파일을 생성해서 다운로드
-      await routeSharingFacade.shareGpxFromData(
+      showErrorMessage(
         context,
-        gpxData,
-        widget.routeId,
-        routeTitle: courseDetail.title,
+        result.exceptionOrNull?.message ?? 'GPX 다운로드에 실패했습니다',
       );
-    } catch (e) {
-      if (!context.mounted) return;
-      showErrorMessage(context, 'GPX 다운로드 중 오류가 발생했습니다: ${e.toString()}');
     }
-  }
-
-  /// 공유 위치 계산
-  Rect _getSharePositionOrigin(BuildContext context) {
-    final RenderObject? ro = context.findRenderObject();
-    if (ro is RenderBox && ro.hasSize) {
-      return ro.localToGlobal(Offset.zero) & ro.size;
-    }
-    final Size size = MediaQuery.of(context).size;
-    return Rect.fromLTWH(0, 0, size.width, kToolbarHeight);
   }
 }
