@@ -7,7 +7,10 @@ class WorkoutStatisticsMapper {
       period: _mapPeriod(model.period),
       summary: _mapSummary(model.summary),
       chartData: _mapChartData(model.details),
-      oldestActivityDate: DateTime.parse(model.oldestActivityDate),
+      oldestActivityDate:
+          model.oldestActivityDate != null
+              ? DateTime.parse(model.oldestActivityDate!)
+              : null,
     );
   }
 

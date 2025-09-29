@@ -11,7 +11,7 @@ class WorkoutStatistics {
   final WorkoutStatisticsPeriod period;
   final WorkoutStatisticsSummary summary;
   final WorkoutStatisticsChartData chartData; // 그래프용 데이터
-  final DateTime oldestActivityDate;
+  final DateTime? oldestActivityDate;
 
   @override
   bool operator ==(Object other) {

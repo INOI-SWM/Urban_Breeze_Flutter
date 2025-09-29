@@ -109,6 +109,10 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
   int _getYearFromIndex(int index) => widget.startYear + index;
 
   int _calculateSelectedIndex(int selectedValue, int minValue, int maxValue) {
+    // minValue가 maxValue보다 큰 경우를 처리
+    if (minValue > maxValue) {
+      return 0;
+    }
     return (selectedValue - minValue).clamp(0, maxValue - minValue);
   }
 
@@ -117,6 +121,10 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
     int maxValue,
     String Function(int) formatter,
   ) {
+    // minValue가 maxValue보다 큰 경우를 처리
+    if (minValue > maxValue) {
+      return <String>[formatter(maxValue)];
+    }
     return List<String>.generate(maxValue - minValue + 1, (int index) {
       return formatter(minValue + index);
     });
@@ -177,7 +185,13 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
       _selectedYear,
       _now,
     );
-    _selectedMonth = _selectedMonth.clamp(minMonth, maxMonth);
+
+    // minMonth가 maxMonth보다 큰 경우를 처리
+    if (minMonth > maxMonth) {
+      _selectedMonth = maxMonth;
+    } else {
+      _selectedMonth = _selectedMonth.clamp(minMonth, maxMonth);
+    }
   }
 
   void _adjustWeekIfNeeded() {
@@ -191,7 +205,13 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
       _selectedMonth,
       _now,
     );
-    _selectedWeek = _selectedWeek.clamp(minWeek, maxWeek);
+
+    // minWeek가 maxWeek보다 큰 경우를 처리
+    if (minWeek > maxWeek) {
+      _selectedWeek = maxWeek;
+    } else {
+      _selectedWeek = _selectedWeek.clamp(minWeek, maxWeek);
+    }
   }
 
   int _getSelectedMonthIndex() {
