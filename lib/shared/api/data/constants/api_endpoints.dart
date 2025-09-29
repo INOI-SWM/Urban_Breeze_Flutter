@@ -32,6 +32,7 @@ class ApiEndpoints {
   static const String integrationAuthenticationWidget =
       '/api/integration/authentication/widget';
   static const String integrationActivity = '/api/integration/activity';
+  static const String terraAuthToken = '/api/integration/terra/auth-token';
 
   // Profile
   static const String profile = '/api/v1/user/profile';

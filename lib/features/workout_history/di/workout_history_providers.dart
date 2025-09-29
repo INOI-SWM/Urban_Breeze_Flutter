@@ -60,7 +60,8 @@ googleHealthConnectDataSourceProvider = Provider<GoogleHealthConnectDataSource>(
 // Terra API Data Source Provider
 final Provider<TerraApiDataSource> terraApiDataSourceProvider =
     Provider<TerraApiDataSource>((Ref<TerraApiDataSource> ref) {
-      return TerraApiDataSource(ref);
+      final http.Client client = ref.watch(authorizedHttpClientProvider);
+      return TerraApiDataSource(client: client, ref: ref);
     });
 
 // Repository Providers
