@@ -89,4 +89,12 @@ class MyRouteRemoteDataSource extends BaseRemoteDataSource {
       rethrow;
     }
   }
+
+  /// 공유된 경로 저장
+  Future<void> saveSharedRoute(String routeId) async {
+    await post(
+      ApiEndpoints.saveSharedRoute,
+      body: <String, String>{'routeId': routeId},
+    );
+  }
 }

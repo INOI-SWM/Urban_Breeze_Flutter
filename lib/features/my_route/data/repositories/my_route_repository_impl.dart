@@ -46,4 +46,9 @@ class MyRouteRepositoryImpl implements MyRouteRepository {
   Future<void> deleteRoute(String routeId) async {
     await _remoteDataSource.deleteRoute(routeId);
   }
+
+  @override
+  Future<void> saveSharedRoute(String routeId) async {
+    await _remoteDataSource.saveSharedRoute(routeId);
+  }
 }
