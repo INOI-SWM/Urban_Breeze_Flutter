@@ -42,4 +42,9 @@ class RecommendedCourseRepositoryImpl implements RecommendedCourseRepository {
   Future<void> addToMyRoute(String routeId) async {
     await _remoteDataSource.addToMyRoute(routeId);
   }
+
+  @override
+  Future<String> getCourseGPX(String routeId) async {
+    return await _remoteDataSource.getCourseGPX(routeId);
+  }
 }
