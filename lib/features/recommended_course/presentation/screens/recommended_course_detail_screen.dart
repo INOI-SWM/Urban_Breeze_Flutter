@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
@@ -404,17 +405,29 @@ class _RecommendedCourseDetailScreenState
     BuildContext context,
     RecommendedCourseDetail courseDetail,
   ) async {
-    final RouteSharingFacade routeSharingFacade = ref.read(
-      routeSharingFacadeProvider,
-    );
-
     try {
-      await routeSharingFacade.shareLink(context, widget.routeId);
+      // 추천경로용 딥링크 생성
+      final String deepLink = 'urbanbreeze://course?courseId=${widget.routeId}';
+      final String shareMessage = '어반브리즈에서 추천하는 경로를 확인해보세요!\n$deepLink';
+
+      // 공유 위치 계산
+      final Rect sharePositionOrigin = _getSharePositionOrigin(context);
+
+      // 딥링크 공유
+      await SharePlus.instance.share(
+        ShareParams(
+          text: shareMessage,
+          sharePositionOrigin: sharePositionOrigin,
+        ),
+      );
 
       // 공유 성공 이벤트
       AmplitudeAnalytics.logEvent(
         'recommended_course_share_success',
-        properties: <String, dynamic>{'course_id': widget.routeId},
+        properties: <String, dynamic>{
+          'course_id': widget.routeId,
+          'share_url': deepLink,
+        },
       );
     } catch (e) {
       // 공유 실패 이벤트
@@ -513,5 +526,15 @@ class _RecommendedCourseDetailScreenState
       if (!context.mounted) return;
       showErrorMessage(context, 'GPX 다운로드 중 오류가 발생했습니다: ${e.toString()}');
     }
+  }
+
+  /// 공유 위치 계산
+  Rect _getSharePositionOrigin(BuildContext context) {
+    final RenderObject? ro = context.findRenderObject();
+    if (ro is RenderBox && ro.hasSize) {
+      return ro.localToGlobal(Offset.zero) & ro.size;
+    }
+    final Size size = MediaQuery.of(context).size;
+    return Rect.fromLTWH(0, 0, size.width, kToolbarHeight);
   }
 }
