@@ -35,8 +35,6 @@ class _NavigationScaffoldState extends ConsumerState<NavigationScaffold> {
     // 딥링크 핸들러 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) {
       RouteShareHandler.initialize(ref, context);
-      // 로그인 완료 후 대기 중인 딥링크 처리
-      RouteShareHandler.processPendingRouteShare(ref, context);
     });
   }
 
