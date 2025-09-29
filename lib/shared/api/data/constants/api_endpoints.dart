@@ -56,6 +56,8 @@ class ApiEndpoints {
       '/api/v1/activities/$activityId/images/$imageId';
   static String workoutDelete(String activityId) =>
       '/api/v1/activities/$activityId';
+  static const String importAppleHealthWorkouts =
+      '/api/v1/activities/import/apple';
 
   // Feedback
   static const String feedback = '/api/feedback';
