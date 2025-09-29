@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/recommended_course/application/use_cases/add_to_my_route_use_case.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/get_recommended_course_detail_use_case.dart';
 import 'package:urban_breeze/features/recommended_course/di/recommended_course_providers.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_detail.dart';
@@ -21,6 +22,7 @@ import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_in
 import 'package:urban_breeze/shared/layout/map_with_bottom_sheet_layout.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
 import 'package:urban_breeze/shared/map/map_marker_widget.dart';
+import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
 
 class RecommendedCourseDetailScreen extends ConsumerStatefulWidget {
@@ -34,7 +36,8 @@ class RecommendedCourseDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _RecommendedCourseDetailScreenState
-    extends ConsumerState<RecommendedCourseDetailScreen> {
+    extends ConsumerState<RecommendedCourseDetailScreen>
+    with ErrorDisplayMixin {
   final MapController _mapController = MapController();
   final bool _hasUserDraggedMap = false;
 
@@ -205,7 +208,7 @@ class _RecommendedCourseDetailScreenState
                           'route_id': widget.routeId,
                         },
                       );
-                      // TODO: 나의 경로에 저장 기능 구현
+                      _addToMyRoute(context);
                     },
                   ),
                 ],
@@ -336,11 +339,8 @@ class _RecommendedCourseDetailScreenState
         routeTitle: courseDetail.title,
       );
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('GPX 다운로드 중 오류가 발생했습니다: ${e.toString()}')),
-        );
-      }
+      if (!context.mounted) return;
+      showErrorMessage(context, 'GPX 다운로드 중 오류가 발생했습니다: ${e.toString()}');
     }
   }
 
@@ -357,11 +357,31 @@ class _RecommendedCourseDetailScreenState
         routeTitle: courseDetail.title,
       );
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('GPX 공유 중 오류가 발생했습니다: ${e.toString()}')),
-        );
+      if (!context.mounted) return;
+      showErrorMessage(context, 'GPX 공유 중 오류가 발생했습니다: ${e.toString()}');
+    }
+  }
+
+  Future<void> _addToMyRoute(BuildContext context) async {
+    try {
+      final AddToMyRouteUseCase addToMyRouteUseCase = ref.read(
+        addToMyRouteUseCaseProvider,
+      );
+
+      final AppResult<void> result = await addToMyRouteUseCase.execute(
+        widget.routeId,
+      );
+
+      if (!context.mounted) return;
+
+      if (result.isSuccess) {
+        showSuccessMessage(context, '내 코스에 성공적으로 추가되었습니다');
+      } else {
+        showErrorFromAppResult(context, result as AppFailure<void>);
       }
+    } catch (e) {
+      if (!context.mounted) return;
+      showErrorMessage(context, '내 코스 추가 중 오류가 발생했습니다: ${e.toString()}');
     }
   }
 
