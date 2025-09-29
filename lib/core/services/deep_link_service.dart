@@ -14,9 +14,15 @@ class DeepLinkService {
   final StreamController<RouteShareCallback> _routeShareController =
       StreamController<RouteShareCallback>.broadcast();
 
+  final StreamController<RecommendedCourseCallback>
+  _recommendedCourseController =
+      StreamController<RecommendedCourseCallback>.broadcast();
+
   Stream<IntegrationCallback> get callbackStream => _callbackController.stream;
   Stream<RouteShareCallback> get routeShareStream =>
       _routeShareController.stream;
+  Stream<RecommendedCourseCallback> get recommendedCourseStream =>
+      _recommendedCourseController.stream;
 
   /// Deep Link 초기화
   Future<void> initialize() async {
@@ -46,6 +52,10 @@ class DeepLinkService {
     } else if (link.scheme == 'urbanbreeze' && link.host == 'route') {
       final RouteShareCallback callback = RouteShareCallback.fromUri(link);
       _routeShareController.add(callback);
+    } else if (link.scheme == 'urbanbreeze' && link.host == 'course') {
+      final RecommendedCourseCallback callback =
+          RecommendedCourseCallback.fromUri(link);
+      _recommendedCourseController.add(callback);
     } else if (link.scheme.startsWith('kakao') && link.host == 'oauth') {
       // 카카오 OAuth 딥링크는 무시 (카카오 SDK가 자동 처리)
     } else {
@@ -57,6 +67,7 @@ class DeepLinkService {
   void dispose() {
     _callbackController.close();
     _routeShareController.close();
+    _recommendedCourseController.close();
   }
 }
 
@@ -96,5 +107,23 @@ class RouteShareCallback {
   @override
   String toString() {
     return 'RouteShareCallback(routeId: $routeId)';
+  }
+}
+
+/// 추천경로 공유 콜백 데이터 모델
+class RecommendedCourseCallback {
+  factory RecommendedCourseCallback.fromUri(Uri uri) {
+    final String courseId = uri.queryParameters['courseId'] ?? '';
+    return RecommendedCourseCallback(courseId: courseId);
+  }
+  const RecommendedCourseCallback({required this.courseId});
+
+  final String courseId;
+
+  bool get isValid => courseId.isNotEmpty;
+
+  @override
+  String toString() {
+    return 'RecommendedCourseCallback(courseId: $courseId)';
   }
 }

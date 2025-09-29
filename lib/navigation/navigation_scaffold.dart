@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/core/services/recommended_course_handler.dart';
 import 'package:urban_breeze/core/services/route_share_handler.dart';
 import 'package:urban_breeze/features/home/presentation/screens/home_screen.dart';
 import 'package:urban_breeze/features/my_route/presentation/screens/my_route_screen.dart';
@@ -35,6 +36,7 @@ class _NavigationScaffoldState extends ConsumerState<NavigationScaffold> {
     // 딥링크 핸들러 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) {
       RouteShareHandler.initialize(ref, context);
+      RecommendedCourseHandler.initialize(ref, context);
     });
   }
 
