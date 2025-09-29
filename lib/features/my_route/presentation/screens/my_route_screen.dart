@@ -51,7 +51,8 @@ class MyRouteScreen extends ConsumerStatefulWidget implements PageWithAppBar {
   }
 }
 
-class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
+class _MyRouteScreenState extends ConsumerState<MyRouteScreen>
+    with WidgetsBindingObserver {
   MyRouteSortType selectedSortOption = MyRouteSortType.newest;
   late ScrollController _scrollController;
 
@@ -76,6 +77,7 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
     _loadRouteList();
@@ -86,7 +88,17 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // 앱이 다시 활성화될 때 리스트 새로고침
+    if (state == AppLifecycleState.resumed && mounted && !isLoading) {
+      _loadRouteList();
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
     super.dispose();
   }

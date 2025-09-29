@@ -42,16 +42,18 @@ class RouteShareHandler with ErrorDisplayMixin {
         showSuccessMessage(context, '공유된 경로가 나의 경로에 성공적으로 추가되었습니다');
 
         // 경로 세부사항 화면으로 이동
-        Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder:
-                (BuildContext context) =>
-                    MyRouteDetailScreen(routeId: callback.routeId),
-          ),
-        ).then((_) {
-          // 경로 세부사항에서 돌아올 때 리스트 새로고침을 위한 이벤트 발생
-          // MyRouteScreen이 활성화되어 있다면 자동으로 새로고침됨
-        });
+        Navigator.of(context)
+            .push(
+              MaterialPageRoute<void>(
+                builder:
+                    (BuildContext context) =>
+                        MyRouteDetailScreen(routeId: callback.routeId),
+              ),
+            )
+            .then((_) {
+              // 경로 세부사항에서 돌아올 때 리스트 새로고침을 위한 이벤트 발생
+              // MyRouteScreen이 활성화되어 있다면 자동으로 새로고침됨
+            });
       } else {
         showErrorFromAppResult(context, result as AppFailure<void>);
       }
