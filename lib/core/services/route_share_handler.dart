@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/core/services/deep_link_service.dart';
@@ -17,6 +18,22 @@ class RouteShareHandler with ErrorDisplayMixin {
 
   // 중복 처리 방지를 위한 플래그
   bool _isProcessing = false;
+
+  /// 딥링크 진입 추적 (Amplitude만 사용)
+  Future<void> _trackDeepLinkEntry(String routeId) async {
+    try {
+      // Amplitude에 이벤트 전송
+      await AmplitudeAnalytics.logEvent(
+        'deep_link_received',
+        properties: <String, dynamic>{
+          'route_id': routeId,
+          'timestamp': DateTime.now().toIso8601String(),
+        },
+      );
+    } catch (e) {
+      // 딥링크 추적 실패해도 메인 기능은 계속 진행
+    }
+  }
 
   static void initialize(WidgetRef ref, BuildContext context) {
     try {
@@ -46,6 +63,9 @@ class RouteShareHandler with ErrorDisplayMixin {
 
     try {
       if (!callback.isValid) return;
+
+      // 딥링크 진입 추적 (로그인 상태와 관계없이)
+      await _trackDeepLinkEntry(callback.routeId);
 
       // 로그인 상태 확인
       final bool isLoggedIn = ref.read(isLoggedInProvider);
