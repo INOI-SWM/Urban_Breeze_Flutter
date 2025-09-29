@@ -37,4 +37,8 @@ class RecommendedCourseRemoteDataSource extends BaseRemoteDataSource {
           RecommendedCourseDetailResponseModel.fromJson(dataJson),
     );
   }
+
+  Future<void> addToMyRoute(String routeId) async {
+    await post(ApiEndpoints.addMyRoute(routeId));
+  }
 }

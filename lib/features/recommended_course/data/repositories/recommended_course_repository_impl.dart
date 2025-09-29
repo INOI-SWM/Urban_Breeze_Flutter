@@ -37,4 +37,9 @@ class RecommendedCourseRepositoryImpl implements RecommendedCourseRepository {
 
     return RecommendedCourseResponseMapper.fromDetailApiResponse(response);
   }
+
+  @override
+  Future<void> addToMyRoute(String routeId) async {
+    await _remoteDataSource.addToMyRoute(routeId);
+  }
 }

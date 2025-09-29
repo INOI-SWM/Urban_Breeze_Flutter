@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/core/di/core_providers.dart';
+import 'package:urban_breeze/features/recommended_course/application/use_cases/add_to_my_route_use_case.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/get_recommended_course_detail_use_case.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/get_recommended_course_list_usecase.dart';
 import 'package:urban_breeze/features/recommended_course/data/datasources/recommended_course_remote_datasource.dart';
@@ -46,4 +47,12 @@ getRecommendedCourseDetailUseCaseProvider =
         recommendedCourseRepositoryProvider,
       );
       return GetRecommendedCourseDetailUseCase(repository: repository);
+    });
+
+final Provider<AddToMyRouteUseCase> addToMyRouteUseCaseProvider =
+    Provider<AddToMyRouteUseCase>((Ref<AddToMyRouteUseCase> ref) {
+      final RecommendedCourseRepository repository = ref.watch(
+        recommendedCourseRepositoryProvider,
+      );
+      return AddToMyRouteUseCase(repository: repository);
     });
