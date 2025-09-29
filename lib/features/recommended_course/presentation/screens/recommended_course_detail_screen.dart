@@ -8,11 +8,10 @@ import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/add_to_my_route_use_case.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/get_recommended_course_detail_use_case.dart';
+import 'package:urban_breeze/features/recommended_course/application/use_cases/share_course_use_case.dart';
 import 'package:urban_breeze/features/recommended_course/di/recommended_course_providers.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_detail.dart';
 import 'package:urban_breeze/features/route_planning/domain/services/polyline_convert_service.dart';
-import 'package:urban_breeze/features/route_sharing/application/facades/route_sharing_facade.dart';
-import 'package:urban_breeze/features/route_sharing/di/route_sharing_providers.dart';
 import 'package:urban_breeze/shared/chart/common_line_chart_widget.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
@@ -146,9 +145,6 @@ class _RecommendedCourseDetailScreenState
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-    final RouteSharingFacade routeSharingFacade = ref.read(
-      routeSharingFacadeProvider,
-    );
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -185,7 +181,7 @@ class _RecommendedCourseDetailScreenState
 
               showPlatformActionSheet(
                 context,
-                title: '다운로드 방식',
+                title: '저장 방식',
                 options: <PlatformActionSheetOption>[
                   PlatformActionSheetOption(
                     title: 'GPX로 다운로드',
@@ -196,7 +192,7 @@ class _RecommendedCourseDetailScreenState
                           'route_id': widget.routeId,
                         },
                       );
-                      _downloadGpx(context, courseDetail, routeSharingFacade);
+                      _downloadGpx(context, courseDetail);
                     },
                   ),
                   PlatformActionSheetOption(
@@ -216,7 +212,7 @@ class _RecommendedCourseDetailScreenState
             },
             onShareButtonTap: (BuildContext context) {
               AmplitudeAnalytics.logButtonClick('recommended_course_share');
-              _shareGpx(context, courseDetail, routeSharingFacade);
+              _showShareOptions(context, courseDetail);
             },
             sheetChild: _buildBottomSheetContent(courseDetail, colors),
           );
@@ -326,42 +322,6 @@ class _RecommendedCourseDetailScreenState
     );
   }
 
-  Future<void> _downloadGpx(
-    BuildContext context,
-    RecommendedCourseDetail courseDetail,
-    RouteSharingFacade routeSharingFacade,
-  ) async {
-    try {
-      await routeSharingFacade.shareGpxFromData(
-        context,
-        courseDetail.polyline,
-        widget.routeId,
-        routeTitle: courseDetail.title,
-      );
-    } catch (e) {
-      if (!context.mounted) return;
-      showErrorMessage(context, 'GPX 다운로드 중 오류가 발생했습니다: ${e.toString()}');
-    }
-  }
-
-  Future<void> _shareGpx(
-    BuildContext context,
-    RecommendedCourseDetail courseDetail,
-    RouteSharingFacade routeSharingFacade,
-  ) async {
-    try {
-      await routeSharingFacade.shareGpxFromData(
-        context,
-        courseDetail.polyline,
-        widget.routeId,
-        routeTitle: courseDetail.title,
-      );
-    } catch (e) {
-      if (!context.mounted) return;
-      showErrorMessage(context, 'GPX 공유 중 오류가 발생했습니다: ${e.toString()}');
-    }
-  }
-
   Future<void> _addToMyRoute(BuildContext context) async {
     try {
       final AddToMyRouteUseCase addToMyRouteUseCase = ref.read(
@@ -402,5 +362,106 @@ class _RecommendedCourseDetailScreenState
           (TrackPoint point) => FlSpot(point.index.toDouble(), point.elevation),
         )
         .toList();
+  }
+
+  /// 공유 옵션 표시
+  void _showShareOptions(
+    BuildContext context,
+    RecommendedCourseDetail courseDetail,
+  ) {
+    showPlatformActionSheet(
+      context,
+      title: '공유 방식',
+      options: <PlatformActionSheetOption>[
+        PlatformActionSheetOption(
+          title: '링크로 공유',
+          onSelected: () {
+            AmplitudeAnalytics.logEvent(
+              'recommended_course_share_link',
+              properties: <String, dynamic>{'course_id': widget.routeId},
+            );
+            _shareCourse(context, courseDetail);
+          },
+        ),
+        PlatformActionSheetOption(
+          title: 'GPX 파일로 공유',
+          onSelected: () {
+            AmplitudeAnalytics.logEvent(
+              'recommended_course_share_gpx',
+              properties: <String, dynamic>{'course_id': widget.routeId},
+            );
+            _shareGpx(context, courseDetail);
+          },
+        ),
+      ],
+    );
+  }
+
+  /// 추천경로 공유 (딥링크)
+  Future<void> _shareCourse(
+    BuildContext context,
+    RecommendedCourseDetail courseDetail,
+  ) async {
+    try {
+      final ShareCourseUseCase shareCourseUseCase = ref.read(
+        shareCourseUseCaseProvider,
+      );
+
+      final AppResult<void> result = await shareCourseUseCase
+          .shareDeepLinkWithMessage(widget.routeId);
+
+      if (result.isFailure) {
+        throw Exception(result.exceptionOrNull?.message ?? '공유 실패');
+      }
+    } catch (e) {
+      if (!context.mounted) return;
+      showErrorMessage(context, '공유에 실패했습니다: ${e.toString()}');
+    }
+  }
+
+  /// GPX 파일 공유
+  Future<void> _shareGpx(
+    BuildContext context,
+    RecommendedCourseDetail courseDetail,
+  ) async {
+    try {
+      final ShareCourseUseCase shareCourseUseCase = ref.read(
+        shareCourseUseCaseProvider,
+      );
+
+      final AppResult<void> result = await shareCourseUseCase.shareGpx(
+        widget.routeId,
+      );
+
+      if (result.isFailure) {
+        throw Exception(result.exceptionOrNull?.message ?? 'GPX 공유 실패');
+      }
+    } catch (e) {
+      if (!context.mounted) return;
+      showErrorMessage(context, 'GPX 공유에 실패했습니다: ${e.toString()}');
+    }
+  }
+
+  /// GPX 파일 다운로드
+  Future<void> _downloadGpx(
+    BuildContext context,
+    RecommendedCourseDetail courseDetail,
+  ) async {
+    try {
+      final ShareCourseUseCase shareCourseUseCase = ref.read(
+        shareCourseUseCaseProvider,
+      );
+
+      final AppResult<void> result = await shareCourseUseCase.downloadGpx(
+        widget.routeId,
+      );
+
+      if (result.isFailure) {
+        throw Exception(result.exceptionOrNull?.message ?? 'GPX 다운로드 실패');
+      }
+    } catch (e) {
+      if (!context.mounted) return;
+      showErrorMessage(context, 'GPX 다운로드에 실패했습니다: ${e.toString()}');
+    }
   }
 }
