@@ -12,12 +12,14 @@ import '../application/use_cases/delete_workout_use_case.dart';
 import '../application/use_cases/get_workout_detail_use_case.dart';
 import '../application/use_cases/get_workout_list_use_case.dart';
 import '../application/use_cases/get_workout_statistics_use_case.dart';
+import '../application/use_cases/import_apple_health_workouts_use_case.dart';
 import '../application/use_cases/initialize_terra_use_case.dart';
 import '../application/use_cases/sync_apple_health_kit_data_use_case.dart';
 import '../application/use_cases/sync_google_health_connect_data_use_case.dart';
 import '../application/use_cases/sync_terra_health_data_use_case.dart';
 import '../application/use_cases/update_workout_title_use_case.dart';
 import '../application/use_cases/upload_workout_images_use_case.dart';
+import '../data/datasources/apple_health_workout_datasource.dart';
 import '../data/datasources/google_health_connect_datasource.dart';
 import '../data/datasources/remote_workout_history_datasource.dart';
 import '../data/datasources/terra_api_datasoiurce.dart';
@@ -214,6 +216,27 @@ final Provider<SyncTerraHealthDataUseCase> syncTerraHealthDataUseCaseProvider =
         terraApiDataSourceProvider,
       );
       return SyncTerraHealthDataUseCase(terraDataSource: terraDataSource);
+    });
+
+// Apple Health Workout Data Source Provider
+final Provider<AppleHealthWorkoutDataSource>
+appleHealthWorkoutDataSourceProvider = Provider<AppleHealthWorkoutDataSource>((
+  Ref<AppleHealthWorkoutDataSource> ref,
+) {
+  final http.Client client = ref.watch(authorizedHttpClientProvider);
+  return AppleHealthWorkoutDataSource(client: client);
+});
+
+final Provider<ImportAppleHealthWorkoutsUseCase>
+importAppleHealthWorkoutsUseCaseProvider =
+    Provider<ImportAppleHealthWorkoutsUseCase>((
+      Ref<ImportAppleHealthWorkoutsUseCase> ref,
+    ) {
+      final AppleHealthWorkoutDataSource appleHealthWorkoutDataSource = ref
+          .watch(appleHealthWorkoutDataSourceProvider);
+      return ImportAppleHealthWorkoutsUseCase(
+        appleHealthWorkoutDataSource: appleHealthWorkoutDataSource,
+      );
     });
 
 // Terra Facade Provider
