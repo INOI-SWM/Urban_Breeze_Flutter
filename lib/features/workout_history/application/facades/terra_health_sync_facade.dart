@@ -104,20 +104,6 @@ class TerraHealthSyncFacade {
     }
   }
 
-  /// Apple Health에서 데이터 가져오기 DEPRECATED
-  Future<AppResult<Map<String, dynamic>?>> syncAppleHealthData({
-    DateTime? startDate,
-    DateTime? endDate,
-    bool toWebhook = true,
-  }) async {
-    return syncHealthDataFromTerra(
-      connection: Connection.appleHealth,
-      startDate: startDate ?? DateTime.now().subtract(const Duration(days: 7)),
-      endDate: endDate ?? DateTime.now(),
-      toWebhook: toWebhook,
-    );
-  }
-
   // googl samasung은 30일 이상 데이터 가져오기 불가능
   /// Health Connect에서 데이터 가져오기
   Future<AppResult<Map<String, dynamic>?>> syncHealthConnectData({
