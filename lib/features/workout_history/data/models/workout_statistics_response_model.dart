@@ -130,7 +130,7 @@ class WorkoutStatisticsResponseModel {
                 ),
               )
               .toList(),
-      oldestActivityDate: json['oldestActivityDate'] as String,
+      oldestActivityDate: json['oldestActivityDate'] as String?,
     );
   }
   const WorkoutStatisticsResponseModel({
@@ -143,7 +143,7 @@ class WorkoutStatisticsResponseModel {
   final WorkoutStatisticsPeriodModel period;
   final WorkoutStatisticsSummaryModel summary;
   final List<WorkoutStatisticsDetailModel> details;
-  final String oldestActivityDate;
+  final String? oldestActivityDate;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{

@@ -227,6 +227,9 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     } else if (_error != null) {
       return _buildErrorState();
     } else if (_currentStatistics != null) {
+      if (_currentStatistics!.oldestActivityDate == null) {
+        return _buildEmptyState();
+      }
       return _buildDataContent();
     }
     return const SizedBox.shrink();
@@ -246,6 +249,36 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
       ),
       child: Center(
         child: Text('데이터를 불러올 수 없습니다: $_error', style: _errorStyle),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Icon(
+            Icons.directions_bike,
+            size: 56,
+            color: context.semanticColor.labelAlternative,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            '운동기록이 없습니다',
+            style: AppTextStyles.title3.bold.copyWith(
+              color: context.semanticColor.labelStrong,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '서비스를 연동해 데이터를 동기화해보세요',
+            style: AppTextStyles.body2.readingMedium.copyWith(
+              color: context.semanticColor.labelAlternative,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
