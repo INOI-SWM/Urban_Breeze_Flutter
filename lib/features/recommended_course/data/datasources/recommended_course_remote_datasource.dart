@@ -39,9 +39,6 @@ class RecommendedCourseRemoteDataSource extends BaseRemoteDataSource {
   }
 
   Future<void> addToMyRoute(String routeId) async {
-    await post(
-      ApiEndpoints.addMyRoute,
-      body: <String, String>{'routeId': routeId},
-    );
+    await post(ApiEndpoints.addMyRoute(routeId));
   }
 }

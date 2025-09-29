@@ -22,7 +22,8 @@ class ApiEndpoints {
   static const String recommendations = '/api/recommendations';
   static String recommendationDetail(String routeId) =>
       '/api/recommendations/$routeId';
-  static const String addMyRoute = '/api/routes/my-routes';
+  static String addMyRoute(String routeId) =>
+      '/api/recommendations/routes/$routeId';
 
   //sync
   static const String integrationAuthentication =
