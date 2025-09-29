@@ -12,7 +12,12 @@ class DeepLinkService {
   final StreamController<IntegrationCallback> _callbackController =
       StreamController<IntegrationCallback>.broadcast();
 
+  final StreamController<RouteShareCallback> _routeShareController =
+      StreamController<RouteShareCallback>.broadcast();
+
   Stream<IntegrationCallback> get callbackStream => _callbackController.stream;
+  Stream<RouteShareCallback> get routeShareStream =>
+      _routeShareController.stream;
 
   /// Deep Link 초기화
   Future<void> initialize() async {
@@ -41,6 +46,9 @@ class DeepLinkService {
     if (link.scheme == 'urbanbreeze' && link.host == 'integration') {
       final IntegrationCallback callback = IntegrationCallback.fromUri(link);
       _callbackController.add(callback);
+    } else if (link.scheme == 'urbanbreeze' && link.host == 'route') {
+      final RouteShareCallback callback = RouteShareCallback.fromUri(link);
+      _routeShareController.add(callback);
     } else if (link.scheme.startsWith('kakao') && link.host == 'oauth') {
       // 카카오 OAuth 딥링크는 무시 (카카오 SDK가 자동 처리)
       debugPrint('카카오 OAuth 딥링크 무시: $link');
@@ -53,6 +61,7 @@ class DeepLinkService {
   /// 리소스 정리
   void dispose() {
     _callbackController.close();
+    _routeShareController.close();
   }
 }
 
@@ -73,5 +82,24 @@ class IntegrationCallback {
   @override
   String toString() {
     return 'IntegrationCallback(status: $status)';
+  }
+}
+
+/// 경로 공유 콜백 데이터 모델
+class RouteShareCallback {
+  const RouteShareCallback({required this.routeId});
+
+  factory RouteShareCallback.fromUri(Uri uri) {
+    final String? routeId = uri.queryParameters['routeId'];
+    return RouteShareCallback(routeId: routeId ?? '');
+  }
+
+  final String routeId;
+
+  bool get isValid => routeId.isNotEmpty;
+
+  @override
+  String toString() {
+    return 'RouteShareCallback(routeId: $routeId)';
   }
 }
