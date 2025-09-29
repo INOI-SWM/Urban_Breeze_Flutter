@@ -22,7 +22,7 @@ class RouteSharingFacade {
 
       await SharePlus.instance.share(
         ShareParams(
-          text: '내 라이딩 경로를 공유합니다! $deepLink',
+          text: '어반브리즈에서 공유된 경로를 확인해주세요! \n $deepLink',
           sharePositionOrigin: origin,
         ),
       );
