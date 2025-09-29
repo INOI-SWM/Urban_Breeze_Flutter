@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
-import 'package:flutter/material.dart';
 
 /// Deep Link 처리 서비스
 class DeepLinkService {
@@ -35,14 +34,12 @@ class DeepLinkService {
         _processDeepLink(link);
       });
     } catch (e) {
-      debugPrint('Deep Link 초기화 오류: $e');
+      // Deep Link 초기화 오류 처리
     }
   }
 
   /// Deep Link 처리
   void _processDeepLink(Uri link) {
-    debugPrint('Deep Link 수신: $link');
-
     if (link.scheme == 'urbanbreeze' && link.host == 'integration') {
       final IntegrationCallback callback = IntegrationCallback.fromUri(link);
       _callbackController.add(callback);
@@ -51,10 +48,8 @@ class DeepLinkService {
       _routeShareController.add(callback);
     } else if (link.scheme.startsWith('kakao') && link.host == 'oauth') {
       // 카카오 OAuth 딥링크는 무시 (카카오 SDK가 자동 처리)
-      debugPrint('카카오 OAuth 딥링크 무시: $link');
     } else {
       // 기타 딥링크는 무시
-      debugPrint('처리되지 않는 딥링크: $link');
     }
   }
 
