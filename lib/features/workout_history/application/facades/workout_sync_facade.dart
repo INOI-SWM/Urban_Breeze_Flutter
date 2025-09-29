@@ -24,17 +24,49 @@ class WorkoutSyncFacade {
   final SyncAppleHealthKitDataUseCase syncAppleHealthKitDataUseCase;
   final SyncGoogleHealthConnectDataUseCase syncGoogleHealthConnectDataUseCase;
 
-  /// Apple Health에서 데이터 가져오기
+  /// Apple Health에서 데이터 가져오기 (health_kit_reporter 직접 사용)
   Future<AppResult<Map<String, dynamic>?>> syncAppleHealthData({
     DateTime? startDate,
     DateTime? endDate,
     bool toWebhook = true,
   }) async {
-    return terraHealthSyncFacade.syncAppleHealthData(
-      startDate: startDate,
-      endDate: endDate,
-      toWebhook: toWebhook,
-    );
+    try {
+      // 권한 확인
+      final bool hasPermission =
+          await syncAppleHealthKitDataUseCase.checkPermissions();
+
+      if (!hasPermission) {
+        // 권한 요청
+        final bool permissionGranted =
+            await syncAppleHealthKitDataUseCase.requestPermissions();
+        if (!permissionGranted) {
+          return const AppFailure<Map<String, dynamic>?>(
+            TerraApiException('Apple Health Kit 권한이 거부되었습니다'),
+          );
+        }
+      }
+
+      // 운동 데이터 가져오기
+      final List<WorkoutRecord> workouts = await syncAppleHealthKitDataUseCase
+          .fetchBasicWorkoutData(
+            startDate:
+                startDate ?? DateTime.now().subtract(const Duration(days: 30)),
+            endDate: endDate ?? DateTime.now(),
+          );
+
+      // 결과 데이터 구성
+      final Map<String, dynamic> resultData = <String, dynamic>{
+        'workouts': workouts,
+        'count': workouts.length,
+        'source': 'apple_health_kit',
+      };
+
+      return AppSuccess<Map<String, dynamic>?>(resultData);
+    } catch (e) {
+      return AppFailure<Map<String, dynamic>?>(
+        TerraApiException('Apple Health Kit 동기화 실패: $e'),
+      );
+    }
   }
 
   /// Health Connect에서 데이터 가져오기
@@ -87,7 +119,7 @@ class WorkoutSyncFacade {
       int integrationSuccessCount = 0;
       int integrationTotalAttempts = 0;
 
-      // iOS에서만 Apple Health Kit 시도
+      // iOS에서만 Apple Health Kit 시도 (health_kit_reporter 직접 사용)
       if (Platform.isIOS) {
         totalAttempts++;
         try {
@@ -103,6 +135,21 @@ class WorkoutSyncFacade {
                 );
             allWorkouts.addAll(appleWorkouts);
             successCount++;
+          } else {
+            // 권한이 없으면 요청
+            final bool permissionGranted =
+                await syncAppleHealthKitDataUseCase.requestPermissions();
+            if (permissionGranted) {
+              final List<WorkoutRecord> appleWorkouts =
+                  await syncAppleHealthKitDataUseCase.fetchBasicWorkoutData(
+                    startDate: DateTime.now().subtract(
+                      const Duration(days: 30),
+                    ),
+                    endDate: DateTime.now(),
+                  );
+              allWorkouts.addAll(appleWorkouts);
+              successCount++;
+            }
           }
         } catch (e) {
           // Apple Health Kit 오류는 카운트만 하고 상세 메시지는 표시하지 않음
