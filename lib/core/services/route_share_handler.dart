@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/core/services/deep_link_service.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
 import 'package:urban_breeze/features/my_route/application/usecases/save_shared_route_usecase.dart';
 import 'package:urban_breeze/features/my_route/di/my_route_providers.dart';
+import 'package:urban_breeze/features/my_route/domain/exceptions/route_share_exceptions.dart';
 import 'package:urban_breeze/features/my_route/presentation/screens/my_route_detail_screen.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
@@ -91,7 +93,11 @@ class RouteShareHandler with ErrorDisplayMixin {
               // MyRouteScreen이 활성화되어 있다면 자동으로 새로고침됨
             });
       } else {
-        showErrorFromAppResult(context, result as AppFailure<void>);
+        _handleRouteShareError(
+          context,
+          result as AppFailure<void>,
+          callback.routeId,
+        );
       }
     } catch (e) {
       if (!context.mounted) return;
@@ -148,11 +154,42 @@ class RouteShareHandler with ErrorDisplayMixin {
               // MyRouteScreen이 활성화되어 있다면 자동으로 새로고침됨
             });
       } else {
-        showErrorFromAppResult(context, result as AppFailure<void>);
+        _handleRouteShareError(
+          context,
+          result as AppFailure<void>,
+          callback.routeId,
+        );
       }
     } catch (e) {
       if (!context.mounted) return;
       showErrorMessage(context, '공유된 경로 저장 중 오류가 발생했습니다: ${e.toString()}');
+    }
+  }
+
+  /// 에러코드별 다른 동작 처리
+  void _handleRouteShareError(
+    BuildContext context,
+    AppFailure<void> failure,
+    String routeId,
+  ) {
+    final BaseDomainException exception = failure.exception;
+
+    if (exception is RouteAlreadyAddedException) {
+      // 409: 이미 추가된 경로 - Detail 화면으로 이동하고 메시지 표시
+      showErrorMessage(context, exception.message);
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder:
+              (BuildContext context) => MyRouteDetailScreen(routeId: routeId),
+        ),
+      );
+    } else if (exception is RouteNotFoundException ||
+        exception is RouteAccessDeniedException) {
+      // 404, 403: 경로를 찾을 수 없음 또는 접근 거부 - My Route List에서만 메시지 표시
+      showErrorMessage(context, exception.message);
+    } else {
+      // 기타 에러 - 일반적인 에러 처리
+      showErrorFromAppResult(context, failure);
     }
   }
 }
