@@ -375,13 +375,13 @@ class _RecommendedCourseDetailScreenState
       if (!context.mounted) return;
 
       if (result.isSuccess) {
-        showSuccessMessage(context, '내 코스에 성공적으로 추가되었습니다');
+        showSuccessMessage(context, '나의 경로에 성공적으로 추가되었습니다');
       } else {
         showErrorFromAppResult(context, result as AppFailure<void>);
       }
     } catch (e) {
       if (!context.mounted) return;
-      showErrorMessage(context, '내 코스 추가 중 오류가 발생했습니다: ${e.toString()}');
+      showErrorMessage(context, '나의 경로에 추가 중 오류가 발생했습니다: ${e.toString()}');
     }
   }
 
