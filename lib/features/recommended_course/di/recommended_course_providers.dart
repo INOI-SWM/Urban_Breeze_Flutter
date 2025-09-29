@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/core/di/core_providers.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/add_to_my_route_use_case.dart';
+import 'package:urban_breeze/features/recommended_course/application/use_cases/get_course_gpx_use_case.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/get_recommended_course_detail_use_case.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/get_recommended_course_list_usecase.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/share_course_use_case.dart';
@@ -60,5 +61,16 @@ final Provider<AddToMyRouteUseCase> addToMyRouteUseCaseProvider =
 
 final Provider<ShareCourseUseCase> shareCourseUseCaseProvider =
     Provider<ShareCourseUseCase>((Ref<ShareCourseUseCase> ref) {
-      return const ShareCourseUseCase();
+      final RecommendedCourseRepository repository = ref.watch(
+        recommendedCourseRepositoryProvider,
+      );
+      return ShareCourseUseCase(repository: repository);
+    });
+
+final Provider<GetCourseGpxUseCase> getCourseGpxUseCaseProvider =
+    Provider<GetCourseGpxUseCase>((Ref<GetCourseGpxUseCase> ref) {
+      final RecommendedCourseRepository repository = ref.watch(
+        recommendedCourseRepositoryProvider,
+      );
+      return GetCourseGpxUseCase(repository: repository);
     });

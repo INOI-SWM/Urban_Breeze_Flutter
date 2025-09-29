@@ -41,4 +41,16 @@ class RecommendedCourseRemoteDataSource extends BaseRemoteDataSource {
   Future<void> addToMyRoute(String routeId) async {
     await post(ApiEndpoints.addMyRoute(routeId));
   }
+
+  Future<String> getCourseGPX(String routeId) async {
+    final http.Response response = await get(
+      ApiEndpoints.routeGPXDownload(routeId),
+    );
+
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception('GPX 다운로드 실패: ${response.statusCode}');
+    }
+  }
 }
