@@ -7,4 +7,5 @@ abstract class MyRouteRepository {
   Future<MyRouteDetail> getRouteDetail(String routeId);
   Future<String> getRouteGPX(String routeId);
   Future<void> deleteRoute(String routeId);
+  Future<void> saveSharedRoute(String routeId);
 }

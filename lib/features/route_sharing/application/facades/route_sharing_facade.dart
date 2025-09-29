@@ -5,9 +5,7 @@ import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
-import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/route_sharing/application/use_cases/get_route_share_link_use_case.dart';
-import 'package:urban_breeze/features/route_sharing/domain/entities/route_share_link.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
 class RouteSharingFacade {
@@ -19,30 +17,14 @@ class RouteSharingFacade {
     final Rect origin = _getSharePositionOrigin(context);
 
     try {
-      final AppResult<RouteShareLink> result = await getRouteShareLinkUseCase
-          .execute(routeId);
-      if (!context.mounted) return;
+      // 딥링크 생성
+      final String deepLink = 'urbanbreeze://route?routeId=$routeId';
 
-      if (result.isFailure) {
-        // 링크 공유 실패 이벤트
-        AmplitudeAnalytics.logEvent(
-          'route_sharing_link_failed',
-          properties: <String, dynamic>{
-            'route_id': routeId,
-            'error_message': result.exceptionOrNull?.message ?? '공유 링크 생성 실패',
-          },
-        );
-
-        ErrorDisplay.showErrorMessage(
-          context,
-          result.exceptionOrNull?.message ?? '공유 링크 생성 실패',
-        );
-        return;
-      }
-
-      final RouteShareLink link = result.dataOrNull!;
       await SharePlus.instance.share(
-        ShareParams(text: link.url, sharePositionOrigin: origin),
+        ShareParams(
+          text: '어반브리즈에서 공유된 경로를 확인해주세요! \n $deepLink',
+          sharePositionOrigin: origin,
+        ),
       );
 
       // 링크 공유 성공 이벤트
@@ -50,7 +32,7 @@ class RouteSharingFacade {
         'route_sharing_link_success',
         properties: <String, dynamic>{
           'route_id': routeId,
-          'share_url': link.url,
+          'share_url': deepLink,
         },
       );
     } catch (e) {
