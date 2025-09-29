@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/features/my_route/data/models/my_route_detail_model.dart';
 import 'package:urban_breeze/features/my_route/data/models/my_route_filter_model.dart';
 import 'package:urban_breeze/features/my_route/data/models/my_route_list_data_model.dart';
+import 'package:urban_breeze/features/my_route/domain/exceptions/route_share_exceptions.dart';
 import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
 import 'package:urban_breeze/shared/api/data/datasources/base_remote_datasource.dart';
 import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
@@ -92,9 +94,32 @@ class MyRouteRemoteDataSource extends BaseRemoteDataSource {
 
   /// 공유된 경로 저장
   Future<void> saveSharedRoute(String routeId) async {
-    await post(
+    final http.Response response = await post(
       ApiEndpoints.saveSharedRoute,
       body: <String, String>{'routeId': routeId},
     );
+
+    final int statusCode = response.statusCode;
+    final Map<String, dynamic> jsonMap = decodeResponse(response);
+    debugPrint('saveSharedRoute: $jsonMap');
+    debugPrint('saveSharedRoute: $statusCode');
+    if (statusCode == 200 || statusCode == 201) {
+      return;
+    }
+
+    // 특별한 에러 코드 처리
+    switch (statusCode) {
+      case 404:
+        throw const RouteNotFoundException();
+      case 409:
+        throw const RouteAlreadyAddedException();
+      case 403:
+        throw const RouteAccessDeniedException();
+      default:
+        final String errorMessage =
+            (jsonMap['errorMessage'] ?? jsonMap['message'] ?? '경로 저장 실패')
+                .toString();
+        throw ServerException('경로 저장 실패 ($statusCode): $errorMessage');
+    }
   }
 }
