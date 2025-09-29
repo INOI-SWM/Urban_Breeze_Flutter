@@ -9,7 +9,6 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_service.dart';
 import 'package:urban_breeze/core/services/app_tracking_service.dart';
 import 'package:urban_breeze/core/services/deep_link_service.dart';
-import 'package:urban_breeze/core/services/route_share_handler.dart';
 import 'package:urban_breeze/core/theme/app_theme.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
 import 'package:urban_breeze/features/auth/presentation/screens/consent_screen.dart';
@@ -117,11 +116,6 @@ class MyApp extends ConsumerWidget {
     final bool isAuthInitialized = ref.watch(isAuthInitializedProvider);
     final bool isLoggedIn = ref.watch(isLoggedInProvider);
     final bool shouldShowConsent = ref.watch(shouldShowConsentScreenProvider);
-
-    // 딥링크 핸들러 초기화 (로그인 상태와 관계없이)
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      RouteShareHandler.initialize(ref, context);
-    });
 
     return MaterialApp(
       title: 'Urban Breeze',
