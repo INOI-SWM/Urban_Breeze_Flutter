@@ -61,7 +61,7 @@ class WorkoutFormatter {
 
   /// 고도를 m 문자열로 변환 ("000 m" 또는 "--")
   static String toAltitudeText(double? altitude) {
-    return altitude != null && altitude > 0 ? '${altitude.round()} m' : '--';
+    return altitude != null ? '${altitude.round()} m' : '--';
   }
 
   /// 케이던스를 rpm 문자열로 변환 ("000 rpm" 또는 "--")
