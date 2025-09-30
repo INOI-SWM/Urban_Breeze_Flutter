@@ -105,6 +105,10 @@ class _WorkoutListItem extends StatelessWidget {
             icon: Icons.route,
           ),
           BadgeData(
+            text: WorkoutFormatter.toAltitudeText(workout.elevationGain),
+            icon: Icons.trending_up,
+          ),
+          BadgeData(
             text: WorkoutFormatter.toDurationText(
               Duration(seconds: workout.duration),
             ),
