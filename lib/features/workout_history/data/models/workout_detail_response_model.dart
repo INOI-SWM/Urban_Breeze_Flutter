@@ -43,7 +43,10 @@ class TrackPointModel {
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
       speed: json['speed'] != null ? (json['speed'] as num).toDouble() : null,
-      heartRate: json['heartRate'] != null ? json['heartRate'] as int : null,
+      heartRate:
+          json['heartRate'] != null
+              ? (json['heartRate'] as num).toDouble()
+              : null,
     );
   }
 
@@ -52,7 +55,7 @@ class TrackPointModel {
   final double latitude;
   final double longitude;
   final double? speed; // km/h
-  final int? heartRate; // bpm
+  final double? heartRate; // bpm
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -104,8 +107,8 @@ class WorkoutDetailResponseModel {
     required this.totalDurationMinutes,
     required this.distance,
     required this.averageSpeed,
-    required this.elevationGain,
-    required this.elevationLoss,
+    this.elevationGain,
+    this.elevationLoss,
     this.cadence,
     this.averageHeartRate,
     this.maxHeartRate,
@@ -129,8 +132,8 @@ class WorkoutDetailResponseModel {
       totalDurationMinutes: json['totalDurationMinutes'] as int,
       distance: (json['distance'] as num).toDouble(), // km 단위
       averageSpeed: (json['averageSpeed'] as num).toDouble(),
-      elevationGain: (json['elevationGain'] as num).toDouble(),
-      elevationLoss: (json['elevationLoss'] as num).toDouble(),
+      elevationGain: (json['elevationGain'] as num?)?.toDouble(),
+      elevationLoss: (json['elevationLoss'] as num?)?.toDouble(),
       cadence: json['cadence'] as int?,
       averageHeartRate: json['averageHeartRate'] as int?,
       maxHeartRate: json['maxHeartRate'] as int?,
@@ -168,8 +171,8 @@ class WorkoutDetailResponseModel {
   final int totalDurationMinutes; // 분 단위
   final double distance; // km 단위
   final double averageSpeed; // km/h
-  final double elevationGain; // m
-  final double elevationLoss; // m
+  final double? elevationGain; // m
+  final double? elevationLoss; // m
   final int? cadence; // rpm
   final int? averageHeartRate; // bpm
   final int? maxHeartRate; // bpm

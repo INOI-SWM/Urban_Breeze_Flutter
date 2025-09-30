@@ -13,7 +13,7 @@ class TrackPoint {
   final double latitude;
   final double longitude;
   final double? speed; // km/h
-  final int? heartRate; // bpm
+  final double? heartRate; // bpm
 
   @override
   bool operator ==(Object other) {

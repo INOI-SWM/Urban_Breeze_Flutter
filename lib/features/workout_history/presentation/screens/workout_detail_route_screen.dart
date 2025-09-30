@@ -323,7 +323,7 @@ class _DraggableBottomSheetState extends State<_DraggableBottomSheet> {
         break;
       case WorkoutDataType.altitude:
         label = '상승 고도';
-        value = '${widget.workoutDetail.elevationGain.toStringAsFixed(0)}m';
+        value = '${widget.workoutDetail.elevationGain?.toStringAsFixed(0)}m';
         break;
       case WorkoutDataType.heartRate:
         label = '평균 심박수';

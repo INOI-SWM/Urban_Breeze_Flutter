@@ -6,7 +6,7 @@ class WorkoutActivity {
     required this.endedAt,
     required this.distance,
     required this.duration,
-    required this.elevationGain,
+    this.elevationGain,
     required this.thumbnailImageUrl,
     required this.userProfileImageUrl,
     required this.userNickname,
@@ -18,7 +18,7 @@ class WorkoutActivity {
   final DateTime endedAt;
   final double distance; // km 단위
   final int duration; // seconds
-  final double elevationGain; // meters
+  final double? elevationGain; // meters
   final String thumbnailImageUrl;
   final String userProfileImageUrl;
   final String userNickname;
