@@ -16,8 +16,6 @@ import 'package:urban_breeze/shared/design_system/widgets/chip/chip_action.dart'
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/design_system/widgets/thumbnail/thumbnail.dart';
 import 'package:urban_breeze/shared/sort/sort_modal.dart';
-import 'package:urban_breeze/shared/utils/date_formatter.dart';
-import 'package:urban_breeze/shared/utils/workout_formatter.dart';
 
 import 'workout_detail_screen.dart';
 
@@ -98,22 +96,14 @@ class _WorkoutListItem extends StatelessWidget {
                 ? ThumbnailSourceType.network
                 : ThumbnailSourceType.asset,
         title: workout.title.isNotEmpty ? workout.title : '운동 ${index + 1}',
-        createDate: DateFormatter.formatKorean(workout.startedAt),
+        createDate: workout.startedAtDisplay,
         badges: <BadgeData>[
+          BadgeData(text: workout.distanceDisplay, icon: Icons.route),
           BadgeData(
-            text: WorkoutFormatter.toKmTextFromKm(workout.distance),
-            icon: Icons.route,
-          ),
-          BadgeData(
-            text: WorkoutFormatter.toAltitudeText(workout.elevationGain),
+            text: workout.elevationGainDisplay,
             icon: Icons.trending_up,
           ),
-          BadgeData(
-            text: WorkoutFormatter.toDurationText(
-              Duration(seconds: workout.duration),
-            ),
-            icon: Icons.access_time,
-          ),
+          BadgeData(text: workout.durationDisplay, icon: Icons.access_time),
         ],
         onTap: onTap,
       ),
