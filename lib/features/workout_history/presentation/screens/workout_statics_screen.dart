@@ -10,6 +10,7 @@ import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_sty
 import 'package:urban_breeze/shared/design_system/widgets/info/info_item.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/design_system/widgets/segmented_control/segmented_control.dart';
+import 'package:urban_breeze/shared/utils/display_formatter.dart';
 import 'package:urban_breeze/shared/utils/period_utils.dart';
 import 'package:urban_breeze/shared/utils/workout_formatter.dart';
 
@@ -557,7 +558,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
           summary.totalDistance * 1000,
         ); // km → m 변환
       case StaticDataType.elevation:
-        return WorkoutFormatter.toAltitudeText(
+        return DisplayFormatter.formatElevationGain(
           summary.totalElevationGain.toDouble(),
         );
       case StaticDataType.duration:
@@ -628,7 +629,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     return Expanded(
       child: InfoItem(
         label: '상승 고도',
-        value: WorkoutFormatter.toAltitudeText(elevation?.toDouble()),
+        value: DisplayFormatter.formatElevationGain(elevation?.toDouble()),
         alignment: CrossAxisAlignment.start,
       ),
     );
