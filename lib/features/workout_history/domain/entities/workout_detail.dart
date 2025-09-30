@@ -12,8 +12,8 @@ class WorkoutDetail {
     required this.totalDurationMinutes,
     required this.distance,
     required this.averageSpeed,
-    required this.elevationGain,
-    required this.elevationLoss,
+    this.elevationGain,
+    this.elevationLoss,
     this.cadence,
     this.averageHeartRate,
     this.maxHeartRate,
@@ -35,8 +35,8 @@ class WorkoutDetail {
   final int totalDurationMinutes; // 분 단위
   final double distance; // km 단위
   final double averageSpeed; // km/h
-  final double elevationGain; // m
-  final double elevationLoss; // m
+  final double? elevationGain; // m
+  final double? elevationLoss; // m
   final int? cadence; // rpm
   final int? averageHeartRate; // bpm
   final int? maxHeartRate; // bpm
@@ -62,10 +62,12 @@ class WorkoutDetail {
   String get averageSpeedDisplay => '${averageSpeed.toStringAsFixed(1)} km/h';
 
   /// 상승 고도 표시용 문자열 반환
-  String get elevationGainDisplay => '${elevationGain.round()} m';
+  String get elevationGainDisplay =>
+      elevationGain != null ? '${elevationGain!.round()} m' : '--';
 
   /// 하강 고도 표시용 문자열 반환
-  String get elevationLossDisplay => '${elevationLoss.round()} m';
+  String get elevationLossDisplay =>
+      elevationLoss != null ? '${elevationLoss!.round()} m' : '--';
 
   /// 평균 심박수 표시용 문자열 반환
   String get averageHeartRateDisplay =>

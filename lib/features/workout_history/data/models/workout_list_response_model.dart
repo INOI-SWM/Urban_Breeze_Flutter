@@ -8,7 +8,7 @@ class WorkoutActivityModel {
     required this.endedAt,
     required this.distance,
     required this.duration,
-    required this.elevationGain,
+    this.elevationGain,
     required this.thumbnailImageUrl,
     required this.userProfileImageUrl,
     required this.userNickname,
@@ -22,7 +22,7 @@ class WorkoutActivityModel {
       endedAt: DateTime.parse(json['endedAt'] as String),
       distance: (json['distance'] as num).toDouble(), // km 단위
       duration: json['duration'] as int,
-      elevationGain: (json['elevationGain'] as num).toDouble(),
+      elevationGain: (json['elevationGain'] as num?)?.toDouble(),
       thumbnailImageUrl: json['thumbnailImageUrl'] as String,
       userProfileImageUrl: json['userProfileImageUrl'] as String,
       userNickname: json['userNickname'] as String,
@@ -35,7 +35,7 @@ class WorkoutActivityModel {
   final DateTime endedAt;
   final double distance;
   final int duration;
-  final double elevationGain;
+  final double? elevationGain;
   final String thumbnailImageUrl;
   final String userProfileImageUrl;
   final String userNickname;
