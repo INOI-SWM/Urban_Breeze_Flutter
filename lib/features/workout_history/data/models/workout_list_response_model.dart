@@ -9,7 +9,7 @@ class WorkoutActivityModel {
     required this.distance,
     required this.duration,
     this.elevationGain,
-    required this.thumbnailImageUrl,
+    this.thumbnailImageUrl,
     required this.userProfileImageUrl,
     required this.userNickname,
   });
@@ -23,7 +23,7 @@ class WorkoutActivityModel {
       distance: (json['distance'] as num).toDouble(), // km 단위
       duration: json['durationSeconds'] as int,
       elevationGain: (json['elevationGain'] as num?)?.toDouble(),
-      thumbnailImageUrl: json['thumbnailImageUrl'] as String,
+      thumbnailImageUrl: json['thumbnailImageUrl'] as String?,
       userProfileImageUrl: json['userProfileImageUrl'] as String,
       userNickname: json['userNickname'] as String,
     );
@@ -36,7 +36,7 @@ class WorkoutActivityModel {
   final double distance;
   final int duration; // 초 단위 (API 필드명은 durationSeconds로 변경됨)
   final double? elevationGain;
-  final String thumbnailImageUrl;
+  final String? thumbnailImageUrl;
   final String userProfileImageUrl;
   final String userNickname;
 

@@ -88,11 +88,13 @@ class _WorkoutListItem extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: CardList(
         thumbnailPath:
-            workout.thumbnailImageUrl.isNotEmpty
-                ? workout.thumbnailImageUrl
+            workout.thumbnailImageUrl != null &&
+                    workout.thumbnailImageUrl!.isNotEmpty
+                ? workout.thumbnailImageUrl!
                 : 'assets/images/png/thumbnail_r3_2.png',
         sourceType:
-            workout.thumbnailImageUrl.isNotEmpty
+            workout.thumbnailImageUrl != null &&
+                    workout.thumbnailImageUrl!.isNotEmpty
                 ? ThumbnailSourceType.network
                 : ThumbnailSourceType.asset,
         title: workout.title.isNotEmpty ? workout.title : '운동 ${index + 1}',
@@ -128,12 +130,14 @@ class _WorkoutGridItem extends StatelessWidget {
       onTap: onTap,
       child: Thumbnail(
         path:
-            workout.thumbnailImageUrl.isNotEmpty
-                ? workout.thumbnailImageUrl
+            workout.thumbnailImageUrl != null &&
+                    workout.thumbnailImageUrl!.isNotEmpty
+                ? workout.thumbnailImageUrl!
                 : 'assets/images/png/thumbnail_r1_1.png',
         ratio: ThumbnailRatio.square,
         sourceType:
-            workout.thumbnailImageUrl.isNotEmpty
+            workout.thumbnailImageUrl != null &&
+                    workout.thumbnailImageUrl!.isNotEmpty
                 ? ThumbnailSourceType.network
                 : ThumbnailSourceType.asset,
         hasRadius: false,
