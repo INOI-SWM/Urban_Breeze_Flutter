@@ -140,7 +140,7 @@ class WorkoutDetailResponseModel {
       maxHeartRate: json['maxHeartRate'] as int?,
       averagePower: json['averagePower'] as int?,
       maxPower: json['maxPower'] as int?,
-      calories: json['calories'] as int?,
+      calories: (json['calories'] as num?)?.toDouble(),
       user: WorkoutUserModel.fromJson(json['user'] as Map<String, dynamic>),
       thumbnailImageUrl: json['thumbnailImageUrl'] as String,
       activityImages:
@@ -180,7 +180,7 @@ class WorkoutDetailResponseModel {
   final int? maxHeartRate; // bpm
   final int? averagePower; // W
   final int? maxPower; // W
-  final int? calories; // kcal
+  final double? calories; // kcal
   final WorkoutUserModel user;
   final String thumbnailImageUrl;
   final List<ActivityImageModel> activityImages;

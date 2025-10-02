@@ -43,7 +43,7 @@ class WorkoutDetail {
   final int? maxHeartRate; // bpm
   final int? averagePower; // W
   final int? maxPower; // W
-  final int? calories; // kcal
+  final double? calories; // kcal
   final WorkoutUser user;
   final String thumbnailImageUrl;
   final List<ActivityImage> activityImages;
@@ -109,7 +109,7 @@ class WorkoutDetail {
     int? maxHeartRate,
     int? averagePower,
     int? maxPower,
-    int? calories,
+    double? calories,
     WorkoutUser? user,
     String? thumbnailImageUrl,
     List<ActivityImage>? activityImages,

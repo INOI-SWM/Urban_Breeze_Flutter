@@ -299,7 +299,7 @@ class WorkoutSyncFacade {
       endTime: workout.endTime.toIso8601String(),
       duration: workout.duration.inSeconds,
       distance: workout.distance,
-      calories: workout.calories.round(),
+      calories: workout.calories,
       source: 'Apple Health',
       title: 'Cycling Workout',
       heartRateData:

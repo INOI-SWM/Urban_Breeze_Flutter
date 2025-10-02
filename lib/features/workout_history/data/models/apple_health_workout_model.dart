@@ -19,7 +19,7 @@ class AppleHealthWorkoutModel {
   final String endTime;
   final int duration;
   final double distance;
-  final int calories;
+  final double calories;
   final String source;
   final String title;
   final List<HeartRateDataModel> heartRateData;
