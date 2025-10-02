@@ -90,7 +90,8 @@ class WorkoutDetail {
   String get cadenceDisplay => cadence != null ? '$cadence rpm' : '--';
 
   /// 칼로리 표시용 문자열 반환
-  String get caloriesDisplay => calories != null ? '$calories kcal' : '--';
+  String get caloriesDisplay =>
+      calories != null ? '${calories!.round()} kcal' : '--';
 
   /// 특정 필드만 변경된 새로운 WorkoutDetail 객체 생성
   WorkoutDetail copyWith({
