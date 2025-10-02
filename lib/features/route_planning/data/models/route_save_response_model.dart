@@ -3,7 +3,7 @@ class RouteSaveResponseModel {
     return RouteSaveResponseModel(
       routeId: json['routeId'],
       title: json['title'],
-      totalDuration: json['totalDuration'],
+      totalDuration: json['totalDurationSeconds'],
       totalDistance: json['totalDistance'],
       totalElevationGain: json['totalElevationGain'],
     );
@@ -18,7 +18,7 @@ class RouteSaveResponseModel {
 
   final String routeId;
   final String title;
-  final int totalDuration; // 분
+  final int totalDuration; // 초
   final double totalDistance; //km
   final double totalElevationGain; //m
 }

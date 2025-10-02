@@ -18,7 +18,7 @@ class RecommendedCourse {
   final String title;
   final String description;
   final double distanceKm; // km
-  final int durationMinutes; // 예상 소요 시간 (분)
+  final int durationMinutes; // 예상 소요 시간 (초)
   final double elevationGain; // 상승 고도 (m)
   final String region; // 지역
   final String difficulty; // 난이도
@@ -34,7 +34,7 @@ class RecommendedCourse {
 
   /// 예상 소요 시간 표시용 문자열 반환
   String get durationDisplay =>
-      DisplayFormatter.formatDurationFromMinutes(durationMinutes);
+      DisplayFormatter.formatDurationFromSeconds(durationMinutes);
 
   @override
   bool operator ==(Object other) {

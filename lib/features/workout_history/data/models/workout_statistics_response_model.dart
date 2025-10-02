@@ -34,7 +34,7 @@ class WorkoutStatisticsSummaryModel {
     return WorkoutStatisticsSummaryModel(
       totalDistance: json['totalDistance'] as double,
       totalElevationGain: json['totalElevationGain'] as double,
-      totalDuration: json['totalDuration'] as int,
+      totalDuration: json['totalDurationSeconds'] as int,
       totalActivityCount: json['totalActivityCount'] as int,
     );
   }
@@ -54,7 +54,7 @@ class WorkoutStatisticsSummaryModel {
     return <String, dynamic>{
       'totalDistance': totalDistance,
       'totalElevationGain': totalElevationGain,
-      'totalDuration': totalDuration,
+      'totalDurationSeconds': totalDuration,
       'totalActivityCount': totalActivityCount,
     };
   }
@@ -67,7 +67,7 @@ class WorkoutStatisticsDetailValueModel {
     return WorkoutStatisticsDetailValueModel(
       distanceKm: json['distanceKm'] as double,
       elevationGainM: json['elevationGainM'] as double,
-      durationSec: json['durationSec'] as int,
+      durationSec: json['durationSeconds'] as int,
     );
   }
   const WorkoutStatisticsDetailValueModel({
@@ -84,7 +84,7 @@ class WorkoutStatisticsDetailValueModel {
     return <String, dynamic>{
       'distanceKm': distanceKm,
       'elevationGainM': elevationGainM,
-      'durationSec': durationSec,
+      'durationSeconds': durationSec,
     };
   }
 }

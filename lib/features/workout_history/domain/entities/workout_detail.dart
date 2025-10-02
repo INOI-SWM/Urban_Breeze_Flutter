@@ -31,8 +31,8 @@ class WorkoutDetail {
   final String title;
   final DateTime startedAt;
   final DateTime endedAt;
-  final int activeDurationMinutes; // 분 단위
-  final int totalDurationMinutes; // 분 단위
+  final int activeDurationMinutes; // 초 단위
+  final int totalDurationMinutes; // 초 단위
   final double distance; // km 단위
   final double averageSpeed; // km/h
   final double? elevationGain; // m
@@ -50,10 +50,10 @@ class WorkoutDetail {
   final List<double> bbox; // [minLng, minLat, maxLng, maxLat]
 
   /// 총 운동 시간을 Duration으로 반환
-  Duration get totalDuration => Duration(minutes: totalDurationMinutes);
+  Duration get totalDuration => Duration(seconds: totalDurationMinutes);
 
   /// 활성 운동 시간을 Duration으로 반환
-  Duration get activeDuration => Duration(minutes: activeDurationMinutes);
+  Duration get activeDuration => Duration(seconds: activeDurationMinutes);
 
   /// 거리 표시용 문자열 반환
   String get distanceDisplay => '${distance.toStringAsFixed(1)} km';

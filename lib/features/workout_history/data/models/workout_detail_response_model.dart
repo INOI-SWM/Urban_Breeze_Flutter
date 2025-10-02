@@ -128,8 +128,8 @@ class WorkoutDetailResponseModel {
       title: json['title'] as String,
       startedAt: DateTime.parse(json['startedAt'] as String),
       endedAt: DateTime.parse(json['endedAt'] as String),
-      activeDurationMinutes: json['activeDurationMinutes'] as int,
-      totalDurationMinutes: json['totalDurationMinutes'] as int,
+      activeDurationMinutes: json['activeDurationSeconds'] as int,
+      totalDurationMinutes: json['totalDurationSeconds'] as int,
       distance: (json['distance'] as num).toDouble(), // km 단위
       averageSpeed: (json['averageSpeed'] as num).toDouble(),
       elevationGain: (json['elevationGain'] as num?)?.toDouble(),
@@ -167,8 +167,8 @@ class WorkoutDetailResponseModel {
   final String title;
   final DateTime startedAt;
   final DateTime endedAt;
-  final int activeDurationMinutes; // 분 단위
-  final int totalDurationMinutes; // 분 단위
+  final int activeDurationMinutes; // 초 단위 (API 필드명은 activeDurationSeconds로 변경됨)
+  final int totalDurationMinutes; // 초 단위 (API 필드명은 totalDurationSeconds로 변경됨)
   final double distance; // km 단위
   final double averageSpeed; // km/h
   final double? elevationGain; // m
@@ -191,8 +191,8 @@ class WorkoutDetailResponseModel {
       'title': title,
       'startedAt': startedAt.toIso8601String(),
       'endedAt': endedAt.toIso8601String(),
-      'activeDurationMinutes': activeDurationMinutes,
-      'totalDurationMinutes': totalDurationMinutes,
+      'activeDurationSeconds': activeDurationMinutes,
+      'totalDurationSeconds': totalDurationMinutes,
       'distance': distance, // km 단위
       'averageSpeed': averageSpeed,
       'elevationGain': elevationGain,

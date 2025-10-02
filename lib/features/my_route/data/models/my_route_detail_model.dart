@@ -21,7 +21,7 @@ class MyRouteDetailModel {
       title: json['title'] as String,
       polyline: json['polyline'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      durationMinutes: json['durationMinutes'] as int, // 분 단위
+      durationMinutes: json['durationSeconds'] as int, // 초 단위
       distance: (json['distance'] as num).toDouble(),
       elevationGain: (json['elevationGain'] as num).toDouble(),
       userId: json['userId'] as String,
@@ -46,7 +46,7 @@ class MyRouteDetailModel {
   final String title;
   final String polyline;
   final DateTime createdAt;
-  final int durationMinutes;
+  final int durationMinutes; // 초 단위 (API 필드명은 durationSeconds로 변경됨)
   final double distance;
   final double elevationGain;
   final String userId;
