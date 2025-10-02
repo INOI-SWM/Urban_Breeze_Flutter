@@ -133,6 +133,13 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     // 동기화 완료 이벤트 감지
     ref.listen(syncCompleteProvider, (int? previous, int next) {
       if (previous != null && next > previous) {
+        // 새로고침 시작 알림
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('새로운 데이터를 불러오는 중...'),
+            duration: Duration(seconds: 2),
+          ),
+        );
         _loadStatistics();
       }
     });

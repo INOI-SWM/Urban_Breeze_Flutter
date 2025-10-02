@@ -13,7 +13,8 @@ import 'package:urban_breeze/navigation/page_with_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
-import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/button_size.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/button_solid.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/design_system/widgets/tab_bar/custom_tab_bar.dart';
@@ -112,9 +113,6 @@ class _RefreshButton extends ConsumerWidget {
           if (allWorkouts.isNotEmpty) {
             ref.read(workoutDataProvider.notifier).updateWorkouts(allWorkouts);
           }
-
-          // 동기화 완료 이벤트 발생
-          ref.read(syncCompleteProvider.notifier).triggerSyncComplete();
         }
       }
     } catch (e) {
@@ -334,6 +332,14 @@ class _SyncModalState extends ConsumerState<SyncModal> {
                 ),
                 textAlign: TextAlign.center,
               ),
+              const SizedBox(height: 8),
+              Text(
+                '어플을 끄지 마세요',
+                style: AppTextStyles.body2.normalBold.copyWith(
+                  color: colors.labelAlternative,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ],
 
             const SizedBox(height: 24),
@@ -342,11 +348,18 @@ class _SyncModalState extends ConsumerState<SyncModal> {
             if (!_isSyncing)
               SizedBox(
                 width: double.infinity,
-                child: ButtonOutlined(
+                child: ButtonSolid(
                   text: '닫기',
-                  onPressed: () => Navigator.of(context).pop(),
-                  borderColor: colors.labelAlternative,
-                  textColor: colors.labelStrong,
+                  size: ButtonSize.large,
+                  backgroundColor: colors.primaryNormal,
+                  textColor: colors.staticWhite,
+                  onPressed: () {
+                    // 모달 닫기 전에 동기화 완료 이벤트 발생
+                    ref
+                        .read(syncCompleteProvider.notifier)
+                        .triggerSyncComplete();
+                    Navigator.of(context).pop();
+                  },
                 ),
               ),
           ],
