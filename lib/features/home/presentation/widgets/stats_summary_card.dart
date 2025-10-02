@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/home/domain/entities/home_statistics.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/info/info_items_row.dart';
+import 'package:urban_breeze/shared/utils/display_formatter.dart';
 
 class StatsSummaryCard extends StatelessWidget {
-  const StatsSummaryCard({super.key, this.onMorePressed});
+  const StatsSummaryCard({super.key, this.statistics, this.onMorePressed});
+  final HomeStatistics? statistics;
   final VoidCallback? onMorePressed;
 
   @override
@@ -41,11 +44,31 @@ class StatsSummaryCard extends StatelessWidget {
             color: colors.backgroundElevatedNormal,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const InfoItemsRow(
+          child: InfoItemsRow(
             items: <InfoItemData>[
-              InfoItemData(label: '거리', value: '128.4 km'),
-              InfoItemData(label: '운동 시간', value: '6시간 23분'),
-              InfoItemData(label: '상승 고도', value: '920 m'),
+              InfoItemData(
+                label: '거리',
+                value:
+                    statistics != null
+                        ? DisplayFormatter.formatDistance(
+                          statistics!.totalDistance,
+                        )
+                        : '--',
+              ),
+              InfoItemData(
+                label: '운동 시간',
+                value:
+                    statistics != null
+                        ? DisplayFormatter.formatDurationFromSeconds(
+                          statistics!.totalDuration,
+                        )
+                        : '--',
+              ),
+              InfoItemData(
+                label: '운동 횟수',
+                value:
+                    statistics != null ? '${statistics!.totalWorkouts}회' : '--',
+              ),
             ],
           ),
         ),

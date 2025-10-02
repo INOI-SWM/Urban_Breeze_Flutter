@@ -1,32 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/home/domain/entities/recommended_courses_for_home.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/thumbnail/thumbnail.dart';
+import 'package:urban_breeze/shared/utils/display_formatter.dart';
 
 class RecommendedCoursesSection extends StatelessWidget {
-  const RecommendedCoursesSection({super.key, this.onMorePressed});
+  const RecommendedCoursesSection({
+    super.key,
+    this.courses,
+    this.onMorePressed,
+    this.onCourseTap,
+  });
 
+  final RecommendedCoursesForHome? courses;
   final VoidCallback? onMorePressed;
+  final Function(String courseId)? onCourseTap;
 
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-
-    const List<_CourseItem> courses = <_CourseItem>[
-      _CourseItem(
-        name: '한강 남단 코스',
-        assetPath: 'assets/images/png/thumbnail_r4_3.png',
-      ),
-      _CourseItem(
-        name: '도심 순환 코스',
-        assetPath: 'assets/images/png/thumbnail_r4_3.png',
-      ),
-      _CourseItem(
-        name: '강변 뷰 코스',
-        assetPath: 'assets/images/png/thumbnail_r4_3.png',
-      ),
-    ];
+    final List<RecommendedCourseForHome> courseList =
+        courses?.courses ?? <RecommendedCourseForHome>[];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,60 +53,88 @@ class RecommendedCoursesSection extends StatelessWidget {
         const SizedBox(height: 12),
         SizedBox(
           height: 170,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: courses.length,
-            separatorBuilder:
-                (BuildContext context, int _) => const SizedBox(width: 8),
-            itemBuilder: (BuildContext context, int index) {
-              final _CourseItem item = courses[index];
-              return SizedBox(
-                width: 152,
-                child: _RecommendedCourseCard(item: item),
-              );
-            },
-          ),
+          child:
+              courseList.isEmpty
+                  ? const Center(child: Text('추천 코스가 없습니다'))
+                  : ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: courseList.length,
+                    separatorBuilder:
+                        (BuildContext context, int _) =>
+                            const SizedBox(width: 8),
+                    itemBuilder: (BuildContext context, int index) {
+                      final RecommendedCourseForHome course = courseList[index];
+                      return SizedBox(
+                        width: 152,
+                        child: _RecommendedCourseCard(
+                          course: course,
+                          onTap: () => onCourseTap?.call(course.id),
+                        ),
+                      );
+                    },
+                  ),
         ),
       ],
     );
   }
 }
 
-class _CourseItem {
-  const _CourseItem({required this.name, required this.assetPath});
-  final String name;
-  final String assetPath;
-}
-
 class _RecommendedCourseCard extends StatelessWidget {
-  const _RecommendedCourseCard({required this.item});
-  final _CourseItem item;
+  const _RecommendedCourseCard({required this.course, this.onTap});
+  final RecommendedCourseForHome course;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Thumbnail(
-          path: item.assetPath,
-          ratio: ThumbnailRatio.r4_3,
-          sourceType: ThumbnailSourceType.asset,
-          hasRadius: true,
-          fit: BoxFit.cover,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          item.name,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppTextStyles.body2.normalBold.copyWith(
-            color: colors.labelStrong,
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Thumbnail(
+            path:
+                course.thumbnailImageUrl ??
+                'assets/images/png/thumbnail_r4_3.png',
+            ratio: ThumbnailRatio.r4_3,
+            sourceType:
+                course.thumbnailImageUrl != null
+                    ? ThumbnailSourceType.network
+                    : ThumbnailSourceType.asset,
+            hasRadius: true,
+            fit: BoxFit.cover,
           ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            course.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.body2.normalBold.copyWith(
+              color: colors.labelStrong,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: <Widget>[
+              Text(
+                DisplayFormatter.formatDistance(course.distance),
+                style: AppTextStyles.caption1.regular.copyWith(
+                  color: colors.labelAlternative,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                DisplayFormatter.formatDurationFromSeconds(course.duration),
+                style: AppTextStyles.caption1.regular.copyWith(
+                  color: colors.labelAlternative,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
