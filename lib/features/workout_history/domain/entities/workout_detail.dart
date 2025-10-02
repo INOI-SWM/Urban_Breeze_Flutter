@@ -19,6 +19,7 @@ class WorkoutDetail {
     this.maxHeartRate,
     this.averagePower,
     this.maxPower,
+    this.calories,
     required this.user,
     required this.thumbnailImageUrl,
     required this.activityImages,
@@ -42,6 +43,7 @@ class WorkoutDetail {
   final int? maxHeartRate; // bpm
   final int? averagePower; // W
   final int? maxPower; // W
+  final int? calories; // kcal
   final WorkoutUser user;
   final String thumbnailImageUrl;
   final List<ActivityImage> activityImages;
@@ -87,6 +89,9 @@ class WorkoutDetail {
   /// 케이던스 표시용 문자열 반환
   String get cadenceDisplay => cadence != null ? '$cadence rpm' : '--';
 
+  /// 칼로리 표시용 문자열 반환
+  String get caloriesDisplay => calories != null ? '$calories kcal' : '--';
+
   /// 특정 필드만 변경된 새로운 WorkoutDetail 객체 생성
   WorkoutDetail copyWith({
     String? id,
@@ -104,6 +109,7 @@ class WorkoutDetail {
     int? maxHeartRate,
     int? averagePower,
     int? maxPower,
+    int? calories,
     WorkoutUser? user,
     String? thumbnailImageUrl,
     List<ActivityImage>? activityImages,
@@ -128,6 +134,7 @@ class WorkoutDetail {
       maxHeartRate: maxHeartRate ?? this.maxHeartRate,
       averagePower: averagePower ?? this.averagePower,
       maxPower: maxPower ?? this.maxPower,
+      calories: calories ?? this.calories,
       user: user ?? this.user,
       thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
       activityImages: activityImages ?? this.activityImages,

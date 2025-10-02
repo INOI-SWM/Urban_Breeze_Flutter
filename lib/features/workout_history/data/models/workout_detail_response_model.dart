@@ -114,6 +114,7 @@ class WorkoutDetailResponseModel {
     this.maxHeartRate,
     this.averagePower,
     this.maxPower,
+    this.calories,
     required this.user,
     required this.thumbnailImageUrl,
     required this.activityImages,
@@ -139,6 +140,7 @@ class WorkoutDetailResponseModel {
       maxHeartRate: json['maxHeartRate'] as int?,
       averagePower: json['averagePower'] as int?,
       maxPower: json['maxPower'] as int?,
+      calories: json['calories'] as int?,
       user: WorkoutUserModel.fromJson(json['user'] as Map<String, dynamic>),
       thumbnailImageUrl: json['thumbnailImageUrl'] as String,
       activityImages:
@@ -178,6 +180,7 @@ class WorkoutDetailResponseModel {
   final int? maxHeartRate; // bpm
   final int? averagePower; // W
   final int? maxPower; // W
+  final int? calories; // kcal
   final WorkoutUserModel user;
   final String thumbnailImageUrl;
   final List<ActivityImageModel> activityImages;
@@ -202,6 +205,7 @@ class WorkoutDetailResponseModel {
       'maxHeartRate': maxHeartRate,
       'averagePower': averagePower,
       'maxPower': maxPower,
+      'calories': calories,
       'user': user.toJson(),
       'thumbnailImageUrl': thumbnailImageUrl,
       'activityImages':

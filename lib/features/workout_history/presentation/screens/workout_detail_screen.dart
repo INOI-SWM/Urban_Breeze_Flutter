@@ -231,10 +231,10 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                           alignment: CrossAxisAlignment.start,
                         ),
                       ),
-                      const Expanded(
+                      Expanded(
                         child: InfoItem(
                           label: '소모 칼로리',
-                          value: '--', // TODO: 칼로리 데이터 추가 필요
+                          value: detail.caloriesDisplay,
                           alignment: CrossAxisAlignment.start,
                         ),
                       ),
