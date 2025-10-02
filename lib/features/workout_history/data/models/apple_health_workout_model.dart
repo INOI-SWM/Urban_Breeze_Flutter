@@ -10,6 +10,8 @@ class AppleHealthWorkoutModel {
     required this.title,
     this.heartRateData = const <HeartRateDataModel>[],
     this.locationData = const <LocationDataModel>[],
+    this.averageHeartRate,
+    this.elevationGain,
   });
 
   final String externalId;
@@ -22,6 +24,8 @@ class AppleHealthWorkoutModel {
   final String title;
   final List<HeartRateDataModel> heartRateData;
   final List<LocationDataModel> locationData;
+  final double? averageHeartRate; // 평균 심박수 (bpm)
+  final double? elevationGain; // 상승 고도 (m)
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -37,6 +41,8 @@ class AppleHealthWorkoutModel {
           heartRateData.map((HeartRateDataModel e) => e.toJson()).toList(),
       'locationData':
           locationData.map((LocationDataModel e) => e.toJson()).toList(),
+      'averageHeartRate': averageHeartRate,
+      'elevationGain': elevationGain,
     };
   }
 }

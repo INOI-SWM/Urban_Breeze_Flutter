@@ -96,10 +96,6 @@ class WorkoutDetailStatScreen extends StatelessWidget {
         'value': workoutDetail.elevationGainDisplay,
       },
       <String, String>{
-        'label': '하강고도',
-        'value': workoutDetail.elevationLossDisplay,
-      },
-      <String, String>{
         'label': '전체시간',
         'value': WorkoutFormatter.toDurationText(workoutDetail.totalDuration),
       },

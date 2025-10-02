@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:health_kit_reporter/health_kit_reporter.dart';
 import 'package:health_kit_reporter/model/payload/preferred_unit.dart';
 import 'package:health_kit_reporter/model/payload/quantity.dart';
@@ -18,6 +19,7 @@ class AppleHealthKitDataSource {
     WorkoutType.workoutType.identifier,
     QuantityType.heartRate.identifier,
     QuantityType.distanceCycling.identifier,
+    QuantityType.activeEnergyBurned.identifier,
     SeriesType.workoutRoute.identifier,
   ];
 
@@ -80,7 +82,7 @@ class AppleHealthKitDataSource {
           DateTime.fromMillisecondsSinceEpoch(a.startTimestamp.toInt()),
         ),
       );
-
+      debugPrint(cyclingWorkouts.toString());
       return cyclingWorkouts;
     } catch (e) {
       throw HealthKitDataException('자전거 운동 데이터 조회 실패: $e');
@@ -178,6 +180,44 @@ class AppleHealthKitDataSource {
       return routes;
     } catch (e) {
       throw HealthKitDataException('GPS 경로 데이터 조회 실패: $e');
+    }
+  }
+
+  /// 운동의 소모 칼로리 조회
+  Future<double?> getActiveEnergyBurnedForWorkout({
+    required DateTime workoutStartTime,
+    required DateTime workoutEndTime,
+  }) async {
+    try {
+      final Predicate predicate = Predicate(workoutStartTime, workoutEndTime);
+      final List<PreferredUnit> preferredUnits =
+          await HealthKitReporter.preferredUnits(<QuantityType>[
+            QuantityType.activeEnergyBurned,
+          ]);
+
+      if (preferredUnits.isEmpty) {
+        throw const HealthKitDataException('칼로리 단위를 가져올 수 없습니다');
+      }
+
+      final String unit = preferredUnits.first.unit;
+      final List<Quantity> energyData = await HealthKitReporter.quantityQuery(
+        QuantityType.activeEnergyBurned,
+        unit,
+        predicate,
+      );
+
+      if (energyData.isEmpty) {
+        return null;
+      }
+
+      // 총 소모 칼로리 계산
+      double totalEnergy = 0.0;
+      for (final Quantity quantity in energyData) {
+        totalEnergy += quantity.harmonized.value;
+      }
+      return totalEnergy;
+    } catch (e) {
+      throw HealthKitDataException('소모 칼로리 조회 실패: $e');
     }
   }
 }

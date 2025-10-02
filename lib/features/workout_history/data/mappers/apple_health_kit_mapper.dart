@@ -8,6 +8,7 @@ import '../../domain/entities/heart_rate_data.dart';
 import '../../domain/entities/location_data.dart';
 import '../../domain/entities/workout_record.dart';
 import '../../domain/exceptions/apple_health_kit_exceptions.dart';
+import '../../domain/services/workout_calculation_service.dart';
 
 /// HealthKit 타임스탬프 변환 유틸리티
 class AppleHealthKitTimestampUtils {
@@ -68,6 +69,26 @@ class AppleHealthKitMapper {
     List<LocationData> locationData,
   ) {
     return record.copyWith(locationData: locationData);
+  }
+
+  /// 기존 CyclingWorkoutRecord에 평균 심박수를 계산하여 추가한 새로운 record 반환
+  static WorkoutRecord addCalculatedAverageHeartRate(
+    WorkoutRecord record,
+    List<HeartRateData> heartRateData,
+  ) {
+    final double? averageHeartRate =
+        WorkoutCalculationService.calculateAverageHeartRate(heartRateData);
+    return record.copyWith(averageHeartRate: averageHeartRate);
+  }
+
+  /// 기존 CyclingWorkoutRecord에 elevation gain을 계산하여 추가한 새로운 record 반환
+  static WorkoutRecord addCalculatedElevationGain(
+    WorkoutRecord record,
+    List<LocationData> locationData,
+  ) {
+    final double? elevationGain =
+        WorkoutCalculationService.calculateElevationGain(locationData);
+    return record.copyWith(elevationGain: elevationGain);
   }
 
   /// Quantity를 HeartRateData로 변환
