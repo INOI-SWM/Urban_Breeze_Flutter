@@ -245,15 +245,6 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                     children: <Widget>[
                       Expanded(
                         child: InfoItem(
-                          label: '전체 시간',
-                          value: WorkoutFormatter.toDurationText(
-                            detail.totalDuration,
-                          ),
-                          alignment: CrossAxisAlignment.start,
-                        ),
-                      ),
-                      Expanded(
-                        child: InfoItem(
                           label: '케이던스',
                           value: detail.cadenceDisplay,
                           alignment: CrossAxisAlignment.start,
@@ -263,6 +254,13 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                         child: InfoItem(
                           label: '평균 심박수',
                           value: detail.averageHeartRateDisplay,
+                          alignment: CrossAxisAlignment.start,
+                        ),
+                      ),
+                      const Expanded(
+                        child: InfoItem(
+                          label: '',
+                          value: '',
                           alignment: CrossAxisAlignment.start,
                         ),
                       ),

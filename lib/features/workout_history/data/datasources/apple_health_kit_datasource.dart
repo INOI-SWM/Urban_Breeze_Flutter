@@ -71,7 +71,12 @@ class AppleHealthKitDataSource {
           workouts.where((Workout workout) {
             final WorkoutHarmonized harmonized = workout.harmonized;
             final WorkoutActivityType type = harmonized.type;
-            return type == WorkoutActivityType.cycling;
+            final double? totalDistance = harmonized.totalDistance?.toDouble();
+
+            // 자전거 운동이면서 거리가 0보다 큰 경우만 포함
+            return type == WorkoutActivityType.cycling &&
+                totalDistance != null &&
+                totalDistance > 0;
           }).toList();
 
       // 최신순으로 정렬
