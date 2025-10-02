@@ -1,6 +1,7 @@
 import 'package:urban_breeze/features/workout_history/domain/entities/activity_image.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/track_point.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_user.dart';
+import 'package:urban_breeze/shared/utils/workout_formatter.dart';
 
 class WorkoutDetail {
   const WorkoutDetail({
@@ -92,6 +93,67 @@ class WorkoutDetail {
   /// 칼로리 표시용 문자열 반환
   String get caloriesDisplay =>
       calories != null ? '${calories!.round()} kcal' : '--';
+
+  /// 데이터가 있는 필드들의 정보를 우선순위대로 반환
+  List<Map<String, String>> get availableDataFields {
+    final List<Map<String, String>> fields = <Map<String, String>>[];
+
+    // 항상 표시되는 기본 필드들
+    fields.add(<String, String>{
+      'label': '운동 시간',
+      'value': WorkoutFormatter.toDurationText(totalDuration),
+    });
+    fields.add(<String, String>{
+      'label': '평균 속도',
+      'value': averageSpeedDisplay,
+    });
+
+    // elevation gain은 거의 항상 있으므로 우선순위 높게
+    if (elevationGain != null && elevationGain! > 0) {
+      fields.add(<String, String>{
+        'label': '상승고도',
+        'value': elevationGainDisplay,
+      });
+    }
+
+    // 칼로리는 있을 때만 표시
+    if (calories != null && calories! > 0) {
+      fields.add(<String, String>{'label': '소모 칼로리', 'value': caloriesDisplay});
+    }
+
+    // 심박수 데이터가 있는 경우
+    if (averageHeartRate != null && averageHeartRate! > 0) {
+      fields.add(<String, String>{
+        'label': '평균 심박수',
+        'value': averageHeartRateDisplay,
+      });
+    }
+
+    if (maxHeartRate != null && maxHeartRate! > 0) {
+      fields.add(<String, String>{
+        'label': '최대 심박수',
+        'value': maxHeartRateDisplay,
+      });
+    }
+
+    // 케이던스 데이터가 있는 경우
+    if (cadence != null && cadence! > 0) {
+      fields.add(<String, String>{'label': '케이던스', 'value': cadenceDisplay});
+    }
+
+    if (averagePower != null && averagePower! > 0) {
+      fields.add(<String, String>{
+        'label': '평균 파워',
+        'value': averagePowerDisplay,
+      });
+    }
+
+    if (maxPower != null && maxPower! > 0) {
+      fields.add(<String, String>{'label': '최대 파워', 'value': maxPowerDisplay});
+    }
+
+    return fields;
+  }
 
   /// 특정 필드만 변경된 새로운 WorkoutDetail 객체 생성
   WorkoutDetail copyWith({
