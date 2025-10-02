@@ -16,14 +16,12 @@ class DisplayFormatter {
   }
 
   /// 상승 고도 표시용 문자열 반환 m
-  /// 0일 때: "0m", 100m 이상: 소수점 없음, 10m 이상: 소수점 한자리, 10m 미만: 소수점 두자리
+  /// 0일 때: "--", 100m 이상: 소수점 없음, 10m 이상: 소수점 한자리, 10m 미만: 소수점 두자리
   /// null일 때는 "--" 반환
   static String formatElevationGain(double? elevationGain) {
-    if (elevationGain == null) return '--';
+    if (elevationGain == null || elevationGain == 0) return '--';
 
-    if (elevationGain == 0) {
-      return '0m';
-    } else if (elevationGain >= 100) {
+    if (elevationGain >= 100) {
       return '${elevationGain.toStringAsFixed(0)}m';
     } else if (elevationGain >= 10) {
       return '${elevationGain.toStringAsFixed(1)}m';
