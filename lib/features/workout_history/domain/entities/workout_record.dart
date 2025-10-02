@@ -13,6 +13,8 @@ class WorkoutRecord {
     this.heartRateData,
     this.distanceData,
     this.locationData,
+    this.averageHeartRate,
+    this.elevationGain,
   });
 
   final String id;
@@ -24,12 +26,16 @@ class WorkoutRecord {
   final List<HeartRateData>? heartRateData; // 원시 심박수 데이터
   final List<DistanceData>? distanceData; // 원시 거리 데이터
   final List<LocationData>? locationData; // 원시 GPS 위치 데이터
+  final double? averageHeartRate; // 평균 심박수 (bpm)
+  final double? elevationGain; // 상승 고도 (m)
 
   /// 기존 객체의 일부 필드만 변경한 새로운 객체를 생성
   WorkoutRecord copyWith({
     List<HeartRateData>? heartRateData,
     List<DistanceData>? distanceData,
     List<LocationData>? locationData,
+    double? averageHeartRate,
+    double? elevationGain,
   }) {
     return WorkoutRecord(
       id: id,
@@ -41,6 +47,8 @@ class WorkoutRecord {
       heartRateData: heartRateData ?? this.heartRateData,
       distanceData: distanceData ?? this.distanceData,
       locationData: locationData ?? this.locationData,
+      averageHeartRate: averageHeartRate ?? this.averageHeartRate,
+      elevationGain: elevationGain ?? this.elevationGain,
     );
   }
 

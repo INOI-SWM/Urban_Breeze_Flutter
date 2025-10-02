@@ -18,7 +18,7 @@ class RecommendedCourseResponseModel {
       title: json['title'] as String,
       description: json['description'] as String,
       distanceKm: (json['distanceKm'] as num).toDouble(),
-      durationMinutes: json['durationMinutes'] as int,
+      durationMinutes: json['durationSeconds'] as int,
       elevationGain: (json['elevationGain'] as num).toDouble(),
       region: json['region'] as String,
       difficulty: json['difficulty'] as String,
@@ -31,7 +31,7 @@ class RecommendedCourseResponseModel {
   final String title;
   final String description;
   final double distanceKm;
-  final int durationMinutes;
+  final int durationMinutes; // 초 단위 (API 필드명은 durationSeconds로 변경됨)
   final double elevationGain;
   final String region;
   final String difficulty;
@@ -44,7 +44,7 @@ class RecommendedCourseResponseModel {
       'title': title,
       'description': description,
       'distanceKm': distanceKm,
-      'durationMinutes': durationMinutes,
+      'durationSeconds': durationMinutes,
       'elevationGain': elevationGain,
       'region': region,
       'difficulty': difficulty,

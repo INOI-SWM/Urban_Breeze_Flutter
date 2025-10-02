@@ -1,3 +1,5 @@
+import 'package:urban_breeze/shared/utils/display_formatter.dart';
+
 class WorkoutActivity {
   const WorkoutActivity({
     required this.activityId,
@@ -6,8 +8,8 @@ class WorkoutActivity {
     required this.endedAt,
     required this.distance,
     required this.duration,
-    required this.elevationGain,
-    required this.thumbnailImageUrl,
+    this.elevationGain,
+    this.thumbnailImageUrl,
     required this.userProfileImageUrl,
     required this.userNickname,
   });
@@ -18,10 +20,24 @@ class WorkoutActivity {
   final DateTime endedAt;
   final double distance; // km 단위
   final int duration; // seconds
-  final double elevationGain; // meters
-  final String thumbnailImageUrl;
+  final double? elevationGain; // meters
+  final String? thumbnailImageUrl;
   final String userProfileImageUrl;
   final String userNickname;
+
+  /// 거리 표시용 문자열 반환
+  String get distanceDisplay => DisplayFormatter.formatDistance(distance);
+
+  /// 상승 고도 표시용 문자열 반환
+  String get elevationGainDisplay =>
+      DisplayFormatter.formatElevationGain(elevationGain);
+
+  /// 운동 시간 표시용 문자열 반환
+  String get durationDisplay =>
+      DisplayFormatter.formatDurationFromSeconds(duration);
+
+  /// 운동 시작일 표시용 문자열 반환
+  String get startedAtDisplay => DisplayFormatter.formatDate(startedAt);
 
   @override
   bool operator ==(Object other) {

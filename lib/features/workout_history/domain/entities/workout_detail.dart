@@ -12,13 +12,14 @@ class WorkoutDetail {
     required this.totalDurationMinutes,
     required this.distance,
     required this.averageSpeed,
-    required this.elevationGain,
-    required this.elevationLoss,
+    this.elevationGain,
+    this.elevationLoss,
     this.cadence,
     this.averageHeartRate,
     this.maxHeartRate,
     this.averagePower,
     this.maxPower,
+    this.calories,
     required this.user,
     required this.thumbnailImageUrl,
     required this.activityImages,
@@ -31,17 +32,18 @@ class WorkoutDetail {
   final String title;
   final DateTime startedAt;
   final DateTime endedAt;
-  final int activeDurationMinutes; // 분 단위
-  final int totalDurationMinutes; // 분 단위
+  final int activeDurationMinutes; // 초 단위
+  final int totalDurationMinutes; // 초 단위
   final double distance; // km 단위
   final double averageSpeed; // km/h
-  final double elevationGain; // m
-  final double elevationLoss; // m
+  final double? elevationGain; // m
+  final double? elevationLoss; // m
   final int? cadence; // rpm
   final int? averageHeartRate; // bpm
   final int? maxHeartRate; // bpm
   final int? averagePower; // W
   final int? maxPower; // W
+  final double? calories; // kcal
   final WorkoutUser user;
   final String thumbnailImageUrl;
   final List<ActivityImage> activityImages;
@@ -50,10 +52,10 @@ class WorkoutDetail {
   final List<double> bbox; // [minLng, minLat, maxLng, maxLat]
 
   /// 총 운동 시간을 Duration으로 반환
-  Duration get totalDuration => Duration(minutes: totalDurationMinutes);
+  Duration get totalDuration => Duration(seconds: totalDurationMinutes);
 
   /// 활성 운동 시간을 Duration으로 반환
-  Duration get activeDuration => Duration(minutes: activeDurationMinutes);
+  Duration get activeDuration => Duration(seconds: activeDurationMinutes);
 
   /// 거리 표시용 문자열 반환
   String get distanceDisplay => '${distance.toStringAsFixed(1)} km';
@@ -62,10 +64,12 @@ class WorkoutDetail {
   String get averageSpeedDisplay => '${averageSpeed.toStringAsFixed(1)} km/h';
 
   /// 상승 고도 표시용 문자열 반환
-  String get elevationGainDisplay => '${elevationGain.round()} m';
+  String get elevationGainDisplay =>
+      elevationGain != null ? '${elevationGain!.round()} m' : '--';
 
   /// 하강 고도 표시용 문자열 반환
-  String get elevationLossDisplay => '${elevationLoss.round()} m';
+  String get elevationLossDisplay =>
+      elevationLoss != null ? '${elevationLoss!.round()} m' : '--';
 
   /// 평균 심박수 표시용 문자열 반환
   String get averageHeartRateDisplay =>
@@ -85,6 +89,9 @@ class WorkoutDetail {
   /// 케이던스 표시용 문자열 반환
   String get cadenceDisplay => cadence != null ? '$cadence rpm' : '--';
 
+  /// 칼로리 표시용 문자열 반환
+  String get caloriesDisplay => calories != null ? '$calories kcal' : '--';
+
   /// 특정 필드만 변경된 새로운 WorkoutDetail 객체 생성
   WorkoutDetail copyWith({
     String? id,
@@ -102,6 +109,7 @@ class WorkoutDetail {
     int? maxHeartRate,
     int? averagePower,
     int? maxPower,
+    double? calories,
     WorkoutUser? user,
     String? thumbnailImageUrl,
     List<ActivityImage>? activityImages,
@@ -126,6 +134,7 @@ class WorkoutDetail {
       maxHeartRate: maxHeartRate ?? this.maxHeartRate,
       averagePower: averagePower ?? this.averagePower,
       maxPower: maxPower ?? this.maxPower,
+      calories: calories ?? this.calories,
       user: user ?? this.user,
       thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
       activityImages: activityImages ?? this.activityImages,

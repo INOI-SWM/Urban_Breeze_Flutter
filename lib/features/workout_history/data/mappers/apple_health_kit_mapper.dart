@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:health_kit_reporter/model/payload/quantity.dart';
 import 'package:health_kit_reporter/model/payload/workout.dart';
 import 'package:health_kit_reporter/model/payload/workout_route.dart';
@@ -25,6 +26,9 @@ class AppleHealthKitMapper {
           workout.harmonized.totalDistance?.toDouble() ?? 0.0;
       final double calories =
           workout.harmonized.totalEnergyBurned?.toDouble() ?? 0.0;
+
+      debugPrint('distance: $distance');
+      debugPrint('calories: $calories');
 
       return WorkoutRecord(
         id: workout.uuid,

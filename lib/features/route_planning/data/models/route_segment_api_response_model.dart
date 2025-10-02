@@ -25,7 +25,7 @@ class RouteApiResponseModel {
     return RouteApiResponseModel(
       bbox: bbox,
       geometry: geometry,
-      totalDuration: (jsonData['totalDuration'] as num).toInt(),
+      totalDuration: (jsonData['totalDurationSeconds'] as num).toInt(),
       totalDistance: (jsonData['totalDistance'] as num).toDouble(),
       averageGradient: (jsonData['averageGradient'] as num).toDouble(),
     );
@@ -34,7 +34,7 @@ class RouteApiResponseModel {
   const RouteApiResponseModel({
     required this.bbox,
     required this.geometry,
-    required this.totalDuration, //분
+    required this.totalDuration, //초
     required this.totalDistance, //미터
     required this.averageGradient,
   });

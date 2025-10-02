@@ -55,6 +55,7 @@ class WorkoutDetailMapper {
       maxHeartRate: model.maxHeartRate,
       averagePower: model.averagePower,
       maxPower: model.maxPower,
+      calories: model.calories,
       user: toWorkoutUserEntity(model.user),
       thumbnailImageUrl: model.thumbnailImageUrl,
       activityImages: ActivityImageService.sortByDisplayOrder(

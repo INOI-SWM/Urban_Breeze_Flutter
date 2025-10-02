@@ -28,7 +28,7 @@ class RecommendedCourseDetailResponseModel {
       description: json['description'] as String,
       polyline: json['polyline'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      durationMinutes: json['durationMinutes'] as int,
+      durationMinutes: json['durationSeconds'] as int,
       distance: (json['distance'] as num).toDouble(),
       elevationGain: (json['elevationGain'] as num).toDouble(),
       userId: json['userId'] as String,
@@ -57,7 +57,7 @@ class RecommendedCourseDetailResponseModel {
   final String description;
   final String polyline;
   final DateTime createdAt;
-  final int durationMinutes;
+  final int durationMinutes; // 초 단위 (API 필드명은 durationSeconds로 변경됨)
   final double distance;
   final double elevationGain;
   final String userId;
@@ -77,7 +77,7 @@ class RecommendedCourseDetailResponseModel {
       'description': description,
       'polyline': polyline,
       'createdAt': createdAt.toIso8601String(),
-      'durationMinutes': durationMinutes,
+      'durationSeconds': durationMinutes,
       'distance': distance,
       'elevationGain': elevationGain,
       'userId': userId,
