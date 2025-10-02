@@ -11,10 +11,12 @@ class RecommendedCoursesSection extends StatelessWidget {
     super.key,
     this.courses,
     this.onMorePressed,
+    this.onCourseTap,
   });
 
   final RecommendedCoursesForHome? courses;
   final VoidCallback? onMorePressed;
+  final Function(String courseId)? onCourseTap;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +68,10 @@ class RecommendedCoursesSection extends StatelessWidget {
                       final RecommendedCourseForHome course = courseList[index];
                       return SizedBox(
                         width: 152,
-                        child: _RecommendedCourseCard(course: course),
+                        child: _RecommendedCourseCard(
+                          course: course,
+                          onTap: () => onCourseTap?.call(course.id),
+                        ),
                       );
                     },
                   ),
@@ -77,55 +82,59 @@ class RecommendedCoursesSection extends StatelessWidget {
 }
 
 class _RecommendedCourseCard extends StatelessWidget {
-  const _RecommendedCourseCard({required this.course});
+  const _RecommendedCourseCard({required this.course, this.onTap});
   final RecommendedCourseForHome course;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Thumbnail(
-          path:
-              course.thumbnailImageUrl ??
-              'assets/images/png/thumbnail_r4_3.png',
-          ratio: ThumbnailRatio.r4_3,
-          sourceType:
-              course.thumbnailImageUrl != null
-                  ? ThumbnailSourceType.network
-                  : ThumbnailSourceType.asset,
-          hasRadius: true,
-          fit: BoxFit.cover,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          course.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppTextStyles.body2.normalBold.copyWith(
-            color: colors.labelStrong,
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Thumbnail(
+            path:
+                course.thumbnailImageUrl ??
+                'assets/images/png/thumbnail_r4_3.png',
+            ratio: ThumbnailRatio.r4_3,
+            sourceType:
+                course.thumbnailImageUrl != null
+                    ? ThumbnailSourceType.network
+                    : ThumbnailSourceType.asset,
+            hasRadius: true,
+            fit: BoxFit.cover,
           ),
-        ),
-        const SizedBox(height: 4),
-        Row(
-          children: <Widget>[
-            Text(
-              DisplayFormatter.formatDistance(course.distance),
-              style: AppTextStyles.caption1.regular.copyWith(
-                color: colors.labelAlternative,
-              ),
+          const SizedBox(height: 8),
+          Text(
+            course.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.body2.normalBold.copyWith(
+              color: colors.labelStrong,
             ),
-            const SizedBox(width: 8),
-            Text(
-              DisplayFormatter.formatDurationFromSeconds(course.duration),
-              style: AppTextStyles.caption1.regular.copyWith(
-                color: colors.labelAlternative,
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: <Widget>[
+              Text(
+                DisplayFormatter.formatDistance(course.distance),
+                style: AppTextStyles.caption1.regular.copyWith(
+                  color: colors.labelAlternative,
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
+              const SizedBox(width: 8),
+              Text(
+                DisplayFormatter.formatDurationFromSeconds(course.duration),
+                style: AppTextStyles.caption1.regular.copyWith(
+                  color: colors.labelAlternative,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

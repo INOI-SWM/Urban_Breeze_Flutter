@@ -8,9 +8,15 @@ import 'package:urban_breeze/shared/design_system/widgets/thumbnail/thumbnail.da
 import 'package:urban_breeze/shared/utils/display_formatter.dart';
 
 class LatestWorkoutCard extends StatelessWidget {
-  const LatestWorkoutCard({super.key, this.workout, this.onMorePressed});
+  const LatestWorkoutCard({
+    super.key,
+    this.workout,
+    this.onMorePressed,
+    this.onWorkoutTap,
+  });
   final LatestWorkout? workout;
   final VoidCallback? onMorePressed;
+  final VoidCallback? onWorkoutTap;
 
   @override
   Widget build(BuildContext context) {
@@ -41,35 +47,38 @@ class LatestWorkoutCard extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         if (workout != null)
-          CardList(
-            thumbnailPath:
-                workout!.thumbnailImageUrl ??
-                'assets/images/png/thumbnail_r3_2.png',
-            sourceType:
-                workout!.thumbnailImageUrl != null
-                    ? ThumbnailSourceType.network
-                    : ThumbnailSourceType.asset,
-            title: workout!.title,
-            createDate: _formatDate(workout!.startedAt),
-            badges: <BadgeData>[
-              BadgeData(
-                text: DisplayFormatter.formatDistance(workout!.distance),
-                icon: Icons.route,
-              ),
-              BadgeData(
-                text: DisplayFormatter.formatDurationFromSeconds(
-                  workout!.duration,
-                ),
-                icon: Icons.access_time,
-              ),
-              if (workout!.elevationGain != null)
+          GestureDetector(
+            onTap: onWorkoutTap,
+            child: CardList(
+              thumbnailPath:
+                  workout!.thumbnailImageUrl ??
+                  'assets/images/png/thumbnail_r3_2.png',
+              sourceType:
+                  workout!.thumbnailImageUrl != null
+                      ? ThumbnailSourceType.network
+                      : ThumbnailSourceType.asset,
+              title: workout!.title,
+              createDate: _formatDate(workout!.startedAt),
+              badges: <BadgeData>[
                 BadgeData(
-                  text: DisplayFormatter.formatElevationGain(
-                    workout!.elevationGain,
-                  ),
-                  icon: Icons.terrain,
+                  text: DisplayFormatter.formatDistance(workout!.distance),
+                  icon: Icons.route,
                 ),
-            ],
+                BadgeData(
+                  text: DisplayFormatter.formatDurationFromSeconds(
+                    workout!.duration,
+                  ),
+                  icon: Icons.access_time,
+                ),
+                if (workout!.elevationGain != null)
+                  BadgeData(
+                    text: DisplayFormatter.formatElevationGain(
+                      workout!.elevationGain,
+                    ),
+                    icon: Icons.terrain,
+                  ),
+              ],
+            ),
           )
         else
           const CardList(

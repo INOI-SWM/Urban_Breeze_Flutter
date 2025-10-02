@@ -28,12 +28,14 @@ import 'package:urban_breeze/shared/utils/workout_formatter.dart';
 class WorkoutDetailScreen extends ConsumerStatefulWidget {
   const WorkoutDetailScreen({
     super.key,
-    required this.workoutIndex,
-    required this.workoutActivity,
+    this.workoutIndex,
+    this.workoutActivity,
+    this.activityId,
   });
 
-  final int workoutIndex;
-  final WorkoutActivity workoutActivity;
+  final int? workoutIndex;
+  final WorkoutActivity? workoutActivity;
+  final String? activityId;
 
   @override
   ConsumerState<WorkoutDetailScreen> createState() =>
@@ -55,7 +57,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
       AmplitudeAnalytics.logScreenView(
         'workout_detail_screen',
         additionalProperties: <String, dynamic>{
-          'workout_id': widget.workoutActivity.activityId,
+          'workout_id': widget.activityId ?? widget.workoutActivity?.activityId,
           'workout_index': widget.workoutIndex,
         },
       );
@@ -68,9 +70,13 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
       errorMessage = null;
     });
 
+    final String activityId =
+        widget.activityId ??
+        widget.workoutActivity?.activityId.toString() ??
+        '';
     final AppResult<WorkoutDetail> result = await ref
         .read(getWorkoutDetailUseCaseProvider)
-        .execute(activityId: widget.workoutActivity.activityId.toString());
+        .execute(activityId: activityId);
 
     setState(() {
       isLoading = false;
@@ -100,7 +106,8 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
               AmplitudeAnalytics.logButtonClick(
                 'workout_detail_more_options',
                 additionalProperties: <String, dynamic>{
-                  'workout_id': widget.workoutActivity.activityId,
+                  'workout_id':
+                      widget.activityId ?? widget.workoutActivity?.activityId,
                 },
               );
               _showMoreOptionsMenu(context);
@@ -285,7 +292,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                             builder:
                                 (BuildContext context) =>
                                     WorkoutDetailStatScreen(
-                                      workoutIndex: widget.workoutIndex,
+                                      workoutIndex: widget.workoutIndex ?? 0,
                                       workoutDetail: detail,
                                     ),
                           ),
@@ -355,7 +362,8 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
             AmplitudeAnalytics.logEvent(
               'workout_delete',
               properties: <String, dynamic>{
-                'workout_id': widget.workoutActivity.activityId,
+                'workout_id':
+                    widget.activityId ?? widget.workoutActivity?.activityId,
               },
             );
             _showDeleteConfirmDialog(context);
@@ -404,8 +412,12 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
         deleteWorkoutUseCaseProvider,
       );
 
+      final String activityId =
+          widget.activityId ??
+          widget.workoutActivity?.activityId.toString() ??
+          '';
       final AppResult<void> result = await deleteWorkoutUseCase.execute(
-        widget.workoutActivity.activityId,
+        activityId,
       );
 
       if (mounted) {
@@ -418,7 +430,8 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
         AmplitudeAnalytics.logEvent(
           'workout_delete_success',
           properties: <String, dynamic>{
-            'workout_id': widget.workoutActivity.activityId,
+            'workout_id':
+                widget.activityId ?? widget.workoutActivity?.activityId,
           },
         );
 
@@ -437,7 +450,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
       AmplitudeAnalytics.logEvent(
         'workout_delete_error',
         properties: <String, dynamic>{
-          'workout_id': widget.workoutActivity.activityId,
+          'workout_id': widget.activityId ?? widget.workoutActivity?.activityId,
           'error': e.toString(),
         },
       );

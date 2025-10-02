@@ -10,7 +10,9 @@ import 'package:urban_breeze/features/home/presentation/widgets/latest_workout_c
 import 'package:urban_breeze/features/home/presentation/widgets/photo_banner.dart';
 import 'package:urban_breeze/features/home/presentation/widgets/recommended_courses_section.dart';
 import 'package:urban_breeze/features/home/presentation/widgets/stats_summary_card.dart';
+import 'package:urban_breeze/features/recommended_course/presentation/screens/recommended_course_detail_screen.dart';
 import 'package:urban_breeze/features/workout_history/presentation/pages/workout_history_page.dart';
+import 'package:urban_breeze/features/workout_history/presentation/screens/workout_detail_screen.dart';
 import 'package:urban_breeze/navigation/navigation_providers.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
@@ -114,6 +116,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       .read(bottomNavIndexProvider.notifier)
                                       .state = 3;
                                 },
+                                onWorkoutTap:
+                                    workout != null
+                                        ? () {
+                                          AmplitudeAnalytics.logButtonClick(
+                                            'home_latest_workout_tap',
+                                          );
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute<void>(
+                                              builder:
+                                                  (BuildContext context) =>
+                                                      WorkoutDetailScreen(
+                                                        activityId: workout.id,
+                                                      ),
+                                            ),
+                                          );
+                                        }
+                                        : null,
                               ),
                           loading: () => const LatestWorkoutCard(),
                           error:
@@ -145,6 +164,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               'home_recommended_courses_more',
                             );
                             ref.read(bottomNavIndexProvider.notifier).state = 1;
+                          },
+                          onCourseTap: (String courseId) {
+                            AmplitudeAnalytics.logButtonClick(
+                              'home_recommended_course_tap',
+                            );
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder:
+                                    (BuildContext context) =>
+                                        RecommendedCourseDetailScreen(
+                                          routeId: courseId,
+                                        ),
+                              ),
+                            );
                           },
                         ),
                     loading: () => const RecommendedCoursesSection(),
