@@ -81,12 +81,36 @@ class LatestWorkoutCard extends StatelessWidget {
             ),
           )
         else
-          const CardList(
-            thumbnailPath: 'assets/images/png/thumbnail_r3_2.png',
-            sourceType: ThumbnailSourceType.asset,
-            title: '운동 기록이 없습니다',
-            createDate: '',
-            badges: <BadgeData>[],
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: colors.backgroundElevatedNormal,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: <Widget>[
+                Icon(
+                  Icons.directions_bike_outlined,
+                  size: 48,
+                  color: colors.labelAlternative,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '최근 운동이 없습니다',
+                  style: AppTextStyles.body1.normalBold.copyWith(
+                    color: colors.labelStrong,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '오늘 라이딩 어떄요?',
+                  style: AppTextStyles.body2.normalBold.copyWith(
+                    color: colors.labelAlternative,
+                  ),
+                ),
+              ],
+            ),
           ),
       ],
     );
