@@ -24,10 +24,22 @@ final StateNotifierProvider<SyncingStateNotifier, bool> syncingStateProvider =
       (Ref ref) => SyncingStateNotifier(),
     );
 
+// 동기화 완료 이벤트를 관리하는 Provider
+final StateNotifierProvider<SyncCompleteNotifier, int> syncCompleteProvider =
+    StateNotifierProvider<SyncCompleteNotifier, int>(
+      (Ref ref) => SyncCompleteNotifier(),
+    );
+
 class SyncingStateNotifier extends StateNotifier<bool> {
   SyncingStateNotifier() : super(false);
 
   void setSyncing(bool value) => state = value;
+}
+
+class SyncCompleteNotifier extends StateNotifier<int> {
+  SyncCompleteNotifier() : super(0);
+
+  void triggerSyncComplete() => state = state + 1;
 }
 
 // 워크아웃 데이터 관리를 위한 Provider
@@ -100,6 +112,9 @@ class _RefreshButton extends ConsumerWidget {
           if (allWorkouts.isNotEmpty) {
             ref.read(workoutDataProvider.notifier).updateWorkouts(allWorkouts);
           }
+
+          // 동기화 완료 이벤트 발생
+          ref.read(syncCompleteProvider.notifier).triggerSyncComplete();
         }
       }
     } catch (e) {

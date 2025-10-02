@@ -8,6 +8,7 @@ import 'package:urban_breeze/features/workout_history/domain/entities/workout_ac
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_list.dart';
 import 'package:urban_breeze/features/workout_history/domain/enums/workout_sort_type.dart';
+import 'package:urban_breeze/features/workout_history/presentation/pages/workout_history_page.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
@@ -381,6 +382,13 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 동기화 완료 이벤트 감지
+    ref.listen(syncCompleteProvider, (int? previous, int next) {
+      if (previous != null && next > previous) {
+        _loadWorkoutList();
+      }
+    });
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Column(

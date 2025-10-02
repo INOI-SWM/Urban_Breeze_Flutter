@@ -19,6 +19,7 @@ import '../../di/workout_history_providers.dart';
 import '../../domain/entities/period_selection.dart';
 import '../../domain/entities/workout_statistics.dart';
 import '../../domain/enums/statistic_enums.dart';
+import '../pages/workout_history_page.dart';
 import '../widgets/period_selector_dialog.dart';
 
 class _UIConstants {
@@ -129,6 +130,13 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 동기화 완료 이벤트 감지
+    ref.listen(syncCompleteProvider, (int? previous, int next) {
+      if (previous != null && next > previous) {
+        _loadStatistics();
+      }
+    });
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
