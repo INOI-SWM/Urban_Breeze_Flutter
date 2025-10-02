@@ -13,9 +13,7 @@ import 'package:urban_breeze/features/workout_history/di/workout_history_provide
 
 /// 홈 화면 통계 데이터 Provider
 final FutureProvider<HomeStatistics> homeStatisticsProvider =
-    FutureProvider<HomeStatistics>((
-      FutureProviderRef<HomeStatistics> ref,
-    ) async {
+    FutureProvider<HomeStatistics>((Ref ref) async {
       final GetHomeStatisticsUseCase useCase = ref.read(
         getHomeStatisticsUseCaseProvider,
       );
@@ -24,9 +22,7 @@ final FutureProvider<HomeStatistics> homeStatisticsProvider =
 
 /// 최근 운동 데이터 Provider
 final FutureProvider<LatestWorkout?> latestWorkoutProvider =
-    FutureProvider<LatestWorkout?>((
-      FutureProviderRef<LatestWorkout?> ref,
-    ) async {
+    FutureProvider<LatestWorkout?>((Ref ref) async {
       final GetLatestWorkoutUseCase useCase = ref.read(
         getLatestWorkoutUseCaseProvider,
       );
@@ -36,7 +32,7 @@ final FutureProvider<LatestWorkout?> latestWorkoutProvider =
 /// 홈 화면용 추천 코스 데이터 Provider
 final FutureProvider<RecommendedCoursesForHome>
 recommendedCoursesForHomeProvider = FutureProvider<RecommendedCoursesForHome>((
-  FutureProviderRef<RecommendedCoursesForHome> ref,
+  Ref ref,
 ) async {
   final GetRecommendedCoursesForHomeUseCase useCase = ref.read(
     getRecommendedCoursesForHomeUseCaseProvider,
@@ -46,9 +42,7 @@ recommendedCoursesForHomeProvider = FutureProvider<RecommendedCoursesForHome>((
 
 /// Use Case Providers
 final Provider<GetHomeStatisticsUseCase> getHomeStatisticsUseCaseProvider =
-    Provider<GetHomeStatisticsUseCase>((
-      ProviderRef<GetHomeStatisticsUseCase> ref,
-    ) {
+    Provider<GetHomeStatisticsUseCase>((Ref ref) {
       final GetWorkoutStatisticsUseCase getWorkoutStatisticsUseCase = ref.watch(
         getWorkoutStatisticsUseCaseProvider,
       );
@@ -58,9 +52,7 @@ final Provider<GetHomeStatisticsUseCase> getHomeStatisticsUseCaseProvider =
     });
 
 final Provider<GetLatestWorkoutUseCase> getLatestWorkoutUseCaseProvider =
-    Provider<GetLatestWorkoutUseCase>((
-      ProviderRef<GetLatestWorkoutUseCase> ref,
-    ) {
+    Provider<GetLatestWorkoutUseCase>((Ref ref) {
       final GetWorkoutListUseCase getWorkoutListUseCase = ref.watch(
         getWorkoutListUseCaseProvider,
       );
@@ -71,9 +63,7 @@ final Provider<GetLatestWorkoutUseCase> getLatestWorkoutUseCaseProvider =
 
 final Provider<GetRecommendedCoursesForHomeUseCase>
 getRecommendedCoursesForHomeUseCaseProvider =
-    Provider<GetRecommendedCoursesForHomeUseCase>((
-      ProviderRef<GetRecommendedCoursesForHomeUseCase> ref,
-    ) {
+    Provider<GetRecommendedCoursesForHomeUseCase>((Ref ref) {
       final GetRecommendedCourseListUseCase getRecommendedCourseListUseCase =
           ref.watch(getRecommendedCourseListUseCaseProvider);
       return GetRecommendedCoursesForHomeUseCase(
