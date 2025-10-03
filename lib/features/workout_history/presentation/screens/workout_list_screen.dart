@@ -8,6 +8,7 @@ import 'package:urban_breeze/features/workout_history/domain/entities/workout_ac
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_list.dart';
 import 'package:urban_breeze/features/workout_history/domain/enums/workout_sort_type.dart';
+import 'package:urban_breeze/features/workout_history/presentation/pages/workout_history_page.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
@@ -353,6 +354,61 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
         hasPrevious: workoutList.hasPrevious,
       );
     });
+
+    // 삭제 후 해당 페이지를 다시 불러와서 서버 상태와 동기화
+    _loadCurrentPageToFillGap();
+  }
+
+  /// 삭제 후 빈 공간을 채우기 위해 현재 페이지를 다시 불러오기
+  Future<void> _loadCurrentPageToFillGap() async {
+    setState(() {
+      isLoadingMore = true;
+    });
+
+    final AppResult<WorkoutList> result = await ref
+        .read(getWorkoutListUseCaseProvider)
+        .execute(
+          page: workoutList.currentPage,
+          size: _getPageSize(), // 현재 페이지의 size만큼 불러오기
+          sortType: _sortType,
+        );
+
+    setState(() {
+      isLoadingMore = false;
+      if (result.isSuccess) {
+        final WorkoutList newWorkoutList = result.dataOrNull!;
+        final List<WorkoutActivity> currentActivities = workoutList.activities;
+        final List<WorkoutActivity> serverActivities =
+            newWorkoutList.activities;
+
+        // 기존 리스트와 서버 리스트를 비교해서 없는 것만 추가
+        final List<WorkoutActivity> missingActivities = <WorkoutActivity>[];
+        for (final WorkoutActivity serverActivity in serverActivities) {
+          final bool exists = currentActivities.any(
+            (WorkoutActivity activity) =>
+                activity.activityId == serverActivity.activityId,
+          );
+          if (!exists) {
+            missingActivities.add(serverActivity);
+          }
+        }
+
+        // 없는 항목들을 기존 리스트에 추가
+        final List<WorkoutActivity> updatedActivities =
+            List<WorkoutActivity>.from(currentActivities);
+        updatedActivities.addAll(missingActivities);
+
+        workoutList = WorkoutList(
+          activities: updatedActivities,
+          currentPage: workoutList.currentPage,
+          totalPages: newWorkoutList.totalPages,
+          totalElements: newWorkoutList.totalElements,
+          size: workoutList.size,
+          hasNext: newWorkoutList.hasNext,
+          hasPrevious: workoutList.hasPrevious,
+        );
+      }
+    });
   }
 
   void _showSortModal() {
@@ -381,6 +437,20 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // 동기화 완료 이벤트 감지
+    ref.listen(syncCompleteProvider, (int? previous, int next) {
+      if (previous != null && next > previous) {
+        // 새로고침 시작 알림
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('새로운 데이터를 불러오는 중...'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        _loadWorkoutList();
+      }
+    });
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Column(

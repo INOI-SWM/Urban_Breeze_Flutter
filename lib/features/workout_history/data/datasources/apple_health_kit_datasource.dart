@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:health_kit_reporter/health_kit_reporter.dart';
 import 'package:health_kit_reporter/model/payload/preferred_unit.dart';
 import 'package:health_kit_reporter/model/payload/quantity.dart';
@@ -87,7 +86,7 @@ class AppleHealthKitDataSource {
           DateTime.fromMillisecondsSinceEpoch(a.startTimestamp.toInt()),
         ),
       );
-      debugPrint(cyclingWorkouts.toString());
+
       return cyclingWorkouts;
     } catch (e) {
       throw HealthKitDataException('자전거 운동 데이터 조회 실패: $e');

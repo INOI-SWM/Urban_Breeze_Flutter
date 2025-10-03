@@ -220,59 +220,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: InfoItem(
-                          label: '운동 시간',
-                          value: WorkoutFormatter.toDurationText(
-                            detail.totalDuration,
-                          ),
-                          alignment: CrossAxisAlignment.start,
-                        ),
-                      ),
-                      Expanded(
-                        child: InfoItem(
-                          label: '평균 속도',
-                          value: detail.averageSpeedDisplay,
-                          alignment: CrossAxisAlignment.start,
-                        ),
-                      ),
-                      Expanded(
-                        child: InfoItem(
-                          label: '소모 칼로리',
-                          value: detail.caloriesDisplay,
-                          alignment: CrossAxisAlignment.start,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: InfoItem(
-                          label: '케이던스',
-                          value: detail.cadenceDisplay,
-                          alignment: CrossAxisAlignment.start,
-                        ),
-                      ),
-                      Expanded(
-                        child: InfoItem(
-                          label: '평균 심박수',
-                          value: detail.averageHeartRateDisplay,
-                          alignment: CrossAxisAlignment.start,
-                        ),
-                      ),
-                      const Expanded(
-                        child: InfoItem(
-                          label: '',
-                          value: '',
-                          alignment: CrossAxisAlignment.start,
-                        ),
-                      ),
-                    ],
-                  ),
+                  _buildDataFields(detail, colors),
                   const SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
@@ -439,10 +387,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
 
         Navigator.of(context).pop(true);
       } else {
-        showErrorMessage(
-          context,
-          result.exceptionOrNull?.message ?? '운동기록 삭제에 실패했습니다',
-        );
+        showErrorMessage(context, '운동기록 삭제에 실패했습니다');
       }
     } catch (e) {
       if (!mounted) return;
@@ -457,5 +402,53 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
 
       showErrorMessage(context, '운동기록 삭제 중 오류가 발생했습니다: ${e.toString()}');
     }
+  }
+
+  /// 데이터가 있는 필드들을 동적으로 표시하는 위젯
+  Widget _buildDataFields(WorkoutDetail detail, SemanticColors colors) {
+    final List<Map<String, String>> availableFields =
+        detail.availableDataFields;
+
+    // 3개씩 행으로 나누어 표시
+    final List<Widget> rows = <Widget>[];
+    for (int i = 0; i < availableFields.length; i += 3) {
+      final List<Widget> rowChildren = <Widget>[];
+
+      for (int j = 0; j < 3; j++) {
+        final int index = i + j;
+        if (index < availableFields.length) {
+          final Map<String, String> field = availableFields[index];
+          rowChildren.add(
+            Expanded(
+              child: InfoItem(
+                label: field['label']!,
+                value: field['value']!,
+                alignment: CrossAxisAlignment.start,
+              ),
+            ),
+          );
+        } else {
+          // 빈 공간을 위한 위젯
+          rowChildren.add(
+            const Expanded(
+              child: InfoItem(
+                label: '',
+                value: '',
+                alignment: CrossAxisAlignment.start,
+              ),
+            ),
+          );
+        }
+      }
+
+      rows.add(Row(children: rowChildren));
+
+      // 마지막 행이 아니면 간격 추가
+      if (i + 3 < availableFields.length) {
+        rows.add(const SizedBox(height: 12));
+      }
+    }
+
+    return Column(children: rows);
   }
 }

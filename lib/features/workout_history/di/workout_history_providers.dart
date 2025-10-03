@@ -5,33 +5,50 @@ import 'package:urban_breeze/features/integration/application/facades/integratio
 import 'package:urban_breeze/features/integration/di/integration_providers.dart';
 
 import '../application/facades/terra_health_sync_facade.dart';
+import '../application/facades/workout_refresh_facade.dart';
 import '../application/facades/workout_sync_facade.dart';
+import '../application/use_cases/connect_apple_health_use_case.dart';
 import '../application/use_cases/connect_terra_health_app_use_case.dart';
+import '../application/use_cases/delete_provider_use_case.dart';
 import '../application/use_cases/delete_workout_image_use_case.dart';
 import '../application/use_cases/delete_workout_use_case.dart';
+import '../application/use_cases/get_api_usage_use_case.dart';
+import '../application/use_cases/get_integration_status_use_case.dart';
 import '../application/use_cases/get_workout_detail_use_case.dart';
 import '../application/use_cases/get_workout_list_use_case.dart';
 import '../application/use_cases/get_workout_statistics_use_case.dart';
 import '../application/use_cases/import_apple_health_workouts_use_case.dart';
 import '../application/use_cases/initialize_terra_use_case.dart';
+import '../application/use_cases/selective_sync_use_case.dart';
 import '../application/use_cases/sync_apple_health_kit_data_use_case.dart';
 import '../application/use_cases/sync_google_health_connect_data_use_case.dart';
 import '../application/use_cases/sync_terra_health_data_use_case.dart';
 import '../application/use_cases/update_workout_title_use_case.dart';
 import '../application/use_cases/upload_workout_images_use_case.dart';
+import '../data/datasources/api_usage_datasource.dart';
+import '../data/datasources/apple_health_connect_datasource.dart';
 import '../data/datasources/apple_health_workout_datasource.dart';
 import '../data/datasources/google_health_connect_datasource.dart';
+import '../data/datasources/provider_deletion_datasource.dart';
 import '../data/datasources/remote_workout_history_datasource.dart';
 import '../data/datasources/terra_api_datasoiurce.dart';
 import '../data/datasources/workout_statistics_datasource.dart';
+import '../data/repositories/api_usage_repository_impl.dart';
+import '../data/repositories/apple_health_connect_repository_impl.dart';
 import '../data/repositories/apple_health_kit_sync_repository_impl.dart';
 import '../data/repositories/google_health_connect_sync_repository_impl.dart';
+import '../data/repositories/provider_deletion_repository_impl.dart';
 import '../data/repositories/workout_history_repository_impl.dart';
 import '../data/repositories/workout_statistics_repository_impl.dart';
+import '../domain/repositories/api_usage_repository.dart';
+import '../domain/repositories/apple_health_connect_repository.dart';
 import '../domain/repositories/google_health_connect_sync_repository.dart';
 import '../domain/repositories/health_kit_sync_repository.dart';
+import '../domain/repositories/provider_deletion_repository.dart';
 import '../domain/repositories/workout_history_repository.dart';
 import '../domain/repositories/workout_statistics_repository.dart';
+import '../presentation/notifiers/sync_screen_notifier.dart';
+import '../presentation/notifiers/workout_refresh_notifier.dart';
 
 // Data Source Providers
 final Provider<RemoteWorkoutStatisticsDataSource>
@@ -64,6 +81,29 @@ final Provider<TerraApiDataSource> terraApiDataSourceProvider =
     Provider<TerraApiDataSource>((Ref<TerraApiDataSource> ref) {
       final http.Client client = ref.watch(authorizedHttpClientProvider);
       return TerraApiDataSource(client: client, ref: ref);
+    });
+
+// API Usage Data Source Provider
+final Provider<ApiUsageDataSource> apiUsageDataSourceProvider =
+    Provider<ApiUsageDataSource>((Ref<ApiUsageDataSource> ref) {
+      final http.Client client = ref.watch(authorizedHttpClientProvider);
+      return ApiUsageDataSource(client: client);
+    });
+
+// Apple Health Connect Data Source Provider
+final Provider<AppleHealthConnectDataSource>
+appleHealthConnectDataSourceProvider = Provider<AppleHealthConnectDataSource>((
+  Ref<AppleHealthConnectDataSource> ref,
+) {
+  final http.Client client = ref.watch(authorizedHttpClientProvider);
+  return AppleHealthConnectDataSource(client: client);
+});
+
+// Provider Deletion Data Source Provider
+final Provider<ProviderDeletionDataSource> providerDeletionDataSourceProvider =
+    Provider<ProviderDeletionDataSource>((Ref<ProviderDeletionDataSource> ref) {
+      final http.Client client = ref.watch(authorizedHttpClientProvider);
+      return ProviderDeletionDataSource(client: client);
     });
 
 // Repository Providers
@@ -102,6 +142,32 @@ googleHealthConnectSyncRepositoryProvider =
       );
 
       return GoogleHealthConnectSyncRepositoryImpl(dataSource: dataSource);
+    });
+
+final Provider<ApiUsageRepository> apiUsageRepositoryProvider =
+    Provider<ApiUsageRepository>((Ref<ApiUsageRepository> ref) {
+      final ApiUsageDataSource dataSource = ref.watch(
+        apiUsageDataSourceProvider,
+      );
+      return ApiUsageRepositoryImpl(dataSource: dataSource);
+    });
+
+final Provider<AppleHealthConnectRepository>
+appleHealthConnectRepositoryProvider = Provider<AppleHealthConnectRepository>((
+  Ref<AppleHealthConnectRepository> ref,
+) {
+  final AppleHealthConnectDataSource dataSource = ref.watch(
+    appleHealthConnectDataSourceProvider,
+  );
+  return AppleHealthConnectRepositoryImpl(dataSource: dataSource);
+});
+
+final Provider<ProviderDeletionRepository> providerDeletionRepositoryProvider =
+    Provider<ProviderDeletionRepository>((Ref<ProviderDeletionRepository> ref) {
+      final ProviderDeletionDataSource dataSource = ref.watch(
+        providerDeletionDataSourceProvider,
+      );
+      return ProviderDeletionRepositoryImpl(dataSource: dataSource);
     });
 
 // Use Case Providers
@@ -189,6 +255,30 @@ syncGoogleHealthConnectDataUseCaseProvider =
       );
 
       return SyncGoogleHealthConnectDataUseCase(repository);
+    });
+
+final Provider<GetApiUsageUseCase> getApiUsageUseCaseProvider =
+    Provider<GetApiUsageUseCase>((Ref<GetApiUsageUseCase> ref) {
+      final ApiUsageRepository repository = ref.watch(
+        apiUsageRepositoryProvider,
+      );
+      return GetApiUsageUseCase(repository: repository);
+    });
+
+final Provider<ConnectAppleHealthUseCase> connectAppleHealthUseCaseProvider =
+    Provider<ConnectAppleHealthUseCase>((Ref<ConnectAppleHealthUseCase> ref) {
+      final AppleHealthConnectRepository repository = ref.watch(
+        appleHealthConnectRepositoryProvider,
+      );
+      return ConnectAppleHealthUseCase(repository: repository);
+    });
+
+final Provider<DeleteProviderUseCase> deleteProviderUseCaseProvider =
+    Provider<DeleteProviderUseCase>((Ref<DeleteProviderUseCase> ref) {
+      final ProviderDeletionRepository repository = ref.watch(
+        providerDeletionRepositoryProvider,
+      );
+      return DeleteProviderUseCase(repository: repository);
     });
 
 // Terra Use Case Providers
@@ -283,3 +373,57 @@ workoutSyncFacadeProvider = Provider<WorkoutSyncFacade>((Ref ref) {
     importAppleHealthWorkoutsUseCase: importAppleHealthWorkoutsUseCase,
   );
 });
+
+// GetIntegrationStatusUseCase Provider
+final Provider<GetIntegrationStatusUseCase>
+getIntegrationStatusUseCaseProvider = Provider<GetIntegrationStatusUseCase>((
+  Ref ref,
+) {
+  final ApiUsageRepository apiUsageRepository = ref.watch(
+    apiUsageRepositoryProvider,
+  );
+  return GetIntegrationStatusUseCase(apiUsageRepository);
+});
+
+// SyncScreenNotifier Provider
+final StateNotifierProvider<SyncScreenNotifier, SyncScreenState>
+syncScreenNotifierProvider =
+    StateNotifierProvider<SyncScreenNotifier, SyncScreenState>((Ref ref) {
+      return SyncScreenNotifier(ref, null);
+    });
+
+// SelectiveSyncUseCase Provider
+final Provider<SelectiveSyncUseCase> selectiveSyncUseCaseProvider =
+    Provider<SelectiveSyncUseCase>((Ref ref) {
+      final GetIntegrationStatusUseCase getIntegrationStatusUseCase = ref.watch(
+        getIntegrationStatusUseCaseProvider,
+      );
+      final WorkoutSyncFacade workoutSyncFacade = ref.watch(
+        workoutSyncFacadeProvider,
+      );
+      return SelectiveSyncUseCase(
+        getIntegrationStatusUseCase,
+        workoutSyncFacade,
+      );
+    });
+
+// WorkoutRefreshFacade Provider
+final Provider<WorkoutRefreshFacade> workoutRefreshFacadeProvider =
+    Provider<WorkoutRefreshFacade>((Ref ref) {
+      final SelectiveSyncUseCase selectiveSyncUseCase = ref.watch(
+        selectiveSyncUseCaseProvider,
+      );
+      return WorkoutRefreshFacade(selectiveSyncUseCase);
+    });
+
+// WorkoutRefreshNotifier Provider
+final StateNotifierProvider<WorkoutRefreshNotifier, WorkoutRefreshState>
+workoutRefreshNotifierProvider =
+    StateNotifierProvider<WorkoutRefreshNotifier, WorkoutRefreshState>((
+      Ref ref,
+    ) {
+      final WorkoutRefreshFacade workoutRefreshFacade = ref.watch(
+        workoutRefreshFacadeProvider,
+      );
+      return WorkoutRefreshNotifier(workoutRefreshFacade);
+    });

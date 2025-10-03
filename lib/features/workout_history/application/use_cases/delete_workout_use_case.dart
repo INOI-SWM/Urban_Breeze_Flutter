@@ -17,9 +17,7 @@ class DeleteWorkoutUseCase {
     } on ServerException catch (e) {
       return AppFailure<void>(e);
     } catch (e) {
-      return AppFailure<void>(
-        ServerException('운동기록 삭제에 실패했습니다: ${e.toString()}'),
-      );
+      return const AppFailure<void>(ServerException('운동기록 삭제에 실패했습니다'));
     }
   }
 }

@@ -69,10 +69,53 @@ class WorkoutSyncFacade {
             endDate: endDate ?? DateTime.now(),
           );
 
+      // HealthKit 데이터를 서버로 전송
+      if (workouts.isNotEmpty) {
+        try {
+          final List<AppleHealthWorkoutModel> workoutModels =
+              workouts
+                  .map(
+                    (WorkoutRecord workout) =>
+                        _convertToAppleHealthWorkoutModel(workout),
+                  )
+                  .toList();
+
+          final AppResult<void> uploadResult =
+              await importAppleHealthWorkoutsUseCase.execute(
+                workouts: workoutModels,
+              );
+
+          if (uploadResult.isSuccess) {
+            // 서버 업로드 성공 이벤트
+            AmplitudeAnalytics.logEvent(
+              'apple_health_kit_server_upload_success',
+              properties: <String, dynamic>{'workout_count': workouts.length},
+            );
+          } else {
+            // 서버 업로드 실패 이벤트
+            AmplitudeAnalytics.logEvent(
+              'apple_health_kit_server_upload_failed',
+              properties: <String, dynamic>{
+                'error_message':
+                    uploadResult.exceptionOrNull?.toString() ?? 'Unknown error',
+              },
+            );
+          }
+        } catch (e) {
+          // 서버 업로드 예외 이벤트
+          AmplitudeAnalytics.logEvent(
+            'apple_health_kit_server_upload_exception',
+            properties: <String, dynamic>{'error_message': e.toString()},
+          );
+        }
+      }
+
       // 결과 데이터 구성
       final Map<String, dynamic> resultData = <String, dynamic>{
-        'workouts': workouts,
-        'count': workouts.length,
+        'allWorkouts': workouts,
+        'totalSuccess': workouts.length,
+        'totalAttempts': 1,
+        'noPermissionCount': 0,
         'source': 'apple_health_kit',
         'to_webhook': toWebhook,
       };

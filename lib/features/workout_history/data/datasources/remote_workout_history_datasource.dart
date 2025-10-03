@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/features/workout_history/domain/enums/workout_sort_type.dart';
@@ -49,7 +48,6 @@ class RemoteWorkoutHistoryDataSource extends BaseRemoteDataSource {
     );
 
     final Map<String, dynamic> json = decodeResponse(response);
-    debugPrint('json: $json');
 
     return ApiResponseModel<WorkoutDetailResponseModel>.fromJson(
       json,

@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:urban_breeze/core/result/app_result.dart';
-import 'package:urban_breeze/features/workout_history/application/facades/workout_sync_facade.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/workout_history/application/facades/workout_refresh_facade.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
+import 'package:urban_breeze/features/workout_history/presentation/notifiers/workout_refresh_notifier.dart';
 import 'package:urban_breeze/features/workout_history/presentation/screens/sync_screen.dart';
 import 'package:urban_breeze/features/workout_history/presentation/screens/workout_list_screen.dart';
 import 'package:urban_breeze/features/workout_history/presentation/screens/workout_statics_screen.dart';
 import 'package:urban_breeze/navigation/navigation_providers.dart';
 import 'package:urban_breeze/navigation/page_with_app_bar.dart';
+import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/button_size.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/button_solid.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/design_system/widgets/tab_bar/custom_tab_bar.dart';
@@ -20,10 +25,22 @@ final StateNotifierProvider<SyncingStateNotifier, bool> syncingStateProvider =
       (Ref ref) => SyncingStateNotifier(),
     );
 
+// 동기화 완료 이벤트를 관리하는 Provider
+final StateNotifierProvider<SyncCompleteNotifier, int> syncCompleteProvider =
+    StateNotifierProvider<SyncCompleteNotifier, int>(
+      (Ref ref) => SyncCompleteNotifier(),
+    );
+
 class SyncingStateNotifier extends StateNotifier<bool> {
   SyncingStateNotifier() : super(false);
 
   void setSyncing(bool value) => state = value;
+}
+
+class SyncCompleteNotifier extends StateNotifier<int> {
+  SyncCompleteNotifier() : super(0);
+
+  void triggerSyncComplete() => state = state + 1;
 }
 
 // 워크아웃 데이터 관리를 위한 Provider
@@ -65,84 +82,15 @@ class _RefreshButton extends ConsumerWidget {
 
   // 실제 동기화 메서드
   Future<void> _performSync(WidgetRef ref, BuildContext context) async {
-    final SyncingStateNotifier syncNotifier = ref.read(
-      syncingStateProvider.notifier,
-    );
-
     if (ref.read(syncingStateProvider)) return; // 이미 동기화 중이면 중단
 
-    syncNotifier.setSyncing(true);
-
-    try {
-      final WorkoutSyncFacade facade = ref.read(workoutSyncFacadeProvider);
-      final AppResult<Map<String, dynamic>> result =
-          await facade.performFullSync();
-
-      syncNotifier.setSyncing(false);
-
-      if (context.mounted) {
-        if (result.isSuccess) {
-          final Map<String, dynamic> data = result.dataOrNull!;
-          final List<WorkoutRecord> allWorkouts =
-              data['allWorkouts'] as List<WorkoutRecord>;
-          final int totalSuccess = data['totalSuccess'] as int;
-          final int totalAttemptsCount = data['totalAttemptsCount'] as int;
-          final int totalAttempts = data['totalAttempts'] as int;
-          final int noPermissionCount = data['noPermissionCount'] as int;
-
-          String message;
-
-          // 연동할 것이 없는 경우 (플랫폼 지원 안함)
-          if (totalAttempts == 0) {
-            message = '설정 버튼을 눌러, 동기화 설정을 먼저 해 주세요';
-          } else if (noPermissionCount == totalAttempts && totalSuccess == 0) {
-            // 모든 서비스에 권한이 없는 경우
-            message = '오른쪽 설정버튼 클릭후 동기화 설정해주세요';
-          } else {
-            // 성공/실패 개수 기반 메시지
-            if (totalSuccess == 0) {
-              message = '동기화할 수 있는 데이터가 없습니다.';
-            } else if (totalSuccess == totalAttemptsCount) {
-              message =
-                  '모든 데이터 동기화 완료! 총 ${allWorkouts.length}개의 운동 기록을 가져왔습니다.';
-            } else {
-              message =
-                  '일부 데이터 동기화 완료! 총 ${allWorkouts.length}개의 운동 기록을 가져왔습니다.';
-            }
-          }
-
-          // WorkoutListScreen에 데이터 전달을 위해 Provider 업데이트
-          if (allWorkouts.isNotEmpty) {
-            ref.read(workoutDataProvider.notifier).updateWorkouts(allWorkouts);
-          }
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(message),
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('동기화 실패: ${result.exceptionOrNull?.message}'),
-              duration: const Duration(seconds: 3),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      syncNotifier.setSyncing(false);
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('동기화 중 오류가 발생했습니다.'),
-            duration: Duration(seconds: 3),
-          ),
-        );
-      }
-    }
+    // 모달 표시 (모달 내부에서 새로고침 처리)
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) => const SyncModal(),
+    );
   }
 }
 
@@ -229,5 +177,157 @@ class _WorkoutHistoryPageState extends ConsumerState<WorkoutHistoryPage> {
       case WorkoutHistoryTab.ridingHistory:
         return const WorkoutListScreen();
     }
+  }
+}
+
+/// 동기화 모달 위젯
+class SyncModal extends ConsumerStatefulWidget {
+  const SyncModal({super.key});
+
+  @override
+  ConsumerState<SyncModal> createState() => _SyncModalState();
+}
+
+class _SyncModalState extends ConsumerState<SyncModal> {
+  bool _isSyncing = false;
+  String _statusMessage = '동기화를 시작합니다...';
+
+  @override
+  void initState() {
+    super.initState();
+    // initState에서 provider 수정을 피하기 위해 WidgetsBinding.instance.addPostFrameCallback 사용
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startSync();
+    });
+  }
+
+  Future<void> _startSync() async {
+    final SyncingStateNotifier syncNotifier = ref.read(
+      syncingStateProvider.notifier,
+    );
+
+    setState(() {
+      _isSyncing = true;
+      _statusMessage = '연동된 서비스에서 데이터를 가져오는 중...';
+    });
+
+    syncNotifier.setSyncing(true);
+
+    try {
+      // WorkoutRefreshNotifier를 사용하여 새로고침 수행
+      final WorkoutRefreshNotifier refreshNotifier = ref.read(
+        workoutRefreshNotifierProvider.notifier,
+      );
+      await refreshNotifier.performRefresh();
+
+      // 새로고침 결과 확인
+      final WorkoutRefreshState refreshState = ref.read(
+        workoutRefreshNotifierProvider,
+      );
+
+      syncNotifier.setSyncing(false);
+
+      if (mounted) {
+        setState(() {
+          _isSyncing = false;
+          _statusMessage = refreshState.statusMessage;
+        });
+
+        // 새로고침 결과가 있으면 데이터 업데이트
+        if (refreshState.lastRefreshResult != null) {
+          final WorkoutRefreshResult result = refreshState.lastRefreshResult!;
+
+          // WorkoutListScreen에 데이터 전달을 위해 Provider 업데이트
+          if (result.allWorkouts.isNotEmpty) {
+            ref
+                .read(workoutDataProvider.notifier)
+                .updateWorkouts(result.allWorkouts);
+          }
+        }
+      }
+    } catch (e) {
+      syncNotifier.setSyncing(false);
+      if (mounted) {
+        setState(() {
+          _isSyncing = false;
+          _statusMessage = '동기화 중 오류가 발생했습니다.';
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final SemanticColors colors = context.semanticColor;
+
+    return PopScope(
+      canPop: !_isSyncing, // 동기화 중일 때는 뒤로 가기 막기
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: colors.backgroundElevatedNormal,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            // 상태 표시
+            if (_isSyncing) ...<Widget>[
+              const AppLoadingIndicator(),
+              const SizedBox(height: 16),
+            ],
+
+            Text(
+              _statusMessage,
+              style: AppTextStyles.body1.normalBold.copyWith(
+                color: colors.labelStrong,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            if (_isSyncing) ...<Widget>[
+              const SizedBox(height: 12),
+              Text(
+                '3~5분정도 걸릴 수 있습니다.',
+                style: AppTextStyles.body2.normalBold.copyWith(
+                  color: colors.labelAlternative,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '어플을 끄지 마세요',
+                style: AppTextStyles.body2.normalBold.copyWith(
+                  color: colors.labelAlternative,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+
+            const SizedBox(height: 24),
+
+            // 동기화 중이 아닐 때만 닫기 버튼 표시
+            if (!_isSyncing)
+              SizedBox(
+                width: double.infinity,
+                child: ButtonSolid(
+                  text: '닫기',
+                  size: ButtonSize.large,
+                  backgroundColor: colors.primaryNormal,
+                  textColor: colors.staticWhite,
+                  onPressed: () {
+                    // 모달 닫기 전에 동기화 완료 이벤트 발생
+                    ref
+                        .read(syncCompleteProvider.notifier)
+                        .triggerSyncComplete();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }
