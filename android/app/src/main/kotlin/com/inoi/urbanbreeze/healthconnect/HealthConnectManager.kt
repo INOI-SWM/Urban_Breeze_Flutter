@@ -1,4 +1,4 @@
-package com.inoi.urbanbreeze.dev.healthconnect
+package com.inoi.urbanbreeze.healthconnect
 
 import android.content.Context
 import android.content.Intent

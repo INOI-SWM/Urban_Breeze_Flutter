@@ -1,4 +1,4 @@
-package com.inoi.urbanbreeze.dev
+package com.inoi.urbanbreeze
 
 import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
@@ -8,12 +8,12 @@ import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.*
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.android.FlutterFragmentActivity
-import com.inoi.urbanbreeze.dev.healthconnect.HealthConnectPlugin
-import com.inoi.urbanbreeze.dev.healthconnect.HealthConnectManager
+// import com.inoi.urbanbreeze.healthconnect.HealthConnectPlugin
+// import com.inoi.urbanbreeze.healthconnect.HealthConnectManager
 
 class MainActivity : FlutterFragmentActivity() {
 
-    private lateinit var healthConnectManager: HealthConnectManager
+    // private lateinit var healthConnectManager: HealthConnectManager
     private lateinit var permissionLauncher: ActivityResultLauncher<Set<String>>
     private var permissionResultCallback: ((Boolean) -> Unit)? = null
 
