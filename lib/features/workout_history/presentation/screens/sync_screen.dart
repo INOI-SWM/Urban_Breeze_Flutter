@@ -9,6 +9,7 @@ import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/core/services/deep_link_service.dart';
 import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/workout_sync_facade.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/connect_apple_health_use_case.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
@@ -75,44 +76,29 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     await _syncHealthConnectData();
   }
 
-  // Apple Health에서 데이터 가져오기 (초기화 + 연결 + 동기화)
+  // Apple Health Kit 연동 설정
   Future<void> _syncAppleHealthData() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final WorkoutSyncFacade facade = ref.read(workoutSyncFacadeProvider);
-      final AppResult<Map<String, dynamic>?> result =
-          await facade.syncAppleHealthData();
+      final ConnectAppleHealthUseCase connectAppleHealthUseCase = ref.read(
+        connectAppleHealthUseCaseProvider,
+      );
+      final AppResult<void> result = await connectAppleHealthUseCase.execute();
 
       if (result.isSuccess) {
-        final Map<String, dynamic>? data = result.dataOrNull;
-        if (data != null &&
-            data['message']?.toString().contains('webhook') == true) {
-          // Apple Health 동기화 성공 (웹훅) 이벤트
-          AmplitudeAnalytics.logEvent(
-            'workout_sync_apple_health_success',
-            properties: <String, dynamic>{'sync_method': 'webhook'},
-          );
-          if (mounted) {
-            showSuccessMessage(
-              context,
-              'Apple Health 데이터 가져오기 완료! 웹훅을 통해 데이터가 전송됩니다.',
-            );
-          }
-        } else {
-          // Apple Health 동기화 성공 (직접) 이벤트
-          AmplitudeAnalytics.logEvent(
-            'workout_sync_apple_health_success',
-            properties: <String, dynamic>{'sync_method': 'direct'},
-          );
-          if (mounted) {
-            showSuccessMessage(context, 'Apple Health 데이터 가져오기 완료!');
-          }
+        // Apple Health Kit 연동 성공 이벤트
+        AmplitudeAnalytics.logEvent(
+          'workout_sync_apple_health_success',
+          properties: <String, dynamic>{'sync_method': 'direct'},
+        );
+        if (mounted) {
+          showSuccessMessage(context, 'Apple Health Kit 연동이 완료되었습니다!');
         }
       } else {
-        // Apple Health 동기화 실패 이벤트
+        // Apple Health Kit 연동 실패 이벤트
         AmplitudeAnalytics.logEvent(
           'workout_sync_apple_health_failed',
           properties: <String, dynamic>{
@@ -122,12 +108,12 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
         if (mounted) {
           showErrorMessage(
             context,
-            'Apple Health 데이터 가져오기 실패: ${result.exceptionOrNull?.message}',
+            'Apple Health Kit 연동 실패: ${result.exceptionOrNull?.message}',
           );
         }
       }
     } catch (e) {
-      // Apple Health 동기화 예외 이벤트
+      // Apple Health Kit 연동 예외 이벤트
       AmplitudeAnalytics.logEvent(
         'workout_sync_apple_health_exception',
         properties: <String, dynamic>{'error_message': e.toString()},
@@ -136,7 +122,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
         if (e is PlatformException) {
           showErrorMessage(context, '지원하지 않는 플랫폼입니다');
         } else {
-          showErrorMessage(context, 'Apple Health 데이터 가져오기 중 오류가 발생했습니다');
+          showErrorMessage(context, 'Apple Health Kit 연동 중 오류가 발생했습니다');
         }
       }
     } finally {
@@ -146,7 +132,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     }
   }
 
-  // Health Connect에서 데이터 가져오기 (초기화 + 연결 + 동기화)
+  // Health Connect에서 데이터 가져오기 (Terra API 사용)
   Future<void> _syncHealthConnectData() async {
     setState(() {
       _isLoading = true;
@@ -214,7 +200,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     }
   }
 
-  // Samsung Health에서 데이터 가져오기 (초기화 + 연결 + 동기화)
+  // Samsung Health에서 데이터 가져오기 (Terra API 사용)
   Future<void> _syncSamsungHealthData() async {
     // Samsung Health 동기화 버튼 클릭 이벤트
     AmplitudeAnalytics.logButtonClick('workout_sync_samsung_health');
