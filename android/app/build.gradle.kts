@@ -12,7 +12,7 @@ plugins {
 // Firebase SHA-1과 일치하는 전역 debug keystore 사용
 
 android {
-    namespace = "com.inoi.urbanbreeze.dev"
+    namespace = "com.inoi.urbanbreeze"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -27,12 +27,14 @@ android {
 
     // Firebase SHA-1과 일치하는 전역 debug keystore 사용
     signingConfigs {
+        // 프로덕션용 릴리즈 키스토어
         create("release") {
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-            storeFile = file(System.getProperty("user.home") + "/.android/debug.keystore")
-            storePassword = "android"
+            keyAlias = "upload"
+            keyPassword = "urbanbreeze2025"
+            storeFile = file(System.getProperty("user.home") + "/upload-keystore.jks")
+            storePassword = "urbanbreeze2025"
         }
+        // 개발용 디버그 키스토어
         getByName("debug") {
             keyAlias = "androiddebugkey"
             keyPassword = "android"
@@ -43,13 +45,28 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.inoi.urbanbreeze.dev"
+        applicationId = "com.inoi.urbanbreeze"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 28  // Terra Flutter Bridge 요구사항 (API 28+)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    }
+
+    flavorDimensions += "environment"
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            manifestPlaceholders["googleClientId"] = "723259332020-r5u1laq4umq0v0n489d2b4k81vj0ugo3.apps.googleusercontent.com"
+            manifestPlaceholders["kakaoScheme"] = "kakao92a46589034ed2af1f0a6d12578996cd"
+        }
+        create("prod") {
+            dimension = "environment"
+            manifestPlaceholders["googleClientId"] = "723259332020-2ms0qnupo6ntk7um52d6f8ct4s0fvk3h.apps.googleusercontent.com"
+            manifestPlaceholders["kakaoScheme"] = "kakaoea26fa3b97208688a71b31b17df4813c"
+        }
     }
 
     buildTypes {

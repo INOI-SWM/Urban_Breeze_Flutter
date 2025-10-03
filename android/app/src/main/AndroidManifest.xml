@@ -84,7 +84,7 @@
             
         <meta-data
             android:name="com.google.android.gms.client_id"
-            android:value="494451214414-csc7uhtvqiunv6su3qienqalj1abgm9l.apps.googleusercontent.com" />
+            android:value="${googleClientId}" />
             
         <!-- 카카오 로그인 커스텀 URL 스킴 설정 -->
         <activity 
@@ -96,7 +96,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 
-                <data android:scheme="kakao92a46589034ed2af1f0a6d12578996cd" android:host="oauth"/>
+                <data android:scheme="${kakaoScheme}" android:host="oauth"/>
             </intent-filter>
         </activity>
     </application>
