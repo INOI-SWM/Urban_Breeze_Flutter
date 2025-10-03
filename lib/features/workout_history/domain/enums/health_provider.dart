@@ -1,16 +1,19 @@
 /// 건강 데이터 제공자 열거형
 enum HealthProvider {
-  appleHealthKit('Apple HealthKit'),
-  healthConnect('Health Connect'),
-  samsungHealth('Samsung Health'),
-  garmin('Garmin'),
-  suunto('Suunto'),
-  strava('Strava');
+  appleHealthKit('Apple HealthKit', 'APPLE-HEALTH-KIT'),
+  healthConnect('Health Connect', 'HEALTH-CONNECT'),
+  samsungHealth('Samsung Health', 'SAMSUNG-HEALTH'),
+  garmin('Garmin', 'GARMIN'),
+  suunto('Suunto', 'SUUNTO'),
+  strava('Strava', 'STRAVA');
 
-  const HealthProvider(this.displayName);
+  const HealthProvider(this.displayName, this.apiProviderName);
 
-  /// API에서 사용하는 providerName
+  /// API에서 사용하는 providerName (표시용)
   final String displayName;
+
+  /// API에서 사용하는 실제 providerName (서버 전송용)
+  final String apiProviderName;
 
   /// providerName으로부터 HealthProvider 찾기
   static HealthProvider? fromProviderName(String providerName) {

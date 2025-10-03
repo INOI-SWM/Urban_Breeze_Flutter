@@ -204,7 +204,7 @@ class SyncScreenNotifier extends StateNotifier<SyncScreenState>
   String _getProviderName(String serviceName) {
     for (final HealthProvider provider in HealthProvider.values) {
       if (provider.serviceName == serviceName) {
-        return provider.displayName;
+        return provider.apiProviderName;
       }
     }
     return serviceName;
