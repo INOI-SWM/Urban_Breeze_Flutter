@@ -1,6 +1,6 @@
 import 'package:amplitude_flutter/amplitude.dart';
 import 'package:amplitude_flutter/configuration.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:urban_breeze/core/config/environment_config.dart';
 
 /// Amplitude 서비스 클래스
 /// 싱글톤 패턴을 사용하여 앱 전체에서 하나의 인스턴스만 사용
@@ -18,15 +18,18 @@ class AmplitudeService {
     if (_isInitialized) return;
 
     try {
-      final String apiKey = dotenv.env['AMPLITUDE_API_KEY'] ?? '';
+      final String apiKey = EnvironmentConfig.amplitudeApiKey;
       if (apiKey.isEmpty) {
         throw Exception('AMPLITUDE_API_KEY가 설정되지 않았습니다.');
       }
 
+      // 환경별로 다른 인스턴스 이름 사용
+      final String instanceName = 'urban_breeze_${EnvironmentConfig.envName}';
+
       _amplitude = Amplitude(
         Configuration(
           apiKey: apiKey,
-          instanceName: 'urban_breeze_dev',
+          instanceName: instanceName,
           flushIntervalMillis: 10000,
           flushQueueSize: 10,
         ),

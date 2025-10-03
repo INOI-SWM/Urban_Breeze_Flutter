@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:urban_breeze/core/config/environment_config.dart';
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 
 abstract class BaseRemoteDataSource {
@@ -11,7 +11,7 @@ abstract class BaseRemoteDataSource {
 
   final http.Client _client;
 
-  static String get baseUrl => dotenv.env['API_BASE_URL'] ?? '';
+  static String get baseUrl => EnvironmentConfig.apiBaseUrl;
 
   Map<String, String> get defaultHeaders => <String, String>{
     'Accept': 'application/json',

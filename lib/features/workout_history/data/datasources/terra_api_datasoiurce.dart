@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:terra_flutter_bridge/models/enums.dart';
 import 'package:terra_flutter_bridge/models/responses.dart';
 import 'package:terra_flutter_bridge/terra_flutter_bridge.dart';
+import 'package:urban_breeze/core/config/environment_config.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
@@ -16,7 +16,7 @@ class TerraApiDataSource extends BaseRemoteDataSource {
   final Ref ref;
   final TerraFlutter terraFlutter = TerraFlutter();
 
-  static String get _devId => dotenv.env['TERRA_DEV_ID'] ?? '';
+  static String get _devId => EnvironmentConfig.terraDevId;
 
   Future<void> initTerra() async {
     final User? user = ref.read(userSessionNotifierProvider);

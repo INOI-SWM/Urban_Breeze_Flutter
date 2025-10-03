@@ -2,31 +2,32 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Flutter (Debug)",
-      "type": "dart",
+      "name": "Dev (개발)",
       "request": "launch",
-      "program": "lib/main.dart",
-      "args": ["--debug"],
-      "console": "debugConsole",
-      "cwd": "${workspaceFolder}"
+      "type": "dart",
+      "program": "lib/main_dev.dart",
+      "flutterMode": "debug"
     },
     {
-      "name": "Flutter (Release)",
-      "type": "dart",
+      "name": "Staging (스테이징)",
       "request": "launch",
-      "program": "lib/main.dart",
-      "args": ["--release"],
-      "console": "debugConsole",
-      "cwd": "${workspaceFolder}"
+      "type": "dart",
+      "program": "lib/main_staging.dart",
+      "flutterMode": "debug"
     },
     {
-      "name": "Flutter (Profile)",
-      "type": "dart",
+      "name": "Prod (프로덕션 - Debug)",
       "request": "launch",
-      "program": "lib/main.dart",
-      "args": ["--profile"],
-      "console": "debugConsole",
-      "cwd": "${workspaceFolder}"
+      "type": "dart",
+      "program": "lib/main_prod.dart",
+      "flutterMode": "debug"
+    },
+    {
+      "name": "Prod (프로덕션 - Release)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_prod.dart",
+      "flutterMode": "release"
     }
   ]
 }
