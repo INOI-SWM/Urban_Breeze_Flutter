@@ -63,8 +63,68 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     ref.read(syncScreenNotifierProvider.notifier).checkIntegrationStatus();
   }
 
+  /// 공통 헬스 데이터 동기화 메서드
+  Future<void> _syncHealthData({
+    required String serviceName,
+    required String buttonEvent,
+    required String successEvent,
+    required String failedEvent,
+    required String exceptionEvent,
+    required Future<AppResult<Map<String, dynamic>?>> Function() syncMethod,
+  }) async {
+    AmplitudeAnalytics.logButtonClick(buttonEvent);
+
+    setState(() {
+      // 로딩 상태는 notifier에서 관리
+    });
+
+    try {
+      final AppResult<Map<String, dynamic>?> result = await syncMethod();
+
+      if (result.isSuccess) {
+        AmplitudeAnalytics.logEvent(
+          successEvent,
+          properties: <String, dynamic>{'sync_method': 'direct'},
+        );
+        if (mounted) {
+          showSuccessMessage(context, '$serviceName 데이터가 동기화되었습니다.');
+        }
+      } else {
+        AmplitudeAnalytics.logEvent(
+          failedEvent,
+          properties: <String, dynamic>{
+            'error_message': result.exceptionOrNull?.message ?? 'Unknown error',
+          },
+        );
+        if (mounted) {
+          showErrorMessage(
+            context,
+            '$serviceName 데이터 가져오기 실패: ${result.exceptionOrNull?.message}',
+          );
+        }
+      }
+    } catch (e) {
+      AmplitudeAnalytics.logEvent(
+        exceptionEvent,
+        properties: <String, dynamic>{'error_message': e.toString()},
+      );
+      if (mounted) {
+        if (e is PlatformException) {
+          showErrorMessage(context, '지원하지 않는 플랫폼입니다');
+        } else {
+          showErrorMessage(context, '$serviceName 데이터 가져오기 중 오류가 발생했습니다');
+        }
+      }
+    }
+  }
+
   /// 연동 해제 확인 모달 표시
   Future<void> _showDisconnectModal(String serviceName) async {
+    AmplitudeAnalytics.logEvent(
+      'workout_sync_disconnect_modal_shown',
+      properties: <String, dynamic>{'service_name': serviceName},
+    );
+
     await ModalShow.show(
       context: context,
       title: '연동 해제',
@@ -72,11 +132,19 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
       primaryButtonText: '해제',
       secondaryButtonText: '취소',
       onPrimaryButtonPressed: () {
+        AmplitudeAnalytics.logEvent(
+          'workout_sync_disconnect_confirmed',
+          properties: <String, dynamic>{'service_name': serviceName},
+        );
         ref
             .read(syncScreenNotifierProvider.notifier)
             .disconnectService(serviceName);
       },
       onSecondaryButtonPressed: () {
+        AmplitudeAnalytics.logEvent(
+          'workout_sync_disconnect_cancelled',
+          properties: <String, dynamic>{'service_name': serviceName},
+        );
         // 취소 버튼 - 아무것도 하지 않음 (모달은 자동으로 닫힘)
       },
     );
@@ -84,75 +152,34 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
   /// Apple Health Kit 동기화
   Future<void> _syncAppleHealthKit() async {
+    AmplitudeAnalytics.logButtonClick('workout_sync_apple_health');
     await ref.read(syncScreenNotifierProvider.notifier).connectAppleHealth();
   }
 
   /// Health Connect 동기화
   Future<void> _syncHealthConnectData() async {
-    setState(() {
-      // 로딩 상태는 notifier에서 관리
-    });
-
-    try {
-      final WorkoutSyncFacade facade = ref.read(workoutSyncFacadeProvider);
-      final AppResult<Map<String, dynamic>?> result =
-          await facade.syncHealthConnectData();
-
-      if (result.isSuccess) {
-        if (mounted) {
-          showSuccessMessage(context, 'Health Connect 데이터가 동기화되었습니다.');
-        }
-      } else {
-        if (mounted) {
-          showErrorMessage(
-            context,
-            'Health Connect 데이터 가져오기 실패: ${result.exceptionOrNull?.message}',
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        if (e is PlatformException) {
-          showErrorMessage(context, '지원하지 않는 플랫폼입니다');
-        } else {
-          showErrorMessage(context, 'Health Connect 데이터 가져오기 중 오류가 발생했습니다');
-        }
-      }
-    }
+    await _syncHealthData(
+      serviceName: 'Health Connect',
+      buttonEvent: 'workout_sync_health_connect',
+      successEvent: 'workout_sync_health_connect_success',
+      failedEvent: 'workout_sync_health_connect_failed',
+      exceptionEvent: 'workout_sync_health_connect_exception',
+      syncMethod:
+          () => ref.read(workoutSyncFacadeProvider).syncHealthConnectData(),
+    );
   }
 
   /// Samsung Health 동기화
   Future<void> _syncSamsungHealthData() async {
-    setState(() {
-      // 로딩 상태는 notifier에서 관리
-    });
-
-    try {
-      final WorkoutSyncFacade facade = ref.read(workoutSyncFacadeProvider);
-      final AppResult<Map<String, dynamic>?> result =
-          await facade.syncSamsungHealthData();
-
-      if (result.isSuccess) {
-        if (mounted) {
-          showSuccessMessage(context, 'Samsung Health 데이터가 동기화되었습니다.');
-        }
-      } else {
-        if (mounted) {
-          showErrorMessage(
-            context,
-            'Samsung Health 데이터 가져오기 실패: ${result.exceptionOrNull?.message}',
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        if (e is PlatformException) {
-          showErrorMessage(context, '지원하지 않는 플랫폼입니다');
-        } else {
-          showErrorMessage(context, 'Samsung Health 데이터 가져오기 중 오류가 발생했습니다');
-        }
-      }
-    }
+    await _syncHealthData(
+      serviceName: 'Samsung Health',
+      buttonEvent: 'workout_sync_samsung_health',
+      successEvent: 'workout_sync_samsung_health_success',
+      failedEvent: 'workout_sync_samsung_health_failed',
+      exceptionEvent: 'workout_sync_samsung_health_exception',
+      syncMethod:
+          () => ref.read(workoutSyncFacadeProvider).syncSamsungHealthData(),
+    );
   }
 
   /// Garmin Connect 권한 요청

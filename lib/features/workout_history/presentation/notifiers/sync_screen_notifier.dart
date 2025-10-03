@@ -27,11 +27,36 @@ class SyncScreenNotifier extends StateNotifier<SyncScreenState>
           await getIntegrationStatusUseCase.execute();
 
       if (result.isSuccess) {
+        AmplitudeAnalytics.logEvent(
+          'workout_sync_status_checked',
+          properties: <String, dynamic>{
+            'connected_services':
+                result.dataOrNull!.entries
+                    .where(
+                      (MapEntry<HealthProvider, bool> entry) => entry.value,
+                    )
+                    .map(
+                      (MapEntry<HealthProvider, bool> entry) =>
+                          entry.key.displayName,
+                    )
+                    .toList(),
+          },
+        );
         state = state.copyWith(connectionStatus: result.dataOrNull!);
       } else {
+        AmplitudeAnalytics.logEvent(
+          'workout_sync_status_check_failed',
+          properties: <String, dynamic>{
+            'error_message': result.exceptionOrNull?.message ?? 'Unknown error',
+          },
+        );
         debugPrint('연동 상태 확인 실패: ${result.exceptionOrNull}');
       }
     } catch (e) {
+      AmplitudeAnalytics.logEvent(
+        'workout_sync_status_check_exception',
+        properties: <String, dynamic>{'error_message': e.toString()},
+      );
       debugPrint('연동 상태 확인 실패: $e');
     }
   }
