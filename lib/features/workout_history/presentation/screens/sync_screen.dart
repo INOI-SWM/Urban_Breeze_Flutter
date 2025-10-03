@@ -11,6 +11,7 @@ import 'package:urban_breeze/features/integration/domain/entities/integration_au
 import 'package:urban_breeze/features/workout_history/application/facades/workout_sync_facade.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/features/workout_history/domain/enums/health_provider.dart';
+import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 import 'package:urban_breeze/features/workout_history/presentation/notifiers/sync_screen_notifier.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
@@ -69,7 +70,6 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     required String buttonEvent,
     required String successEvent,
     required String failedEvent,
-    required String exceptionEvent,
     required Future<AppResult<Map<String, dynamic>?>> Function() syncMethod,
   }) async {
     AmplitudeAnalytics.logButtonClick(buttonEvent);
@@ -78,41 +78,33 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
       // 로딩 상태는 notifier에서 관리
     });
 
-    try {
-      final AppResult<Map<String, dynamic>?> result = await syncMethod();
+    final AppResult<Map<String, dynamic>?> result = await syncMethod();
 
-      if (result.isSuccess) {
-        AmplitudeAnalytics.logEvent(
-          successEvent,
-          properties: <String, dynamic>{'sync_method': 'direct'},
-        );
-        if (mounted) {
-          showSuccessMessage(context, '$serviceName 데이터가 동기화되었습니다.');
-        }
-      } else {
-        AmplitudeAnalytics.logEvent(
-          failedEvent,
-          properties: <String, dynamic>{
-            'error_message': result.exceptionOrNull?.message ?? 'Unknown error',
-          },
-        );
-        if (mounted) {
-          showErrorMessage(
-            context,
-            '$serviceName 데이터 가져오기 실패: ${result.exceptionOrNull?.message}',
-          );
-        }
-      }
-    } catch (e) {
+    if (result.isSuccess) {
       AmplitudeAnalytics.logEvent(
-        exceptionEvent,
-        properties: <String, dynamic>{'error_message': e.toString()},
+        successEvent,
+        properties: <String, dynamic>{'sync_method': 'direct'},
       );
       if (mounted) {
-        if (e is PlatformException) {
+        showSuccessMessage(context, '$serviceName 데이터가 동기화되었습니다.');
+      }
+    } else {
+      // 실패 시 예외 타입에 따라 다른 메시지 표시
+      final String errorMessage =
+          result.exceptionOrNull?.message ?? 'Unknown error';
+
+      AmplitudeAnalytics.logEvent(
+        failedEvent,
+        properties: <String, dynamic>{'error_message': errorMessage},
+      );
+
+      if (mounted) {
+        // iOS에서 Health Connect나 Samsung Health 사용 시 지원하지 않는 플랫폼 메시지 표시
+        if (result.exceptionOrNull is PlatformException ||
+            result.exceptionOrNull is TerraApiException) {
           showErrorMessage(context, '지원하지 않는 플랫폼입니다');
         } else {
-          showErrorMessage(context, '$serviceName 데이터 가져오기 중 오류가 발생했습니다');
+          showErrorMessage(context, '$serviceName 데이터 가져오기 실패: $errorMessage');
         }
       }
     }
@@ -163,7 +155,6 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
       buttonEvent: 'workout_sync_health_connect',
       successEvent: 'workout_sync_health_connect_success',
       failedEvent: 'workout_sync_health_connect_failed',
-      exceptionEvent: 'workout_sync_health_connect_exception',
       syncMethod:
           () => ref.read(workoutSyncFacadeProvider).syncHealthConnectData(),
     );
@@ -176,7 +167,6 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
       buttonEvent: 'workout_sync_samsung_health',
       successEvent: 'workout_sync_samsung_health_success',
       failedEvent: 'workout_sync_samsung_health_failed',
-      exceptionEvent: 'workout_sync_samsung_health_exception',
       syncMethod:
           () => ref.read(workoutSyncFacadeProvider).syncSamsungHealthData(),
     );
