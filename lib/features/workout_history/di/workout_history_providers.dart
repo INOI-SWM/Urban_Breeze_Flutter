@@ -12,6 +12,7 @@ import '../application/use_cases/delete_provider_use_case.dart';
 import '../application/use_cases/delete_workout_image_use_case.dart';
 import '../application/use_cases/delete_workout_use_case.dart';
 import '../application/use_cases/get_api_usage_use_case.dart';
+import '../application/use_cases/get_integration_status_use_case.dart';
 import '../application/use_cases/get_workout_detail_use_case.dart';
 import '../application/use_cases/get_workout_list_use_case.dart';
 import '../application/use_cases/get_workout_statistics_use_case.dart';
@@ -44,6 +45,7 @@ import '../domain/repositories/health_kit_sync_repository.dart';
 import '../domain/repositories/provider_deletion_repository.dart';
 import '../domain/repositories/workout_history_repository.dart';
 import '../domain/repositories/workout_statistics_repository.dart';
+import '../presentation/notifiers/sync_screen_notifier.dart';
 
 // Data Source Providers
 final Provider<RemoteWorkoutStatisticsDataSource>
@@ -368,3 +370,21 @@ workoutSyncFacadeProvider = Provider<WorkoutSyncFacade>((Ref ref) {
     importAppleHealthWorkoutsUseCase: importAppleHealthWorkoutsUseCase,
   );
 });
+
+// GetIntegrationStatusUseCase Provider
+final Provider<GetIntegrationStatusUseCase>
+getIntegrationStatusUseCaseProvider = Provider<GetIntegrationStatusUseCase>((
+  Ref ref,
+) {
+  final ApiUsageRepository apiUsageRepository = ref.watch(
+    apiUsageRepositoryProvider,
+  );
+  return GetIntegrationStatusUseCase(apiUsageRepository);
+});
+
+// SyncScreenNotifier Provider
+final StateNotifierProvider<SyncScreenNotifier, SyncScreenState>
+syncScreenNotifierProvider =
+    StateNotifierProvider<SyncScreenNotifier, SyncScreenState>((Ref ref) {
+      return SyncScreenNotifier(ref, null);
+    });
