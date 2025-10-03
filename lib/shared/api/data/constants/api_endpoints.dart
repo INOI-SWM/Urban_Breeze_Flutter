@@ -2,41 +2,42 @@ class ApiEndpoints {
   ApiEndpoints._();
 
   // Auth
-  static const String googleLogin = '/api/auth/google/login';
-  static const String kakaoLogin = '/api/auth/kakao/login';
-  static const String appleLogin = '/api/auth/apple/login';
-  static const String refreshToken = '/api/auth/refresh';
+  static const String googleLogin = '/api/v1/auth/google/login';
+  static const String kakaoLogin = '/api/v1/auth/kakao/login';
+  static const String appleLogin = '/api/v1/auth/apple/login';
+  static const String refreshToken = '/api/v1/auth/refresh';
 
   // Routes
-  static const String routes = '/api/routes';
-  static const String routesSearch = '/api/routes/search';
-  static const String routesSegment = '/api/routes/segment';
-  static String routeDetail(String routeId) => '/api/routes/$routeId';
-  static String routeShare(String routeId) => '/api/routes/$routeId/share';
+  static const String routes = '/api/v1/routes';
+  static const String routesSearch = '/api/v1/routes/search';
+  static const String routesSegment = '/api/v1/routes/segment';
+  static String routeDetail(String routeId) => '/api/v1/routes/$routeId';
+  static String routeShare(String routeId) => '/api/v1/routes/$routeId/share';
   static String routeTitle(String workoutId) =>
-      '/api/activities/$workoutId/title';
-  static String routeGPXDownload(String routeId) => '/api/routes/$routeId/gpx';
-  static String routeDelete(String routeId) => '/api/routes/$routeId';
-  static const String saveSharedRoute = '/api/routes/my-routes';
+      '/api/v1/activities/$workoutId/title';
+  static String routeGPXDownload(String routeId) =>
+      '/api/v1/routes/$routeId/gpx';
+  static String routeDelete(String routeId) => '/api/v1/routes/$routeId';
+  static const String saveSharedRoute = '/api/v1/routes/my-routes';
 
   //recommendation
-  static const String recommendations = '/api/recommendations';
+  static const String recommendations = '/api/v1/recommendations';
   static String recommendationDetail(String routeId) =>
-      '/api/recommendations/$routeId';
+      '/api/v1/recommendations/$routeId';
   static String addMyRoute(String routeId) =>
-      '/api/recommendations/routes/$routeId';
+      '/api/v1/recommendations/routes/$routeId';
 
   //sync
   static const String integrationAuthentication =
-      '/api/integration/authentication';
+      '/api/v1/integration/authentication';
   static const String integrationAuthenticationWidget =
-      '/api/integration/authentication/widget';
-  static const String integrationActivity = '/api/integration/activity';
-  static const String terraAuthToken = '/api/integration/terra/auth-token';
-  static const String apiUsage = '/api/integration/usage';
-  static const String appleHealthConnect = '/api/integration/apple/connect';
+      '/api/v1/integration/authentication/widget';
+  static const String integrationActivity = '/api/v1/integration/activity';
+  static const String terraAuthToken = '/api/v1/integration/terra/auth-token';
+  static const String apiUsage = '/api/v1/integration/usage';
+  static const String appleHealthConnect = '/api/v1/integration/apple/connect';
   static String deleteProvider(String providerName) =>
-      '/api/integration/provider/$providerName';
+      '/api/v1/integration/provider/$providerName';
 
   // Profile
   static const String profile = '/api/v1/user/profile';
@@ -64,7 +65,7 @@ class ApiEndpoints {
       '/api/v1/activities/import/apple';
 
   // Feedback
-  static const String feedback = '/api/feedback';
+  static const String feedback = '/api/v1/feedback';
 
   //statistics
   static const String workoutStatistics = '/api/v1/activities/stats';
