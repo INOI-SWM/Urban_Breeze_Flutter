@@ -82,52 +82,15 @@ class _RefreshButton extends ConsumerWidget {
 
   // 실제 동기화 메서드
   Future<void> _performSync(WidgetRef ref, BuildContext context) async {
-    final SyncingStateNotifier syncNotifier = ref.read(
-      syncingStateProvider.notifier,
-    );
-
     if (ref.read(syncingStateProvider)) return; // 이미 동기화 중이면 중단
 
-    // 모달 표시
+    // 모달 표시 (모달 내부에서 새로고침 처리)
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) => const SyncModal(),
     );
-
-    try {
-      // WorkoutRefreshNotifier를 사용하여 새로고침 수행
-      final WorkoutRefreshNotifier refreshNotifier = ref.read(
-        workoutRefreshNotifierProvider.notifier,
-      );
-      await refreshNotifier.performRefresh();
-
-      // 새로고침 결과 확인
-      final WorkoutRefreshState refreshState = ref.read(
-        workoutRefreshNotifierProvider,
-      );
-      if (refreshState.lastRefreshResult != null) {
-        final WorkoutRefreshResult result = refreshState.lastRefreshResult!;
-
-        // WorkoutListScreen에 데이터 전달을 위해 Provider 업데이트
-        if (result.allWorkouts.isNotEmpty) {
-          ref
-              .read(workoutDataProvider.notifier)
-              .updateWorkouts(result.allWorkouts);
-        }
-      }
-    } catch (e) {
-      syncNotifier.setSyncing(false);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('동기화 중 오류가 발생했습니다: ${e.toString()}'),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-    }
   }
 }
 
@@ -269,6 +232,18 @@ class _SyncModalState extends ConsumerState<SyncModal> {
           _isSyncing = false;
           _statusMessage = refreshState.statusMessage;
         });
+
+        // 새로고침 결과가 있으면 데이터 업데이트
+        if (refreshState.lastRefreshResult != null) {
+          final WorkoutRefreshResult result = refreshState.lastRefreshResult!;
+
+          // WorkoutListScreen에 데이터 전달을 위해 Provider 업데이트
+          if (result.allWorkouts.isNotEmpty) {
+            ref
+                .read(workoutDataProvider.notifier)
+                .updateWorkouts(result.allWorkouts);
+          }
+        }
       }
     } catch (e) {
       syncNotifier.setSyncing(false);

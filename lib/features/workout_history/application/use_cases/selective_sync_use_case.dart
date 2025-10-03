@@ -40,7 +40,7 @@ class SelectiveSyncUseCase {
 
       if (connectedServices.isEmpty) {
         return const AppFailure<Map<String, dynamic>?>(
-          NetworkException('연동된 서비스가 없습니다. 설정에서 서비스를 연동해주세요.'),
+          NetworkException('연동된 서비스가 없습니다. \n 설정에서 서비스를 연동해주세요.'),
         );
       }
 

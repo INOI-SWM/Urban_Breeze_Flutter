@@ -53,7 +53,7 @@ class WorkoutRefreshNotifier extends StateNotifier<WorkoutRefreshState> {
         state = state.copyWith(
           isRefreshing: false,
           statusMessage:
-              '새로고침 실패: ${result.exceptionOrNull?.message ?? 'Unknown error'}',
+              '새로고침 실패 \n ${result.exceptionOrNull?.message ?? 'Unknown error'}',
           lastRefreshResult: null,
         );
       }
