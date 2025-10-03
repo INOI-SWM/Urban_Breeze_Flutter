@@ -27,12 +27,12 @@ class WorkoutRefreshFacade {
         );
       }
 
-      // 동기화 결과 파싱
+      // 동기화 결과 파싱 (유연한 구조 처리)
       final List<WorkoutRecord> allWorkouts =
-          data['allWorkouts'] as List<WorkoutRecord>;
-      final int totalSuccess = data['totalSuccess'] as int;
-      final int totalAttempts = data['totalAttempts'] as int;
-      final int noPermissionCount = data['noPermissionCount'] as int;
+          data['allWorkouts'] as List<WorkoutRecord>? ?? <WorkoutRecord>[];
+      final int totalSuccess = data['totalSuccess'] as int? ?? 0;
+      final int totalAttempts = data['totalAttempts'] as int? ?? 1;
+      final int noPermissionCount = data['noPermissionCount'] as int? ?? 0;
 
       return AppSuccess<WorkoutRefreshResult>(
         WorkoutRefreshResult(

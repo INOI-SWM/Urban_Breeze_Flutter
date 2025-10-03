@@ -87,7 +87,7 @@ class AppleHealthKitDataSource {
           DateTime.fromMillisecondsSinceEpoch(a.startTimestamp.toInt()),
         ),
       );
-      debugPrint(cyclingWorkouts.toString());
+      debugPrint('cyclingWorkouts: ${cyclingWorkouts.length}');
       return cyclingWorkouts;
     } catch (e) {
       throw HealthKitDataException('자전거 운동 데이터 조회 실패: $e');
