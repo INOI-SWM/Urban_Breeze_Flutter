@@ -10,10 +10,13 @@ import 'package:urban_breeze/core/services/deep_link_service.dart';
 import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/workout_sync_facade.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/connect_apple_health_use_case.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/get_api_usage_use_case.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/api_usage.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
+import 'package:urban_breeze/shared/design_system/widgets/button/button_solid.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
@@ -31,6 +34,13 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
   bool _isLoading = false;
   StreamSubscription<IntegrationCallback>? _deepLinkSubscription;
 
+  // 연동 상태 관리
+  bool _isAppleHealthConnected = false;
+  bool _isHealthConnectConnected = false;
+  bool _isSamsungHealthConnected = false;
+  bool _isGarminConnected = false;
+  bool _isSuuntoConnected = false;
+
   @override
   void initState() {
     super.initState();
@@ -41,12 +51,55 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     _deepLinkSubscription = DeepLinkService().callbackStream.listen(
       _handleIntegrationCallback,
     );
+
+    // 연동 상태 확인
+    _checkIntegrationStatus();
   }
 
   @override
   void dispose() {
     _deepLinkSubscription?.cancel();
     super.dispose();
+  }
+
+  /// 연동 상태 확인
+  Future<void> _checkIntegrationStatus() async {
+    try {
+      final GetApiUsageUseCase getApiUsageUseCase = ref.read(
+        getApiUsageUseCaseProvider,
+      );
+      final AppResult<ApiUsage> result = await getApiUsageUseCase.execute();
+
+      if (result.isSuccess && mounted) {
+        final ApiUsage apiUsage = result.dataOrNull!;
+        setState(() {
+          // 각 서비스의 연동 상태 확인
+          _isAppleHealthConnected = apiUsage.providerSyncInfos.any(
+            (ProviderSyncInfo provider) =>
+                provider.providerName == 'Apple HealthKit' && provider.isActive,
+          );
+          _isHealthConnectConnected = apiUsage.providerSyncInfos.any(
+            (ProviderSyncInfo provider) =>
+                provider.providerName == 'Health Connect' && provider.isActive,
+          );
+          _isSamsungHealthConnected = apiUsage.providerSyncInfos.any(
+            (ProviderSyncInfo provider) =>
+                provider.providerName == 'Samsung Health' && provider.isActive,
+          );
+          _isGarminConnected = apiUsage.providerSyncInfos.any(
+            (ProviderSyncInfo provider) =>
+                provider.providerName == 'Garmin' && provider.isActive,
+          );
+          _isSuuntoConnected = apiUsage.providerSyncInfos.any(
+            (ProviderSyncInfo provider) =>
+                provider.providerName == 'Suunto' && provider.isActive,
+          );
+        });
+      }
+    } catch (e) {
+      // 연동 상태 확인 실패 시 기본값 유지
+      debugPrint('연동 상태 확인 실패: $e');
+    }
   }
 
   /// Deep Link 콜백 처리
@@ -96,6 +149,8 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
         );
         if (mounted) {
           showSuccessMessage(context, 'Apple Health Kit 연동이 완료되었습니다!');
+          // 연동 상태 다시 확인
+          _checkIntegrationStatus();
         }
       } else {
         // Apple Health Kit 연동 실패 이벤트
@@ -303,6 +358,8 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
               url: authUrl,
               title: 'Garmin Connect 연동',
             );
+            // 연동 상태 다시 확인
+            _checkIntegrationStatus();
           }
         } else {
           if (mounted) {
@@ -358,6 +415,8 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
               url: authUrl,
               title: 'Suunto 연동',
             );
+            // 연동 상태 다시 확인
+            _checkIntegrationStatus();
           }
         } else {
           if (mounted) {
@@ -409,12 +468,22 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
               // Apple Health Kit 섹션
               SizedBox(
                 width: double.infinity,
-                child: ButtonOutlined(
-                  text: _isLoading ? '동기화 중...' : 'Apple Health Kit 동기화',
-                  textColor: colors.labelNormal,
-                  borderColor: colors.lineNormalNormal,
-                  onPressed: _isLoading ? null : _syncAppleHealthKit,
-                ),
+                child:
+                    _isAppleHealthConnected
+                        ? ButtonSolid(
+                          text:
+                              _isLoading ? '동기화 중...' : 'Apple Health Kit 연동됨',
+                          textColor: colors.staticWhite,
+                          backgroundColor: colors.primaryNormal,
+                          onPressed: _isLoading ? null : _syncAppleHealthKit,
+                        )
+                        : ButtonOutlined(
+                          text:
+                              _isLoading ? '동기화 중...' : 'Apple Health Kit 동기화',
+                          textColor: colors.labelNormal,
+                          borderColor: colors.lineNormalNormal,
+                          onPressed: _isLoading ? null : _syncAppleHealthKit,
+                        ),
               ),
 
               const SizedBox(height: 16),
@@ -422,12 +491,28 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
               // Google Health Connect 섹션
               SizedBox(
                 width: double.infinity,
-                child: ButtonOutlined(
-                  text: _isLoading ? '동기화 중...' : 'Google Health Connect 동기화',
-                  textColor: colors.labelNormal,
-                  borderColor: colors.lineNormalNormal,
-                  onPressed: _isLoading ? null : _syncGoogleHealthConnect,
-                ),
+                child:
+                    _isHealthConnectConnected
+                        ? ButtonSolid(
+                          text:
+                              _isLoading
+                                  ? '동기화 중...'
+                                  : 'Google Health Connect 연동됨',
+                          textColor: colors.staticWhite,
+                          backgroundColor: colors.primaryNormal,
+                          onPressed:
+                              _isLoading ? null : _syncGoogleHealthConnect,
+                        )
+                        : ButtonOutlined(
+                          text:
+                              _isLoading
+                                  ? '동기화 중...'
+                                  : 'Google Health Connect 동기화',
+                          textColor: colors.labelNormal,
+                          borderColor: colors.lineNormalNormal,
+                          onPressed:
+                              _isLoading ? null : _syncGoogleHealthConnect,
+                        ),
               ),
 
               const SizedBox(height: 16),
@@ -435,35 +520,66 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
               // Samsung Health 섹션
               SizedBox(
                 width: double.infinity,
-                child: ButtonOutlined(
-                  text: _isLoading ? '동기화 중...' : 'Samsung Health 동기화',
-                  textColor: colors.labelNormal,
-                  borderColor: colors.lineNormalNormal,
-                  onPressed: _isLoading ? null : _syncSamsungHealthData,
-                ),
+                child:
+                    _isSamsungHealthConnected
+                        ? ButtonSolid(
+                          text: _isLoading ? '동기화 중...' : 'Samsung Health 연동됨',
+                          textColor: colors.staticWhite,
+                          backgroundColor: colors.primaryNormal,
+                          onPressed: _isLoading ? null : _syncSamsungHealthData,
+                        )
+                        : ButtonOutlined(
+                          text: _isLoading ? '동기화 중...' : 'Samsung Health 동기화',
+                          textColor: colors.labelNormal,
+                          borderColor: colors.lineNormalNormal,
+                          onPressed: _isLoading ? null : _syncSamsungHealthData,
+                        ),
               ),
               const SizedBox(height: 16),
               // Garmin Connect 섹션
               SizedBox(
                 width: double.infinity,
-                child: ButtonOutlined(
-                  text: _isLoading ? '연동 중...' : 'Garmin Connect 연동',
-                  textColor: colors.labelNormal,
-                  borderColor: colors.lineNormalNormal,
-                  onPressed:
-                      _isLoading ? null : _requestGarminConnectPermission,
-                ),
+                child:
+                    _isGarminConnected
+                        ? ButtonSolid(
+                          text: _isLoading ? '연동 중...' : 'Garmin Connect 연동됨',
+                          textColor: colors.staticWhite,
+                          backgroundColor: colors.primaryNormal,
+                          onPressed:
+                              _isLoading
+                                  ? null
+                                  : _requestGarminConnectPermission,
+                        )
+                        : ButtonOutlined(
+                          text: _isLoading ? '연동 중...' : 'Garmin Connect 연동',
+                          textColor: colors.labelNormal,
+                          borderColor: colors.lineNormalNormal,
+                          onPressed:
+                              _isLoading
+                                  ? null
+                                  : _requestGarminConnectPermission,
+                        ),
               ),
               const SizedBox(height: 16),
               // Suunto 섹션
               SizedBox(
                 width: double.infinity,
-                child: ButtonOutlined(
-                  text: _isLoading ? '연동 중...' : 'Suunto 연동',
-                  textColor: colors.labelNormal,
-                  borderColor: colors.lineNormalNormal,
-                  onPressed: _isLoading ? null : _requestSuuntoPermission,
-                ),
+                child:
+                    _isSuuntoConnected
+                        ? ButtonSolid(
+                          text: _isLoading ? '연동 중...' : 'Suunto 연동됨',
+                          textColor: colors.staticWhite,
+                          backgroundColor: colors.primaryNormal,
+                          onPressed:
+                              _isLoading ? null : _requestSuuntoPermission,
+                        )
+                        : ButtonOutlined(
+                          text: _isLoading ? '연동 중...' : 'Suunto 연동',
+                          textColor: colors.labelNormal,
+                          borderColor: colors.lineNormalNormal,
+                          onPressed:
+                              _isLoading ? null : _requestSuuntoPermission,
+                        ),
               ),
 
               if (_isLoading) ...<Widget>[
