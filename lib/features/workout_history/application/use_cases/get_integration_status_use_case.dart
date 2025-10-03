@@ -25,16 +25,15 @@ class GetIntegrationStatusUseCase {
     }
   }
 
-  /// 연동 상태와 마지막 동기화 시간을 함께 조회
-  Future<AppResult<Map<HealthProvider, DateTime?>>>
-  executeWithLastSync() async {
+  /// 연동된 서비스의 마지막 동기화 시간만 조회
+  Future<AppResult<Map<HealthProvider, DateTime>>> executeWithLastSync() async {
     try {
       final ApiUsage apiUsage = await _apiUsageRepository.getApiUsage();
-      final Map<HealthProvider, DateTime?> statusMap =
-          _parseIntegrationStatusWithLastSync(apiUsage);
-      return AppSuccess<Map<HealthProvider, DateTime?>>(statusMap);
+      final Map<HealthProvider, DateTime> statusMap =
+          _parseActiveServicesWithLastSync(apiUsage);
+      return AppSuccess<Map<HealthProvider, DateTime>>(statusMap);
     } catch (e) {
-      return AppFailure<Map<HealthProvider, DateTime?>>(
+      return AppFailure<Map<HealthProvider, DateTime>>(
         NetworkException('연동 상태 조회 실패: $e'),
       );
     }
@@ -55,30 +54,22 @@ class GetIntegrationStatusUseCase {
     return statusMap;
   }
 
-  /// API 응답을 파싱하여 연동 상태와 마지막 동기화 시간 맵 생성
-  Map<HealthProvider, DateTime?> _parseIntegrationStatusWithLastSync(
+  /// API 응답을 파싱하여 연동된 서비스의 마지막 동기화 시간만 반환
+  Map<HealthProvider, DateTime> _parseActiveServicesWithLastSync(
     ApiUsage apiUsage,
   ) {
-    final Map<HealthProvider, DateTime?> statusMap =
-        <HealthProvider, DateTime?>{};
+    final Map<HealthProvider, DateTime> statusMap =
+        <HealthProvider, DateTime>{};
 
-    for (final HealthProvider provider in HealthProvider.values) {
-      final ProviderSyncInfo providerInfo = apiUsage.providerSyncInfos
-          .firstWhere(
-            (ProviderSyncInfo info) =>
-                info.providerName == provider.displayName,
-            orElse:
-                () => ProviderSyncInfo(
-                  providerName: provider.displayName,
-                  lastSyncAt: null,
-                  isActive: false,
-                ),
-          );
-
-      if (providerInfo.isActive) {
-        statusMap[provider] = providerInfo.lastSyncAt;
-      } else {
-        statusMap[provider] = null;
+    for (final ProviderSyncInfo providerInfo in apiUsage.providerSyncInfos) {
+      if (providerInfo.isActive && providerInfo.lastSyncAt != null) {
+        // HealthProvider enum에서 해당하는 provider 찾기
+        for (final HealthProvider provider in HealthProvider.values) {
+          if (provider.displayName == providerInfo.providerName) {
+            statusMap[provider] = providerInfo.lastSyncAt!;
+            break;
+          }
+        }
       }
     }
 

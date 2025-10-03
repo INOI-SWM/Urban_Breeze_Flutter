@@ -18,8 +18,8 @@ class SelectiveSyncUseCase {
   /// 연동 상태를 확인하고 선택적 동기화 수행
   Future<AppResult<Map<String, dynamic>?>> execute() async {
     try {
-      // 1. 연동 상태와 마지막 동기화 시간 확인
-      final AppResult<Map<HealthProvider, DateTime?>> integrationResult =
+      // 1. 연동된 서비스의 마지막 동기화 시간 확인
+      final AppResult<Map<HealthProvider, DateTime>> integrationResult =
           await _getIntegrationStatusUseCase.executeWithLastSync();
 
       if (!integrationResult.isSuccess) {
@@ -28,27 +28,17 @@ class SelectiveSyncUseCase {
         );
       }
 
-      final Map<HealthProvider, DateTime?> connectionStatus =
+      final Map<HealthProvider, DateTime> lastSyncTimes =
           integrationResult.dataOrNull!;
 
-      // 2. 연동된 서비스 필터링
-      final List<HealthProvider> connectedServices =
-          connectionStatus.entries
-              .where(
-                (MapEntry<HealthProvider, DateTime?> entry) =>
-                    entry.value != null,
-              )
-              .map((MapEntry<HealthProvider, DateTime?> entry) => entry.key)
-              .toList();
-
-      if (connectedServices.isEmpty) {
+      if (lastSyncTimes.isEmpty) {
         return const AppFailure<Map<String, dynamic>?>(
           NetworkException('연동된 서비스가 없습니다. \n 설정에서 서비스를 연동해주세요.'),
         );
       }
 
-      // 3. 선택적 동기화 수행 (마지막 동기화 시간 포함)
-      return await _performSelectiveSync(connectedServices, connectionStatus);
+      // 2. 선택적 동기화 수행 (연동된 서비스만)
+      return await _performSelectiveSync(lastSyncTimes);
     } catch (e) {
       return AppFailure<Map<String, dynamic>?>(
         NetworkException('동기화 중 오류가 발생했습니다: $e'),
@@ -58,12 +48,11 @@ class SelectiveSyncUseCase {
 
   /// 연동된 서비스에 따라 선택적 동기화 수행
   Future<AppResult<Map<String, dynamic>?>> _performSelectiveSync(
-    List<HealthProvider> connectedServices,
-    Map<HealthProvider, DateTime?> lastSyncTimes,
+    Map<HealthProvider, DateTime> lastSyncTimes,
   ) async {
     // Apple Health Kit이 연동된 경우
-    if (connectedServices.contains(HealthProvider.appleHealthKit)) {
-      final DateTime? lastSyncAt = lastSyncTimes[HealthProvider.appleHealthKit];
+    if (lastSyncTimes.containsKey(HealthProvider.appleHealthKit)) {
+      final DateTime lastSyncAt = lastSyncTimes[HealthProvider.appleHealthKit]!;
       return await _workoutSyncFacade.syncAppleHealthData(
         startDate: lastSyncAt,
         endDate: DateTime.now(),
@@ -71,8 +60,8 @@ class SelectiveSyncUseCase {
     }
 
     // Samsung Health가 연동된 경우
-    if (connectedServices.contains(HealthProvider.samsungHealth)) {
-      final DateTime? lastSyncAt = lastSyncTimes[HealthProvider.samsungHealth];
+    if (lastSyncTimes.containsKey(HealthProvider.samsungHealth)) {
+      final DateTime lastSyncAt = lastSyncTimes[HealthProvider.samsungHealth]!;
       return await _workoutSyncFacade.syncSamsungHealthData(
         startDate: lastSyncAt,
         endDate: DateTime.now(),
@@ -80,8 +69,8 @@ class SelectiveSyncUseCase {
     }
 
     // Health Connect가 연동된 경우
-    if (connectedServices.contains(HealthProvider.healthConnect)) {
-      final DateTime? lastSyncAt = lastSyncTimes[HealthProvider.healthConnect];
+    if (lastSyncTimes.containsKey(HealthProvider.healthConnect)) {
+      final DateTime lastSyncAt = lastSyncTimes[HealthProvider.healthConnect]!;
       return await _workoutSyncFacade.syncHealthConnectData(
         startDate: lastSyncAt,
         endDate: DateTime.now(),
