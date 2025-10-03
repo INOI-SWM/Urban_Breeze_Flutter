@@ -9,6 +9,7 @@ import '../application/facades/workout_sync_facade.dart';
 import '../application/use_cases/connect_terra_health_app_use_case.dart';
 import '../application/use_cases/delete_workout_image_use_case.dart';
 import '../application/use_cases/delete_workout_use_case.dart';
+import '../application/use_cases/get_api_usage_use_case.dart';
 import '../application/use_cases/get_workout_detail_use_case.dart';
 import '../application/use_cases/get_workout_list_use_case.dart';
 import '../application/use_cases/get_workout_statistics_use_case.dart';
@@ -19,15 +20,18 @@ import '../application/use_cases/sync_google_health_connect_data_use_case.dart';
 import '../application/use_cases/sync_terra_health_data_use_case.dart';
 import '../application/use_cases/update_workout_title_use_case.dart';
 import '../application/use_cases/upload_workout_images_use_case.dart';
+import '../data/datasources/api_usage_datasource.dart';
 import '../data/datasources/apple_health_workout_datasource.dart';
 import '../data/datasources/google_health_connect_datasource.dart';
 import '../data/datasources/remote_workout_history_datasource.dart';
 import '../data/datasources/terra_api_datasoiurce.dart';
 import '../data/datasources/workout_statistics_datasource.dart';
+import '../data/repositories/api_usage_repository_impl.dart';
 import '../data/repositories/apple_health_kit_sync_repository_impl.dart';
 import '../data/repositories/google_health_connect_sync_repository_impl.dart';
 import '../data/repositories/workout_history_repository_impl.dart';
 import '../data/repositories/workout_statistics_repository_impl.dart';
+import '../domain/repositories/api_usage_repository.dart';
 import '../domain/repositories/google_health_connect_sync_repository.dart';
 import '../domain/repositories/health_kit_sync_repository.dart';
 import '../domain/repositories/workout_history_repository.dart';
@@ -66,6 +70,13 @@ final Provider<TerraApiDataSource> terraApiDataSourceProvider =
       return TerraApiDataSource(client: client, ref: ref);
     });
 
+// API Usage Data Source Provider
+final Provider<ApiUsageDataSource> apiUsageDataSourceProvider =
+    Provider<ApiUsageDataSource>((Ref<ApiUsageDataSource> ref) {
+      final http.Client client = ref.watch(authorizedHttpClientProvider);
+      return ApiUsageDataSource(client: client);
+    });
+
 // Repository Providers
 final Provider<WorkoutStatisticsRepository>
 workoutStatisticsRepositoryProvider = Provider<WorkoutStatisticsRepository>((
@@ -102,6 +113,14 @@ googleHealthConnectSyncRepositoryProvider =
       );
 
       return GoogleHealthConnectSyncRepositoryImpl(dataSource: dataSource);
+    });
+
+final Provider<ApiUsageRepository> apiUsageRepositoryProvider =
+    Provider<ApiUsageRepository>((Ref<ApiUsageRepository> ref) {
+      final ApiUsageDataSource dataSource = ref.watch(
+        apiUsageDataSourceProvider,
+      );
+      return ApiUsageRepositoryImpl(dataSource: dataSource);
     });
 
 // Use Case Providers
@@ -189,6 +208,14 @@ syncGoogleHealthConnectDataUseCaseProvider =
       );
 
       return SyncGoogleHealthConnectDataUseCase(repository);
+    });
+
+final Provider<GetApiUsageUseCase> getApiUsageUseCaseProvider =
+    Provider<GetApiUsageUseCase>((Ref<GetApiUsageUseCase> ref) {
+      final ApiUsageRepository repository = ref.watch(
+        apiUsageRepositoryProvider,
+      );
+      return GetApiUsageUseCase(repository: repository);
     });
 
 // Terra Use Case Providers
