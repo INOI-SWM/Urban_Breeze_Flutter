@@ -175,6 +175,73 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen>
         minElevationGain: routeList.minElevationGain,
       );
     });
+
+    // 삭제 후 해당 페이지를 다시 불러와서 서버 상태와 동기화
+    _loadCurrentPageToFillGap();
+  }
+
+  /// 삭제 후 빈 공간을 채우기 위해 현재 페이지를 다시 불러오기
+  Future<void> _loadCurrentPageToFillGap() async {
+    setState(() {
+      isLoadingMore = true;
+    });
+
+    late AppResult<MyRouteList> result;
+    late MyRouteFilter filterModel;
+
+    if (currentFilter == null) {
+      // 초기 로딩 - 기본 필터 사용
+      filterModel = MyRouteFilter(sortType: selectedSortOption);
+    } else {
+      // 필터 적용 - Mapper 사용
+      filterModel = MyRouteFilterMapper.fromFilterData(
+        currentFilter!,
+        selectedSortOption,
+      );
+    }
+
+    result = await ref
+        .read(getMyRouteListUseCaseProvider)
+        .execute(filter: filterModel);
+
+    setState(() {
+      isLoadingMore = false;
+      if (result.isSuccess) {
+        final MyRouteList newRouteList = result.dataOrNull!;
+        final List<MyRoute> currentRoutes = allRoutes;
+        final List<MyRoute> serverRoutes = newRouteList.routes;
+
+        // 기존 리스트와 서버 리스트를 비교해서 없는 것만 추가
+        final List<MyRoute> missingRoutes = <MyRoute>[];
+        for (final MyRoute serverRoute in serverRoutes) {
+          final bool exists = currentRoutes.any(
+            (MyRoute route) => route.routeId == serverRoute.routeId,
+          );
+          if (!exists) {
+            missingRoutes.add(serverRoute);
+          }
+        }
+
+        // 없는 항목들을 기존 리스트에 추가
+        final List<MyRoute> updatedRoutes = List<MyRoute>.from(currentRoutes);
+        updatedRoutes.addAll(missingRoutes);
+
+        routeList = MyRouteList(
+          routes: updatedRoutes,
+          currentPage: newRouteList.currentPage,
+          totalPages: newRouteList.totalPages,
+          totalElements: newRouteList.totalElements,
+          size: newRouteList.size,
+          hasNext: newRouteList.hasNext,
+          hasPrevious: newRouteList.hasPrevious,
+          maxDistance: newRouteList.maxDistance,
+          maxElevationGain: newRouteList.maxElevationGain,
+          minDistance: newRouteList.minDistance,
+          minElevationGain: newRouteList.minElevationGain,
+        );
+        allRoutes = List<MyRoute>.from(updatedRoutes);
+      }
+    });
   }
 
   Future<void> _loadMoreRoutes() async {

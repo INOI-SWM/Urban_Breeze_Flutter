@@ -387,10 +387,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
 
         Navigator.of(context).pop(true);
       } else {
-        showErrorMessage(
-          context,
-          result.exceptionOrNull?.message ?? '운동기록 삭제에 실패했습니다',
-        );
+        showErrorMessage(context, '운동기록 삭제에 실패했습니다');
       }
     } catch (e) {
       if (!mounted) return;
