@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
@@ -132,7 +133,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
         properties: <String, dynamic>{'error_message': e.toString()},
       );
       if (mounted) {
-        showErrorMessage(context, 'Apple Health 데이터 가져오기 중 오류 발생: $e');
+        if (e is PlatformException) {
+          showErrorMessage(context, '지원하지 않는 플랫폼입니다');
+        } else {
+          showErrorMessage(context, 'Apple Health 데이터 가져오기 중 오류가 발생했습니다');
+        }
       }
     } finally {
       setState(() {
@@ -162,10 +167,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
             properties: <String, dynamic>{'sync_method': 'webhook'},
           );
           if (mounted) {
-            showSuccessMessage(
-              context,
-              'Health Connect 데이터 가져오기 완료! 웹훅을 통해 데이터가 전송됩니다.',
-            );
+            showSuccessMessage(context, 'Health Connect 데이터 가져오기 완료!');
           }
         } else {
           // Health Connect 동기화 성공 (직접) 이벤트
@@ -189,10 +191,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
           },
         );
         if (mounted) {
-          showErrorMessage(
-            context,
-            'Health Connect 데이터 가져오기 실패: ${result.exceptionOrNull?.message}',
-          );
+          showErrorMessage(context, 'Health Connect 데이터 가져오기 실패');
         }
       }
     } catch (e) {
@@ -202,7 +201,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
         properties: <String, dynamic>{'error_message': e.toString()},
       );
       if (mounted) {
-        showErrorMessage(context, 'Health Connect 데이터 가져오기 중 오류 발생: $e');
+        if (e is PlatformException) {
+          showErrorMessage(context, '지원하지 않는 플랫폼입니다');
+        } else {
+          showErrorMessage(context, 'Health Connect 데이터 가져오기 중 오류가 발생했습니다');
+        }
       }
     } finally {
       setState(() {
@@ -275,7 +278,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
         properties: <String, dynamic>{'error_message': e.toString()},
       );
       if (mounted) {
-        showErrorMessage(context, 'Samsung Health 데이터 가져오기 중 오류 발생: $e');
+        if (e is PlatformException) {
+          showErrorMessage(context, '지원하지 않는 플랫폼입니다');
+        } else {
+          showErrorMessage(context, 'Samsung Health 데이터 가져오기 중 오류가 발생했습니다');
+        }
       }
     } finally {
       setState(() {
@@ -326,7 +333,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
       }
     } catch (e) {
       if (mounted) {
-        showErrorMessage(context, 'Garmin Connect 권한 요청 중 오류 발생: $e');
+        if (e is PlatformException) {
+          showErrorMessage(context, '지원하지 않는 플랫폼입니다');
+        } else {
+          showErrorMessage(context, 'Garmin Connect 권한 요청 중 오류가 발생했습니다');
+        }
       }
     } finally {
       setState(() {
@@ -377,7 +388,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
       }
     } catch (e) {
       if (mounted) {
-        showErrorMessage(context, 'Suunto 권한 요청 중 오류 발생: $e');
+        if (e is PlatformException) {
+          showErrorMessage(context, '지원하지 않는 플랫폼입니다');
+        } else {
+          showErrorMessage(context, 'Suunto 권한 요청 중 오류가 발생했습니다');
+        }
       }
     } finally {
       setState(() {
