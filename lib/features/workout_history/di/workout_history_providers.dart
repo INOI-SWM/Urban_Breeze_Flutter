@@ -5,6 +5,7 @@ import 'package:urban_breeze/features/integration/application/facades/integratio
 import 'package:urban_breeze/features/integration/di/integration_providers.dart';
 
 import '../application/facades/terra_health_sync_facade.dart';
+import '../application/facades/workout_refresh_facade.dart';
 import '../application/facades/workout_sync_facade.dart';
 import '../application/use_cases/connect_apple_health_use_case.dart';
 import '../application/use_cases/connect_terra_health_app_use_case.dart';
@@ -18,6 +19,7 @@ import '../application/use_cases/get_workout_list_use_case.dart';
 import '../application/use_cases/get_workout_statistics_use_case.dart';
 import '../application/use_cases/import_apple_health_workouts_use_case.dart';
 import '../application/use_cases/initialize_terra_use_case.dart';
+import '../application/use_cases/selective_sync_use_case.dart';
 import '../application/use_cases/sync_apple_health_kit_data_use_case.dart';
 import '../application/use_cases/sync_google_health_connect_data_use_case.dart';
 import '../application/use_cases/sync_terra_health_data_use_case.dart';
@@ -46,6 +48,7 @@ import '../domain/repositories/provider_deletion_repository.dart';
 import '../domain/repositories/workout_history_repository.dart';
 import '../domain/repositories/workout_statistics_repository.dart';
 import '../presentation/notifiers/sync_screen_notifier.dart';
+import '../presentation/notifiers/workout_refresh_notifier.dart';
 
 // Data Source Providers
 final Provider<RemoteWorkoutStatisticsDataSource>
@@ -387,4 +390,40 @@ final StateNotifierProvider<SyncScreenNotifier, SyncScreenState>
 syncScreenNotifierProvider =
     StateNotifierProvider<SyncScreenNotifier, SyncScreenState>((Ref ref) {
       return SyncScreenNotifier(ref, null);
+    });
+
+// SelectiveSyncUseCase Provider
+final Provider<SelectiveSyncUseCase> selectiveSyncUseCaseProvider =
+    Provider<SelectiveSyncUseCase>((Ref ref) {
+      final GetIntegrationStatusUseCase getIntegrationStatusUseCase = ref.watch(
+        getIntegrationStatusUseCaseProvider,
+      );
+      final WorkoutSyncFacade workoutSyncFacade = ref.watch(
+        workoutSyncFacadeProvider,
+      );
+      return SelectiveSyncUseCase(
+        getIntegrationStatusUseCase,
+        workoutSyncFacade,
+      );
+    });
+
+// WorkoutRefreshFacade Provider
+final Provider<WorkoutRefreshFacade> workoutRefreshFacadeProvider =
+    Provider<WorkoutRefreshFacade>((Ref ref) {
+      final SelectiveSyncUseCase selectiveSyncUseCase = ref.watch(
+        selectiveSyncUseCaseProvider,
+      );
+      return WorkoutRefreshFacade(selectiveSyncUseCase);
+    });
+
+// WorkoutRefreshNotifier Provider
+final StateNotifierProvider<WorkoutRefreshNotifier, WorkoutRefreshState>
+workoutRefreshNotifierProvider =
+    StateNotifierProvider<WorkoutRefreshNotifier, WorkoutRefreshState>((
+      Ref ref,
+    ) {
+      final WorkoutRefreshFacade workoutRefreshFacade = ref.watch(
+        workoutRefreshFacadeProvider,
+      );
+      return WorkoutRefreshNotifier(workoutRefreshFacade);
     });
