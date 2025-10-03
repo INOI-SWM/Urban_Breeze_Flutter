@@ -6,6 +6,7 @@ import 'package:urban_breeze/features/integration/di/integration_providers.dart'
 
 import '../application/facades/terra_health_sync_facade.dart';
 import '../application/facades/workout_sync_facade.dart';
+import '../application/use_cases/connect_apple_health_use_case.dart';
 import '../application/use_cases/connect_terra_health_app_use_case.dart';
 import '../application/use_cases/delete_workout_image_use_case.dart';
 import '../application/use_cases/delete_workout_use_case.dart';
@@ -21,17 +22,20 @@ import '../application/use_cases/sync_terra_health_data_use_case.dart';
 import '../application/use_cases/update_workout_title_use_case.dart';
 import '../application/use_cases/upload_workout_images_use_case.dart';
 import '../data/datasources/api_usage_datasource.dart';
+import '../data/datasources/apple_health_connect_datasource.dart';
 import '../data/datasources/apple_health_workout_datasource.dart';
 import '../data/datasources/google_health_connect_datasource.dart';
 import '../data/datasources/remote_workout_history_datasource.dart';
 import '../data/datasources/terra_api_datasoiurce.dart';
 import '../data/datasources/workout_statistics_datasource.dart';
 import '../data/repositories/api_usage_repository_impl.dart';
+import '../data/repositories/apple_health_connect_repository_impl.dart';
 import '../data/repositories/apple_health_kit_sync_repository_impl.dart';
 import '../data/repositories/google_health_connect_sync_repository_impl.dart';
 import '../data/repositories/workout_history_repository_impl.dart';
 import '../data/repositories/workout_statistics_repository_impl.dart';
 import '../domain/repositories/api_usage_repository.dart';
+import '../domain/repositories/apple_health_connect_repository.dart';
 import '../domain/repositories/google_health_connect_sync_repository.dart';
 import '../domain/repositories/health_kit_sync_repository.dart';
 import '../domain/repositories/workout_history_repository.dart';
@@ -76,6 +80,15 @@ final Provider<ApiUsageDataSource> apiUsageDataSourceProvider =
       final http.Client client = ref.watch(authorizedHttpClientProvider);
       return ApiUsageDataSource(client: client);
     });
+
+// Apple Health Connect Data Source Provider
+final Provider<AppleHealthConnectDataSource>
+appleHealthConnectDataSourceProvider = Provider<AppleHealthConnectDataSource>((
+  Ref<AppleHealthConnectDataSource> ref,
+) {
+  final http.Client client = ref.watch(authorizedHttpClientProvider);
+  return AppleHealthConnectDataSource(client: client);
+});
 
 // Repository Providers
 final Provider<WorkoutStatisticsRepository>
@@ -122,6 +135,16 @@ final Provider<ApiUsageRepository> apiUsageRepositoryProvider =
       );
       return ApiUsageRepositoryImpl(dataSource: dataSource);
     });
+
+final Provider<AppleHealthConnectRepository>
+appleHealthConnectRepositoryProvider = Provider<AppleHealthConnectRepository>((
+  Ref<AppleHealthConnectRepository> ref,
+) {
+  final AppleHealthConnectDataSource dataSource = ref.watch(
+    appleHealthConnectDataSourceProvider,
+  );
+  return AppleHealthConnectRepositoryImpl(dataSource: dataSource);
+});
 
 // Use Case Providers
 final Provider<GetWorkoutStatisticsUseCase>
@@ -216,6 +239,14 @@ final Provider<GetApiUsageUseCase> getApiUsageUseCaseProvider =
         apiUsageRepositoryProvider,
       );
       return GetApiUsageUseCase(repository: repository);
+    });
+
+final Provider<ConnectAppleHealthUseCase> connectAppleHealthUseCaseProvider =
+    Provider<ConnectAppleHealthUseCase>((Ref<ConnectAppleHealthUseCase> ref) {
+      final AppleHealthConnectRepository repository = ref.watch(
+        appleHealthConnectRepositoryProvider,
+      );
+      return ConnectAppleHealthUseCase(repository: repository);
     });
 
 // Terra Use Case Providers
