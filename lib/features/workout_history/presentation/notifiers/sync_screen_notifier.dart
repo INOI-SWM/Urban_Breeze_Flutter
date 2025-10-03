@@ -5,6 +5,7 @@ import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/connect_apple_health_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/delete_provider_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/get_integration_status_use_case.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/sync_apple_health_kit_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/features/workout_history/domain/enums/health_provider.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
@@ -66,6 +67,37 @@ class SyncScreenNotifier extends StateNotifier<SyncScreenState>
     state = state.copyWith(isLoading: true);
 
     try {
+      // 1. Apple Health Kit 권한 요청
+      final SyncAppleHealthKitDataUseCase syncAppleHealthKitDataUseCase = ref
+          .read(syncAppleHealthKitDataUseCaseProvider);
+
+      // 권한 확인
+      final bool hasPermission =
+          await syncAppleHealthKitDataUseCase.checkPermissions();
+
+      if (!hasPermission) {
+        // 권한 요청
+        final bool permissionGranted =
+            await syncAppleHealthKitDataUseCase.requestPermissions();
+        if (!permissionGranted) {
+          AmplitudeAnalytics.logEvent(
+            'apple_health_kit_permission_denied',
+            properties: <String, dynamic>{'source': 'sync_screen'},
+          );
+          // 권한 거부 시 상태 업데이트
+          state = state.copyWith(
+            isLoading: false,
+            lastDisconnectResult: const DisconnectResult(
+              isSuccess: false,
+              serviceName: 'Apple Health Kit',
+              errorMessage: 'Apple Health Kit 권한이 거부되었습니다. 설정에서 권한을 허용해주세요.',
+            ),
+          );
+          return;
+        }
+      }
+
+      // 2. 서버에 연동 알림
       final ConnectAppleHealthUseCase connectAppleHealthUseCase = ref.read(
         connectAppleHealthUseCaseProvider,
       );
