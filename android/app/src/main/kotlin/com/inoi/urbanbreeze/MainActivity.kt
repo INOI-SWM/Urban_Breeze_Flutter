@@ -41,27 +41,6 @@ class MainActivity : FlutterFragmentActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-
-        // Health Connect 매니저 초기화
-        healthConnectManager = HealthConnectManager(this)
-
-        // 플러그인 연결
-        val plugin = HealthConnectPlugin()
-        flutterEngine.plugins.add(plugin)
-
-        // 플러그인에 Activity 전달
-        plugin.setActivity(this)
-    }
-
-    /**
-     * 외부에서 권한 요청을 트리거할 수 있게 함수 제공
-     */
-    fun requestHealthConnectPermissions(callback: (Boolean) -> Unit) {
-        permissionResultCallback = callback
-        permissionLauncher.launch(permissions)
-    }
-
-    fun getHealthConnectManager(): HealthConnectManager {
-        return healthConnectManager
+        // HealthConnect 기능이 비활성화됨
     }
 }
