@@ -1,6 +1,5 @@
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
-import 'package:urban_breeze/features/workout_history/domain/entities/apple_health_connection.dart';
 import 'package:urban_breeze/features/workout_history/domain/repositories/apple_health_connect_repository.dart';
 
 class ConnectAppleHealthUseCase {
@@ -8,13 +7,12 @@ class ConnectAppleHealthUseCase {
 
   final AppleHealthConnectRepository repository;
 
-  Future<AppResult<AppleHealthConnection>> execute() async {
+  Future<AppResult<void>> execute() async {
     try {
-      final AppleHealthConnection connection =
-          await repository.connectAppleHealth();
-      return AppSuccess<AppleHealthConnection>(connection);
+      await repository.connectAppleHealth();
+      return const AppSuccess<void>(null);
     } catch (e) {
-      return AppFailure<AppleHealthConnection>(NetworkException(e.toString()));
+      return AppFailure<void>(NetworkException(e.toString()));
     }
   }
 }
