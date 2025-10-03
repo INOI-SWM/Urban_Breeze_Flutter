@@ -10,15 +10,18 @@ import 'package:urban_breeze/core/services/deep_link_service.dart';
 import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/workout_sync_facade.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/connect_apple_health_use_case.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/delete_provider_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/get_api_usage_use_case.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/api_usage.dart';
+import 'package:urban_breeze/features/workout_history/domain/enums/health_provider.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_solid.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
+import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 import 'package:urban_breeze/shared/utils/webview_navigation.dart';
 
@@ -62,6 +65,96 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     super.dispose();
   }
 
+  /// 연동 해제 확인 모달 표시
+  Future<void> _showDisconnectModal(String serviceName) async {
+    await ModalShow.show(
+      context: context,
+      title: '연동 해제',
+      content: Text('$serviceName 연동을 해제하시겠습니까?'),
+      primaryButtonText: '해제',
+      secondaryButtonText: '취소',
+      onPrimaryButtonPressed: () {
+        _disconnectService(serviceName);
+      },
+      onSecondaryButtonPressed: () {
+        // 취소 버튼 - 아무것도 하지 않음 (모달은 자동으로 닫힘)
+      },
+    );
+  }
+
+  /// 서비스 연동 해제
+  Future<void> _disconnectService(String serviceName) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final DeleteProviderUseCase deleteProviderUseCase = ref.read(
+        deleteProviderUseCaseProvider,
+      );
+
+      // 서비스명을 API에서 사용하는 providerName으로 변환
+      final String providerName = _getProviderName(serviceName);
+      final AppResult<void> result = await deleteProviderUseCase.execute(
+        providerName,
+      );
+
+      if (result.isSuccess) {
+        // 연동 해제 성공 이벤트
+        AmplitudeAnalytics.logEvent(
+          'provider_disconnect_success',
+          properties: <String, dynamic>{'provider_name': providerName},
+        );
+        if (mounted) {
+          showSuccessMessage(context, '$serviceName 연동이 해제되었습니다.');
+        }
+      } else {
+        // 연동 해제 실패 이벤트
+        AmplitudeAnalytics.logEvent(
+          'provider_disconnect_failed',
+          properties: <String, dynamic>{
+            'provider_name': providerName,
+            'error_message': result.exceptionOrNull?.message ?? 'Unknown error',
+          },
+        );
+        if (mounted) {
+          showErrorMessage(
+            context,
+            '$serviceName 연동 해제 실패: ${result.exceptionOrNull?.message}',
+          );
+        }
+      }
+    } catch (e) {
+      // 연동 해제 예외 이벤트
+      AmplitudeAnalytics.logEvent(
+        'provider_disconnect_exception',
+        properties: <String, dynamic>{
+          'provider_name': serviceName,
+          'error_message': e.toString(),
+        },
+      );
+      if (mounted) {
+        showErrorMessage(context, '$serviceName 연동 해제 중 오류가 발생했습니다');
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+      // 연동 상태 다시 확인
+      _checkIntegrationStatus();
+    }
+  }
+
+  /// 서비스명을 API providerName으로 변환
+  String _getProviderName(String serviceName) {
+    for (final HealthProvider provider in HealthProvider.values) {
+      if (provider.serviceName == serviceName) {
+        return provider.displayName;
+      }
+    }
+    return serviceName;
+  }
+
   /// 연동 상태 확인
   Future<void> _checkIntegrationStatus() async {
     try {
@@ -76,23 +169,31 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
           // 각 서비스의 연동 상태 확인
           _isAppleHealthConnected = apiUsage.providerSyncInfos.any(
             (ProviderSyncInfo provider) =>
-                provider.providerName == 'Apple HealthKit' && provider.isActive,
+                provider.providerName ==
+                    HealthProvider.appleHealthKit.displayName &&
+                provider.isActive,
           );
           _isHealthConnectConnected = apiUsage.providerSyncInfos.any(
             (ProviderSyncInfo provider) =>
-                provider.providerName == 'Health Connect' && provider.isActive,
+                provider.providerName ==
+                    HealthProvider.healthConnect.displayName &&
+                provider.isActive,
           );
           _isSamsungHealthConnected = apiUsage.providerSyncInfos.any(
             (ProviderSyncInfo provider) =>
-                provider.providerName == 'Samsung Health' && provider.isActive,
+                provider.providerName ==
+                    HealthProvider.samsungHealth.displayName &&
+                provider.isActive,
           );
           _isGarminConnected = apiUsage.providerSyncInfos.any(
             (ProviderSyncInfo provider) =>
-                provider.providerName == 'Garmin' && provider.isActive,
+                provider.providerName == HealthProvider.garmin.displayName &&
+                provider.isActive,
           );
           _isSuuntoConnected = apiUsage.providerSyncInfos.any(
             (ProviderSyncInfo provider) =>
-                provider.providerName == 'Suunto' && provider.isActive,
+                provider.providerName == HealthProvider.suunto.displayName &&
+                provider.isActive,
           );
         });
       }
@@ -475,7 +576,12 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
                               _isLoading ? '동기화 중...' : 'Apple Health Kit 연동됨',
                           textColor: colors.staticWhite,
                           backgroundColor: colors.primaryNormal,
-                          onPressed: _isLoading ? null : _syncAppleHealthKit,
+                          onPressed:
+                              _isLoading
+                                  ? null
+                                  : () => _showDisconnectModal(
+                                    HealthProvider.appleHealthKit.serviceName,
+                                  ),
                         )
                         : ButtonOutlined(
                           text:
@@ -501,7 +607,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
                           textColor: colors.staticWhite,
                           backgroundColor: colors.primaryNormal,
                           onPressed:
-                              _isLoading ? null : _syncGoogleHealthConnect,
+                              _isLoading
+                                  ? null
+                                  : () => _showDisconnectModal(
+                                    HealthProvider.healthConnect.serviceName,
+                                  ),
                         )
                         : ButtonOutlined(
                           text:
@@ -526,7 +636,12 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
                           text: _isLoading ? '동기화 중...' : 'Samsung Health 연동됨',
                           textColor: colors.staticWhite,
                           backgroundColor: colors.primaryNormal,
-                          onPressed: _isLoading ? null : _syncSamsungHealthData,
+                          onPressed:
+                              _isLoading
+                                  ? null
+                                  : () => _showDisconnectModal(
+                                    HealthProvider.samsungHealth.serviceName,
+                                  ),
                         )
                         : ButtonOutlined(
                           text: _isLoading ? '동기화 중...' : 'Samsung Health 동기화',
@@ -548,7 +663,9 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
                           onPressed:
                               _isLoading
                                   ? null
-                                  : _requestGarminConnectPermission,
+                                  : () => _showDisconnectModal(
+                                    HealthProvider.garmin.serviceName,
+                                  ),
                         )
                         : ButtonOutlined(
                           text: _isLoading ? '연동 중...' : 'Garmin Connect 연동',
@@ -571,7 +688,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
                           textColor: colors.staticWhite,
                           backgroundColor: colors.primaryNormal,
                           onPressed:
-                              _isLoading ? null : _requestSuuntoPermission,
+                              _isLoading
+                                  ? null
+                                  : () => _showDisconnectModal(
+                                    HealthProvider.suunto.serviceName,
+                                  ),
                         )
                         : ButtonOutlined(
                           text: _isLoading ? '연동 중...' : 'Suunto 연동',
