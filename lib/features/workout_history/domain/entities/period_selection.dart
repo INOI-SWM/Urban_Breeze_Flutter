@@ -1,14 +1,10 @@
 /// 기간 선택을 나타내는 도메인 엔티티
 class PeriodSelection {
-  const PeriodSelection({
-    required this.year,
-    required this.month,
-    required this.week,
-  });
+  const PeriodSelection({required this.year, this.month, this.week});
 
   final int year;
-  final int month;
-  final int week;
+  final int? month;
+  final int? week;
 
   @override
   bool operator ==(Object other) {

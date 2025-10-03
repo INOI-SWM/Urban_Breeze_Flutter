@@ -582,12 +582,12 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
       case StatisticPeriodType.week:
         final String weekRange = PeriodUtils.formatWeekRange(
           _periodSelection.year,
-          _periodSelection.month,
-          _periodSelection.week,
+          _periodSelection.month ?? 1,
+          _periodSelection.week ?? 1,
         );
-        return '${_periodSelection.year % 100}년 ${_periodSelection.month}월 ${_periodSelection.week}주 $weekRange';
+        return '${_periodSelection.year % 100}년 ${_periodSelection.month ?? 1}월 ${_periodSelection.week ?? 1}주 $weekRange';
       case StatisticPeriodType.month:
-        return '${_periodSelection.year}년 ${_periodSelection.month}월';
+        return '${_periodSelection.year}년 ${_periodSelection.month ?? 1}월';
       case StatisticPeriodType.year:
         return '${_periodSelection.year}년';
       case StatisticPeriodType.all:
@@ -705,8 +705,8 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
         'current_period_type': _selectedPeriodType.name,
         'current_period_selection': <String, int>{
           'year': _periodSelection.year,
-          'month': _periodSelection.month,
-          'week': _periodSelection.week,
+          'month': _periodSelection.month ?? 1,
+          'week': _periodSelection.week ?? 1,
         },
       },
     );
@@ -723,13 +723,13 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
             'period_type': _selectedPeriodType.name,
             'previous_selection': <String, int>{
               'year': _periodSelection.year,
-              'month': _periodSelection.month,
-              'week': _periodSelection.week,
+              'month': _periodSelection.month ?? 1,
+              'week': _periodSelection.week ?? 1,
             },
             'new_selection': <String, int>{
               'year': newSelection.year,
-              'month': newSelection.month,
-              'week': newSelection.week,
+              'month': newSelection.month ?? 1,
+              'week': newSelection.week ?? 1,
             },
           },
         );
