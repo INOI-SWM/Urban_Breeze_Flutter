@@ -4,7 +4,16 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
-/// 개발 환경용 [FirebaseOptions] for use with your Firebase apps.
+/// Default [FirebaseOptions] for use with your Firebase apps.
+///
+/// Example:
+/// ```dart
+/// import 'firebase_options.dart';
+/// // ...
+/// await Firebase.initializeApp(
+///   options: DefaultFirebaseOptions.currentPlatform,
+/// );
+/// ```
 class DefaultFirebaseOptionsDev {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -55,7 +64,7 @@ class DefaultFirebaseOptionsDev {
     projectId: 'urban-breeze',
     storageBucket: 'urban-breeze.firebasestorage.app',
     androidClientId:
-        '723259332020-r5u1laq4umq0v0n489d2b4k81vj0ugo3.apps.googleusercontent.com',
+        '723259332020-2ms0qnupo6ntk7um52d6f8ct4s0fvk3h.apps.googleusercontent.com',
     iosClientId:
         '723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc.apps.googleusercontent.com',
     iosBundleId: 'com.inoi.urbanbreeze.dev',

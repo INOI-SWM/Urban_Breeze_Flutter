@@ -46,6 +46,20 @@
         "lib/firebase_options.dart": {
           "projectId": "urban-breeze",
           "configurations": {
+            "android": "1:723259332020:android:3670764c8c007a201a8ee1",
+            "ios": "1:723259332020:ios:1ed3660599c235cf1a8ee1"
+          }
+        },
+        "lib/firebase_options_dev.dart": {
+          "projectId": "urban-breeze",
+          "configurations": {
+            "android": "1:723259332020:android:3670764c8c007a201a8ee1",
+            "ios": "1:723259332020:ios:1ed3660599c235cf1a8ee1"
+          }
+        },
+        "lib/firebase_options_prod.dart": {
+          "projectId": "urban-breeze",
+          "configurations": {
             "android": "1:723259332020:android:805eb93e016c686e1a8ee1",
             "ios": "1:723259332020:ios:8591b0d2e24ada341a8ee1"
           }
