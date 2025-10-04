@@ -35,7 +35,7 @@ class WorkoutDetail {
   final DateTime endedAt;
   final int activeDurationMinutes; // 초 단위
   final int totalDurationMinutes; // 초 단위
-  final double distance; // km 단위
+  final double distance; // m 단위 (API에서 미터로 받음)
   final double averageSpeed; // km/h
   final double? elevationGain; // m
   final double? elevationLoss; // m
@@ -58,8 +58,8 @@ class WorkoutDetail {
   /// 활성 운동 시간을 Duration으로 반환
   Duration get activeDuration => Duration(seconds: activeDurationMinutes);
 
-  /// 거리 표시용 문자열 반환
-  String get distanceDisplay => '${distance.toStringAsFixed(1)} km';
+  /// 거리 표시용 문자열 반환 (미터 → km)
+  String get distanceDisplay => '${(distance / 1000).toStringAsFixed(1)} km';
 
   /// 평균 속도 표시용 문자열 반환
   String get averageSpeedDisplay => '${averageSpeed.toStringAsFixed(1)} km/h';
@@ -218,6 +218,6 @@ class WorkoutDetail {
 
   @override
   String toString() {
-    return 'WorkoutDetail(id: $id, title: $title, distance: $distance km, duration: ${totalDurationMinutes}min)';
+    return 'WorkoutDetail(id: $id, title: $title, distance: $distance m, duration: ${totalDurationMinutes}min)';
   }
 }

@@ -37,7 +37,7 @@ class RouteStatsUseCase {
   }
 
   String formatDistance(double distanceInMeters) {
-    return (distanceInMeters / 1000).toStringAsFixed(2);
+    return '${(distanceInMeters / 1000).toStringAsFixed(2)} km';
   }
 
   String formatDuration(int durationInMinutes) {

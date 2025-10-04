@@ -5,7 +5,7 @@ class RecommendedCourse {
     required this.routeId,
     required this.title,
     required this.description,
-    required this.distanceKm,
+    required this.distanceM,
     required this.durationMinutes,
     required this.elevationGain,
     required this.region,
@@ -17,7 +17,7 @@ class RecommendedCourse {
   final String routeId;
   final String title;
   final String description;
-  final double distanceKm; // km
+  final double distanceM; // m 단위 (API에서 미터로 받음)
   final int durationMinutes; // 예상 소요 시간 (초)
   final double elevationGain; // 상승 고도 (m)
   final String region; // 지역
@@ -25,8 +25,9 @@ class RecommendedCourse {
   final String recommendationType; // 추천 타입
   final String thumbnailImagePath; // 썸네일 이미지 경로
 
-  /// 거리 표시용 문자열 반환
-  String get distanceDisplay => DisplayFormatter.formatDistance(distanceKm);
+  /// 거리 표시용 문자열 반환 (미터 → km)
+  String get distanceDisplay =>
+      DisplayFormatter.formatDistanceFromMeters(distanceM);
 
   /// 상승 고도 표시용 문자열 반환
   String get elevationGainDisplay =>
@@ -47,6 +48,6 @@ class RecommendedCourse {
 
   @override
   String toString() {
-    return 'RecommendedCourse(routeId: $routeId, title: $title, distance: $distanceKm, elevationGain: $elevationGain)';
+    return 'RecommendedCourse(routeId: $routeId, title: $title, distance: $distanceM, elevationGain: $elevationGain)';
   }
 }

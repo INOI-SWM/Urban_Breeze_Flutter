@@ -227,8 +227,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
                     items: <InfoItemData>[
                       InfoItemData(
                         label: '거리',
-                        value:
-                            '${(routeDetail.distance / 1000).toStringAsFixed(2)} km',
+                        value: routeDetail.distanceDisplay,
                       ),
                       InfoItemData(
                         label: '예상 소요 시간',

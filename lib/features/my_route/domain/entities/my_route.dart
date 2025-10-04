@@ -17,14 +17,15 @@ class MyRoute {
   final String title;
   final String thumbnailUrl;
   final DateTime createdAt;
-  final double distance;
+  final double distance; // m 단위 (API에서 미터로 받음)
   final double elevationGain;
   final String userId;
   final String nickname;
   final String profileImageUrl;
 
-  /// 거리 표시용 문자열 반환
-  String get distanceDisplay => DisplayFormatter.formatDistance(distance);
+  /// 거리 표시용 문자열 반환 (미터 → km)
+  String get distanceDisplay =>
+      DisplayFormatter.formatDistanceFromMeters(distance);
 
   /// 상승 고도 표시용 문자열 반환
   String get elevationGainDisplay =>

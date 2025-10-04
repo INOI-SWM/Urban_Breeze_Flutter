@@ -22,6 +22,7 @@ import 'package:urban_breeze/shared/layout/map_with_bottom_sheet_layout.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
 import 'package:urban_breeze/shared/map/map_marker_widget.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
+import 'package:urban_breeze/shared/utils/display_formatter.dart';
 import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
 
 class RecommendedCourseDetailScreen extends ConsumerStatefulWidget {
@@ -294,11 +295,13 @@ class _RecommendedCourseDetailScreenState
             items: <InfoItemData>[
               InfoItemData(
                 label: '거리',
-                value: '${courseDetail.distance.toStringAsFixed(2)} km',
+                value: DisplayFormatter.formatDistance(
+                  courseDetail.distance / 1000,
+                ),
               ),
               InfoItemData(
                 label: '예상 소요 시간',
-                value: _formatDuration(courseDetail.durationMinutes),
+                value: _formatDurationKorean(courseDetail.durationSeconds),
               ),
               InfoItemData(
                 label: '상승 고도',
@@ -345,14 +348,14 @@ class _RecommendedCourseDetailScreenState
     }
   }
 
-  String _formatDuration(int minutes) {
-    final int hours = minutes ~/ 60;
-    final int remainingMinutes = minutes % 60;
+  String _formatDurationKorean(int seconds) {
+    final int hours = seconds ~/ 3600;
+    final int minutes = (seconds % 3600) ~/ 60;
 
     if (hours > 0) {
-      return '$hours시간 $remainingMinutes분';
+      return '$hours시간 $minutes분';
     } else {
-      return '$remainingMinutes분';
+      return '$minutes분';
     }
   }
 

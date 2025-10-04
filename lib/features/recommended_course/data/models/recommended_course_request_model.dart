@@ -16,8 +16,8 @@ class RecommendedCourseRequestModel {
     this.sortType,
     this.recommendationTypes,
     this.regions,
-    this.minDistanceKm,
-    this.maxDistanceKm,
+    this.minDistanceM,
+    this.maxDistanceM,
     this.minElevationGain,
     this.maxElevationGain,
     this.difficulties,
@@ -30,8 +30,8 @@ class RecommendedCourseRequestModel {
   final String? sortType;
   final List<String>? recommendationTypes;
   final List<String>? regions;
-  final double? minDistanceKm;
-  final double? maxDistanceKm;
+  final double? minDistanceM;
+  final double? maxDistanceM;
   final double? minElevationGain;
   final double? maxElevationGain;
   final List<String>? difficulties;
@@ -60,11 +60,11 @@ class RecommendedCourseRequestModel {
     if (regions != null && regions!.isNotEmpty) {
       params['regions'] = regions!.join(',');
     }
-    if (minDistanceKm != null) {
-      params['minDistanceKm'] = minDistanceKm.toString();
+    if (minDistanceM != null) {
+      params['minDistanceM'] = minDistanceM.toString();
     }
-    if (maxDistanceKm != null) {
-      params['maxDistanceKm'] = maxDistanceKm.toString();
+    if (maxDistanceM != null) {
+      params['maxDistanceM'] = maxDistanceM.toString();
     }
     if (minElevationGain != null) {
       params['minElevationGain'] = minElevationGain.toString();

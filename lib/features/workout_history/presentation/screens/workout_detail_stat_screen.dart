@@ -83,10 +83,7 @@ class WorkoutDetailStatScreen extends StatelessWidget {
 
   List<Map<String, String>> _getStatItems() {
     return <Map<String, String>>[
-      <String, String>{
-        'label': '거리',
-        'value': WorkoutFormatter.toKmTextFromKm(workoutDetail.distance),
-      },
+      <String, String>{'label': '거리', 'value': workoutDetail.distanceDisplay},
       <String, String>{
         'label': '평균속도',
         'value': workoutDetail.averageSpeedDisplay,

@@ -5,7 +5,7 @@ class RecommendedCourseDetailResponseModel {
     required this.description,
     required this.polyline,
     required this.createdAt,
-    required this.durationMinutes,
+    required this.durationSeconds,
     required this.distance,
     required this.elevationGain,
     required this.userId,
@@ -28,8 +28,8 @@ class RecommendedCourseDetailResponseModel {
       description: json['description'] as String,
       polyline: json['polyline'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      durationMinutes: json['durationSeconds'] as int,
-      distance: (json['distance'] as num).toDouble(),
+      durationSeconds: json['durationSeconds'] as int,
+      distance: (json['distanceM'] as num).toDouble(),
       elevationGain: (json['elevationGain'] as num).toDouble(),
       userId: json['userId'] as String,
       nickname: json['nickname'] as String,
@@ -57,7 +57,7 @@ class RecommendedCourseDetailResponseModel {
   final String description;
   final String polyline;
   final DateTime createdAt;
-  final int durationMinutes; // 초 단위 (API 필드명은 durationSeconds로 변경됨)
+  final int durationSeconds; // 초 단위
   final double distance;
   final double elevationGain;
   final String userId;
@@ -77,8 +77,8 @@ class RecommendedCourseDetailResponseModel {
       'description': description,
       'polyline': polyline,
       'createdAt': createdAt.toIso8601String(),
-      'durationSeconds': durationMinutes,
-      'distance': distance,
+      'durationSeconds': durationSeconds,
+      'distanceM': distance,
       'elevationGain': elevationGain,
       'userId': userId,
       'nickname': nickname,

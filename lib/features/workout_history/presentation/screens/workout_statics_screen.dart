@@ -664,9 +664,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     return Expanded(
       child: InfoItem(
         label: '거리',
-        value: WorkoutFormatter.toKmText(
-          distance != null ? distance * 1000 : null,
-        ), // km → m 변환
+        value: DisplayFormatter.formatDistanceFromMeters(distance ?? 0),
         alignment: CrossAxisAlignment.start,
       ),
     );

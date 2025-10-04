@@ -18,15 +18,16 @@ class WorkoutActivity {
   final String title;
   final DateTime startedAt;
   final DateTime endedAt;
-  final double distance; // km 단위
+  final double distance; // m 단위 (API에서 미터로 받음)
   final int duration; // seconds
   final double? elevationGain; // meters
   final String? thumbnailImageUrl;
   final String userProfileImageUrl;
   final String userNickname;
 
-  /// 거리 표시용 문자열 반환
-  String get distanceDisplay => DisplayFormatter.formatDistance(distance);
+  /// 거리 표시용 문자열 반환 (미터 → km)
+  String get distanceDisplay =>
+      DisplayFormatter.formatDistanceFromMeters(distance);
 
   /// 상승 고도 표시용 문자열 반환
   String get elevationGainDisplay =>
@@ -55,7 +56,7 @@ class WorkoutActivity {
         'title: $title, '
         'startedAt: $startedAt, '
         'endedAt: $endedAt, '
-        'distance: $distance km, '
+        'distance: $distance m, '
         'duration: $duration seconds, '
         'elevationGain: $elevationGain m, '
         'userNickname: $userNickname'

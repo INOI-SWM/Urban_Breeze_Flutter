@@ -1,3 +1,5 @@
+import 'package:urban_breeze/shared/utils/display_formatter.dart';
+
 class MyRouteDetail {
   const MyRouteDetail({
     required this.routeId,
@@ -20,7 +22,7 @@ class MyRouteDetail {
   final String polyline;
   final DateTime createdAt;
   final int durationMinutes;
-  final double distance;
+  final double distance; // m 단위 (API에서 미터로 받음)
   final double elevationGain;
   final String userId;
   final String nickname;
@@ -28,6 +30,10 @@ class MyRouteDetail {
   final int trackPointsCount;
   final List<TrackPoint> trackPoints;
   final List<double> bbox; // [minLng, minLat, maxLng, maxLat]
+
+  /// 거리 표시용 문자열 반환 (미터 → km)
+  String get distanceDisplay =>
+      DisplayFormatter.formatDistanceFromMeters(distance);
 }
 
 class TrackPoint {

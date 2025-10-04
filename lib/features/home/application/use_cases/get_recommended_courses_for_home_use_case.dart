@@ -43,7 +43,7 @@ class GetRecommendedCoursesForHomeUseCase {
               (RecommendedCourse course) => RecommendedCourseForHome(
                 id: course.routeId,
                 title: course.title,
-                distance: course.distanceKm,
+                distance: course.distanceM,
                 duration: course.durationMinutes,
                 difficulty: course.difficulty,
                 thumbnailImageUrl: course.thumbnailImagePath,

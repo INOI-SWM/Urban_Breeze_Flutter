@@ -50,7 +50,7 @@ class StatsSummaryCard extends StatelessWidget {
                 label: '거리',
                 value:
                     statistics != null
-                        ? DisplayFormatter.formatDistance(
+                        ? DisplayFormatter.formatDistanceFromMeters(
                           statistics!.totalDistance,
                         )
                         : '--',

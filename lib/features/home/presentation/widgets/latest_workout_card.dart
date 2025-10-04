@@ -61,7 +61,9 @@ class LatestWorkoutCard extends StatelessWidget {
               createDate: _formatDate(workout!.startedAt),
               badges: <BadgeData>[
                 BadgeData(
-                  text: DisplayFormatter.formatDistance(workout!.distance),
+                  text: DisplayFormatter.formatDistanceFromMeters(
+                    workout!.distance,
+                  ),
                   icon: Icons.route,
                 ),
                 BadgeData(

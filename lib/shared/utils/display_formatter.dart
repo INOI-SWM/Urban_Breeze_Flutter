@@ -15,6 +15,13 @@ class DisplayFormatter {
     }
   }
 
+  /// 거리 표시용 문자열 반환 (미터 → km)
+  /// API에서 미터 단위로 받아서 km로 표시
+  static String formatDistanceFromMeters(double distanceInMeters) {
+    final double distanceInKm = distanceInMeters / 1000;
+    return formatDistance(distanceInKm);
+  }
+
   /// 상승 고도 표시용 문자열 반환 m
   /// 0일 때: "--", 100m 이상: 소수점 없음, 10m 이상: 소수점 한자리, 10m 미만: 소수점 두자리
   /// null일 때는 "--" 반환

@@ -52,8 +52,8 @@ class MyRouteMapper {
       size: filter.size,
       sortType: apiSortType,
       relationTypes: filter.relationTypes,
-      minDistanceKm: filter.minDistanceKm,
-      maxDistanceKm: filter.maxDistanceKm,
+      minDistanceM: filter.minDistanceKm,
+      maxDistanceM: filter.maxDistanceKm,
       minElevationGain: filter.minElevationGain,
       maxElevationGain: filter.maxElevationGain,
     );
@@ -87,8 +87,8 @@ class MyRouteMapper {
       size: model.size,
       sortType: domainSortType,
       relationTypes: model.relationTypes,
-      minDistanceKm: model.minDistanceKm,
-      maxDistanceKm: model.maxDistanceKm,
+      minDistanceKm: model.minDistanceM,
+      maxDistanceKm: model.maxDistanceM,
       minElevationGain: model.minElevationGain,
       maxElevationGain: model.maxElevationGain,
     );

@@ -17,7 +17,7 @@ class MyRouteModel {
       title: json['title'] as String,
       thumbnailUrl: json['thumbnailUrl'] as String,
       createdAt: json['createdAt'] as String,
-      distance: (json['distance'] as num).toDouble(),
+      distance: (json['distanceM'] as num).toDouble(),
       elevationGain: (json['elevationGain'] as num).toDouble(),
       userId: json['userId'] as String,
       nickname: json['nickname'] as String,
