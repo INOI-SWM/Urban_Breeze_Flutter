@@ -87,8 +87,8 @@ class _PeriodSelectorContentState extends State<_PeriodSelectorContent> {
   void initState() {
     super.initState();
     _selectedYear = widget.initialSelection.year;
-    _selectedMonth = widget.initialSelection.month;
-    _selectedWeek = widget.initialSelection.week;
+    _selectedMonth = widget.initialSelection.month ?? 1;
+    _selectedWeek = widget.initialSelection.week ?? 1;
 
     _adjustMonthIfNeeded();
     _adjustWeekIfNeeded();

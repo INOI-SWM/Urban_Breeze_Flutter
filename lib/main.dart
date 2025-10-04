@@ -3,10 +3,10 @@ import 'dart:ui';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_service.dart';
+import 'package:urban_breeze/core/config/environment_config.dart';
 import 'package:urban_breeze/core/services/app_tracking_service.dart';
 import 'package:urban_breeze/core/services/deep_link_service.dart';
 import 'package:urban_breeze/core/theme/app_theme.dart';
@@ -18,12 +18,18 @@ import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/screens/splash_screen.dart';
 
 import 'firebase_options.dart';
+import 'firebase_options_dev.dart';
+import 'firebase_options_prod.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await dotenv.load(fileName: '.env');
-  KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']!);
+
+  // 환경에 따른 Firebase 설정 선택
+  final FirebaseOptions firebaseOptions = _getFirebaseOptions();
+  await Firebase.initializeApp(options: firebaseOptions);
+
+  // EnvironmentConfig에서 Kakao Native App Key 사용
+  KakaoSdk.init(nativeAppKey: EnvironmentConfig.kakaoNativeAppKey);
 
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
   PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
@@ -137,5 +143,25 @@ class MyApp extends ConsumerWidget {
         return SemanticTheme(data: semanticColors, child: child!);
       },
     );
+  }
+}
+
+/// 환경에 따른 Firebase 설정을 반환하는 함수
+FirebaseOptions _getFirebaseOptions() {
+  // EnvironmentConfig가 초기화되었는지 확인
+  try {
+    final Environment environment = EnvironmentConfig.environment;
+    switch (environment) {
+      case Environment.dev:
+        return DefaultFirebaseOptionsDev.currentPlatform;
+      case Environment.prod:
+        return DefaultFirebaseOptionsProd.currentPlatform;
+      default:
+        // 기본값으로 프로덕션 설정 사용
+        return DefaultFirebaseOptionsProd.currentPlatform;
+    }
+  } catch (e) {
+    // EnvironmentConfig가 아직 초기화되지 않은 경우 기본값 사용
+    return DefaultFirebaseOptions.currentPlatform;
   }
 }
