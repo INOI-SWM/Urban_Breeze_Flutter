@@ -21,7 +21,7 @@
     <!-- <uses-permission android:name="android.permission.health.READ_HEART_RATE" tools:node="remove"/> -->
     
     <application
-        android:label="Urban Breeze"
+        android:label="${appLabel}"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
         android:enableOnBackInvokedCallback="true">

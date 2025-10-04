@@ -60,4 +60,16 @@ class EnvironmentConfig {
 
   /// 프로덕션 환경 여부
   static bool get isProd => _environment == Environment.prod;
+
+  /// 앱 표시 이름
+  static String get appDisplayName {
+    switch (_environment) {
+      case Environment.dev:
+        return 'Urban Breeze Dev';
+      case Environment.staging:
+        return 'Urban Breeze Staging';
+      case Environment.prod:
+        return 'Urban Breeze';
+    }
+  }
 }
