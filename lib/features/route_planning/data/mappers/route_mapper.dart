@@ -20,7 +20,7 @@ class RouteMapper {
     return RouteSegment(
       points: routeData.points,
       elevations: routeData.elevations,
-      distance: dto.totalDistance,
+      distance: dto.totalDistanceM,
       duration: dto.totalDuration,
       elevationGain: elevationGain,
       bbox: dto.bbox,
@@ -35,7 +35,7 @@ class RouteMapper {
         message: 'Route must have at least 2 coordinates',
       );
     }
-    if (dto.totalDistance < 0) {
+    if (dto.totalDistanceM < 0) {
       throw const ValidationException(
         code: 'NEGATIVE_DISTANCE',
         message: 'Distance cannot be negative',

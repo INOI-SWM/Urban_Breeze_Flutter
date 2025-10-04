@@ -164,6 +164,11 @@ class UserAgreementNotifier extends StateNotifier<UserAgreement?> {
     await _repository.saveUserAgreement(agreement);
   }
 
+  /// 약관 동의 상태를 강제로 새로고침
+  Future<void> refreshAgreement() async {
+    await loadUserAgreement();
+  }
+
   Future<void> loadUserAgreement() async {
     final UserAgreement? savedAgreement = await _repository.loadUserAgreement();
     state = savedAgreement;

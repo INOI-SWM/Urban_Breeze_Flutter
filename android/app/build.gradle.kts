@@ -62,21 +62,27 @@ android {
             manifestPlaceholders["googleClientId"] = "723259332020-r5u1laq4umq0v0n489d2b4k81vj0ugo3.apps.googleusercontent.com"
             manifestPlaceholders["kakaoScheme"] = "kakao92a46589034ed2af1f0a6d12578996cd"
             manifestPlaceholders["appLabel"] = "Urban Breeze Dev"
+            // Dev는 항상 debug 키스토어 사용 (개발용)
+            signingConfig = signingConfigs.getByName("debug")
         }
         create("prod") {
             dimension = "environment"
             manifestPlaceholders["googleClientId"] = "723259332020-2ms0qnupo6ntk7um52d6f8ct4s0fvk3h.apps.googleusercontent.com"
             manifestPlaceholders["kakaoScheme"] = "kakaoea26fa3b97208688a71b31b17df4813c"
             manifestPlaceholders["appLabel"] = "Urban Breeze"
+            // Prod는 항상 release 키스토어 사용 (Firebase SHA-1 일치)
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
     buildTypes {
         getByName("debug") {
-            signingConfig = signingConfigs.getByName("debug")
+            // flavor별 키스토어 설정 사용
+            signingConfig = null // flavor별 signingConfig 사용
         }
         getByName("release") {
-            signingConfig = signingConfigs.getByName("release")
+            // flavor별 키스토어 설정 사용
+            signingConfig = null // flavor별 signingConfig 사용
         }
     }
 }

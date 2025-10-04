@@ -3,7 +3,7 @@ class RecommendedCourseResponseModel {
     required this.routeId,
     required this.title,
     required this.description,
-    required this.distanceKm,
+    required this.distanceM,
     required this.durationMinutes,
     required this.elevationGain,
     required this.region,
@@ -17,7 +17,7 @@ class RecommendedCourseResponseModel {
       routeId: json['routeId'] as String,
       title: json['title'] as String,
       description: json['description'] as String,
-      distanceKm: (json['distanceKm'] as num).toDouble(),
+      distanceM: (json['distanceM'] as num).toDouble(),
       durationMinutes: json['durationSeconds'] as int,
       elevationGain: (json['elevationGain'] as num).toDouble(),
       region: json['region'] as String,
@@ -30,7 +30,7 @@ class RecommendedCourseResponseModel {
   final String routeId;
   final String title;
   final String description;
-  final double distanceKm;
+  final double distanceM;
   final int durationMinutes; // 초 단위 (API 필드명은 durationSeconds로 변경됨)
   final double elevationGain;
   final String region;
@@ -43,7 +43,7 @@ class RecommendedCourseResponseModel {
       'routeId': routeId,
       'title': title,
       'description': description,
-      'distanceKm': distanceKm,
+      'distanceM': distanceM,
       'durationSeconds': durationMinutes,
       'elevationGain': elevationGain,
       'region': region,

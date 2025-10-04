@@ -37,6 +37,11 @@ class _NavigationScaffoldState extends ConsumerState<NavigationScaffold> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       RouteShareHandler.initialize(ref, context);
       RecommendedCourseHandler.initialize(ref, context);
+
+      // 최초 진입시 initialIndex 반영
+      if (widget.initialIndex != 0) {
+        ref.read(bottomNavIndexProvider.notifier).state = widget.initialIndex;
+      }
     });
   }
 
@@ -55,12 +60,6 @@ class _NavigationScaffoldState extends ConsumerState<NavigationScaffold> {
   @override
   Widget build(BuildContext context) {
     final int currentIndex = ref.watch(bottomNavIndexProvider);
-
-    // 최초 진입시 initialIndex 반영
-    if (currentIndex == 0 && widget.initialIndex != 0) {
-      // ignore: unused_result
-      ref.read(bottomNavIndexProvider.notifier).state = widget.initialIndex;
-    }
 
     return Scaffold(
       backgroundColor: context.semanticColor.backgroundNormalNormal,

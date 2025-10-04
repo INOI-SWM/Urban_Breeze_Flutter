@@ -22,7 +22,7 @@ class MyRouteDetailModel {
       polyline: json['polyline'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
       durationMinutes: json['durationSeconds'] as int, // 초 단위
-      distance: (json['distance'] as num).toDouble(),
+      distance: (json['distanceM'] as num).toDouble(),
       elevationGain: (json['elevationGain'] as num).toDouble(),
       userId: json['userId'] as String,
       nickname: json['nickname'] as String,

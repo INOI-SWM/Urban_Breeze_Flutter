@@ -1,3 +1,5 @@
+import 'package:urban_breeze/shared/utils/display_formatter.dart';
+
 class RecommendedCourseDetail {
   const RecommendedCourseDetail({
     required this.routeId,
@@ -5,7 +7,7 @@ class RecommendedCourseDetail {
     required this.description,
     required this.polyline,
     required this.createdAt,
-    required this.durationMinutes,
+    required this.durationSeconds,
     required this.distance,
     required this.elevationGain,
     required this.userId,
@@ -24,8 +26,8 @@ class RecommendedCourseDetail {
   final String description;
   final String polyline;
   final DateTime createdAt;
-  final int durationMinutes;
-  final double distance; // km
+  final int durationSeconds; // 초 단위
+  final double distance; // m 단위 (API에서 미터로 받음)
   final double elevationGain; // m
   final String userId;
   final String nickname;
@@ -36,6 +38,10 @@ class RecommendedCourseDetail {
   final String recommendationType;
   final String landscapeType;
   final String region;
+
+  /// 거리 표시용 문자열 반환 (미터 → km)
+  String get distanceDisplay =>
+      DisplayFormatter.formatDistanceFromMeters(distance);
 }
 
 class TrackPoint {

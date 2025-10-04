@@ -23,7 +23,6 @@ import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart'
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 import 'package:urban_breeze/shared/utils/date_formatter.dart';
 import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
-import 'package:urban_breeze/shared/utils/workout_formatter.dart';
 
 class WorkoutDetailScreen extends ConsumerStatefulWidget {
   const WorkoutDetailScreen({
@@ -214,7 +213,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                     ),
                   ),
                   Text(
-                    WorkoutFormatter.toKmTextFromKm(detail.distance),
+                    detail.distanceDisplay,
                     style: AppTextStyles.display1.bold.copyWith(
                       color: colors.labelStrong,
                     ),

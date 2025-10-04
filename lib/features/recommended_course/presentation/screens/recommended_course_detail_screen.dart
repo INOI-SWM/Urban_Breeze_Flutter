@@ -292,13 +292,10 @@ class _RecommendedCourseDetailScreenState
           const SizedBox(height: 17),
           InfoItemsRow(
             items: <InfoItemData>[
-              InfoItemData(
-                label: '거리',
-                value: '${courseDetail.distance.toStringAsFixed(2)} km',
-              ),
+              InfoItemData(label: '거리', value: courseDetail.distanceDisplay),
               InfoItemData(
                 label: '예상 소요 시간',
-                value: _formatDuration(courseDetail.durationMinutes),
+                value: _formatDurationKorean(courseDetail.durationSeconds),
               ),
               InfoItemData(
                 label: '상승 고도',
@@ -345,14 +342,14 @@ class _RecommendedCourseDetailScreenState
     }
   }
 
-  String _formatDuration(int minutes) {
-    final int hours = minutes ~/ 60;
-    final int remainingMinutes = minutes % 60;
+  String _formatDurationKorean(int seconds) {
+    final int hours = seconds ~/ 3600;
+    final int minutes = (seconds % 3600) ~/ 60;
 
     if (hours > 0) {
-      return '$hours시간 $remainingMinutes분';
+      return '$hours시간 $minutes분';
     } else {
-      return '$remainingMinutes분';
+      return '$minutes분';
     }
   }
 

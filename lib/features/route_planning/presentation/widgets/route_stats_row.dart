@@ -18,7 +18,7 @@ class RouteStatsRow extends StatelessWidget {
     return InfoItemsRow(
       items: <InfoItemData>[
         InfoItemData(label: '예상 소요시간', value: totalDuration),
-        InfoItemData(label: '총 거리', value: '$totalDistance km'),
+        InfoItemData(label: '총 거리', value: totalDistance),
         InfoItemData(label: '총 상승고도', value: elevationGain),
       ],
     );

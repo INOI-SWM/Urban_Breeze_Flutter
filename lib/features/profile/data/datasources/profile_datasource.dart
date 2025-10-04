@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:urban_breeze/features/auth/domain/entities/user.dart';
 import 'package:urban_breeze/features/auth/domain/enums/login_provider.dart';
@@ -97,7 +96,6 @@ class ProfileDataSource extends BaseRemoteDataSource {
         body: <String, String>{'gender': gender},
       );
       final Map<String, dynamic> responseData = decodeResponse(response);
-      debugPrint('responseData: $responseData');
       return _createUserResponse(responseData, loginProvider);
     } catch (e) {
       rethrow;

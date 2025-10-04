@@ -119,7 +119,7 @@ class _RecommendedCourseCard extends StatelessWidget {
           Row(
             children: <Widget>[
               Text(
-                DisplayFormatter.formatDistance(course.distance),
+                DisplayFormatter.formatDistanceFromMeters(course.distance),
                 style: AppTextStyles.caption1.regular.copyWith(
                   color: colors.labelAlternative,
                 ),

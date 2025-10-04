@@ -2,17 +2,24 @@ class DisplayFormatter {
   DisplayFormatter._();
 
   /// 거리 표시용 문자열 반환 km
-  /// 0일 때: "0km", 100km 이상: 소수점 없음, 10km 이상: 소수점 한자리, 10km 미만: 소수점 두자리
+  /// 0일 때: "0km", 100km 이상: 소수점 없음, 10km 이상: 소수점 두자리, 10km 미만: 소수점 두자리
   static String formatDistance(double distance) {
     if (distance == 0) {
       return '0km';
     } else if (distance >= 100) {
       return '${distance.toStringAsFixed(0)}km';
     } else if (distance >= 10) {
-      return '${distance.toStringAsFixed(1)}km';
+      return '${distance.toStringAsFixed(2)}km'; // 소수점 두 자리로 변경
     } else {
       return '${distance.toStringAsFixed(2)}km';
     }
+  }
+
+  /// 거리 표시용 문자열 반환 (미터 → km)
+  /// API에서 미터 단위로 받아서 km로 표시
+  static String formatDistanceFromMeters(double distanceInMeters) {
+    final double distanceInKm = distanceInMeters / 1000;
+    return formatDistance(distanceInKm);
   }
 
   /// 상승 고도 표시용 문자열 반환 m

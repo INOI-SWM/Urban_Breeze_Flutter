@@ -50,7 +50,7 @@ class WorkoutStatisticsMapper {
       distancePoints.add(
         WorkoutStatisticsChartPoint(
           label: detail.label,
-          value: detail.value.distanceKm,
+          value: detail.value.distanceM,
         ),
       );
 

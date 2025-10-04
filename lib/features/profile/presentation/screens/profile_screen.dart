@@ -16,6 +16,7 @@ import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_sty
 import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_size.dart';
 import 'package:urban_breeze/shared/design_system/widgets/info/info_item.dart';
+import 'package:urban_breeze/shared/utils/display_formatter.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -87,7 +88,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       );
 
       final double totalDistance = statistics.summary.totalDistance;
-      return '${totalDistance.toStringAsFixed(0)}km';
+      return DisplayFormatter.formatDistanceFromMeters(totalDistance);
     } catch (e) {
       return '0km';
     }

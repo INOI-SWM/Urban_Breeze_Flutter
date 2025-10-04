@@ -202,7 +202,7 @@ class WorkoutSyncFacade {
           if (hasPermission) {
             final List<WorkoutRecord> appleWorkouts =
                 await syncAppleHealthKitDataUseCase.fetchBasicWorkoutData(
-                  startDate: DateTime.now().subtract(const Duration(days: 360)),
+                  startDate: DateTime.now().subtract(const Duration(days: 30)),
                   endDate: DateTime.now(),
                 );
             allWorkouts.addAll(appleWorkouts);

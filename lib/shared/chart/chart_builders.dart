@@ -29,7 +29,7 @@ class ChartBuilders {
               return const SizedBox.shrink();
             }
             return Text(
-              '${value.toInt()}$unit',
+              '${value.toInt()}',
               style: ChartStyleConfig.getChartLabelStyle(colors),
             );
           },
