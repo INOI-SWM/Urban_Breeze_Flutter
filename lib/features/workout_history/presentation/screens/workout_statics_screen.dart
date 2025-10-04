@@ -524,7 +524,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
   String _formatYAxisLabel(double value) {
     switch (_selectedDataType) {
       case StaticDataType.distance:
-        return '${value.toStringAsFixed(0)} km';
+        return '${(value / 1000).toStringAsFixed(0)} km';
       case StaticDataType.elevation:
         return '${value.toStringAsFixed(0)} m';
       case StaticDataType.duration:
