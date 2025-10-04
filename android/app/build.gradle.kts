@@ -78,9 +78,11 @@ android {
     buildTypes {
         getByName("debug") {
             // flavor별 키스토어 설정 사용
+            signingConfig = null // flavor별 signingConfig 사용
         }
         getByName("release") {
             // flavor별 키스토어 설정 사용
+            signingConfig = null // flavor별 signingConfig 사용
         }
     }
 }
