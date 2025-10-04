@@ -602,9 +602,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
 
     switch (_selectedDataType) {
       case StaticDataType.distance:
-        return WorkoutFormatter.toKmText(
-          summary.totalDistance * 1000,
-        ); // km → m 변환
+        return WorkoutFormatter.toKmTextFromKm(summary.totalDistance);
       case StaticDataType.elevation:
         return DisplayFormatter.formatElevationGain(
           summary.totalElevationGain.toDouble(),

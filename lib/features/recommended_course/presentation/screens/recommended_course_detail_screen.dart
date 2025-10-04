@@ -22,7 +22,6 @@ import 'package:urban_breeze/shared/layout/map_with_bottom_sheet_layout.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
 import 'package:urban_breeze/shared/map/map_marker_widget.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
-import 'package:urban_breeze/shared/utils/display_formatter.dart';
 import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
 
 class RecommendedCourseDetailScreen extends ConsumerStatefulWidget {
@@ -293,12 +292,7 @@ class _RecommendedCourseDetailScreenState
           const SizedBox(height: 17),
           InfoItemsRow(
             items: <InfoItemData>[
-              InfoItemData(
-                label: '거리',
-                value: DisplayFormatter.formatDistance(
-                  courseDetail.distance / 1000,
-                ),
-              ),
+              InfoItemData(label: '거리', value: courseDetail.distanceDisplay),
               InfoItemData(
                 label: '예상 소요 시간',
                 value: _formatDurationKorean(courseDetail.durationSeconds),

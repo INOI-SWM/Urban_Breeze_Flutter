@@ -1,4 +1,5 @@
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
+import 'package:urban_breeze/shared/utils/display_formatter.dart';
 
 class RouteStatsUseCase {
   const RouteStatsUseCase();
@@ -37,7 +38,7 @@ class RouteStatsUseCase {
   }
 
   String formatDistance(double distanceInMeters) {
-    return '${(distanceInMeters / 1000).toStringAsFixed(2)} km';
+    return DisplayFormatter.formatDistanceFromMeters(distanceInMeters);
   }
 
   String formatDuration(int durationInMinutes) {

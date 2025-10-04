@@ -41,7 +41,7 @@ class RecommendedCourseDetail {
 
   /// 거리 표시용 문자열 반환 (미터 → km)
   String get distanceDisplay =>
-      DisplayFormatter.formatDistance(distance / 1000);
+      DisplayFormatter.formatDistanceFromMeters(distance);
 }
 
 class TrackPoint {

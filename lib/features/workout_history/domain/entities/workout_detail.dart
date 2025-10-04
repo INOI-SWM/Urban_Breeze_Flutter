@@ -1,6 +1,7 @@
 import 'package:urban_breeze/features/workout_history/domain/entities/activity_image.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/track_point.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_user.dart';
+import 'package:urban_breeze/shared/utils/display_formatter.dart';
 import 'package:urban_breeze/shared/utils/workout_formatter.dart';
 
 class WorkoutDetail {
@@ -59,7 +60,8 @@ class WorkoutDetail {
   Duration get activeDuration => Duration(seconds: activeDurationMinutes);
 
   /// 거리 표시용 문자열 반환 (미터 → km)
-  String get distanceDisplay => '${(distance / 1000).toStringAsFixed(1)} km';
+  String get distanceDisplay =>
+      DisplayFormatter.formatDistanceFromMeters(distance);
 
   /// 평균 속도 표시용 문자열 반환
   String get averageSpeedDisplay => '${averageSpeed.toStringAsFixed(1)} km/h';
