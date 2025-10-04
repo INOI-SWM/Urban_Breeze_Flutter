@@ -4,7 +4,7 @@ class RouteSaveRequestModel {
   const RouteSaveRequestModel({
     required this.title,
     required this.polyline,
-    required this.totalDistanceM,
+    required this.distance,
     required this.duration, // 분
     required this.elevationGain,
     required this.geometry,
@@ -13,7 +13,7 @@ class RouteSaveRequestModel {
 
   final String title;
   final String polyline;
-  final double totalDistanceM;
+  final double distance;
   final int duration;
   final double elevationGain;
   final List<GeometryPointModel> geometry; // JSON 객체 배열
@@ -23,7 +23,7 @@ class RouteSaveRequestModel {
     return <String, dynamic>{
       'title': title,
       'polyline': polyline,
-      'totalDistanceM': totalDistanceM,
+      'distance': distance,
       'duration': duration,
       'elevationGain': elevationGain,
       'geometry':
