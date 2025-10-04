@@ -69,6 +69,8 @@ flutter:
     - assets/icons/svg/
     - assets/icons/png/
     - assets/images/png/
+    - .env.dev
+    - .env.prod
 
 flutter_launcher_icons:
   android: "launcher_icon"

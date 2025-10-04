@@ -27,7 +27,8 @@ jobs:
 
       - name: Create .env file from secrets
         run: |
-          echo "$SECRETS_CONTEXT" | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' > .env
+          echo "$SECRETS_CONTEXT" | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' > .env.dev
+          echo "$SECRETS_CONTEXT" | jq -r 'to_entries|map("\(.key)=\(.value|tostring)")|.[]' > .env.prod
 
       - name: Install dependencies
         run: flutter pub get
