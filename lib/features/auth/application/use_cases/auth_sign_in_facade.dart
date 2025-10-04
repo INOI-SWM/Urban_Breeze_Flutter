@@ -46,6 +46,10 @@ class AuthSignInFacade {
       await _tokenRepository.saveTokens(result.tokens);
       await _userSessionNotifier.setUserSession(result.user);
       await _userAgreementNotifier.setUserAgreement(result.agreement);
+
+      // 약관 동의 상태를 새로고침하여 UI가 올바르게 반영되도록 함
+      await _userAgreementNotifier.refreshAgreement();
+
       return AppSuccess<User>(result.user);
     } catch (e) {
       return const AppFailure<User>(AuthExchangeFailedException());
