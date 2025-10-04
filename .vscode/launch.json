@@ -1,33 +1,21 @@
 {
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Dev (개발)",
+      "name": "DEV",
       "request": "launch",
       "type": "dart",
-      "program": "lib/main_dev.dart",
-      "flutterMode": "debug"
+      "args": ["--flavor", "dev"]
     },
+
     {
-      "name": "Staging (스테이징)",
+      "name": "PROD",
       "request": "launch",
       "type": "dart",
-      "program": "lib/main_staging.dart",
-      "flutterMode": "debug"
-    },
-    {
-      "name": "Prod (프로덕션 - Debug)",
-      "request": "launch",
-      "type": "dart",
-      "program": "lib/main_prod.dart",
-      "flutterMode": "debug"
-    },
-    {
-      "name": "Prod (프로덕션 - Release)",
-      "request": "launch",
-      "type": "dart",
-      "program": "lib/main_prod.dart",
-      "flutterMode": "release"
+      "args": ["--flavor", "prod"]
     }
   ]
 }
