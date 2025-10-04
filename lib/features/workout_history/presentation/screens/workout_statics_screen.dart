@@ -155,7 +155,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
           const SizedBox(height: _UIConstants.defaultSpacing),
           _buildDataTypeSelector(),
           const SizedBox(height: _UIConstants.defaultSpacing),
-          _buildDataTypeLabel(),
+
           Expanded(child: _buildContentByState()),
         ],
       ),
@@ -300,6 +300,15 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
   }
 
   Widget _buildDataContent() {
+    // 데이터가 실제로 있는지 확인 (모든 값이 0이거나 null인 경우)
+    final bool hasData =
+        _currentStatistics?.summary.totalActivityCount != null &&
+        _currentStatistics!.summary.totalActivityCount > 0;
+
+    if (!hasData) {
+      return _buildEmptyState();
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[

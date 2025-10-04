@@ -32,7 +32,7 @@ class WorkoutStatisticsPeriodModel {
 class WorkoutStatisticsSummaryModel {
   factory WorkoutStatisticsSummaryModel.fromJson(Map<String, dynamic> json) {
     return WorkoutStatisticsSummaryModel(
-      totalDistance: json['totalDistance'] as double,
+      totalDistance: json['totalDistanceM'] as double,
       totalElevationGain: json['totalElevationGain'] as double,
       totalDuration: json['totalDurationSeconds'] as int,
       totalActivityCount: json['totalActivityCount'] as int,
@@ -45,14 +45,14 @@ class WorkoutStatisticsSummaryModel {
     required this.totalActivityCount,
   });
 
-  final double totalDistance; // km
+  final double totalDistance; // m
   final double totalElevationGain; // m
   final int totalDuration; // 초
   final int totalActivityCount;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'totalDistance': totalDistance,
+      'totalDistanceM': totalDistance,
       'totalElevationGain': totalElevationGain,
       'totalDurationSeconds': totalDuration,
       'totalActivityCount': totalActivityCount,
@@ -65,24 +65,24 @@ class WorkoutStatisticsDetailValueModel {
     Map<String, dynamic> json,
   ) {
     return WorkoutStatisticsDetailValueModel(
-      distanceKm: json['distanceKm'] as double,
+      distanceM: json['distanceM'] as double,
       elevationGainM: json['elevationGainM'] as double,
       durationSec: json['durationSeconds'] as int,
     );
   }
   const WorkoutStatisticsDetailValueModel({
-    required this.distanceKm,
+    required this.distanceM,
     required this.elevationGainM,
     required this.durationSec,
   });
 
-  final double distanceKm;
+  final double distanceM;
   final double elevationGainM;
   final int durationSec;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'distanceKm': distanceKm,
+      'distanceM': distanceM,
       'elevationGainM': elevationGainM,
       'durationSeconds': durationSec,
     };
