@@ -41,7 +41,7 @@ class UrbanBreezeLoginResponseModel {
       email: (userInfo['email'] ?? '').toString(),
       profileImageUrl:
           (userInfo['profileImageUrl'] ??
-                  userInfo['profileImageUrl'] as String?)
+                  userInfo['profileImagePath'] as String?)
               ?.trim(),
       introduce: (userInfo['introduce'] as String?)?.trim(),
       birthYear: userInfo['birthYear'] as int?,

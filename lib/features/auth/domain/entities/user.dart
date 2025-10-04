@@ -7,7 +7,8 @@ class User {
       uuid: json['uuid'] as String? ?? '',
       nickname: json['nickname'] as String? ?? '',
       email: json['email'] as String? ?? '',
-      profileImageUrl: json['profileImageUrl'] as String?,
+      profileImageUrl:
+          (json['profileImageUrl'] ?? json['profileImagePath']) as String?,
       introduce: json['introduce'] as String?,
       birthYear: json['birthYear'] as int?,
       gender: json['gender'] as String?,
@@ -27,7 +28,8 @@ class User {
       uuid: json['uuid'] as String? ?? '',
       nickname: json['nickname'] as String? ?? '',
       email: json['email'] as String? ?? '',
-      profileImageUrl: json['profileImageUrl'] as String?,
+      profileImageUrl:
+          (json['profileImageUrl'] ?? json['profileImagePath']) as String?,
       introduce: json['introduce'] as String?,
       birthYear: json['birthYear'] as int?,
       gender: json['gender'] as String?,
