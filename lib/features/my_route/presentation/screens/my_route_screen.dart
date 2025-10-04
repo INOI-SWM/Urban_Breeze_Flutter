@@ -137,6 +137,8 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen>
         .read(getMyRouteListUseCaseProvider)
         .execute(filter: filterModel);
 
+    if (!mounted) return;
+
     setState(() {
       isLoading = false;
       if (result.isSuccess) {
@@ -155,6 +157,8 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen>
   }
 
   void _removeRouteFromList(String routeId) {
+    if (!mounted) return;
+
     setState(() {
       allRoutes.removeWhere((MyRoute route) => route.routeId == routeId);
 
@@ -203,6 +207,8 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen>
     result = await ref
         .read(getMyRouteListUseCaseProvider)
         .execute(filter: filterModel);
+
+    if (!mounted) return;
 
     setState(() {
       isLoadingMore = false;
@@ -258,6 +264,8 @@ class _MyRouteScreenState extends ConsumerState<MyRouteScreen>
     final AppResult<MyRouteList> result = await ref
         .read(getMyRouteListUseCaseProvider)
         .execute(filter: nextPageFilter);
+
+    if (!mounted) return;
 
     setState(() {
       isLoadingMore = false;
