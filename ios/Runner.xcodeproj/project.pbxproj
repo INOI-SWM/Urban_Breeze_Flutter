@@ -312,9 +312,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -345,9 +349,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -567,11 +575,12 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = B2P37GR732;
 				ENABLE_BITCODE = NO;
+				GOOGLE_CLIENT_ID = "723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc";
+				GOOGLE_SERVICE_INFO_PLIST = "$(SRCROOT)/Runner/GoogleService-Info.plist";
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "${APP_NAME}";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				KAKAO_NATIVE_APP_KEY = 92a46589034ed2af1f0a6d12578996cd;
-				GOOGLE_CLIENT_ID = 723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -712,11 +721,12 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = B2P37GR732;
 				ENABLE_BITCODE = NO;
+				GOOGLE_CLIENT_ID = "723259332020-btu686vg8mlo6p0kb1v5f9cd498gmuue";
+				GOOGLE_SERVICE_INFO_PLIST = "$(SRCROOT)/Runner/Configurations/Prod/GoogleService-Info.plist";
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "${APP_NAME}";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				KAKAO_NATIVE_APP_KEY = ea26fa3b97208688a71b31b17df4813c;
-				GOOGLE_CLIENT_ID = 723259332020-btu686vg8mlo6p0kb1v5f9cd498gmuue;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -821,11 +831,12 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = B2P37GR732;
 				ENABLE_BITCODE = NO;
+				GOOGLE_CLIENT_ID = "723259332020-btu686vg8mlo6p0kb1v5f9cd498gmuue";
+				GOOGLE_SERVICE_INFO_PLIST = "$(SRCROOT)/Runner/Configurations/Prod/GoogleService-Info.plist";
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "${APP_NAME}";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				KAKAO_NATIVE_APP_KEY = ea26fa3b97208688a71b31b17df4813c;
-				GOOGLE_CLIENT_ID = 723259332020-btu686vg8mlo6p0kb1v5f9cd498gmuue;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -924,11 +935,12 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = B2P37GR732;
 				ENABLE_BITCODE = NO;
+				GOOGLE_CLIENT_ID = "723259332020-btu686vg8mlo6p0kb1v5f9cd498gmuue";
+				GOOGLE_SERVICE_INFO_PLIST = "$(SRCROOT)/Runner/Configurations/Prod/GoogleService-Info.plist";
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "${APP_NAME}";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				KAKAO_NATIVE_APP_KEY = ea26fa3b97208688a71b31b17df4813c;
-				GOOGLE_CLIENT_ID = 723259332020-btu686vg8mlo6p0kb1v5f9cd498gmuue;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1088,11 +1100,12 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = B2P37GR732;
 				ENABLE_BITCODE = NO;
+				GOOGLE_CLIENT_ID = "723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc";
+				GOOGLE_SERVICE_INFO_PLIST = "$(SRCROOT)/Runner/GoogleService-Info.plist";
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "${APP_NAME}";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				KAKAO_NATIVE_APP_KEY = 92a46589034ed2af1f0a6d12578996cd;
-				GOOGLE_CLIENT_ID = 723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1121,11 +1134,12 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = B2P37GR732;
 				ENABLE_BITCODE = NO;
+				GOOGLE_CLIENT_ID = "723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc";
+				GOOGLE_SERVICE_INFO_PLIST = "$(SRCROOT)/Runner/GoogleService-Info.plist";
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "${APP_NAME}";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				KAKAO_NATIVE_APP_KEY = 92a46589034ed2af1f0a6d12578996cd;
-				GOOGLE_CLIENT_ID = 723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
