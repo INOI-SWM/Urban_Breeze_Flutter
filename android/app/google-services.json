@@ -7,6 +7,50 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:723259332020:android:805eb93e016c686e1a8ee1",
+        "android_client_info": {
+          "package_name": "com.inoi.urbanbreeze"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "723259332020-2ms0qnupo6ntk7um52d6f8ct4s0fvk3h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inoi.urbanbreeze",
+            "certificate_hash": "2413f948b2c3e54c30ad53009f027c6f38bde68d"
+          }
+        },
+        {
+          "client_id": "723259332020-pknmvj67csp46ouls3git52653c0u6ap.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEhjwTigKCOko1l_r021eu025tw-MRCNQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "723259332020-89pnmrnrik51frjo8dunf88je0kigd44.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.inoi.urbanbreeze.dev"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:723259332020:android:3670764c8c007a201a8ee1",
         "android_client_info": {
           "package_name": "com.inoi.urbanbreeze.dev"
@@ -35,7 +79,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "723259332020-fs9lrqklq6vv08d676h5ihvr8f2a9nkg.apps.googleusercontent.com",
+              "client_id": "723259332020-89pnmrnrik51frjo8dunf88je0kigd44.apps.googleusercontent.com",
               "client_type": 3
             },
             {
