@@ -4,21 +4,12 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
-/// Default [FirebaseOptions] for use with your Firebase apps.
-///
-/// Example:
-/// ```dart
-/// import 'firebase_options.dart';
-/// // ...
-/// await Firebase.initializeApp(
-///   options: DefaultFirebaseOptions.currentPlatform,
-/// );
-/// ```
-class DefaultFirebaseOptions {
+/// 개발 환경용 [FirebaseOptions] for use with your Firebase apps.
+class DefaultFirebaseOptionsDev {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
+        'DefaultFirebaseOptionsDev have not been configured for web - '
         'you can reconfigure this by running the FlutterFire CLI again.',
       );
     }
@@ -29,29 +20,29 @@ class DefaultFirebaseOptions {
         return ios;
       case TargetPlatform.macOS:
         throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
+          'DefaultFirebaseOptionsDev have not been configured for macos - '
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
       case TargetPlatform.windows:
         throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
+          'DefaultFirebaseOptionsDev have not been configured for windows - '
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
       case TargetPlatform.linux:
         throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
+          'DefaultFirebaseOptionsDev have not been configured for linux - '
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
       default:
         throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for this platform.',
+          'DefaultFirebaseOptionsDev are not supported for this platform.',
         );
     }
   }
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAEhjwTigKCOko1l_r021eu025tw-MRCNQ',
-    appId: '1:723259332020:android:805eb93e016c686e1a8ee1',
+    appId: '1:723259332020:android:3670764c8c007a201a8ee1',
     messagingSenderId: '723259332020',
     projectId: 'urban-breeze',
     storageBucket: 'urban-breeze.firebasestorage.app',
@@ -59,14 +50,14 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCAgZBbrHR6iz9nM4oDW_52O8LrFa-LV6o',
-    appId: '1:723259332020:ios:8591b0d2e24ada341a8ee1',
+    appId: '1:723259332020:ios:1ed3660599c235cf1a8ee1',
     messagingSenderId: '723259332020',
     projectId: 'urban-breeze',
     storageBucket: 'urban-breeze.firebasestorage.app',
     androidClientId:
-        '723259332020-2ms0qnupo6ntk7um52d6f8ct4s0fvk3h.apps.googleusercontent.com',
+        '723259332020-r5u1laq4umq0v0n489d2b4k81vj0ugo3.apps.googleusercontent.com',
     iosClientId:
-        '723259332020-btu686vg8mlo6p0kb1v5f9cd498gmuue.apps.googleusercontent.com',
-    iosBundleId: 'com.inoi.urbanbreeze',
+        '723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc.apps.googleusercontent.com',
+    iosBundleId: 'com.inoi.urbanbreeze.dev',
   );
 }

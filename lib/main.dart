@@ -18,10 +18,15 @@ import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/screens/splash_screen.dart';
 
 import 'firebase_options.dart';
+import 'firebase_options_dev.dart';
+import 'firebase_options_prod.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // 환경에 따른 Firebase 설정 선택
+  final FirebaseOptions firebaseOptions = _getFirebaseOptions();
+  await Firebase.initializeApp(options: firebaseOptions);
 
   // EnvironmentConfig에서 Kakao Native App Key 사용
   KakaoSdk.init(nativeAppKey: EnvironmentConfig.kakaoNativeAppKey);
@@ -138,5 +143,25 @@ class MyApp extends ConsumerWidget {
         return SemanticTheme(data: semanticColors, child: child!);
       },
     );
+  }
+}
+
+/// 환경에 따른 Firebase 설정을 반환하는 함수
+FirebaseOptions _getFirebaseOptions() {
+  // EnvironmentConfig가 초기화되었는지 확인
+  try {
+    final Environment environment = EnvironmentConfig.environment;
+    switch (environment) {
+      case Environment.dev:
+        return DefaultFirebaseOptionsDev.currentPlatform;
+      case Environment.prod:
+        return DefaultFirebaseOptionsProd.currentPlatform;
+      default:
+        // 기본값으로 프로덕션 설정 사용
+        return DefaultFirebaseOptionsProd.currentPlatform;
+    }
+  } catch (e) {
+    // EnvironmentConfig가 아직 초기화되지 않은 경우 기본값 사용
+    return DefaultFirebaseOptions.currentPlatform;
   }
 }

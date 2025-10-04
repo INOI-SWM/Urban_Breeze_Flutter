@@ -6,6 +6,18 @@
           "projectId": "urban-breeze",
           "appId": "1:723259332020:android:3670764c8c007a201a8ee1",
           "fileOutput": "android/app/google-services.json"
+        },
+        "buildConfigurations": {
+          "src/prod": {
+            "projectId": "urban-breeze",
+            "appId": "1:723259332020:android:805eb93e016c686e1a8ee1",
+            "fileOutput": "android/app/src/prod/google-services.json"
+          },
+          "src/dev": {
+            "projectId": "urban-breeze",
+            "appId": "1:723259332020:android:3670764c8c007a201a8ee1",
+            "fileOutput": "android/app/src/dev/google-services.json"
+          }
         }
       },
       "ios": {
@@ -14,14 +26,28 @@
           "appId": "1:723259332020:ios:1ed3660599c235cf1a8ee1",
           "uploadDebugSymbols": true,
           "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        },
+        "buildConfigurations": {
+          "Debug": {
+            "projectId": "urban-breeze",
+            "appId": "1:723259332020:ios:1ed3660599c235cf1a8ee1",
+            "uploadDebugSymbols": true,
+            "fileOutput": "ios/Runner/Configurations/Dev/GoogleService-Info.plist"
+          },
+          "Release": {
+            "projectId": "urban-breeze",
+            "appId": "1:723259332020:ios:8591b0d2e24ada341a8ee1",
+            "uploadDebugSymbols": true,
+            "fileOutput": "ios/Runner/Configurations/Prod/GoogleService-Info.plist"
+          }
         }
       },
       "dart": {
         "lib/firebase_options.dart": {
           "projectId": "urban-breeze",
           "configurations": {
-            "android": "1:723259332020:android:3670764c8c007a201a8ee1",
-            "ios": "1:723259332020:ios:1ed3660599c235cf1a8ee1"
+            "android": "1:723259332020:android:805eb93e016c686e1a8ee1",
+            "ios": "1:723259332020:ios:8591b0d2e24ada341a8ee1"
           }
         }
       }
