@@ -59,7 +59,7 @@ class AppleHealthKitDataSource {
     try {
       final DateTime end = endDate ?? DateTime.now();
       final DateTime start =
-          startDate ?? end.subtract(const Duration(days: 356));
+          startDate ?? end.subtract(const Duration(days: 30));
 
       final Predicate predicate = Predicate(start, end);
       final List<Workout> workouts = await HealthKitReporter.workoutQuery(
