@@ -155,7 +155,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
           const SizedBox(height: _UIConstants.defaultSpacing),
           _buildDataTypeSelector(),
           const SizedBox(height: _UIConstants.defaultSpacing),
-
+          if (_shouldShowDataTypeLabel()) _buildDataTypeLabel(),
           Expanded(child: _buildContentByState()),
         ],
       ),
@@ -237,6 +237,20 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
     return Text(_selectedDataType.label, style: _labelStyle);
   }
 
+  bool _shouldShowDataTypeLabel() {
+    // 데이터가 없거나 로딩 중이거나 에러 상태일 때는 라벨을 표시하지 않음
+    if (_isLoading || _error != null) return false;
+    if (_currentStatistics == null) return false;
+    if (_currentStatistics!.oldestActivityDate == null) return false;
+
+    // 데이터가 실제로 있는지 확인
+    final bool hasData =
+        _currentStatistics?.summary.totalActivityCount != null &&
+        _currentStatistics!.summary.totalActivityCount > 0;
+
+    return hasData;
+  }
+
   Widget _buildContentByState() {
     if (_isLoading) {
       return _buildLoadingState();
@@ -300,15 +314,6 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
   }
 
   Widget _buildDataContent() {
-    // 데이터가 실제로 있는지 확인 (모든 값이 0이거나 null인 경우)
-    final bool hasData =
-        _currentStatistics?.summary.totalActivityCount != null &&
-        _currentStatistics!.summary.totalActivityCount > 0;
-
-    if (!hasData) {
-      return _buildEmptyState();
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -611,7 +616,7 @@ class _WorkoutStaticsScreenState extends ConsumerState<WorkoutStaticsScreen> {
 
     switch (_selectedDataType) {
       case StaticDataType.distance:
-        return WorkoutFormatter.toKmTextFromKm(summary.totalDistance);
+        return DisplayFormatter.formatDistanceFromMeters(summary.totalDistance);
       case StaticDataType.elevation:
         return DisplayFormatter.formatElevationGain(
           summary.totalElevationGain.toDouble(),
