@@ -24,7 +24,7 @@ class RouteRepositoryImpl implements RouteRepository {
       title: title,
       polyline: encodedPolyline,
       bbox: bbox,
-      distance: distance,
+      totalDistanceM: distance,
       duration: duration,
       elevationGain: elevationGain,
       geometry:

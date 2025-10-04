@@ -16,8 +16,8 @@ class MyRouteFilterModel {
     this.size = 10,
     this.sortType = ApiRouteSortType.createdAtDesc,
     this.relationTypes = '',
-    this.minDistanceKm,
-    this.maxDistanceKm,
+    this.minDistanceM,
+    this.maxDistanceM,
     this.minElevationGain,
     this.maxElevationGain,
   });
@@ -26,8 +26,8 @@ class MyRouteFilterModel {
   final int size;
   final ApiRouteSortType sortType;
   final String relationTypes;
-  final double? minDistanceKm;
-  final double? maxDistanceKm;
+  final double? minDistanceM;
+  final double? maxDistanceM;
   final double? minElevationGain;
   final double? maxElevationGain;
 
@@ -40,11 +40,11 @@ class MyRouteFilterModel {
     };
 
     // Optional 파라미터들은 null이 아닐 때만 추가
-    if (minDistanceKm != null) {
-      params['minDistanceKm'] = minDistanceKm!.toString();
+    if (minDistanceM != null) {
+      params['minDistanceM'] = minDistanceM!.toString();
     }
-    if (maxDistanceKm != null) {
-      params['maxDistanceKm'] = maxDistanceKm!.toString();
+    if (maxDistanceM != null) {
+      params['maxDistanceM'] = maxDistanceM!.toString();
     }
     if (minElevationGain != null) {
       params['minElevationGain'] = minElevationGain!.toString();
@@ -61,8 +61,8 @@ class MyRouteFilterModel {
     int? size,
     ApiRouteSortType? sortType,
     String? relationTypes,
-    double? minDistanceKm,
-    double? maxDistanceKm,
+    double? minDistanceM,
+    double? maxDistanceM,
     double? minElevationGain,
     double? maxElevationGain,
   }) {
@@ -71,8 +71,8 @@ class MyRouteFilterModel {
       size: size ?? this.size,
       sortType: sortType ?? this.sortType,
       relationTypes: relationTypes ?? this.relationTypes,
-      minDistanceKm: minDistanceKm ?? this.minDistanceKm,
-      maxDistanceKm: maxDistanceKm ?? this.maxDistanceKm,
+      minDistanceM: minDistanceM ?? this.minDistanceM,
+      maxDistanceM: maxDistanceM ?? this.maxDistanceM,
       minElevationGain: minElevationGain ?? this.minElevationGain,
       maxElevationGain: maxElevationGain ?? this.maxElevationGain,
     );

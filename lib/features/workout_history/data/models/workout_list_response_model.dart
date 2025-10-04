@@ -20,7 +20,7 @@ class WorkoutActivityModel {
       title: json['title'] as String,
       startedAt: DateTime.parse(json['startedAt'] as String),
       endedAt: DateTime.parse(json['endedAt'] as String),
-      distance: (json['distance'] as num).toDouble(), // km 단위
+      distance: (json['distanceM'] as num).toDouble(), // m 단위
       duration: json['durationSeconds'] as int,
       elevationGain: (json['elevationGain'] as num?)?.toDouble(),
       thumbnailImageUrl: json['thumbnailImageUrl'] as String?,
@@ -46,7 +46,7 @@ class WorkoutActivityModel {
       'title': title,
       'startedAt': startedAt.toIso8601String(),
       'endedAt': endedAt.toIso8601String(),
-      'distance': distance, // km 단위
+      'distanceM': distance, // m 단위
       'durationSeconds': duration,
       'elevationGain': elevationGain,
       'thumbnailImageUrl': thumbnailImageUrl,
