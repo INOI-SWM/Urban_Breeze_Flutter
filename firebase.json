@@ -28,13 +28,25 @@
           "fileOutput": "ios/Runner/GoogleService-Info.plist"
         },
         "buildConfigurations": {
-          "Debug": {
+          "Debug-dev": {
             "projectId": "urban-breeze",
             "appId": "1:723259332020:ios:1ed3660599c235cf1a8ee1",
             "uploadDebugSymbols": true,
             "fileOutput": "ios/Runner/Configurations/Dev/GoogleService-Info.plist"
           },
-          "Release": {
+          "Debug-prod": {
+            "projectId": "urban-breeze",
+            "appId": "1:723259332020:ios:1ed3660599c235cf1a8ee1",
+            "uploadDebugSymbols": true,
+            "fileOutput": "ios/Runner/Configurations/Dev/GoogleService-Info.plist"
+          },
+          "Release-dev": {
+            "projectId": "urban-breeze",
+            "appId": "1:723259332020:ios:8591b0d2e24ada341a8ee1",
+            "uploadDebugSymbols": true,
+            "fileOutput": "ios/Runner/Configurations/Prod/GoogleService-Info.plist"
+          },
+          "Release-prod": {
             "projectId": "urban-breeze",
             "appId": "1:723259332020:ios:8591b0d2e24ada341a8ee1",
             "uploadDebugSymbols": true,

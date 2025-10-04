@@ -56,6 +56,7 @@
 		3EA09D2C2E06E5870002BBF3 /* RunnerDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RunnerDebug.entitlements; sourceTree = "<group>"; };
 		3EEB708F2E06CB7E00A81C9F /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		4CC26A2DF316376343EF4D5A /* Pods-Runner.debug-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug-prod.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug-prod.xcconfig"; sourceTree = "<group>"; };
+		58AB0951A160A79D75BC7C52 /* Pods-RunnerTests.profile-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile-prod.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile-prod.xcconfig"; sourceTree = "<group>"; };
 		6012847416883F3472299B09 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		65FD64B3C390D78F52117E2D /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -69,13 +70,16 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A0B37BF8FD8265914CC506B9 /* Pods-Runner.profile-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-dev.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-dev.xcconfig"; sourceTree = "<group>"; };
 		A23EE610C9BD74F0AF4A4AD2 /* Pods-RunnerTests.debug-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-dev.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-dev.xcconfig"; sourceTree = "<group>"; };
+		B2BFBD26DB834580E7F689A4 /* Pods-RunnerTests.profile-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile-dev.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile-dev.xcconfig"; sourceTree = "<group>"; };
 		B97E628B61395FFD81238BB4 /* Pods-Runner.release-dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release-dev.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release-dev.xcconfig"; sourceTree = "<group>"; };
 		C9DF08834E50B8E0DD727FC4 /* Pods-RunnerTests.debug-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-prod.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-prod.xcconfig"; sourceTree = "<group>"; };
 		DB85351A43C5F14C319904A6 /* Pods-Runner.release-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release-prod.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release-prod.xcconfig"; sourceTree = "<group>"; };
 		E40112A4E485384817CDFD4F /* GoogleService-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Runner/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		F19EE47DED0A24476DB4D8ED /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 		F1E490CECCA5D39963A2814E /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
+		F34026BBE2DC13D5C172C740 /* Pods-Runner.profile-prod.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-prod.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-prod.xcconfig"; sourceTree = "<group>"; };
 		F9A9D207E9143043887E4436 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -183,6 +187,10 @@
 				C9DF08834E50B8E0DD727FC4 /* Pods-RunnerTests.debug-prod.xcconfig */,
 				04C9CC7C655A29C7F1C27F1A /* Pods-RunnerTests.release-dev.xcconfig */,
 				3E201852A5BA4F481D96B4CD /* Pods-RunnerTests.release-prod.xcconfig */,
+				A0B37BF8FD8265914CC506B9 /* Pods-Runner.profile-dev.xcconfig */,
+				F34026BBE2DC13D5C172C740 /* Pods-Runner.profile-prod.xcconfig */,
+				B2BFBD26DB834580E7F689A4 /* Pods-RunnerTests.profile-dev.xcconfig */,
+				58AB0951A160A79D75BC7C52 /* Pods-RunnerTests.profile-prod.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -304,13 +312,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -341,13 +345,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -571,6 +571,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "${APP_NAME}";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				KAKAO_NATIVE_APP_KEY = 92a46589034ed2af1f0a6d12578996cd;
+				GOOGLE_CLIENT_ID = 723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -623,7 +624,7 @@
 		};
 		331C808A294A63A400263BE5 /* Profile-dev */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 022E5A422161AD2950788AC0 /* Pods-RunnerTests.profile.xcconfig */;
+			baseConfigurationReference = B2BFBD26DB834580E7F689A4 /* Pods-RunnerTests.profile-dev.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -703,7 +704,7 @@
 			buildSettings = {
 				APP_NAME = "Urban Breeze";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				BUNDLE_IDENTIFIER_SUFFIX = .dev;
+				BUNDLE_IDENTIFIER_SUFFIX = "";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/RunnerDebug.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -715,6 +716,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "${APP_NAME}";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				KAKAO_NATIVE_APP_KEY = ea26fa3b97208688a71b31b17df4813c;
+				GOOGLE_CLIENT_ID = 723259332020-btu686vg8mlo6p0kb1v5f9cd498gmuue;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -823,6 +825,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "${APP_NAME}";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				KAKAO_NATIVE_APP_KEY = ea26fa3b97208688a71b31b17df4813c;
+				GOOGLE_CLIENT_ID = 723259332020-btu686vg8mlo6p0kb1v5f9cd498gmuue;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -913,7 +916,7 @@
 			buildSettings = {
 				APP_NAME = "Urban Breeze";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				BUNDLE_IDENTIFIER_SUFFIX = .dev;
+				BUNDLE_IDENTIFIER_SUFFIX = "";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -925,6 +928,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "${APP_NAME}";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				KAKAO_NATIVE_APP_KEY = ea26fa3b97208688a71b31b17df4813c;
+				GOOGLE_CLIENT_ID = 723259332020-btu686vg8mlo6p0kb1v5f9cd498gmuue;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -940,7 +944,7 @@
 		};
 		3EFF61FC2E90AB1F008027D6 /* Profile-prod */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 022E5A422161AD2950788AC0 /* Pods-RunnerTests.profile.xcconfig */;
+			baseConfigurationReference = 58AB0951A160A79D75BC7C52 /* Pods-RunnerTests.profile-prod.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -1088,6 +1092,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "${APP_NAME}";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				KAKAO_NATIVE_APP_KEY = 92a46589034ed2af1f0a6d12578996cd;
+				GOOGLE_CLIENT_ID = 723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1108,7 +1113,7 @@
 			buildSettings = {
 				APP_NAME = "[dev]Urban Breeze";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				BUNDLE_IDENTIFIER_SUFFIX = "";
+				BUNDLE_IDENTIFIER_SUFFIX = .dev;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -1120,6 +1125,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "${APP_NAME}";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				KAKAO_NATIVE_APP_KEY = 92a46589034ed2af1f0a6d12578996cd;
+				GOOGLE_CLIENT_ID = 723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
