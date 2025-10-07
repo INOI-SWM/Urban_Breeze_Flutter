@@ -14,6 +14,7 @@ import 'package:urban_breeze/features/workout_history/domain/enums/health_provid
 import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 import 'package:urban_breeze/features/workout_history/presentation/notifiers/sync_screen_notifier.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
+import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_outlined.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/button_solid.dart';
@@ -145,7 +146,85 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
   /// Apple Health Kit 동기화
   Future<void> _syncAppleHealthKit() async {
     AmplitudeAnalytics.logButtonClick('workout_sync_apple_health');
-    await ref.read(syncScreenNotifierProvider.notifier).connectAppleHealth();
+
+    // 권한 요청 전 안내 모달 표시
+    await _showHealthKitPermissionInfoDialog();
+  }
+
+  /// HealthKit 권한 안내 다이얼로그 표시
+  Future<void> _showHealthKitPermissionInfoDialog() async {
+    final SemanticColors colors = context.semanticColor;
+
+    await ModalShow.show<void>(
+      context: context,
+      title: 'Apple Health 연동',
+      content: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Center(
+              child: Text(
+                'Urban Breeze는 Apple HealthKit을 통해\n다음 데이터를 읽어옵니다',
+                style: AppTextStyles.body2.normalBold.copyWith(
+                  color: colors.labelStrong,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 20),
+            _buildPermissionItem('🚴 사이클링 운동 기록'),
+            _buildPermissionItem('❤️ 심박수 데이터'),
+            _buildPermissionItem('📍 이동 거리'),
+            _buildPermissionItem('🔥 소모 칼로리'),
+            _buildPermissionItem('🗺️ GPS 경로 데이터'),
+            const SizedBox(height: 12),
+            Text(
+              '수집된 데이터는 운동 기록 관리, 성과 추적, 개인화된 운동 통계 제공에만 사용됩니다.',
+              style: AppTextStyles.body2.normalMedium.copyWith(
+                color: colors.labelAlternative,
+              ),
+            ),
+          ],
+        ),
+      ),
+      secondaryButtonText: '취소',
+      primaryButtonText: '확인',
+      onSecondaryButtonPressed: () {
+        AmplitudeAnalytics.logEvent('apple_health_permission_dialog_cancelled');
+      },
+      onPrimaryButtonPressed: () async {
+        AmplitudeAnalytics.logEvent('apple_health_permission_dialog_confirmed');
+        // 실제 권한 요청 진행
+        await ref
+            .read(syncScreenNotifierProvider.notifier)
+            .connectAppleHealth();
+      },
+      barrierDismissible: true,
+      showCloseButton: false,
+    );
+  }
+
+  /// 권한 항목 위젯
+  Widget _buildPermissionItem(String text) {
+    final SemanticColors colors = context.semanticColor;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: <Widget>[
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: AppTextStyles.body2.normalMedium.copyWith(
+                color: colors.labelNormal,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Health Connect 동기화
