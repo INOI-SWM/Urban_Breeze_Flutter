@@ -153,11 +153,32 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
   /// HealthKit 권한 안내 다이얼로그 표시
   Future<void> _showHealthKitPermissionInfoDialog() async {
+    await _showHealthPermissionDialog(
+      title: 'Apple Health 연동',
+      serviceName: 'Apple HealthKit',
+      cancelEvent: 'apple_health_permission_dialog_cancelled',
+      confirmEvent: 'apple_health_permission_dialog_confirmed',
+      onConfirm: () async {
+        await ref
+            .read(syncScreenNotifierProvider.notifier)
+            .connectAppleHealth();
+      },
+    );
+  }
+
+  /// 공통 헬스 권한 안내 다이얼로그
+  Future<void> _showHealthPermissionDialog({
+    required String title,
+    required String serviceName,
+    required String cancelEvent,
+    required String confirmEvent,
+    required Future<void> Function() onConfirm,
+  }) async {
     final SemanticColors colors = context.semanticColor;
 
     await ModalShow.show<void>(
       context: context,
-      title: 'Apple Health 연동',
+      title: title,
       content: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
@@ -166,7 +187,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
           children: <Widget>[
             Center(
               child: Text(
-                'Urban Breeze는 Apple HealthKit을 통해\n다음 데이터를 읽어옵니다',
+                'Urban Breeze는 $serviceName을 통해\n다음 데이터를 읽어옵니다',
                 style: AppTextStyles.body2.normalBold.copyWith(
                   color: colors.labelStrong,
                 ),
@@ -192,14 +213,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
       secondaryButtonText: '취소',
       primaryButtonText: '확인',
       onSecondaryButtonPressed: () {
-        AmplitudeAnalytics.logEvent('apple_health_permission_dialog_cancelled');
+        AmplitudeAnalytics.logEvent(cancelEvent);
       },
       onPrimaryButtonPressed: () async {
-        AmplitudeAnalytics.logEvent('apple_health_permission_dialog_confirmed');
-        // 실제 권한 요청 진행
-        await ref
-            .read(syncScreenNotifierProvider.notifier)
-            .connectAppleHealth();
+        AmplitudeAnalytics.logEvent(confirmEvent);
+        await onConfirm();
       },
       barrierDismissible: true,
       showCloseButton: false,
@@ -229,25 +247,59 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
   /// Health Connect 동기화
   Future<void> _syncHealthConnectData() async {
-    await _syncHealthData(
+    AmplitudeAnalytics.logButtonClick('workout_sync_health_connect');
+
+    // 권한 요청 전 안내 모달 표시
+    await _showHealthConnectPermissionInfoDialog();
+  }
+
+  /// Health Connect 권한 안내 다이얼로그 표시
+  Future<void> _showHealthConnectPermissionInfoDialog() async {
+    await _showHealthPermissionDialog(
+      title: 'Google Health Connect 연동',
       serviceName: 'Health Connect',
-      buttonEvent: 'workout_sync_health_connect',
-      successEvent: 'workout_sync_health_connect_success',
-      failedEvent: 'workout_sync_health_connect_failed',
-      syncMethod:
-          () => ref.read(workoutSyncFacadeProvider).syncHealthConnectData(),
+      cancelEvent: 'health_connect_permission_dialog_cancelled',
+      confirmEvent: 'health_connect_permission_dialog_confirmed',
+      onConfirm: () async {
+        Navigator.of(context).pop();
+        await _syncHealthData(
+          serviceName: 'Health Connect',
+          buttonEvent: 'workout_sync_health_connect',
+          successEvent: 'workout_sync_health_connect_success',
+          failedEvent: 'workout_sync_health_connect_failed',
+          syncMethod:
+              () => ref.read(workoutSyncFacadeProvider).syncHealthConnectData(),
+        );
+      },
     );
   }
 
   /// Samsung Health 동기화
   Future<void> _syncSamsungHealthData() async {
-    await _syncHealthData(
+    AmplitudeAnalytics.logButtonClick('workout_sync_samsung_health');
+
+    // 권한 요청 전 안내 모달 표시
+    await _showSamsungHealthPermissionInfoDialog();
+  }
+
+  /// Samsung Health 권한 안내 다이얼로그 표시
+  Future<void> _showSamsungHealthPermissionInfoDialog() async {
+    await _showHealthPermissionDialog(
+      title: 'Samsung Health 연동',
       serviceName: 'Samsung Health',
-      buttonEvent: 'workout_sync_samsung_health',
-      successEvent: 'workout_sync_samsung_health_success',
-      failedEvent: 'workout_sync_samsung_health_failed',
-      syncMethod:
-          () => ref.read(workoutSyncFacadeProvider).syncSamsungHealthData(),
+      cancelEvent: 'samsung_health_permission_dialog_cancelled',
+      confirmEvent: 'samsung_health_permission_dialog_confirmed',
+      onConfirm: () async {
+        Navigator.of(context).pop();
+        await _syncHealthData(
+          serviceName: 'Samsung Health',
+          buttonEvent: 'workout_sync_samsung_health',
+          successEvent: 'workout_sync_samsung_health_success',
+          failedEvent: 'workout_sync_samsung_health_failed',
+          syncMethod:
+              () => ref.read(workoutSyncFacadeProvider).syncSamsungHealthData(),
+        );
+      },
     );
   }
 
