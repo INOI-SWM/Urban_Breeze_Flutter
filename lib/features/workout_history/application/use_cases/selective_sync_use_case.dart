@@ -1,9 +1,9 @@
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/integration/application/use_cases/get_integration_status_use_case.dart';
+import 'package:urban_breeze/features/integration/domain/entities/api_usage.dart';
+import 'package:urban_breeze/features/integration/domain/enums/health_provider.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/workout_sync_facade.dart';
-import 'package:urban_breeze/features/workout_history/application/use_cases/get_integration_status_use_case.dart';
-import 'package:urban_breeze/features/workout_history/domain/entities/api_usage.dart';
-import 'package:urban_breeze/features/workout_history/domain/enums/health_provider.dart';
 
 /// 선택적 동기화 Use Case
 /// 연동된 서비스에 따라 적절한 동기화 방법을 선택하여 수행

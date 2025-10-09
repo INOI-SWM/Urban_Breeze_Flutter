@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
+import 'package:urban_breeze/core/exceptions/integration_exceptions.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/core/services/deep_link_service.dart';
 import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
+import 'package:urban_breeze/features/integration/domain/enums/health_provider.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/workout_sync_facade.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
-import 'package:urban_breeze/features/workout_history/domain/enums/health_provider.dart';
-import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 import 'package:urban_breeze/features/workout_history/presentation/notifiers/sync_screen_notifier.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
@@ -102,7 +102,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
       if (mounted) {
         // iOS에서 Health Connect나 Samsung Health 사용 시 지원하지 않는 플랫폼 메시지 표시
         if (result.exceptionOrNull is PlatformException ||
-            result.exceptionOrNull is TerraApiException) {
+            result.exceptionOrNull is IntegrationException) {
           showErrorMessage(context, '지원하지 않는 플랫폼입니다');
         } else {
           showErrorMessage(context, '$serviceName 데이터 가져오기 실패: $errorMessage');

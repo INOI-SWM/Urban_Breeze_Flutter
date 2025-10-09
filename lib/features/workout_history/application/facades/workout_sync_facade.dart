@@ -1,21 +1,21 @@
 import 'dart:io';
 
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
+import 'package:urban_breeze/core/exceptions/integration_exceptions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/integration/application/facades/integration_sync_facade.dart';
+import 'package:urban_breeze/features/integration/application/use_cases/get_integration_status_use_case.dart';
+import 'package:urban_breeze/features/integration/domain/entities/api_usage.dart';
 import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/terra_health_sync_facade.dart';
-import 'package:urban_breeze/features/workout_history/application/use_cases/get_integration_status_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/import_apple_health_workouts_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_apple_health_kit_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_google_health_connect_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/data/models/apple_health_workout_model.dart';
-import 'package:urban_breeze/features/workout_history/domain/entities/api_usage.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/heart_rate_data.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/location_data.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
 import 'package:urban_breeze/features/workout_history/domain/exceptions/apple_health_kit_exceptions.dart';
-import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 
 /// 워크아웃 동기화 통합 Facade
 /// Terra API와 Integration API를 모두 관리
@@ -58,7 +58,7 @@ class WorkoutSyncFacade {
             },
           );
           return const AppFailure<Map<String, dynamic>?>(
-            WorkoutSyncQuotaExceededException(
+            IntegrationQuotaExceededException(
               '이번 달 동기화 가능 횟수를 모두 사용했습니다.\n다음 달에 다시 시도해주세요.',
             ),
           );
@@ -353,7 +353,7 @@ class WorkoutSyncFacade {
       return AppSuccess<Map<String, dynamic>>(resultData);
     } catch (e) {
       return AppFailure<Map<String, dynamic>>(
-        TerraApiException('전체 동기화 중 오류 발생: $e'),
+        IntegrationException('전체 동기화 중 오류 발생: $e'),
       );
     }
   }

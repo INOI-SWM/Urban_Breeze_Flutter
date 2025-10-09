@@ -1,6 +1,6 @@
+import 'package:urban_breeze/core/exceptions/integration_exceptions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/integration/domain/repositories/integration_repository.dart';
-import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 
 class GetIntegrationActivityUseCase {
   const GetIntegrationActivityUseCase({required this.repository});
@@ -13,7 +13,9 @@ class GetIntegrationActivityUseCase {
           await repository.getIntegrationActivity();
       return AppSuccess<Map<String, dynamic>>(result);
     } catch (e) {
-      return AppFailure<Map<String, dynamic>>(TerraApiException(e.toString()));
+      return AppFailure<Map<String, dynamic>>(
+        IntegrationException(e.toString()),
+      );
     }
   }
 }
