@@ -3,4 +3,3 @@ abstract class ProviderRepository {
   /// Provider 연동 해제
   Future<void> deleteProvider(String providerName);
 }
-
