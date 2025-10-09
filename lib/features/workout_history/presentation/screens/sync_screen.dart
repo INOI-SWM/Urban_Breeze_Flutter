@@ -187,24 +187,115 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
           children: <Widget>[
             Center(
               child: Text(
-                'Urban Breeze는 $serviceName을 통해\n다음 데이터를 읽어옵니다',
+                'Urban Breeze는 $serviceName을 통해\n다음 건강 데이터를 읽어옵니다',
                 style: AppTextStyles.body2.normalBold.copyWith(
                   color: colors.labelStrong,
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(height: 20),
-            _buildPermissionItem('🚴 사이클링 운동 기록'),
-            _buildPermissionItem('❤️ 심박수 데이터'),
-            _buildPermissionItem('📍 이동 거리'),
-            _buildPermissionItem('🔥 소모 칼로리'),
-            _buildPermissionItem('🗺️ GPS 경로 데이터'),
-            const SizedBox(height: 12),
-            Text(
-              '수집된 데이터는 운동 기록 관리, 성과 추적, 개인화된 운동 통계 제공에만 사용됩니다.',
-              style: AppTextStyles.body2.normalMedium.copyWith(
-                color: colors.labelAlternative,
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: colors.backgroundElevatedNormal,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  _buildDetailedPermissionItem(
+                    '🚴 사이클링 운동 기록',
+                    '운동 시작/종료 시간, 운동 종류',
+                    colors,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDetailedPermissionItem(
+                    '❤️ 심박수 데이터',
+                    '실시간 심박수로 운동 강도 분석',
+                    colors,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDetailedPermissionItem(
+                    '📍 이동 거리 및 속도',
+                    '라이딩 거리와 속도 통계 제공',
+                    colors,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDetailedPermissionItem(
+                    '🔥 소모 칼로리',
+                    '운동으로 소모한 에너지 계산',
+                    colors,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDetailedPermissionItem(
+                    '🗺️ GPS 경로 데이터',
+                    '이동 경로 및 고도 정보 시각화',
+                    colors,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: colors.backgroundNormalNormal,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.info_outline,
+                        size: 16,
+                        color: colors.primaryNormal,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '데이터 사용 목적',
+                        style: AppTextStyles.caption1.bold.copyWith(
+                          color: colors.labelStrong,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '• 운동 기록 관리 및 통합\n• 주간/월간 성과 추적\n• 개인화된 운동 통계 제공\n• 건강 목표 달성도 분석',
+                    style: AppTextStyles.caption1.medium.copyWith(
+                      color: colors.labelNormal,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.lock_outline,
+                        size: 16,
+                        color: colors.primaryNormal,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '개인정보 보호',
+                        style: AppTextStyles.caption1.bold.copyWith(
+                          color: colors.labelStrong,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '$serviceName 데이터는 안전하게 암호화되어 저장되며, 사용자의 동의 없이 제3자와 공유되지 않습니다.',
+                    style: AppTextStyles.caption1.medium.copyWith(
+                      color: colors.labelNormal,
+                      height: 1.5,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -224,24 +315,32 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     );
   }
 
-  /// 권한 항목 위젯
-  Widget _buildPermissionItem(String text) {
-    final SemanticColors colors = context.semanticColor;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: <Widget>[
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: AppTextStyles.body2.normalMedium.copyWith(
-                color: colors.labelNormal,
-              ),
+  /// 상세 권한 항목 위젯 (설명 포함)
+  Widget _buildDetailedPermissionItem(
+    String title,
+    String description,
+    SemanticColors colors,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          title,
+          style: AppTextStyles.body2.normalBold.copyWith(
+            color: colors.labelStrong,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Padding(
+          padding: const EdgeInsets.only(left: 20),
+          child: Text(
+            description,
+            style: AppTextStyles.caption1.medium.copyWith(
+              color: colors.labelAlternative,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
