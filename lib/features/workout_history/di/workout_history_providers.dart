@@ -364,6 +364,9 @@ workoutSyncFacadeProvider = Provider<WorkoutSyncFacade>((Ref ref) {
       ref.watch(syncGoogleHealthConnectDataUseCaseProvider);
   final ImportAppleHealthWorkoutsUseCase importAppleHealthWorkoutsUseCase = ref
       .watch(importAppleHealthWorkoutsUseCaseProvider);
+  final GetIntegrationStatusUseCase getIntegrationStatusUseCase = ref.watch(
+    getIntegrationStatusUseCaseProvider,
+  );
 
   return WorkoutSyncFacade(
     terraHealthSyncFacade: terraHealthSyncFacade,
@@ -371,6 +374,7 @@ workoutSyncFacadeProvider = Provider<WorkoutSyncFacade>((Ref ref) {
     syncAppleHealthKitDataUseCase: syncAppleHealthKitDataUseCase,
     syncGoogleHealthConnectDataUseCase: syncGoogleHealthConnectDataUseCase,
     importAppleHealthWorkoutsUseCase: importAppleHealthWorkoutsUseCase,
+    getIntegrationStatusUseCase: getIntegrationStatusUseCase,
   );
 });
 

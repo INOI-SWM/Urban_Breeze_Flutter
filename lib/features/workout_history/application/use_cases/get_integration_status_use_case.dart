@@ -39,6 +39,16 @@ class GetIntegrationStatusUseCase {
     }
   }
 
+  /// API 사용량 정보 조회 (토큰 체크용)
+  Future<AppResult<ApiUsage>> executeWithApiUsage() async {
+    try {
+      final ApiUsage apiUsage = await _apiUsageRepository.getApiUsage();
+      return AppSuccess<ApiUsage>(apiUsage);
+    } catch (e) {
+      return AppFailure<ApiUsage>(NetworkException('API 사용량 조회 실패: $e'));
+    }
+  }
+
   /// API 응답을 파싱하여 연동 상태 맵 생성
   Map<HealthProvider, bool> _parseIntegrationStatus(ApiUsage apiUsage) {
     final Map<HealthProvider, bool> statusMap = <HealthProvider, bool>{};

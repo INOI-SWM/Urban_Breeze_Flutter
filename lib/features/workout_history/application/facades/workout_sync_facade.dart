@@ -5,10 +5,12 @@ import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/integration/application/facades/integration_sync_facade.dart';
 import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/terra_health_sync_facade.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/get_integration_status_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/import_apple_health_workouts_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_apple_health_kit_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_google_health_connect_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/data/models/apple_health_workout_model.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/api_usage.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/heart_rate_data.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/location_data.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
@@ -24,6 +26,7 @@ class WorkoutSyncFacade {
     required this.syncAppleHealthKitDataUseCase,
     required this.syncGoogleHealthConnectDataUseCase,
     required this.importAppleHealthWorkoutsUseCase,
+    required this.getIntegrationStatusUseCase,
   });
 
   final TerraHealthSyncFacade terraHealthSyncFacade;
@@ -31,6 +34,7 @@ class WorkoutSyncFacade {
   final SyncAppleHealthKitDataUseCase syncAppleHealthKitDataUseCase;
   final SyncGoogleHealthConnectDataUseCase syncGoogleHealthConnectDataUseCase;
   final ImportAppleHealthWorkoutsUseCase importAppleHealthWorkoutsUseCase;
+  final GetIntegrationStatusUseCase getIntegrationStatusUseCase;
 
   /// Apple Health에서 데이터 가져오기 (health_kit_reporter 직접 사용)
   Future<AppResult<Map<String, dynamic>?>> syncAppleHealthData({
@@ -39,7 +43,29 @@ class WorkoutSyncFacade {
     bool toWebhook = true,
   }) async {
     try {
-      // 권한 확인
+      // 1. API 사용량 체크
+      final AppResult<ApiUsage> usageResult =
+          await getIntegrationStatusUseCase.executeWithApiUsage();
+
+      if (usageResult.isSuccess) {
+        final ApiUsage apiUsage = usageResult.dataOrNull!;
+        if (apiUsage.remainingUsage <= 0 || apiUsage.isExceeded) {
+          AmplitudeAnalytics.logEvent(
+            'apple_health_kit_sync_quota_exceeded',
+            properties: <String, dynamic>{
+              'remaining_usage': apiUsage.remainingUsage,
+              'monthly_limit': apiUsage.monthlyLimit,
+            },
+          );
+          return const AppFailure<Map<String, dynamic>?>(
+            WorkoutSyncQuotaExceededException(
+              '이번 달 동기화 가능 횟수를 모두 사용했습니다.\n다음 달에 다시 시도해주세요.',
+            ),
+          );
+        }
+      }
+
+      // 2. 권한 확인
       final bool hasPermission =
           await syncAppleHealthKitDataUseCase.checkPermissions();
 

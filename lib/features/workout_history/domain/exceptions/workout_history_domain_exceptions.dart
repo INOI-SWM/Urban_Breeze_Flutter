@@ -9,3 +9,8 @@ class WorkoutTitleUpdateException extends BaseDomainException {
 class TerraApiException extends BaseDomainException {
   const TerraApiException(super.message, [super.code]);
 }
+
+/// 동기화 사용량 초과 예외
+class WorkoutSyncQuotaExceededException extends BaseDomainException {
+  const WorkoutSyncQuotaExceededException(super.message, [super.code]);
+}

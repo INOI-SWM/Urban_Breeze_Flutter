@@ -2,6 +2,7 @@ import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/workout_sync_facade.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/get_integration_status_use_case.dart';
+import 'package:urban_breeze/features/workout_history/domain/entities/api_usage.dart';
 import 'package:urban_breeze/features/workout_history/domain/enums/health_provider.dart';
 
 /// 선택적 동기화 Use Case
@@ -18,7 +19,24 @@ class SelectiveSyncUseCase {
   /// 연동 상태를 확인하고 선택적 동기화 수행
   Future<AppResult<Map<String, dynamic>?>> execute() async {
     try {
-      // 1. 연동된 서비스의 마지막 동기화 시간 확인
+      // 1. API 사용량 확인
+      final AppResult<ApiUsage> usageResult =
+          await _getIntegrationStatusUseCase.executeWithApiUsage();
+
+      if (!usageResult.isSuccess) {
+        return AppFailure<Map<String, dynamic>?>(usageResult.exceptionOrNull!);
+      }
+
+      final ApiUsage apiUsage = usageResult.dataOrNull!;
+
+      // 2. 남은 토큰 체크
+      if (apiUsage.remainingUsage <= 0 || apiUsage.isExceeded) {
+        return const AppFailure<Map<String, dynamic>?>(
+          NetworkException('이번 달 동기화 가능 횟수를 모두 사용했습니다.\n다음 달에 다시 시도해주세요.'),
+        );
+      }
+
+      // 3. 연동된 서비스의 마지막 동기화 시간 확인
       final AppResult<Map<HealthProvider, DateTime>> integrationResult =
           await _getIntegrationStatusUseCase.executeWithLastSync();
 
@@ -37,7 +55,7 @@ class SelectiveSyncUseCase {
         );
       }
 
-      // 2. 선택적 동기화 수행 (연동된 서비스만)
+      // 4. 선택적 동기화 수행 (연동된 서비스만)
       return await _performSelectiveSync(lastSyncTimes);
     } catch (e) {
       return AppFailure<Map<String, dynamic>?>(
