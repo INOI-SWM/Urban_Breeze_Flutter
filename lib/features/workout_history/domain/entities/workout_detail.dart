@@ -22,6 +22,7 @@ class WorkoutDetail {
     this.averagePower,
     this.maxPower,
     this.calories,
+    required this.provider,
     required this.user,
     required this.thumbnailImageUrl,
     required this.activityImages,
@@ -46,6 +47,7 @@ class WorkoutDetail {
   final int? averagePower; // W
   final int? maxPower; // W
   final double? calories; // kcal
+  final String provider; // 데이터 제공자 (예: "Apple HealthKit")
   final WorkoutUser user;
   final String thumbnailImageUrl;
   final List<ActivityImage> activityImages;
@@ -175,6 +177,7 @@ class WorkoutDetail {
     int? averagePower,
     int? maxPower,
     double? calories,
+    String? provider,
     WorkoutUser? user,
     String? thumbnailImageUrl,
     List<ActivityImage>? activityImages,
@@ -200,6 +203,7 @@ class WorkoutDetail {
       averagePower: averagePower ?? this.averagePower,
       maxPower: maxPower ?? this.maxPower,
       calories: calories ?? this.calories,
+      provider: provider ?? this.provider,
       user: user ?? this.user,
       thumbnailImageUrl: thumbnailImageUrl ?? this.thumbnailImageUrl,
       activityImages: activityImages ?? this.activityImages,
