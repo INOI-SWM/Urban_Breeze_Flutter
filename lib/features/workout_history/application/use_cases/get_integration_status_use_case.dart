@@ -66,10 +66,10 @@ class GetIntegrationStatusUseCase {
         // HealthProvider enum에서 해당하는 provider 찾기
         for (final HealthProvider provider in HealthProvider.values) {
           if (provider.displayName == providerInfo.providerName) {
-            // lastSyncAt이 null인 경우 기본값으로 356일 전 설정
+            // lastSyncAt이 null인 경우 기본값으로 30일 전 설정
             statusMap[provider] =
                 providerInfo.lastSyncAt ??
-                DateTime.now().subtract(const Duration(days: 356));
+                DateTime.now().subtract(const Duration(days: 30));
             break;
           }
         }
