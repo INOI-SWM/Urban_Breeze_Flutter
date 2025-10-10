@@ -15,10 +15,10 @@ enum HealthProvider {
   /// API에서 사용하는 실제 providerName (서버 전송용)
   final String apiProviderName;
 
-  /// providerName으로부터 HealthProvider 찾기
+  /// providerName으로부터 HealthProvider 찾기 (API 응답용)
   static HealthProvider? fromProviderName(String providerName) {
     for (final HealthProvider provider in HealthProvider.values) {
-      if (provider.displayName == providerName) {
+      if (provider.apiProviderName == providerName) {
         return provider;
       }
     }

@@ -57,7 +57,7 @@ class GetIntegrationStatusUseCase {
     for (final HealthProvider provider in HealthProvider.values) {
       statusMap[provider] = apiUsage.providerSyncInfos.any(
         (ProviderSyncInfo providerInfo) =>
-            providerInfo.providerName == provider.displayName &&
+            providerInfo.providerName == provider.apiProviderName &&
             providerInfo.isActive,
       );
     }
@@ -76,7 +76,7 @@ class GetIntegrationStatusUseCase {
       if (providerInfo.isActive) {
         // HealthProvider enum에서 해당하는 provider 찾기
         for (final HealthProvider provider in HealthProvider.values) {
-          if (provider.displayName == providerInfo.providerName) {
+          if (provider.apiProviderName == providerInfo.providerName) {
             // lastSyncAt이 null인 경우 기본값으로 30일 전 설정
             statusMap[provider] =
                 providerInfo.lastSyncAt ??
