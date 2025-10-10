@@ -1,0 +1,68 @@
+name: Release Merge Handler
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - develop
+
+jobs:
+  create-tag:
+    # Release PR이 머지되었을 때만 실행
+    if: |
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'release/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Extract version from branch name
+        id: version
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          VERSION=${BRANCH_NAME#release/}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "TAG_NAME=v$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create and push tag
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          TAG_NAME="${{ steps.version.outputs.TAG_NAME }}"
+
+          echo "📌 Creating tag: $TAG_NAME"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME - Version: $VERSION, PR: #${{ github.event.pull_request.number }}"
+
+          git push origin "$TAG_NAME"
+
+          echo "✅ Tag created and pushed: $TAG_NAME"
+
+      - name: Delete release branch
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+
+          echo "🗑️  Deleting release branch: $BRANCH_NAME"
+          git push origin --delete "$BRANCH_NAME"
+
+          echo "✅ Release branch deleted"
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## ✅ Release 자동화 완료!\n\n**Tag 생성**: `${{ steps.version.outputs.TAG_NAME }}`\n\n🎉 GitHub Release가 자동으로 발행됩니다 (약 10-20초 소요)\n\n📦 **Release 확인**: [GitHub Releases](https://github.com/${{ github.repository }}/releases)\n📊 **Actions 진행상황**: [GitHub Actions](https://github.com/${{ github.repository }}/actions)\n\n---\n\n🤖 *이 메시지는 자동으로 생성되었습니다.*'
+            })
