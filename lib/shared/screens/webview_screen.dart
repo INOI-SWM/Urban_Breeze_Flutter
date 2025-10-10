@@ -40,10 +40,13 @@ class _WebViewScreenState extends State<WebViewScreen> {
                 if (url.contains('auth-success')) {
                   // 연동 성공 callback 실행
                   widget.onAuthSuccess?.call();
+
                   // 웹뷰 닫기
-                  if (mounted) {
-                    Navigator.of(context).pop(true);
-                  }
+                  Future<void>.microtask(() {
+                    if (mounted) {
+                      Navigator.of(context).pop(true);
+                    }
+                  });
                   return;
                 }
 
@@ -52,6 +55,18 @@ class _WebViewScreenState extends State<WebViewScreen> {
                 });
               },
               onPageFinished: (String url) {
+                // onPageFinished에서도 체크 (혹시 onPageStarted에서 놓쳤을 경우)
+                if (url.contains('auth-success')) {
+                  widget.onAuthSuccess?.call();
+
+                  Future<void>.microtask(() {
+                    if (mounted) {
+                      Navigator.of(context).pop(true);
+                    }
+                  });
+                  return;
+                }
+
                 setState(() {
                   isLoading = false;
                 });
