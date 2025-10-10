@@ -9,7 +9,7 @@ on:
 jobs:
   validate-release-pr:
     if: |
-      startsWith(github.event.pull_request.title, 'chore(main): release')
+      startsWith(github.event.pull_request.title, 'chore(develop): release')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
