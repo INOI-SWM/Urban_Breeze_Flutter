@@ -9,15 +9,20 @@ on:
 jobs:
   validate-release-pr:
     if: |
-      startsWith(github.event.pull_request.title, 'chore(develop): release')
+      startsWith(github.event.pull_request.title, 'chore(main): release')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch develop branch
+        run: git fetch origin develop:develop
 
       - name: Validate CHANGELOG updated
         run: |
-          if ! git diff origin/develop -- CHANGELOG.md | grep -q "^+"; then
+          if ! git diff develop -- CHANGELOG.md | grep -q "^+"; then
             echo "❌ CHANGELOG.md가 업데이트되지 않았습니다."
             exit 1
           fi
@@ -25,7 +30,7 @@ jobs:
 
       - name: Validate version bumped
         run: |
-          if ! git diff origin/develop -- pubspec.yaml | grep -q "^+version:"; then
+          if ! git diff develop -- pubspec.yaml | grep -q "^+version:"; then
             echo "❌ pubspec.yaml 버전이 업데이트되지 않았습니다."
             exit 1
           fi
