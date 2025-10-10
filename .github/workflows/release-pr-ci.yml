@@ -1,0 +1,55 @@
+name: Release PR CI
+
+on:
+  pull_request:
+    branches:
+      - develop
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate-release-pr:
+    if: |
+      startsWith(github.event.pull_request.title, 'chore(main): release')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Validate CHANGELOG updated
+        run: |
+          if ! git diff origin/develop -- CHANGELOG.md | grep -q "^+"; then
+            echo "❌ CHANGELOG.md가 업데이트되지 않았습니다."
+            exit 1
+          fi
+          echo "✅ CHANGELOG.md 업데이트 확인"
+
+      - name: Validate version bumped
+        run: |
+          if ! git diff origin/develop -- pubspec.yaml | grep -q "^+version:"; then
+            echo "❌ pubspec.yaml 버전이 업데이트되지 않았습니다."
+            exit 1
+          fi
+          echo "✅ 버전 업데이트 확인"
+
+      - name: Validate version format
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(\+[0-9]+)?$'; then
+            echo "❌ 잘못된 버전 형식: $VERSION"
+            echo "올바른 형식: Major.Minor.Patch+Build (예: 1.1.0+6)"
+            exit 1
+          fi
+
+          echo "✅ 버전 형식 올바름: $VERSION"
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## ✅ Release PR 검증 완료\n\n이 PR을 머지하면 자동으로:\n- 🏷️ Tag 생성\n- 📦 GitHub Release 발행\n- 📱 앱스토어 제출 준비 완료\n\n**머지 전 확인사항:**\n- [ ] QA 완료\n- [ ] 릴리즈 노트 확인\n- [ ] 배포 준비 완료'
+            })
