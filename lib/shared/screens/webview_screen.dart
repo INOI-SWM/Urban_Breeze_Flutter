@@ -10,11 +10,13 @@ class WebViewScreen extends StatefulWidget {
     required this.url,
     this.title = '웹페이지',
     this.onAuthSuccess,
+    this.onAuthFailure,
   });
 
   final String url;
   final String title;
   final VoidCallback? onAuthSuccess;
+  final void Function(String? reason)? onAuthFailure;
 
   @override
   State<WebViewScreen> createState() => _WebViewScreenState();
@@ -50,6 +52,24 @@ class _WebViewScreenState extends State<WebViewScreen> {
                   return;
                 }
 
+                // Terra auth-failure URL 감지 시 실패 처리
+                if (url.contains('auth-failure')) {
+                  // URL에서 실패 사유 추출
+                  final Uri uri = Uri.parse(url);
+                  final String? reason = uri.queryParameters['reason'];
+
+                  // 연동 실패 callback 실행
+                  widget.onAuthFailure?.call(reason);
+
+                  // 웹뷰 닫기
+                  Future<void>.microtask(() {
+                    if (mounted) {
+                      Navigator.of(context).pop(false);
+                    }
+                  });
+                  return;
+                }
+
                 setState(() {
                   isLoading = true;
                 });
@@ -62,6 +82,21 @@ class _WebViewScreenState extends State<WebViewScreen> {
                   Future<void>.microtask(() {
                     if (mounted) {
                       Navigator.of(context).pop(true);
+                    }
+                  });
+                  return;
+                }
+
+                // auth-failure도 체크
+                if (url.contains('auth-failure')) {
+                  final Uri uri = Uri.parse(url);
+                  final String? reason = uri.queryParameters['reason'];
+
+                  widget.onAuthFailure?.call(reason);
+
+                  Future<void>.microtask(() {
+                    if (mounted) {
+                      Navigator.of(context).pop(false);
                     }
                   });
                   return;

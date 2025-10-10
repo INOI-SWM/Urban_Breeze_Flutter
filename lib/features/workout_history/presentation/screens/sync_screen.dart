@@ -422,10 +422,39 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
               url: authUrl,
               title: 'Garmin Connect 연동',
               onAuthSuccess: () {
+                // Amplitude 이벤트 로깅
+                AmplitudeAnalytics.logEvent(
+                  'garmin_connect_auth_success',
+                  properties: <String, dynamic>{},
+                );
+
                 // 연동 성공 시 상태 업데이트
                 ref
                     .read(syncScreenNotifierProvider.notifier)
                     .checkIntegrationStatus();
+
+                // 성공 메시지 표시
+                if (mounted) {
+                  showSuccessMessage(context, 'Garmin Connect 연동이 완료되었습니다.');
+                }
+              },
+              onAuthFailure: (String? reason) {
+                // Amplitude 이벤트 로깅
+                AmplitudeAnalytics.logEvent(
+                  'garmin_connect_auth_failed',
+                  properties: <String, dynamic>{'reason': reason ?? 'unknown'},
+                );
+
+                // 연동 실패 시 안내 메시지 표시
+                if (mounted) {
+                  showErrorMessage(
+                    context,
+                    'Garmin Connect 연동에 실패했습니다.\n\n'
+                    '잠시 후 다시 시도해 주세요.\n'
+                    '문제가 지속될 경우 설정 > 문의하기를 통해\n'
+                    '자세한 상황을 알려주시면 빠르게 도와드리겠습니다.',
+                  );
+                }
               },
             );
           }
@@ -473,10 +502,39 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
               url: authUrl,
               title: 'Suunto 연동',
               onAuthSuccess: () {
+                // Amplitude 이벤트 로깅
+                AmplitudeAnalytics.logEvent(
+                  'suunto_auth_success',
+                  properties: <String, dynamic>{},
+                );
+
                 // 연동 성공 시 상태 업데이트
                 ref
                     .read(syncScreenNotifierProvider.notifier)
                     .checkIntegrationStatus();
+
+                // 성공 메시지 표시
+                if (mounted) {
+                  showSuccessMessage(context, 'Suunto 연동이 완료되었습니다.');
+                }
+              },
+              onAuthFailure: (String? reason) {
+                // Amplitude 이벤트 로깅
+                AmplitudeAnalytics.logEvent(
+                  'suunto_auth_failed',
+                  properties: <String, dynamic>{'reason': reason ?? 'unknown'},
+                );
+
+                // 연동 실패 시 안내 메시지 표시
+                if (mounted) {
+                  showErrorMessage(
+                    context,
+                    'Suunto 연동에 실패했습니다.\n\n'
+                    '잠시 후 다시 시도해 주세요.\n'
+                    '문제가 지속될 경우 설정 > 문의하기를 통해\n'
+                    '자세한 상황을 알려주시면 빠르게 도와드리겠습니다.',
+                  );
+                }
               },
             );
           }

@@ -7,6 +7,7 @@ class WebViewNavigation {
     required String url,
     required String title,
     VoidCallback? onAuthSuccess,
+    void Function(String? reason)? onAuthFailure,
   }) async {
     return await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
@@ -15,6 +16,7 @@ class WebViewNavigation {
               url: url,
               title: title,
               onAuthSuccess: onAuthSuccess,
+              onAuthFailure: onAuthFailure,
             ),
       ),
     );
