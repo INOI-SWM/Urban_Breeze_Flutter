@@ -1,0 +1,15 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "dart",
+      "changelog-sections": [
+        { "type": "feat", "section": "✨ Features", "hidden": false },
+        { "type": "fix", "section": "🐛 Bug Fixes", "hidden": false },
+        { "type": "refactor", "section": "🏗️ Architecture", "hidden": false },
+        { "type": "perf", "section": "⚡ Performance", "hidden": false },
+        { "type": "docs", "section": "📝 Documentation", "hidden": false },
+        { "type": "chore", "section": "🔧 Chore", "hidden": true }
+      ]
+    }
+  }
+}
