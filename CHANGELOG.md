@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.1](https://github.com/INOI-SWM/Urban_Breeze_Flutter/compare/v1.0.0...v1.0.1) (2025-10-10)
+
+### Bug Fixes
+
+- 버전 버그 픽스 ([#174](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/174)) ([01dbf47](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/01dbf47514c62ef10746a08aab3c8eff265ed524))
+
 ## [1.0.0] (2025-10-10)
 
 ### ✨ 주요 기능
@@ -34,9 +40,3 @@
 
 - 라이딩 통계 대시보드
 - 총 거리, 시간, 칼로리 집계
-
-### 🐛 버그 수정
-
-- 연동 상태 화면 표시 오류 수정
-- 프로필 이미지 로딩 오류 수정
-- 약관 동의 상태 저장 오류 수정
