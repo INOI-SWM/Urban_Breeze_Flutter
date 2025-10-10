@@ -5,10 +5,16 @@ import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_in
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebViewScreen extends StatefulWidget {
-  const WebViewScreen({super.key, required this.url, this.title = '웹페이지'});
+  const WebViewScreen({
+    super.key,
+    required this.url,
+    this.title = '웹페이지',
+    this.onAuthSuccess,
+  });
 
   final String url;
   final String title;
+  final VoidCallback? onAuthSuccess;
 
   @override
   State<WebViewScreen> createState() => _WebViewScreenState();
@@ -30,6 +36,17 @@ class _WebViewScreenState extends State<WebViewScreen> {
                 // 로딩 진행률 업데이트
               },
               onPageStarted: (String url) {
+                // Terra auth-success URL 감지 시 자동으로 웹뷰 닫기
+                if (url.contains('auth-success')) {
+                  // 연동 성공 callback 실행
+                  widget.onAuthSuccess?.call();
+                  // 웹뷰 닫기
+                  if (mounted) {
+                    Navigator.of(context).pop(true);
+                  }
+                  return;
+                }
+
                 setState(() {
                   isLoading = true;
                 });

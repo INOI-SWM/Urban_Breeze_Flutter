@@ -417,15 +417,17 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
         if (authUrl.isNotEmpty) {
           if (mounted) {
-            WebViewNavigation.navigateToWebView(
+            await WebViewNavigation.navigateToWebView(
               context,
               url: authUrl,
               title: 'Garmin Connect 연동',
+              onAuthSuccess: () {
+                // 연동 성공 시 상태 업데이트
+                ref
+                    .read(syncScreenNotifierProvider.notifier)
+                    .checkIntegrationStatus();
+              },
             );
-            // 연동 상태 다시 확인
-            ref
-                .read(syncScreenNotifierProvider.notifier)
-                .checkIntegrationStatus();
           }
         } else {
           if (mounted) {
@@ -466,15 +468,17 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
         if (authUrl.isNotEmpty) {
           if (mounted) {
-            WebViewNavigation.navigateToWebView(
+            await WebViewNavigation.navigateToWebView(
               context,
               url: authUrl,
               title: 'Suunto 연동',
+              onAuthSuccess: () {
+                // 연동 성공 시 상태 업데이트
+                ref
+                    .read(syncScreenNotifierProvider.notifier)
+                    .checkIntegrationStatus();
+              },
             );
-            // 연동 상태 다시 확인
-            ref
-                .read(syncScreenNotifierProvider.notifier)
-                .checkIntegrationStatus();
           }
         } else {
           if (mounted) {

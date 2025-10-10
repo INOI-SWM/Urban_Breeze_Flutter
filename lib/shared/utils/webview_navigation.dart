@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:urban_breeze/shared/screens/webview_screen.dart';
 
 class WebViewNavigation {
-  static void navigateToWebView(
+  static Future<bool?> navigateToWebView(
     BuildContext context, {
     required String url,
     required String title,
-  }) {
-    Navigator.of(context).push(
-      MaterialPageRoute<Widget>(
+    VoidCallback? onAuthSuccess,
+  }) async {
+    return await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
         builder:
-            (BuildContext context) => WebViewScreen(url: url, title: title),
+            (BuildContext context) => WebViewScreen(
+              url: url,
+              title: title,
+              onAuthSuccess: onAuthSuccess,
+            ),
       ),
     );
   }
