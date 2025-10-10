@@ -115,6 +115,7 @@ class WorkoutDetailResponseModel {
     this.averagePower,
     this.maxPower,
     this.calories,
+    required this.provider,
     required this.user,
     required this.thumbnailImageUrl,
     required this.activityImages,
@@ -141,6 +142,7 @@ class WorkoutDetailResponseModel {
       averagePower: json['averagePower'] as int?,
       maxPower: json['maxPower'] as int?,
       calories: (json['calories'] as num?)?.toDouble(),
+      provider: json['provider'] as String,
       user: WorkoutUserModel.fromJson(json['user'] as Map<String, dynamic>),
       thumbnailImageUrl: json['thumbnailImageUrl'] as String,
       activityImages:
@@ -181,6 +183,7 @@ class WorkoutDetailResponseModel {
   final int? averagePower; // W
   final int? maxPower; // W
   final double? calories; // kcal
+  final String provider; // 데이터 제공자
   final WorkoutUserModel user;
   final String thumbnailImageUrl;
   final List<ActivityImageModel> activityImages;
@@ -206,6 +209,7 @@ class WorkoutDetailResponseModel {
       'averagePower': averagePower,
       'maxPower': maxPower,
       'calories': calories,
+      'provider': provider,
       'user': user.toJson(),
       'thumbnailImageUrl': thumbnailImageUrl,
       'activityImages':

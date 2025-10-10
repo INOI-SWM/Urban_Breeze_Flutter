@@ -1,10 +1,10 @@
 import 'package:terra_flutter_bridge/models/enums.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
+import 'package:urban_breeze/core/exceptions/integration_exceptions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/connect_terra_health_app_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/initialize_terra_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_terra_health_data_use_case.dart';
-import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 
 class TerraHealthSyncFacade {
   const TerraHealthSyncFacade({
@@ -100,7 +100,9 @@ class TerraHealthSyncFacade {
           'error_message': e.toString(),
         },
       );
-      return AppFailure<Map<String, dynamic>?>(TerraApiException(e.toString()));
+      return AppFailure<Map<String, dynamic>?>(
+        IntegrationException(e.toString()),
+      );
     }
   }
 

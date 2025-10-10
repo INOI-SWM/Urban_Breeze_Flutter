@@ -1,8 +1,9 @@
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
-import 'package:urban_breeze/features/workout_history/domain/entities/api_usage.dart';
-import 'package:urban_breeze/features/workout_history/domain/enums/health_provider.dart';
-import 'package:urban_breeze/features/workout_history/domain/repositories/api_usage_repository.dart';
+import 'package:urban_breeze/features/integration/domain/entities/api_usage.dart';
+import 'package:urban_breeze/features/integration/domain/entities/provider_sync_info.dart';
+import 'package:urban_breeze/features/integration/domain/enums/health_provider.dart';
+import 'package:urban_breeze/features/integration/domain/repositories/api_usage_repository.dart';
 
 /// 연동 상태 조회 Use Case
 class GetIntegrationStatusUseCase {
@@ -39,6 +40,16 @@ class GetIntegrationStatusUseCase {
     }
   }
 
+  /// API 사용량 정보 조회 (토큰 체크용)
+  Future<AppResult<ApiUsage>> executeWithApiUsage() async {
+    try {
+      final ApiUsage apiUsage = await _apiUsageRepository.getApiUsage();
+      return AppSuccess<ApiUsage>(apiUsage);
+    } catch (e) {
+      return AppFailure<ApiUsage>(NetworkException('API 사용량 조회 실패: $e'));
+    }
+  }
+
   /// API 응답을 파싱하여 연동 상태 맵 생성
   Map<HealthProvider, bool> _parseIntegrationStatus(ApiUsage apiUsage) {
     final Map<HealthProvider, bool> statusMap = <HealthProvider, bool>{};
@@ -46,7 +57,7 @@ class GetIntegrationStatusUseCase {
     for (final HealthProvider provider in HealthProvider.values) {
       statusMap[provider] = apiUsage.providerSyncInfos.any(
         (ProviderSyncInfo providerInfo) =>
-            providerInfo.providerName == provider.displayName &&
+            providerInfo.providerName == provider.apiProviderName &&
             providerInfo.isActive,
       );
     }
@@ -65,11 +76,11 @@ class GetIntegrationStatusUseCase {
       if (providerInfo.isActive) {
         // HealthProvider enum에서 해당하는 provider 찾기
         for (final HealthProvider provider in HealthProvider.values) {
-          if (provider.displayName == providerInfo.providerName) {
-            // lastSyncAt이 null인 경우 기본값으로 356일 전 설정
+          if (provider.apiProviderName == providerInfo.providerName) {
+            // lastSyncAt이 null인 경우 기본값으로 30일 전 설정
             statusMap[provider] =
                 providerInfo.lastSyncAt ??
-                DateTime.now().subtract(const Duration(days: 356));
+                DateTime.now().subtract(const Duration(days: 30));
             break;
           }
         }

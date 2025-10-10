@@ -1,10 +1,10 @@
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
+import 'package:urban_breeze/core/exceptions/integration_exceptions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/integration/application/use_cases/get_integration_activity_use_case.dart';
 import 'package:urban_breeze/features/integration/application/use_cases/request_garmin_permission_use_case.dart';
 import 'package:urban_breeze/features/integration/application/use_cases/request_suunto_permission_use_case.dart';
 import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
-import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 
 class IntegrationSyncFacade {
   const IntegrationSyncFacade({
@@ -48,7 +48,7 @@ class IntegrationSyncFacade {
         'garmin_connect_permission_request_exception',
         properties: <String, dynamic>{'error_message': e.toString()},
       );
-      return AppFailure<IntegrationAuth>(TerraApiException(e.toString()));
+      return AppFailure<IntegrationAuth>(IntegrationException(e.toString()));
     }
   }
 
@@ -83,7 +83,7 @@ class IntegrationSyncFacade {
         'suunto_permission_request_exception',
         properties: <String, dynamic>{'error_message': e.toString()},
       );
-      return AppFailure<IntegrationAuth>(TerraApiException(e.toString()));
+      return AppFailure<IntegrationAuth>(IntegrationException(e.toString()));
     }
   }
 
@@ -120,7 +120,9 @@ class IntegrationSyncFacade {
         'integration_activity_refresh_exception',
         properties: <String, dynamic>{'error_message': e.toString()},
       );
-      return AppFailure<Map<String, dynamic>>(TerraApiException(e.toString()));
+      return AppFailure<Map<String, dynamic>>(
+        IntegrationException(e.toString()),
+      );
     }
   }
 }

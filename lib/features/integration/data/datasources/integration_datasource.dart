@@ -32,19 +32,15 @@ class IntegrationDataSource extends BaseRemoteDataSource {
   /// 연동된 서비스들의 활동 기록 가져오기
   Future<ApiResponseModel<Map<String, dynamic>>>
   getIntegrationActivity() async {
-    try {
-      final Uri uri = Uri.parse(ApiEndpoints.integrationActivity);
+    final Uri uri = Uri.parse(ApiEndpoints.integrationActivity);
 
-      final http.Response response = await get(uri.toString());
+    final http.Response response = await get(uri.toString());
 
-      final Map<String, dynamic> responseData = decodeResponse(response);
+    final Map<String, dynamic> responseData = decodeResponse(response);
 
-      return ApiResponseModel<Map<String, dynamic>>.fromJson(
-        responseData,
-        (Map<String, dynamic> json) => json,
-      );
-    } catch (e) {
-      rethrow;
-    }
+    return ApiResponseModel<Map<String, dynamic>>.fromJson(
+      responseData,
+      (Map<String, dynamic> json) => json,
+    );
   }
 }

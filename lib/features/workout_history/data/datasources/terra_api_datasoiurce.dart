@@ -39,7 +39,17 @@ class TerraApiDataSource extends BaseRemoteDataSource {
 
   Future<void> initialiseConnection(Connection connection) async {
     final String token = await getToken();
-    final List<CustomPermission> customPermissions = <CustomPermission>[];
+
+    // 사이클링 운동 기록에 필요한 권한만 요청
+    final List<CustomPermission> customPermissions = <CustomPermission>[
+      CustomPermission.workoutTypes, // 운동 타입 (사이클링)
+      CustomPermission.location, // GPS 경로
+      CustomPermission.calories, // 칼로리
+      CustomPermission.heartRate, // 심박수
+      CustomPermission.exerciseDistance, // 운동 거리
+      CustomPermission.speed, // 속도
+      CustomPermission.activeDurations, // 운동 시간
+    ];
     final bool schedulerOn = true;
 
     final SuccessMessage? result = await TerraFlutter.initConnection(

@@ -1,5 +1,5 @@
 import 'package:http/http.dart' as http;
-import 'package:urban_breeze/features/workout_history/domain/entities/api_usage.dart';
+import 'package:urban_breeze/features/integration/domain/entities/api_usage.dart';
 import 'package:urban_breeze/shared/api/data/constants/api_endpoints.dart';
 import 'package:urban_breeze/shared/api/data/datasources/base_remote_datasource.dart';
 

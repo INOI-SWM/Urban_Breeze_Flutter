@@ -1,11 +1,11 @@
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
-import 'package:urban_breeze/features/workout_history/domain/repositories/provider_deletion_repository.dart';
+import 'package:urban_breeze/features/integration/domain/repositories/provider_repository.dart';
 
 class DeleteProviderUseCase {
   const DeleteProviderUseCase({required this.repository});
 
-  final ProviderDeletionRepository repository;
+  final ProviderRepository repository;
 
   Future<AppResult<void>> execute(String providerName) async {
     try {

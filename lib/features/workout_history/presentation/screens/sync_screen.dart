@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
+import 'package:urban_breeze/core/exceptions/integration_exceptions.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/core/services/deep_link_service.dart';
 import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
+import 'package:urban_breeze/features/integration/domain/enums/health_provider.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/workout_sync_facade.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
-import 'package:urban_breeze/features/workout_history/domain/enums/health_provider.dart';
-import 'package:urban_breeze/features/workout_history/domain/exceptions/workout_history_domain_exceptions.dart';
 import 'package:urban_breeze/features/workout_history/presentation/notifiers/sync_screen_notifier.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
@@ -102,7 +102,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
       if (mounted) {
         // iOS에서 Health Connect나 Samsung Health 사용 시 지원하지 않는 플랫폼 메시지 표시
         if (result.exceptionOrNull is PlatformException ||
-            result.exceptionOrNull is TerraApiException) {
+            result.exceptionOrNull is IntegrationException) {
           showErrorMessage(context, '지원하지 않는 플랫폼입니다');
         } else {
           showErrorMessage(context, '$serviceName 데이터 가져오기 실패: $errorMessage');
@@ -153,11 +153,32 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
   /// HealthKit 권한 안내 다이얼로그 표시
   Future<void> _showHealthKitPermissionInfoDialog() async {
+    await _showHealthPermissionDialog(
+      title: 'Apple Health 연동',
+      serviceName: 'Apple HealthKit',
+      cancelEvent: 'apple_health_permission_dialog_cancelled',
+      confirmEvent: 'apple_health_permission_dialog_confirmed',
+      onConfirm: () async {
+        await ref
+            .read(syncScreenNotifierProvider.notifier)
+            .connectAppleHealth();
+      },
+    );
+  }
+
+  /// 공통 헬스 권한 안내 다이얼로그
+  Future<void> _showHealthPermissionDialog({
+    required String title,
+    required String serviceName,
+    required String cancelEvent,
+    required String confirmEvent,
+    required Future<void> Function() onConfirm,
+  }) async {
     final SemanticColors colors = context.semanticColor;
 
     await ModalShow.show<void>(
       context: context,
-      title: 'Apple Health 연동',
+      title: title,
       content: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
@@ -166,24 +187,115 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
           children: <Widget>[
             Center(
               child: Text(
-                'Urban Breeze는 Apple HealthKit을 통해\n다음 데이터를 읽어옵니다',
+                'Urban Breeze는 $serviceName을 통해\n다음 건강 데이터를 읽어옵니다',
                 style: AppTextStyles.body2.normalBold.copyWith(
                   color: colors.labelStrong,
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(height: 20),
-            _buildPermissionItem('🚴 사이클링 운동 기록'),
-            _buildPermissionItem('❤️ 심박수 데이터'),
-            _buildPermissionItem('📍 이동 거리'),
-            _buildPermissionItem('🔥 소모 칼로리'),
-            _buildPermissionItem('🗺️ GPS 경로 데이터'),
-            const SizedBox(height: 12),
-            Text(
-              '수집된 데이터는 운동 기록 관리, 성과 추적, 개인화된 운동 통계 제공에만 사용됩니다.',
-              style: AppTextStyles.body2.normalMedium.copyWith(
-                color: colors.labelAlternative,
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: colors.backgroundElevatedNormal,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  _buildDetailedPermissionItem(
+                    '🚴 사이클링 운동 기록',
+                    '운동 시작/종료 시간, 운동 종류',
+                    colors,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDetailedPermissionItem(
+                    '❤️ 심박수 데이터',
+                    '실시간 심박수로 운동 강도 분석',
+                    colors,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDetailedPermissionItem(
+                    '📍 이동 거리 및 속도',
+                    '라이딩 거리와 속도 통계 제공',
+                    colors,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDetailedPermissionItem(
+                    '🔥 소모 칼로리',
+                    '운동으로 소모한 에너지 계산',
+                    colors,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildDetailedPermissionItem(
+                    '🗺️ GPS 경로 데이터',
+                    '이동 경로 및 고도 정보 시각화',
+                    colors,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: colors.backgroundNormalNormal,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.info_outline,
+                        size: 16,
+                        color: colors.primaryNormal,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '데이터 사용 목적',
+                        style: AppTextStyles.caption1.bold.copyWith(
+                          color: colors.labelStrong,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '• 운동 기록 관리 및 통합\n• 주간/월간 성과 추적\n• 개인화된 운동 통계 제공\n• 건강 목표 달성도 분석',
+                    style: AppTextStyles.caption1.medium.copyWith(
+                      color: colors.labelNormal,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.lock_outline,
+                        size: 16,
+                        color: colors.primaryNormal,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '개인정보 보호',
+                        style: AppTextStyles.caption1.bold.copyWith(
+                          color: colors.labelStrong,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '$serviceName 데이터는 안전하게 암호화되어 저장되며, 사용자의 동의 없이 제3자와 공유되지 않습니다.',
+                    style: AppTextStyles.caption1.medium.copyWith(
+                      color: colors.labelNormal,
+                      height: 1.5,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -192,62 +304,101 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
       secondaryButtonText: '취소',
       primaryButtonText: '확인',
       onSecondaryButtonPressed: () {
-        AmplitudeAnalytics.logEvent('apple_health_permission_dialog_cancelled');
+        AmplitudeAnalytics.logEvent(cancelEvent);
       },
       onPrimaryButtonPressed: () async {
-        AmplitudeAnalytics.logEvent('apple_health_permission_dialog_confirmed');
-        // 실제 권한 요청 진행
-        await ref
-            .read(syncScreenNotifierProvider.notifier)
-            .connectAppleHealth();
+        AmplitudeAnalytics.logEvent(confirmEvent);
+        await onConfirm();
       },
       barrierDismissible: true,
       showCloseButton: false,
     );
   }
 
-  /// 권한 항목 위젯
-  Widget _buildPermissionItem(String text) {
-    final SemanticColors colors = context.semanticColor;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: <Widget>[
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: AppTextStyles.body2.normalMedium.copyWith(
-                color: colors.labelNormal,
-              ),
+  /// 상세 권한 항목 위젯 (설명 포함)
+  Widget _buildDetailedPermissionItem(
+    String title,
+    String description,
+    SemanticColors colors,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          title,
+          style: AppTextStyles.body2.normalBold.copyWith(
+            color: colors.labelStrong,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Padding(
+          padding: const EdgeInsets.only(left: 20),
+          child: Text(
+            description,
+            style: AppTextStyles.caption1.medium.copyWith(
+              color: colors.labelAlternative,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   /// Health Connect 동기화
   Future<void> _syncHealthConnectData() async {
-    await _syncHealthData(
+    AmplitudeAnalytics.logButtonClick('workout_sync_health_connect');
+
+    // 권한 요청 전 안내 모달 표시
+    await _showHealthConnectPermissionInfoDialog();
+  }
+
+  /// Health Connect 권한 안내 다이얼로그 표시
+  Future<void> _showHealthConnectPermissionInfoDialog() async {
+    await _showHealthPermissionDialog(
+      title: 'Google Health Connect 연동',
       serviceName: 'Health Connect',
-      buttonEvent: 'workout_sync_health_connect',
-      successEvent: 'workout_sync_health_connect_success',
-      failedEvent: 'workout_sync_health_connect_failed',
-      syncMethod:
-          () => ref.read(workoutSyncFacadeProvider).syncHealthConnectData(),
+      cancelEvent: 'health_connect_permission_dialog_cancelled',
+      confirmEvent: 'health_connect_permission_dialog_confirmed',
+      onConfirm: () async {
+        Navigator.of(context).pop();
+        await _syncHealthData(
+          serviceName: 'Health Connect',
+          buttonEvent: 'workout_sync_health_connect',
+          successEvent: 'workout_sync_health_connect_success',
+          failedEvent: 'workout_sync_health_connect_failed',
+          syncMethod:
+              () => ref.read(workoutSyncFacadeProvider).syncHealthConnectData(),
+        );
+      },
     );
   }
 
   /// Samsung Health 동기화
   Future<void> _syncSamsungHealthData() async {
-    await _syncHealthData(
+    AmplitudeAnalytics.logButtonClick('workout_sync_samsung_health');
+
+    // 권한 요청 전 안내 모달 표시
+    await _showSamsungHealthPermissionInfoDialog();
+  }
+
+  /// Samsung Health 권한 안내 다이얼로그 표시
+  Future<void> _showSamsungHealthPermissionInfoDialog() async {
+    await _showHealthPermissionDialog(
+      title: 'Samsung Health 연동',
       serviceName: 'Samsung Health',
-      buttonEvent: 'workout_sync_samsung_health',
-      successEvent: 'workout_sync_samsung_health_success',
-      failedEvent: 'workout_sync_samsung_health_failed',
-      syncMethod:
-          () => ref.read(workoutSyncFacadeProvider).syncSamsungHealthData(),
+      cancelEvent: 'samsung_health_permission_dialog_cancelled',
+      confirmEvent: 'samsung_health_permission_dialog_confirmed',
+      onConfirm: () async {
+        Navigator.of(context).pop();
+        await _syncHealthData(
+          serviceName: 'Samsung Health',
+          buttonEvent: 'workout_sync_samsung_health',
+          successEvent: 'workout_sync_samsung_health_success',
+          failedEvent: 'workout_sync_samsung_health_failed',
+          syncMethod:
+              () => ref.read(workoutSyncFacadeProvider).syncSamsungHealthData(),
+        );
+      },
     );
   }
 
@@ -266,15 +417,46 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
         if (authUrl.isNotEmpty) {
           if (mounted) {
-            WebViewNavigation.navigateToWebView(
+            await WebViewNavigation.navigateToWebView(
               context,
               url: authUrl,
               title: 'Garmin Connect 연동',
+              onAuthSuccess: () {
+                // Amplitude 이벤트 로깅
+                AmplitudeAnalytics.logEvent(
+                  'garmin_connect_auth_success',
+                  properties: <String, dynamic>{},
+                );
+
+                // 연동 성공 시 상태 업데이트
+                ref
+                    .read(syncScreenNotifierProvider.notifier)
+                    .checkIntegrationStatus();
+
+                // 성공 메시지 표시
+                if (mounted) {
+                  showSuccessMessage(context, 'Garmin Connect 연동이 완료되었습니다.');
+                }
+              },
+              onAuthFailure: (String? reason) {
+                // Amplitude 이벤트 로깅
+                AmplitudeAnalytics.logEvent(
+                  'garmin_connect_auth_failed',
+                  properties: <String, dynamic>{'reason': reason ?? 'unknown'},
+                );
+
+                // 연동 실패 시 안내 메시지 표시
+                if (mounted) {
+                  showErrorMessage(
+                    context,
+                    'Garmin Connect 연동에 실패했습니다.\n\n'
+                    '잠시 후 다시 시도해 주세요.\n'
+                    '문제가 지속될 경우 설정 > 문의하기를 통해\n'
+                    '자세한 상황을 알려주시면 빠르게 도와드리겠습니다.',
+                  );
+                }
+              },
             );
-            // 연동 상태 다시 확인
-            ref
-                .read(syncScreenNotifierProvider.notifier)
-                .checkIntegrationStatus();
           }
         } else {
           if (mounted) {
@@ -315,15 +497,46 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
         if (authUrl.isNotEmpty) {
           if (mounted) {
-            WebViewNavigation.navigateToWebView(
+            await WebViewNavigation.navigateToWebView(
               context,
               url: authUrl,
               title: 'Suunto 연동',
+              onAuthSuccess: () {
+                // Amplitude 이벤트 로깅
+                AmplitudeAnalytics.logEvent(
+                  'suunto_auth_success',
+                  properties: <String, dynamic>{},
+                );
+
+                // 연동 성공 시 상태 업데이트
+                ref
+                    .read(syncScreenNotifierProvider.notifier)
+                    .checkIntegrationStatus();
+
+                // 성공 메시지 표시
+                if (mounted) {
+                  showSuccessMessage(context, 'Suunto 연동이 완료되었습니다.');
+                }
+              },
+              onAuthFailure: (String? reason) {
+                // Amplitude 이벤트 로깅
+                AmplitudeAnalytics.logEvent(
+                  'suunto_auth_failed',
+                  properties: <String, dynamic>{'reason': reason ?? 'unknown'},
+                );
+
+                // 연동 실패 시 안내 메시지 표시
+                if (mounted) {
+                  showErrorMessage(
+                    context,
+                    'Suunto 연동에 실패했습니다.\n\n'
+                    '잠시 후 다시 시도해 주세요.\n'
+                    '문제가 지속될 경우 설정 > 문의하기를 통해\n'
+                    '자세한 상황을 알려주시면 빠르게 도와드리겠습니다.',
+                  );
+                }
+              },
             );
-            // 연동 상태 다시 확인
-            ref
-                .read(syncScreenNotifierProvider.notifier)
-                .checkIntegrationStatus();
           }
         } else {
           if (mounted) {

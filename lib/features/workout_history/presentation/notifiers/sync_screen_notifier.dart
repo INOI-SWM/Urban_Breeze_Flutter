@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/integration/application/use_cases/delete_provider_use_case.dart';
+import 'package:urban_breeze/features/integration/application/use_cases/get_integration_status_use_case.dart';
+import 'package:urban_breeze/features/integration/di/integration_providers.dart';
+import 'package:urban_breeze/features/integration/domain/enums/health_provider.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/connect_apple_health_use_case.dart';
-import 'package:urban_breeze/features/workout_history/application/use_cases/delete_provider_use_case.dart';
-import 'package:urban_breeze/features/workout_history/application/use_cases/get_integration_status_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_apple_health_kit_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
-import 'package:urban_breeze/features/workout_history/domain/enums/health_provider.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
 /// 동기화 화면 상태 관리

@@ -172,27 +172,27 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: colors.lineNormalNormal,
-                          width: 1,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        DateFormatter.formatKorean(detail.startedAt),
+                        style: AppTextStyles.label2.bold.copyWith(
+                          color: colors.labelAlternative,
                         ),
                       ),
-                    ),
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          DateFormatter.formatKorean(detail.startedAt),
-                          style: AppTextStyles.label2.bold.copyWith(
-                            color: colors.labelAlternative,
+                      const SizedBox(height: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: colors.lineNormalNormal,
+                              width: 1,
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        WorkoutTitleEditWidget(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: WorkoutTitleEditWidget(
                           workoutId: detail.id.toString(),
                           initialTitle: detail.title,
                           currentWorkoutDetail: detail,
@@ -202,8 +202,40 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                             });
                           },
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colors.backgroundElevatedNormal,
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color: colors.lineNormalNormal,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Icon(
+                              Icons.sync,
+                              size: 12,
+                              color: colors.labelAlternative,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${detail.provider}에서 가져온 데이터',
+                              style: AppTextStyles.caption1.medium.copyWith(
+                                color: colors.labelAlternative,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 20),
                   Text(
