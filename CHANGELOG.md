@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.1](https://github.com/INOI-SWM/Urban_Breeze_Flutter/compare/v1.0.0...v1.0.1) (2025-10-10)
+
+### Bug Fixes
+
+- 버전 버그 픽스 ([#174](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/174)) ([01dbf47](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/01dbf47514c62ef10746a08aab3c8eff265ed524))
+
 ## [1.0.0] (2025-10-10)
 
 ### ✨ 주요 기능
