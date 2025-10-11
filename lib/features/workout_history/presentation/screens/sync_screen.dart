@@ -66,6 +66,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
   /// 공통 헬스 데이터 동기화 메서드
   Future<void> _syncHealthData({
+    required HealthProvider provider,
     required String serviceName,
     required String buttonEvent,
     required String successEvent,
@@ -74,39 +75,53 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
   }) async {
     AmplitudeAnalytics.logButtonClick(buttonEvent);
 
-    setState(() {
-      // 로딩 상태는 notifier에서 관리
-    });
+    // 서비스별 로딩 상태 표시
+    ref
+        .read(syncScreenNotifierProvider.notifier)
+        .setServiceLoading(provider, true);
 
-    final AppResult<Map<String, dynamic>?> result = await syncMethod();
+    try {
+      final AppResult<Map<String, dynamic>?> result = await syncMethod();
 
-    if (result.isSuccess) {
-      AmplitudeAnalytics.logEvent(
-        successEvent,
-        properties: <String, dynamic>{'sync_method': 'direct'},
-      );
-      if (mounted) {
-        showSuccessMessage(context, '$serviceName 데이터가 동기화되었습니다.');
-      }
-    } else {
-      // 실패 시 예외 타입에 따라 다른 메시지 표시
-      final String errorMessage =
-          result.exceptionOrNull?.message ?? 'Unknown error';
+      if (result.isSuccess) {
+        AmplitudeAnalytics.logEvent(
+          successEvent,
+          properties: <String, dynamic>{'sync_method': 'direct'},
+        );
+        if (mounted) {
+          showSuccessMessage(context, '$serviceName가 동기화되었습니다.');
+        }
+        // 연동 상태 다시 확인
+        await ref
+            .read(syncScreenNotifierProvider.notifier)
+            .checkIntegrationStatus();
+      } else {
+        // 실패 시 예외 타입에 따라 다른 메시지 표시
+        final String errorMessage =
+            result.exceptionOrNull?.message ?? 'Unknown error';
 
-      AmplitudeAnalytics.logEvent(
-        failedEvent,
-        properties: <String, dynamic>{'error_message': errorMessage},
-      );
+        AmplitudeAnalytics.logEvent(
+          failedEvent,
+          properties: <String, dynamic>{'error_message': errorMessage},
+        );
 
-      if (mounted) {
-        // iOS에서 Health Connect나 Samsung Health 사용 시 지원하지 않는 플랫폼 메시지 표시
-        if (result.exceptionOrNull is PlatformException ||
-            result.exceptionOrNull is IntegrationException) {
-          showErrorMessage(context, '지원하지 않는 플랫폼입니다');
-        } else {
-          showErrorMessage(context, '$serviceName 데이터 가져오기 실패: $errorMessage');
+        if (mounted) {
+          // iOS에서 Health Connect나 Samsung Health 사용 시 지원하지 않는 플랫폼 메시지 표시
+          if (result.exceptionOrNull is PlatformException ||
+              result.exceptionOrNull is IntegrationException) {
+            showErrorMessage(context, '지원하지 않는 플랫폼입니다');
+          } else {
+            showErrorMessage(
+              context,
+              '$serviceName 데이터 가져오기 실패: $errorMessage',
+            );
+          }
         }
       }
+    } finally {
+      ref
+          .read(syncScreenNotifierProvider.notifier)
+          .setServiceLoading(provider, false);
     }
   }
 
@@ -345,6 +360,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
   /// Terra 기반 헬스 동기화 (Health Connect, Samsung Health)
   Future<void> _syncTerraHealthData({
+    required HealthProvider provider,
     required String serviceName,
     required String buttonEvent,
     required String dialogTitle,
@@ -360,6 +376,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
       confirmEvent: '${buttonEvent}_permission_dialog_confirmed',
       onConfirm: () async {
         await _syncHealthData(
+          provider: provider,
           serviceName: serviceName,
           buttonEvent: buttonEvent,
           successEvent: '${buttonEvent}_success',
@@ -373,6 +390,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
   /// Health Connect 동기화
   Future<void> _syncHealthConnectData() async {
     await _syncTerraHealthData(
+      provider: HealthProvider.healthConnect,
       serviceName: 'Health Connect',
       buttonEvent: 'workout_sync_health_connect',
       dialogTitle: 'Google Health Connect 연동',
@@ -384,6 +402,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
   /// Samsung Health 동기화
   Future<void> _syncSamsungHealthData() async {
     await _syncTerraHealthData(
+      provider: HealthProvider.samsungHealth,
       serviceName: 'Samsung Health',
       buttonEvent: 'workout_sync_samsung_health',
       dialogTitle: 'Samsung Health 연동',
@@ -524,93 +543,136 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
           icon: Icons.arrow_back_ios_new,
         ),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              // Apple Health Kit 섹션
-              _buildSyncButton(
-                provider: HealthProvider.appleHealthKit,
-                isConnected:
-                    syncState.connectionStatus[HealthProvider.appleHealthKit] ??
-                    false,
-                isLoading: syncState.isLoading,
-                onPressed: _syncAppleHealthKit,
-                onDisconnectPressed:
-                    () => _showDisconnectModal(
-                      HealthProvider.appleHealthKit.serviceName,
-                    ),
+      body: Stack(
+        children: <Widget>[
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  // Apple Health Kit 섹션
+                  _buildSyncButton(
+                    provider: HealthProvider.appleHealthKit,
+                    isConnected:
+                        syncState.connectionStatus[HealthProvider
+                            .appleHealthKit] ??
+                        false,
+                    isLoading:
+                        syncState.loadingStatus[HealthProvider
+                            .appleHealthKit] ??
+                        false,
+                    onPressed: _syncAppleHealthKit,
+                    onDisconnectPressed:
+                        () => _showDisconnectModal(
+                          HealthProvider.appleHealthKit.serviceName,
+                        ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Google Health Connect 섹션
+                  _buildSyncButton(
+                    provider: HealthProvider.healthConnect,
+                    isConnected:
+                        syncState.connectionStatus[HealthProvider
+                            .healthConnect] ??
+                        false,
+                    isLoading:
+                        syncState.loadingStatus[HealthProvider.healthConnect] ??
+                        false,
+                    onPressed: _syncHealthConnectData,
+                    onDisconnectPressed:
+                        () => _showDisconnectModal(
+                          HealthProvider.healthConnect.serviceName,
+                        ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Samsung Health 섹션
+                  _buildSyncButton(
+                    provider: HealthProvider.samsungHealth,
+                    isConnected:
+                        syncState.connectionStatus[HealthProvider
+                            .samsungHealth] ??
+                        false,
+                    isLoading:
+                        syncState.loadingStatus[HealthProvider.samsungHealth] ??
+                        false,
+                    onPressed: _syncSamsungHealthData,
+                    onDisconnectPressed:
+                        () => _showDisconnectModal(
+                          HealthProvider.samsungHealth.serviceName,
+                        ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Garmin Connect 섹션
+                  _buildSyncButton(
+                    provider: HealthProvider.garmin,
+                    isConnected:
+                        syncState.connectionStatus[HealthProvider.garmin] ??
+                        false,
+                    isLoading:
+                        syncState.loadingStatus[HealthProvider.garmin] ?? false,
+                    onPressed: _requestGarminConnectPermission,
+                    onDisconnectPressed:
+                        () => _showDisconnectModal(
+                          HealthProvider.garmin.serviceName,
+                        ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Suunto 섹션
+                  _buildSyncButton(
+                    provider: HealthProvider.suunto,
+                    isConnected:
+                        syncState.connectionStatus[HealthProvider.suunto] ??
+                        false,
+                    isLoading:
+                        syncState.loadingStatus[HealthProvider.suunto] ?? false,
+                    onPressed: _requestSuuntoPermission,
+                    onDisconnectPressed:
+                        () => _showDisconnectModal(
+                          HealthProvider.suunto.serviceName,
+                        ),
+                  ),
+                ],
               ),
-
-              const SizedBox(height: 16),
-
-              // Google Health Connect 섹션
-              _buildSyncButton(
-                provider: HealthProvider.healthConnect,
-                isConnected:
-                    syncState.connectionStatus[HealthProvider.healthConnect] ??
-                    false,
-                isLoading: syncState.isLoading,
-                onPressed: _syncHealthConnectData,
-                onDisconnectPressed:
-                    () => _showDisconnectModal(
-                      HealthProvider.healthConnect.serviceName,
-                    ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Samsung Health 섹션
-              _buildSyncButton(
-                provider: HealthProvider.samsungHealth,
-                isConnected:
-                    syncState.connectionStatus[HealthProvider.samsungHealth] ??
-                    false,
-                isLoading: syncState.isLoading,
-                onPressed: _syncSamsungHealthData,
-                onDisconnectPressed:
-                    () => _showDisconnectModal(
-                      HealthProvider.samsungHealth.serviceName,
-                    ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Garmin Connect 섹션
-              _buildSyncButton(
-                provider: HealthProvider.garmin,
-                isConnected:
-                    syncState.connectionStatus[HealthProvider.garmin] ?? false,
-                isLoading: syncState.isLoading,
-                onPressed: _requestGarminConnectPermission,
-                onDisconnectPressed:
-                    () =>
-                        _showDisconnectModal(HealthProvider.garmin.serviceName),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Suunto 섹션
-              _buildSyncButton(
-                provider: HealthProvider.suunto,
-                isConnected:
-                    syncState.connectionStatus[HealthProvider.suunto] ?? false,
-                isLoading: syncState.isLoading,
-                onPressed: _requestSuuntoPermission,
-                onDisconnectPressed:
-                    () =>
-                        _showDisconnectModal(HealthProvider.suunto.serviceName),
-              ),
-
-              if (syncState.isLoading) ...<Widget>[
-                const SizedBox(height: 24),
-                const Center(child: AppLoadingIndicator()),
-              ],
-            ],
+            ),
           ),
-        ),
+          // 전체 화면 로딩 오버레이
+          if (syncState.isLoading)
+            Container(
+              color: Colors.black.withValues(alpha: 0.5),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: colors.backgroundElevatedNormal,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      const AppLoadingIndicator(),
+                      const SizedBox(height: 16),
+                      Text(
+                        '헬스 데이터 연동 중...\n최대 1분 정도 소요될 수 있습니다.',
+                        style: AppTextStyles.body2.normalRegular.copyWith(
+                          color: colors.labelNormal,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
