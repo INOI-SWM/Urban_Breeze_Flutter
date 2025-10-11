@@ -89,12 +89,19 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
           properties: <String, dynamic>{'sync_method': 'direct'},
         );
         if (mounted) {
-          showSuccessMessage(context, '$serviceName가 동기화되었습니다.');
+          showSuccessMessage(context, '$serviceName 연동이 시작되었습니다...');
         }
+
+        await Future<void>.delayed(const Duration(seconds: 2));
+
         // 연동 상태 다시 확인
         await ref
             .read(syncScreenNotifierProvider.notifier)
             .checkIntegrationStatus();
+
+        if (mounted) {
+          showSuccessMessage(context, '$serviceName 데이터가 성공적으로 동기화되었습니다! 🎉');
+        }
       } else {
         // 실패 시 예외 타입에 따라 다른 메시지 표시
         final String errorMessage =

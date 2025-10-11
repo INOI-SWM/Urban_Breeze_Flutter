@@ -109,6 +109,9 @@ class SyncScreenNotifier extends StateNotifier<SyncScreenState>
           'workout_sync_apple_health_success',
           properties: <String, dynamic>{'sync_method': 'direct'},
         );
+
+        await Future<void>.delayed(const Duration(seconds: 2));
+
         // 연동 상태 다시 확인
         await checkIntegrationStatus();
       } else {
