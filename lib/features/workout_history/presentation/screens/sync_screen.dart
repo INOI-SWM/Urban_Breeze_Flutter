@@ -10,7 +10,6 @@ import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/core/services/deep_link_service.dart';
 import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
 import 'package:urban_breeze/features/integration/domain/enums/health_provider.dart';
-import 'package:urban_breeze/features/workout_history/application/facades/workout_sync_facade.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/features/workout_history/presentation/notifiers/sync_screen_notifier.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
@@ -344,222 +343,150 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     );
   }
 
-  /// Health Connect 동기화
-  Future<void> _syncHealthConnectData() async {
-    AmplitudeAnalytics.logButtonClick('workout_sync_health_connect');
+  /// Terra 기반 헬스 동기화 (Health Connect, Samsung Health)
+  Future<void> _syncTerraHealthData({
+    required String serviceName,
+    required String buttonEvent,
+    required String dialogTitle,
+    required Future<AppResult<Map<String, dynamic>?>> Function() syncMethod,
+  }) async {
+    AmplitudeAnalytics.logButtonClick(buttonEvent);
 
     // 권한 요청 전 안내 모달 표시
-    await _showHealthConnectPermissionInfoDialog();
-  }
-
-  /// Health Connect 권한 안내 다이얼로그 표시
-  Future<void> _showHealthConnectPermissionInfoDialog() async {
     await _showHealthPermissionDialog(
-      title: 'Google Health Connect 연동',
-      serviceName: 'Health Connect',
-      cancelEvent: 'health_connect_permission_dialog_cancelled',
-      confirmEvent: 'health_connect_permission_dialog_confirmed',
+      title: dialogTitle,
+      serviceName: serviceName,
+      cancelEvent: '${buttonEvent}_permission_dialog_cancelled',
+      confirmEvent: '${buttonEvent}_permission_dialog_confirmed',
       onConfirm: () async {
-        Navigator.of(context).pop();
         await _syncHealthData(
-          serviceName: 'Health Connect',
-          buttonEvent: 'workout_sync_health_connect',
-          successEvent: 'workout_sync_health_connect_success',
-          failedEvent: 'workout_sync_health_connect_failed',
-          syncMethod:
-              () => ref.read(workoutSyncFacadeProvider).syncHealthConnectData(),
+          serviceName: serviceName,
+          buttonEvent: buttonEvent,
+          successEvent: '${buttonEvent}_success',
+          failedEvent: '${buttonEvent}_failed',
+          syncMethod: syncMethod,
         );
       },
+    );
+  }
+
+  /// Health Connect 동기화
+  Future<void> _syncHealthConnectData() async {
+    await _syncTerraHealthData(
+      serviceName: 'Health Connect',
+      buttonEvent: 'workout_sync_health_connect',
+      dialogTitle: 'Google Health Connect 연동',
+      syncMethod:
+          () => ref.read(workoutSyncFacadeProvider).syncHealthConnectData(),
     );
   }
 
   /// Samsung Health 동기화
   Future<void> _syncSamsungHealthData() async {
-    AmplitudeAnalytics.logButtonClick('workout_sync_samsung_health');
-
-    // 권한 요청 전 안내 모달 표시
-    await _showSamsungHealthPermissionInfoDialog();
+    await _syncTerraHealthData(
+      serviceName: 'Samsung Health',
+      buttonEvent: 'workout_sync_samsung_health',
+      dialogTitle: 'Samsung Health 연동',
+      syncMethod:
+          () => ref.read(workoutSyncFacadeProvider).syncSamsungHealthData(),
+    );
   }
 
-  /// Samsung Health 권한 안내 다이얼로그 표시
-  Future<void> _showSamsungHealthPermissionInfoDialog() async {
-    await _showHealthPermissionDialog(
-      title: 'Samsung Health 연동',
-      serviceName: 'Samsung Health',
-      cancelEvent: 'samsung_health_permission_dialog_cancelled',
-      confirmEvent: 'samsung_health_permission_dialog_confirmed',
-      onConfirm: () async {
-        Navigator.of(context).pop();
-        await _syncHealthData(
-          serviceName: 'Samsung Health',
-          buttonEvent: 'workout_sync_samsung_health',
-          successEvent: 'workout_sync_samsung_health_success',
-          failedEvent: 'workout_sync_samsung_health_failed',
-          syncMethod:
-              () => ref.read(workoutSyncFacadeProvider).syncSamsungHealthData(),
+  /// 공통 OAuth 기반 권한 요청 (Garmin, Suunto 등)
+  Future<void> _requestOAuthPermission({
+    required String serviceName,
+    required String buttonEvent,
+    required String successEvent,
+    required String failedEvent,
+    required Future<AppResult<IntegrationAuth>> Function() requestMethod,
+  }) async {
+    AmplitudeAnalytics.logButtonClick(buttonEvent);
+
+    try {
+      final AppResult<IntegrationAuth> result = await requestMethod();
+
+      if (result.isSuccess) {
+        final IntegrationAuth data = result.dataOrNull!;
+        final String authUrl = data.url;
+
+        if (authUrl.isNotEmpty && mounted) {
+          await WebViewNavigation.navigateToWebView(
+            context,
+            url: authUrl,
+            title: '$serviceName 연동',
+            onAuthSuccess: () {
+              AmplitudeAnalytics.logEvent(
+                successEvent,
+                properties: <String, dynamic>{},
+              );
+
+              ref
+                  .read(syncScreenNotifierProvider.notifier)
+                  .checkIntegrationStatus();
+
+              if (mounted) {
+                showSuccessMessage(context, '$serviceName 연동이 완료되었습니다.');
+              }
+            },
+            onAuthFailure: (String? reason) {
+              AmplitudeAnalytics.logEvent(
+                failedEvent,
+                properties: <String, dynamic>{'reason': reason ?? 'unknown'},
+              );
+
+              if (mounted) {
+                showErrorMessage(
+                  context,
+                  '$serviceName 연동에 실패했습니다.\n\n'
+                  '잠시 후 다시 시도해 주세요.\n'
+                  '문제가 지속될 경우 설정 > 문의하기를 통해\n'
+                  '자세한 상황을 알려주시면 빠르게 도와드리겠습니다.',
+                );
+              }
+            },
+          );
+        } else if (mounted) {
+          showErrorMessage(context, '연동 링크를 받을 수 없습니다.');
+        }
+      } else if (mounted) {
+        showErrorMessage(
+          context,
+          '$serviceName 권한 요청 실패: ${result.exceptionOrNull?.message}',
         );
-      },
-    );
+      }
+    } catch (e) {
+      if (mounted) {
+        if (e is PlatformException) {
+          showErrorMessage(context, '지원하지 않는 플랫폼입니다');
+        } else {
+          showErrorMessage(context, '$serviceName 권한 요청 중 오류가 발생했습니다');
+        }
+      }
+    }
   }
 
   /// Garmin Connect 권한 요청
   Future<void> _requestGarminConnectPermission() async {
-    AmplitudeAnalytics.logButtonClick('workout_sync_garmin_connect');
-
-    try {
-      final WorkoutSyncFacade facade = ref.read(workoutSyncFacadeProvider);
-      final AppResult<IntegrationAuth> result =
-          await facade.requestGarminPermission();
-
-      if (result.isSuccess) {
-        final IntegrationAuth data = result.dataOrNull!;
-        final String authUrl = data.url;
-
-        if (authUrl.isNotEmpty) {
-          if (mounted) {
-            await WebViewNavigation.navigateToWebView(
-              context,
-              url: authUrl,
-              title: 'Garmin Connect 연동',
-              onAuthSuccess: () {
-                // Amplitude 이벤트 로깅
-                AmplitudeAnalytics.logEvent(
-                  'garmin_connect_auth_success',
-                  properties: <String, dynamic>{},
-                );
-
-                // 연동 성공 시 상태 업데이트
-                ref
-                    .read(syncScreenNotifierProvider.notifier)
-                    .checkIntegrationStatus();
-
-                // 성공 메시지 표시
-                if (mounted) {
-                  showSuccessMessage(context, 'Garmin Connect 연동이 완료되었습니다.');
-                }
-              },
-              onAuthFailure: (String? reason) {
-                // Amplitude 이벤트 로깅
-                AmplitudeAnalytics.logEvent(
-                  'garmin_connect_auth_failed',
-                  properties: <String, dynamic>{'reason': reason ?? 'unknown'},
-                );
-
-                // 연동 실패 시 안내 메시지 표시
-                if (mounted) {
-                  showErrorMessage(
-                    context,
-                    'Garmin Connect 연동에 실패했습니다.\n\n'
-                    '잠시 후 다시 시도해 주세요.\n'
-                    '문제가 지속될 경우 설정 > 문의하기를 통해\n'
-                    '자세한 상황을 알려주시면 빠르게 도와드리겠습니다.',
-                  );
-                }
-              },
-            );
-          }
-        } else {
-          if (mounted) {
-            showErrorMessage(context, '연동 링크를 받을 수 없습니다.');
-          }
-        }
-      } else {
-        if (mounted) {
-          showErrorMessage(
-            context,
-            'Garmin Connect 권한 요청 실패: ${result.exceptionOrNull?.message}',
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        if (e is PlatformException) {
-          showErrorMessage(context, '지원하지 않는 플랫폼입니다');
-        } else {
-          showErrorMessage(context, 'Garmin Connect 권한 요청 중 오류가 발생했습니다');
-        }
-      }
-    }
+    await _requestOAuthPermission(
+      serviceName: 'Garmin Connect',
+      buttonEvent: 'workout_sync_garmin_connect',
+      successEvent: 'garmin_connect_auth_success',
+      failedEvent: 'garmin_connect_auth_failed',
+      requestMethod:
+          () => ref.read(workoutSyncFacadeProvider).requestGarminPermission(),
+    );
   }
 
   /// Suunto 권한 요청
   Future<void> _requestSuuntoPermission() async {
-    AmplitudeAnalytics.logButtonClick('workout_sync_suunto');
-
-    try {
-      final WorkoutSyncFacade facade = ref.read(workoutSyncFacadeProvider);
-      final AppResult<IntegrationAuth> result =
-          await facade.requestSuuntoPermission();
-
-      if (result.isSuccess) {
-        final IntegrationAuth data = result.dataOrNull!;
-        final String authUrl = data.url;
-
-        if (authUrl.isNotEmpty) {
-          if (mounted) {
-            await WebViewNavigation.navigateToWebView(
-              context,
-              url: authUrl,
-              title: 'Suunto 연동',
-              onAuthSuccess: () {
-                // Amplitude 이벤트 로깅
-                AmplitudeAnalytics.logEvent(
-                  'suunto_auth_success',
-                  properties: <String, dynamic>{},
-                );
-
-                // 연동 성공 시 상태 업데이트
-                ref
-                    .read(syncScreenNotifierProvider.notifier)
-                    .checkIntegrationStatus();
-
-                // 성공 메시지 표시
-                if (mounted) {
-                  showSuccessMessage(context, 'Suunto 연동이 완료되었습니다.');
-                }
-              },
-              onAuthFailure: (String? reason) {
-                // Amplitude 이벤트 로깅
-                AmplitudeAnalytics.logEvent(
-                  'suunto_auth_failed',
-                  properties: <String, dynamic>{'reason': reason ?? 'unknown'},
-                );
-
-                // 연동 실패 시 안내 메시지 표시
-                if (mounted) {
-                  showErrorMessage(
-                    context,
-                    'Suunto 연동에 실패했습니다.\n\n'
-                    '잠시 후 다시 시도해 주세요.\n'
-                    '문제가 지속될 경우 설정 > 문의하기를 통해\n'
-                    '자세한 상황을 알려주시면 빠르게 도와드리겠습니다.',
-                  );
-                }
-              },
-            );
-          }
-        } else {
-          if (mounted) {
-            showErrorMessage(context, '연동 링크를 받을 수 없습니다.');
-          }
-        }
-      } else {
-        if (mounted) {
-          showErrorMessage(
-            context,
-            'Suunto 권한 요청 실패: ${result.exceptionOrNull?.message}',
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        if (e is PlatformException) {
-          showErrorMessage(context, '지원하지 않는 플랫폼입니다');
-        } else {
-          showErrorMessage(context, 'Suunto 권한 요청 중 오류가 발생했습니다');
-        }
-      }
-    }
+    await _requestOAuthPermission(
+      serviceName: 'Suunto',
+      buttonEvent: 'workout_sync_suunto',
+      successEvent: 'suunto_auth_success',
+      failedEvent: 'suunto_auth_failed',
+      requestMethod:
+          () => ref.read(workoutSyncFacadeProvider).requestSuuntoPermission(),
+    );
   }
 
   @override
