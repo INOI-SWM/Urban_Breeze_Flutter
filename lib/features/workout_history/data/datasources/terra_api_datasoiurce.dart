@@ -56,6 +56,7 @@ class TerraApiDataSource extends BaseRemoteDataSource {
     ];
     final bool schedulerOn = false; // 백그라운드 자동 수집 비활성화 (명시적 동기화만 사용)
 
+    // 1. 권한 요청 (Terra SDK)
     final SuccessMessage? result = await TerraFlutter.initConnection(
       connection,
       token,
@@ -63,10 +64,35 @@ class TerraApiDataSource extends BaseRemoteDataSource {
       customPermissions,
     );
 
+    debugPrint('initConnection result: $result');
+
     // 에러 체크
-    if (result?.error != null) {
+    if (result?.error != null && result?.error != '') {
       throw Exception(result?.error);
     }
+
+    // 2. 실제 승인된 권한 확인
+    final Set<String> grantedPermissions =
+        await TerraFlutter.getGivenPermissions();
+    debugPrint('Granted permissions: $grantedPermissions');
+
+    // 3. 필요한 권한이 하나라도 승인되었는지 확인
+    final List<String> requiredPermissionStrings =
+        customPermissions
+            .map((CustomPermission p) => p.customPermissionString)
+            .toList();
+
+    final bool hasAnyPermission = requiredPermissionStrings.any(
+      (String required) => grantedPermissions.contains(required),
+    );
+
+    if (!hasAnyPermission) {
+      throw Exception('권한이 승인되지 않았습니다. 헬스 앱에서 필요한 권한을 허용해주세요.');
+    }
+
+    debugPrint(
+      'Permission check passed. Granted count: ${grantedPermissions.length}',
+    );
   }
 
   // 서버를 통해 Terra API 인증 토큰 생성
