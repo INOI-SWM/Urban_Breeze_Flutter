@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -162,6 +163,13 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
   /// Apple Health Kit 동기화
   Future<void> _syncAppleHealthKit() async {
+    // 플랫폼 체크 (iOS 전용)
+    if (!Platform.isIOS) {
+      showErrorMessage(context, 'Apple Health는 iOS 전용 기능입니다.');
+      AmplitudeAnalytics.logEvent('apple_health_wrong_platform_clicked');
+      return;
+    }
+
     AmplitudeAnalytics.logButtonClick('workout_sync_apple_health');
 
     // 권한 요청 전 안내 모달 표시
@@ -369,6 +377,13 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     required String dialogTitle,
     required Future<AppResult<void>> Function() syncMethod,
   }) async {
+    // 플랫폼 체크 (Android 전용)
+    if (!Platform.isAndroid) {
+      showErrorMessage(context, '$serviceName는 Android 전용 기능입니다.');
+      AmplitudeAnalytics.logEvent('${buttonEvent}_wrong_platform_clicked');
+      return;
+    }
+
     AmplitudeAnalytics.logButtonClick(buttonEvent);
 
     // 권한 요청 전 안내 모달 표시
@@ -554,7 +569,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  // Apple Health Kit 섹션
+                  // Apple Health Kit 섹션 (iOS 전용)
                   _buildSyncButton(
                     provider: HealthProvider.appleHealthKit,
                     isConnected:
@@ -574,7 +589,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
                   const SizedBox(height: 16),
 
-                  // Google Health Connect 섹션
+                  // Google Health Connect 섹션 (Android 전용)
                   _buildSyncButton(
                     provider: HealthProvider.healthConnect,
                     isConnected:
@@ -593,7 +608,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
                   const SizedBox(height: 16),
 
-                  // Samsung Health 섹션
+                  // Samsung Health 섹션 (Android 전용)
                   _buildSyncButton(
                     provider: HealthProvider.samsungHealth,
                     isConnected:
