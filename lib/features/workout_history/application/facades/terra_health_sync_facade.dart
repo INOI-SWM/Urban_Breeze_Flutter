@@ -4,6 +4,7 @@ import 'package:urban_breeze/core/exceptions/integration_exceptions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/connect_terra_health_app_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/initialize_terra_use_case.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/sync_google_health_connect_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_terra_health_data_use_case.dart';
 
 class TerraHealthSyncFacade {
@@ -11,18 +12,43 @@ class TerraHealthSyncFacade {
     required this.initializeTerraUseCase,
     required this.connectTerraHealthAppUseCase,
     required this.syncTerraHealthDataUseCase,
+    required this.syncGoogleHealthConnectDataUseCase,
   });
 
   final InitializeTerraUseCase initializeTerraUseCase;
   final ConnectTerraHealthAppUseCase connectTerraHealthAppUseCase;
   final SyncTerraHealthDataUseCase syncTerraHealthDataUseCase;
+  final SyncGoogleHealthConnectDataUseCase syncGoogleHealthConnectDataUseCase;
 
-  /// Terra 헬스 앱 연결 (초기화 + 연결만, 데이터 가져오기 제외)
+  /// Terra 헬스 앱 연결 (초기화 + 우리가 직접 권한 관리)
   Future<AppResult<void>> connectHealthApp({
     required Connection connection,
   }) async {
     try {
-      // 1. Terra 초기화
+      // 1. Health Connect만 우리가 직접 권한 관리
+      if (connection == Connection.healthConnect) {
+        // 1-1. 권한 확인
+        final bool hasPermission =
+            await syncGoogleHealthConnectDataUseCase.checkPermissions();
+
+        if (!hasPermission) {
+          // 1-2. 권한 요청
+          final bool granted =
+              await syncGoogleHealthConnectDataUseCase.requestPermissions();
+
+          if (!granted) {
+            AmplitudeAnalytics.logEvent(
+              'health_connect_permission_denied',
+              properties: <String, dynamic>{'connection': connection.name},
+            );
+            return const AppFailure<void>(
+              IntegrationException('Health Connect 권한이 거부되었습니다.'),
+            );
+          }
+        }
+      }
+
+      // 2. Terra 초기화
       final AppResult<void> initResult = await initializeTerraUseCase.execute();
       if (!initResult.isSuccess) {
         AmplitudeAnalytics.logEvent(
@@ -36,7 +62,7 @@ class TerraHealthSyncFacade {
         return AppFailure<void>(initResult.exceptionOrNull!);
       }
 
-      // 2. 건강 앱 연결 (권한 요청)
+      // 3. Terra SDK 연결 (권한은 이미 우리가 처리함)
       final AppResult<void> connectResult = await connectTerraHealthAppUseCase
           .execute(connection);
       if (!connectResult.isSuccess) {

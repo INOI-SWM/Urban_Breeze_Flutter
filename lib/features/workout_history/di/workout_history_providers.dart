@@ -281,23 +281,28 @@ importAppleHealthWorkoutsUseCaseProvider =
     });
 
 // Terra Facade Provider
-final Provider<TerraHealthSyncFacade> terraHealthSyncFacadeProvider =
-    Provider<TerraHealthSyncFacade>((Ref<TerraHealthSyncFacade> ref) {
-      final InitializeTerraUseCase initializeTerraUseCase = ref.watch(
-        initializeTerraUseCaseProvider,
-      );
-      final ConnectTerraHealthAppUseCase connectTerraHealthAppUseCase = ref
-          .watch(connectTerraHealthAppUseCaseProvider);
-      final SyncTerraHealthDataUseCase syncTerraHealthDataUseCase = ref.watch(
-        syncTerraHealthDataUseCaseProvider,
-      );
+final Provider<TerraHealthSyncFacade> terraHealthSyncFacadeProvider = Provider<
+  TerraHealthSyncFacade
+>((Ref<TerraHealthSyncFacade> ref) {
+  final InitializeTerraUseCase initializeTerraUseCase = ref.watch(
+    initializeTerraUseCaseProvider,
+  );
+  final ConnectTerraHealthAppUseCase connectTerraHealthAppUseCase = ref.watch(
+    connectTerraHealthAppUseCaseProvider,
+  );
+  final SyncTerraHealthDataUseCase syncTerraHealthDataUseCase = ref.watch(
+    syncTerraHealthDataUseCaseProvider,
+  );
+  final SyncGoogleHealthConnectDataUseCase syncGoogleHealthConnectDataUseCase =
+      ref.watch(syncGoogleHealthConnectDataUseCaseProvider);
 
-      return TerraHealthSyncFacade(
-        initializeTerraUseCase: initializeTerraUseCase,
-        connectTerraHealthAppUseCase: connectTerraHealthAppUseCase,
-        syncTerraHealthDataUseCase: syncTerraHealthDataUseCase,
-      );
-    });
+  return TerraHealthSyncFacade(
+    initializeTerraUseCase: initializeTerraUseCase,
+    connectTerraHealthAppUseCase: connectTerraHealthAppUseCase,
+    syncTerraHealthDataUseCase: syncTerraHealthDataUseCase,
+    syncGoogleHealthConnectDataUseCase: syncGoogleHealthConnectDataUseCase,
+  );
+});
 
 // Workout Sync Facade Provider (통합 Facade)
 final Provider<WorkoutSyncFacade>
