@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:terra_flutter_bridge/models/enums.dart';
@@ -64,8 +63,6 @@ class TerraApiDataSource extends BaseRemoteDataSource {
       customPermissions,
     );
 
-    debugPrint('initConnection result: $result');
-
     // 에러 체크
     if (result?.error != null && result?.error != '') {
       throw Exception(result?.error);
@@ -74,25 +71,25 @@ class TerraApiDataSource extends BaseRemoteDataSource {
     // 2. 실제 승인된 권한 확인
     final Set<String> grantedPermissions =
         await TerraFlutter.getGivenPermissions();
-    debugPrint('Granted permissions: $grantedPermissions');
 
     // 3. 필요한 권한이 하나라도 승인되었는지 확인
+    // getGivenPermissions()는 "READ_XXX" 형식, customPermissionString은 "XXX" 형식
     final List<String> requiredPermissionStrings =
         customPermissions
             .map((CustomPermission p) => p.customPermissionString)
             .toList();
 
-    final bool hasAnyPermission = requiredPermissionStrings.any(
-      (String required) => grantedPermissions.contains(required),
-    );
+    final bool hasAnyPermission = requiredPermissionStrings.any((
+      String required,
+    ) {
+      // "HEART_RATE"와 "READ_HEART_RATE" 매칭을 위해 두 가지 형식 모두 확인
+      return grantedPermissions.contains(required) ||
+          grantedPermissions.contains('READ_$required');
+    });
 
     if (!hasAnyPermission) {
       throw Exception('권한이 승인되지 않았습니다. 헬스 앱에서 필요한 권한을 허용해주세요.');
     }
-
-    debugPrint(
-      'Permission check passed. Granted count: ${grantedPermissions.length}',
-    );
   }
 
   // 서버를 통해 Terra API 인증 토큰 생성
@@ -126,10 +123,9 @@ class TerraApiDataSource extends BaseRemoteDataSource {
       toWebhook: toWebhook,
     );
 
-    if (result?.error != null) {
+    if (result?.error != null && result?.error != '') {
       throw Exception(result?.error);
     }
-    debugPrint(result?.data.toString());
 
     return result?.data;
   }

@@ -70,86 +70,36 @@ class TerraHealthSyncFacade {
     }
   }
 
-  /// Terra를 통한 건강 데이터 가져오기 (초기화 + 연결 + 동기화)
-  Future<AppResult<Map<String, dynamic>?>> syncHealthDataFromTerra({
+  /// Terra 헬스 앱 연결 + 데이터 가져오기 (전체 플로우, 처음 연동 시 사용)
+  Future<AppResult<Map<String, dynamic>?>> connectAndFetchHealthData({
     required Connection connection,
-    required DateTime startDate,
-    required DateTime endDate,
+    DateTime? startDate,
+    DateTime? endDate,
     bool toWebhook = true,
   }) async {
     try {
-      // 1. Terra 초기화
-      final AppResult<void> initResult = await initializeTerraUseCase.execute();
-      if (!initResult.isSuccess) {
-        // Terra 초기화 실패 이벤트
-        AmplitudeAnalytics.logEvent(
-          'terra_initialization_failed',
-          properties: <String, dynamic>{
-            'connection': connection.name,
-            'error_message':
-                initResult.exceptionOrNull?.toString() ?? 'Unknown error',
-          },
-        );
-        return AppFailure<Map<String, dynamic>?>(initResult.exceptionOrNull!);
-      }
-
-      // 2. 건강 앱 연결
-      final AppResult<void> connectResult = await connectTerraHealthAppUseCase
-          .execute(connection);
+      // 1. 연결 (초기화 + 권한 요청)
+      final AppResult<void> connectResult = await connectHealthApp(
+        connection: connection,
+      );
       if (!connectResult.isSuccess) {
-        // 건강 앱 연결 실패 이벤트
-        AmplitudeAnalytics.logEvent(
-          'terra_health_app_connection_failed',
-          properties: <String, dynamic>{
-            'connection': connection.name,
-            'error_message':
-                connectResult.exceptionOrNull?.toString() ?? 'Unknown error',
-          },
-        );
         return AppFailure<Map<String, dynamic>?>(
           connectResult.exceptionOrNull!,
         );
       }
 
-      // 3. 데이터 동기화
-      final AppResult<Map<String, dynamic>?> syncResult =
-          await syncTerraHealthDataUseCase.execute(
-            connection: connection,
-            startDate: startDate,
-            endDate: endDate,
-            toWebhook: toWebhook,
-          );
-
-      if (syncResult.isSuccess) {
-        // Terra 동기화 성공 이벤트
-        AmplitudeAnalytics.logEvent(
-          'terra_sync_success',
-          properties: <String, dynamic>{
-            'connection': connection.name,
-            'to_webhook': toWebhook,
-          },
-        );
-      } else {
-        // Terra 동기화 실패 이벤트
-        AmplitudeAnalytics.logEvent(
-          'terra_sync_failed',
-          properties: <String, dynamic>{
-            'connection': connection.name,
-            'to_webhook': toWebhook,
-            'error_message':
-                syncResult.exceptionOrNull?.toString() ?? 'Unknown error',
-          },
-        );
-      }
-
-      return syncResult;
+      // 2. 데이터 가져오기
+      return await getHealthData(
+        connection: connection,
+        startDate: startDate,
+        endDate: endDate,
+        toWebhook: toWebhook,
+      );
     } catch (e) {
-      // Terra 동기화 예외 이벤트
       AmplitudeAnalytics.logEvent(
-        'terra_sync_exception',
+        'terra_connect_and_fetch_exception',
         properties: <String, dynamic>{
           'connection': connection.name,
-          'to_webhook': toWebhook,
           'error_message': e.toString(),
         },
       );
@@ -159,26 +109,9 @@ class TerraHealthSyncFacade {
     }
   }
 
-  /// Health Connect 연결 (초기화 + 권한 요청만)
-  Future<AppResult<void>> syncHealthConnectData({
-    DateTime? startDate,
-    DateTime? endDate,
-    bool toWebhook = true,
-  }) async {
-    return connectHealthApp(connection: Connection.healthConnect);
-  }
-
-  /// Samsung Health 연결 (초기화 + 권한 요청만)
-  Future<AppResult<void>> syncSamsungHealthData({
-    DateTime? startDate,
-    DateTime? endDate,
-    bool toWebhook = true,
-  }) async {
-    return connectHealthApp(connection: Connection.samsung);
-  }
-
-  /// Health Connect 데이터 가져오기 (이미 연동된 상태에서만 사용)
-  Future<AppResult<Map<String, dynamic>?>> getHealthConnectData({
+  /// Terra 헬스 데이터 가져오기 (이미 연동된 상태에서만 사용)
+  Future<AppResult<Map<String, dynamic>?>> getHealthData({
+    required Connection connection,
     DateTime? startDate,
     DateTime? endDate,
     bool toWebhook = true,
@@ -186,7 +119,7 @@ class TerraHealthSyncFacade {
     try {
       final AppResult<Map<String, dynamic>?> result =
           await syncTerraHealthDataUseCase.execute(
-            connection: Connection.healthConnect,
+            connection: connection,
             startDate:
                 startDate ?? DateTime.now().subtract(const Duration(days: 30)),
             endDate: endDate ?? DateTime.now(),
@@ -196,38 +129,7 @@ class TerraHealthSyncFacade {
       if (result.isSuccess) {
         AmplitudeAnalytics.logEvent(
           'terra_data_fetch_success',
-          properties: <String, dynamic>{'connection': 'healthConnect'},
-        );
-      }
-
-      return result;
-    } catch (e) {
-      return AppFailure<Map<String, dynamic>?>(
-        IntegrationException(e.toString()),
-      );
-    }
-  }
-
-  /// Samsung Health 데이터 가져오기 (이미 연동된 상태에서만 사용)
-  Future<AppResult<Map<String, dynamic>?>> getSamsungHealthData({
-    DateTime? startDate,
-    DateTime? endDate,
-    bool toWebhook = true,
-  }) async {
-    try {
-      final AppResult<Map<String, dynamic>?> result =
-          await syncTerraHealthDataUseCase.execute(
-            connection: Connection.samsung,
-            startDate:
-                startDate ?? DateTime.now().subtract(const Duration(days: 30)),
-            endDate: endDate ?? DateTime.now(),
-            toWebhook: toWebhook,
-          );
-
-      if (result.isSuccess) {
-        AmplitudeAnalytics.logEvent(
-          'terra_data_fetch_success',
-          properties: <String, dynamic>{'connection': 'samsung'},
+          properties: <String, dynamic>{'connection': connection.name},
         );
       }
 

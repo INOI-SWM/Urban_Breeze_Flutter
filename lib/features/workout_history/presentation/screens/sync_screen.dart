@@ -112,6 +112,9 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
           properties: <String, dynamic>{'error_message': errorMessage},
         );
 
+        // 권한 다이얼로그가 닫히는 애니메이션 대기 (500ms)
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+
         if (mounted) {
           // iOS에서 Health Connect나 Samsung Health 사용 시 플랫폼 체크
           if (result.exceptionOrNull is PlatformException) {
@@ -123,6 +126,8 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
         }
       }
     } finally {
+      // 로딩 상태 해제도 약간 딜레이 (에러 메시지와 겹치지 않도록)
+      await Future<void>.delayed(const Duration(milliseconds: 300));
       ref
           .read(syncScreenNotifierProvider.notifier)
           .setServiceLoading(provider, false);
