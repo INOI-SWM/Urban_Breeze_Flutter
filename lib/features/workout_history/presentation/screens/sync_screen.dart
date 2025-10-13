@@ -64,14 +64,14 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     ref.read(syncScreenNotifierProvider.notifier).checkIntegrationStatus();
   }
 
-  /// 공통 헬스 데이터 동기화 메서드
+  /// 공통 헬스 앱 연결 메서드
   Future<void> _syncHealthData({
     required HealthProvider provider,
     required String serviceName,
     required String buttonEvent,
     required String successEvent,
     required String failedEvent,
-    required Future<AppResult<Map<String, dynamic>?>> Function() syncMethod,
+    required Future<AppResult<void>> Function() syncMethod,
   }) async {
     AmplitudeAnalytics.logButtonClick(buttonEvent);
 
@@ -81,15 +81,15 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
         .setServiceLoading(provider, true);
 
     try {
-      final AppResult<Map<String, dynamic>?> result = await syncMethod();
+      final AppResult<void> result = await syncMethod();
 
       if (result.isSuccess) {
         AmplitudeAnalytics.logEvent(
           successEvent,
-          properties: <String, dynamic>{'sync_method': 'direct'},
+          properties: <String, dynamic>{'sync_method': 'connect_only'},
         );
         if (mounted) {
-          showSuccessMessage(context, '$serviceName 연동이 시작되었습니다...');
+          showSuccessMessage(context, '$serviceName 연결이 완료되었습니다...');
         }
 
         await Future<void>.delayed(const Duration(seconds: 2));
@@ -100,7 +100,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
             .checkIntegrationStatus();
 
         if (mounted) {
-          showSuccessMessage(context, '$serviceName 데이터가 성공적으로 동기화되었습니다! 🎉');
+          showSuccessMessage(context, '$serviceName 연동이 완료되었습니다! 🎉');
         }
       } else {
         // 실패 시 예외 타입에 따라 다른 메시지 표시
@@ -118,10 +118,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
               result.exceptionOrNull is IntegrationException) {
             showErrorMessage(context, '지원하지 않는 플랫폼입니다');
           } else {
-            showErrorMessage(
-              context,
-              '$serviceName 데이터 가져오기 실패: $errorMessage',
-            );
+            showErrorMessage(context, '$serviceName 연결 실패: $errorMessage');
           }
         }
       }
@@ -365,13 +362,13 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     );
   }
 
-  /// Terra 기반 헬스 동기화 (Health Connect, Samsung Health)
+  /// Terra 기반 헬스 연결 (Health Connect, Samsung Health)
   Future<void> _syncTerraHealthData({
     required HealthProvider provider,
     required String serviceName,
     required String buttonEvent,
     required String dialogTitle,
-    required Future<AppResult<Map<String, dynamic>?>> Function() syncMethod,
+    required Future<AppResult<void>> Function() syncMethod,
   }) async {
     AmplitudeAnalytics.logButtonClick(buttonEvent);
 

@@ -54,7 +54,7 @@ class TerraApiDataSource extends BaseRemoteDataSource {
       CustomPermission.speed, // 속도
       CustomPermission.activeDurations, // 운동 시간
     ];
-    final bool schedulerOn = true;
+    final bool schedulerOn = false; // 백그라운드 자동 수집 비활성화 (명시적 동기화만 사용)
 
     final SuccessMessage? result = await TerraFlutter.initConnection(
       connection,

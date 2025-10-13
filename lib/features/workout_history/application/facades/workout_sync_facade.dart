@@ -166,26 +166,44 @@ class WorkoutSyncFacade {
     }
   }
 
-  /// Health Connect에서 데이터 가져오기
-  Future<AppResult<Map<String, dynamic>?>> syncHealthConnectData({
+  /// Health Connect 연결 (초기화 + 권한 요청만, 데이터 가져오기 제외)
+  Future<AppResult<void>> syncHealthConnectData({
     DateTime? startDate,
     DateTime? endDate,
     bool toWebhook = true,
   }) async {
-    return terraHealthSyncFacade.syncHealthConnectData(
+    return terraHealthSyncFacade.syncHealthConnectData();
+  }
+
+  /// Samsung Health 연결 (초기화 + 권한 요청만, 데이터 가져오기 제외)
+  Future<AppResult<void>> syncSamsungHealthData({
+    DateTime? startDate,
+    DateTime? endDate,
+    bool toWebhook = true,
+  }) async {
+    return terraHealthSyncFacade.syncSamsungHealthData();
+  }
+
+  /// Health Connect 데이터 가져오기 (이미 연동된 상태에서만 사용)
+  Future<AppResult<Map<String, dynamic>?>> fetchHealthConnectData({
+    DateTime? startDate,
+    DateTime? endDate,
+    bool toWebhook = true,
+  }) async {
+    return terraHealthSyncFacade.getHealthConnectData(
       startDate: startDate,
       endDate: endDate,
       toWebhook: toWebhook,
     );
   }
 
-  /// Samsung Health에서 데이터 가져오기
-  Future<AppResult<Map<String, dynamic>?>> syncSamsungHealthData({
+  /// Samsung Health 데이터 가져오기 (이미 연동된 상태에서만 사용)
+  Future<AppResult<Map<String, dynamic>?>> fetchSamsungHealthData({
     DateTime? startDate,
     DateTime? endDate,
     bool toWebhook = true,
   }) async {
-    return terraHealthSyncFacade.syncSamsungHealthData(
+    return terraHealthSyncFacade.getSamsungHealthData(
       startDate: startDate,
       endDate: endDate,
       toWebhook: toWebhook,
