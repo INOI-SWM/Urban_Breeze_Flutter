@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:terra_flutter_bridge/models/enums.dart';
@@ -32,8 +31,12 @@ class TerraApiDataSource extends BaseRemoteDataSource {
       referenceId,
     );
 
-    if (result?.error != null) {
+    if (result?.error != '' && result?.error != null) {
       throw Exception(result?.error);
+    }
+
+    if (result == null || result.success != true) {
+      throw Exception('Terra 초기화에 실패했습니다.');
     }
   }
 
@@ -50,8 +53,9 @@ class TerraApiDataSource extends BaseRemoteDataSource {
       CustomPermission.speed, // 속도
       CustomPermission.activeDurations, // 운동 시간
     ];
-    final bool schedulerOn = true;
+    final bool schedulerOn = false; // 백그라운드 자동 수집 비활성화 (명시적 동기화만 사용)
 
+    // 1. 권한 요청 (Terra SDK)
     final SuccessMessage? result = await TerraFlutter.initConnection(
       connection,
       token,
@@ -59,8 +63,32 @@ class TerraApiDataSource extends BaseRemoteDataSource {
       customPermissions,
     );
 
-    if (result?.error != null) {
+    // 에러 체크
+    if (result?.error != null && result?.error != '') {
       throw Exception(result?.error);
+    }
+
+    // 2. 실제 승인된 권한 확인
+    final Set<String> grantedPermissions =
+        await TerraFlutter.getGivenPermissions();
+
+    // 3. 필요한 권한이 하나라도 승인되었는지 확인
+    // getGivenPermissions()는 "READ_XXX" 형식, customPermissionString은 "XXX" 형식
+    final List<String> requiredPermissionStrings =
+        customPermissions
+            .map((CustomPermission p) => p.customPermissionString)
+            .toList();
+
+    final bool hasAnyPermission = requiredPermissionStrings.any((
+      String required,
+    ) {
+      // "HEART_RATE"와 "READ_HEART_RATE" 매칭을 위해 두 가지 형식 모두 확인
+      return grantedPermissions.contains(required) ||
+          grantedPermissions.contains('READ_$required');
+    });
+
+    if (!hasAnyPermission) {
+      throw Exception('권한이 승인되지 않았습니다. 헬스 앱에서 필요한 권한을 허용해주세요.');
     }
   }
 
@@ -95,10 +123,9 @@ class TerraApiDataSource extends BaseRemoteDataSource {
       toWebhook: toWebhook,
     );
 
-    if (result?.error != null) {
+    if (result?.error != null && result?.error != '') {
       throw Exception(result?.error);
     }
-    debugPrint(result?.data.toString());
 
     return result?.data;
   }

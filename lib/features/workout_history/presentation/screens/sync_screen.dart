@@ -1,16 +1,15 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
-import 'package:urban_breeze/core/exceptions/integration_exceptions.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/core/services/deep_link_service.dart';
 import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
 import 'package:urban_breeze/features/integration/domain/enums/health_provider.dart';
-import 'package:urban_breeze/features/workout_history/application/facades/workout_sync_facade.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/features/workout_history/presentation/notifiers/sync_screen_notifier.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
@@ -65,49 +64,73 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     ref.read(syncScreenNotifierProvider.notifier).checkIntegrationStatus();
   }
 
-  /// 공통 헬스 데이터 동기화 메서드
+  /// 공통 헬스 앱 연결 메서드
   Future<void> _syncHealthData({
+    required HealthProvider provider,
     required String serviceName,
     required String buttonEvent,
     required String successEvent,
     required String failedEvent,
-    required Future<AppResult<Map<String, dynamic>?>> Function() syncMethod,
+    required Future<AppResult<void>> Function() syncMethod,
   }) async {
     AmplitudeAnalytics.logButtonClick(buttonEvent);
 
-    setState(() {
-      // 로딩 상태는 notifier에서 관리
-    });
+    // 서비스별 로딩 상태 표시
+    ref
+        .read(syncScreenNotifierProvider.notifier)
+        .setServiceLoading(provider, true);
 
-    final AppResult<Map<String, dynamic>?> result = await syncMethod();
+    try {
+      final AppResult<void> result = await syncMethod();
 
-    if (result.isSuccess) {
-      AmplitudeAnalytics.logEvent(
-        successEvent,
-        properties: <String, dynamic>{'sync_method': 'direct'},
-      );
-      if (mounted) {
-        showSuccessMessage(context, '$serviceName 데이터가 동기화되었습니다.');
-      }
-    } else {
-      // 실패 시 예외 타입에 따라 다른 메시지 표시
-      final String errorMessage =
-          result.exceptionOrNull?.message ?? 'Unknown error';
+      if (result.isSuccess) {
+        AmplitudeAnalytics.logEvent(
+          successEvent,
+          properties: <String, dynamic>{'sync_method': 'connect_only'},
+        );
+        if (mounted) {
+          showSuccessMessage(context, '$serviceName 연결이 완료되었습니다...');
+        }
 
-      AmplitudeAnalytics.logEvent(
-        failedEvent,
-        properties: <String, dynamic>{'error_message': errorMessage},
-      );
+        await Future<void>.delayed(const Duration(seconds: 2));
 
-      if (mounted) {
-        // iOS에서 Health Connect나 Samsung Health 사용 시 지원하지 않는 플랫폼 메시지 표시
-        if (result.exceptionOrNull is PlatformException ||
-            result.exceptionOrNull is IntegrationException) {
-          showErrorMessage(context, '지원하지 않는 플랫폼입니다');
-        } else {
-          showErrorMessage(context, '$serviceName 데이터 가져오기 실패: $errorMessage');
+        // 연동 상태 다시 확인
+        await ref
+            .read(syncScreenNotifierProvider.notifier)
+            .checkIntegrationStatus();
+
+        if (mounted) {
+          showSuccessMessage(context, '$serviceName 연동이 완료되었습니다! 🎉');
+        }
+      } else {
+        // 실패 시 예외 타입에 따라 다른 메시지 표시
+        final String errorMessage =
+            result.exceptionOrNull?.message ?? 'Unknown error';
+
+        AmplitudeAnalytics.logEvent(
+          failedEvent,
+          properties: <String, dynamic>{'error_message': errorMessage},
+        );
+
+        // 권한 다이얼로그가 닫히는 애니메이션 대기 (500ms)
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+
+        if (mounted) {
+          // iOS에서 Health Connect나 Samsung Health 사용 시 플랫폼 체크
+          if (result.exceptionOrNull is PlatformException) {
+            showErrorMessage(context, '지원하지 않는 플랫폼입니다');
+          } else {
+            // Terra SDK의 실제 에러 메시지 표시
+            showErrorMessage(context, '연동에 실패했습니다.');
+          }
         }
       }
+    } finally {
+      // 로딩 상태 해제도 약간 딜레이 (에러 메시지와 겹치지 않도록)
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      ref
+          .read(syncScreenNotifierProvider.notifier)
+          .setServiceLoading(provider, false);
     }
   }
 
@@ -145,6 +168,13 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
   /// Apple Health Kit 동기화
   Future<void> _syncAppleHealthKit() async {
+    // 플랫폼 체크 (iOS 전용)
+    if (!Platform.isIOS) {
+      showErrorMessage(context, 'Apple Health는 iOS 전용 기능입니다.');
+      AmplitudeAnalytics.logEvent('apple_health_wrong_platform_clicked');
+      return;
+    }
+
     AmplitudeAnalytics.logButtonClick('workout_sync_apple_health');
 
     // 권한 요청 전 안내 모달 표시
@@ -344,222 +374,161 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     );
   }
 
-  /// Health Connect 동기화
-  Future<void> _syncHealthConnectData() async {
-    AmplitudeAnalytics.logButtonClick('workout_sync_health_connect');
+  /// Terra 기반 헬스 연결 (Health Connect, Samsung Health)
+  Future<void> _syncTerraHealthData({
+    required HealthProvider provider,
+    required String serviceName,
+    required String buttonEvent,
+    required String dialogTitle,
+    required Future<AppResult<void>> Function() syncMethod,
+  }) async {
+    // 플랫폼 체크 (Android 전용)
+    if (!Platform.isAndroid) {
+      showErrorMessage(context, '$serviceName는 Android 전용 기능입니다.');
+      AmplitudeAnalytics.logEvent('${buttonEvent}_wrong_platform_clicked');
+      return;
+    }
+
+    AmplitudeAnalytics.logButtonClick(buttonEvent);
 
     // 권한 요청 전 안내 모달 표시
-    await _showHealthConnectPermissionInfoDialog();
-  }
-
-  /// Health Connect 권한 안내 다이얼로그 표시
-  Future<void> _showHealthConnectPermissionInfoDialog() async {
     await _showHealthPermissionDialog(
-      title: 'Google Health Connect 연동',
-      serviceName: 'Health Connect',
-      cancelEvent: 'health_connect_permission_dialog_cancelled',
-      confirmEvent: 'health_connect_permission_dialog_confirmed',
+      title: dialogTitle,
+      serviceName: serviceName,
+      cancelEvent: '${buttonEvent}_permission_dialog_cancelled',
+      confirmEvent: '${buttonEvent}_permission_dialog_confirmed',
       onConfirm: () async {
-        Navigator.of(context).pop();
         await _syncHealthData(
-          serviceName: 'Health Connect',
-          buttonEvent: 'workout_sync_health_connect',
-          successEvent: 'workout_sync_health_connect_success',
-          failedEvent: 'workout_sync_health_connect_failed',
-          syncMethod:
-              () => ref.read(workoutSyncFacadeProvider).syncHealthConnectData(),
+          provider: provider,
+          serviceName: serviceName,
+          buttonEvent: buttonEvent,
+          successEvent: '${buttonEvent}_success',
+          failedEvent: '${buttonEvent}_failed',
+          syncMethod: syncMethod,
         );
       },
+    );
+  }
+
+  /// Health Connect 동기화
+  Future<void> _syncHealthConnectData() async {
+    await _syncTerraHealthData(
+      provider: HealthProvider.healthConnect,
+      serviceName: 'Health Connect',
+      buttonEvent: 'workout_sync_health_connect',
+      dialogTitle: 'Google Health Connect 연동',
+      syncMethod:
+          () => ref.read(workoutSyncFacadeProvider).syncHealthConnectData(),
     );
   }
 
   /// Samsung Health 동기화
   Future<void> _syncSamsungHealthData() async {
-    AmplitudeAnalytics.logButtonClick('workout_sync_samsung_health');
-
-    // 권한 요청 전 안내 모달 표시
-    await _showSamsungHealthPermissionInfoDialog();
+    await _syncTerraHealthData(
+      provider: HealthProvider.samsungHealth,
+      serviceName: 'Samsung Health',
+      buttonEvent: 'workout_sync_samsung_health',
+      dialogTitle: 'Samsung Health 연동',
+      syncMethod:
+          () => ref.read(workoutSyncFacadeProvider).syncSamsungHealthData(),
+    );
   }
 
-  /// Samsung Health 권한 안내 다이얼로그 표시
-  Future<void> _showSamsungHealthPermissionInfoDialog() async {
-    await _showHealthPermissionDialog(
-      title: 'Samsung Health 연동',
-      serviceName: 'Samsung Health',
-      cancelEvent: 'samsung_health_permission_dialog_cancelled',
-      confirmEvent: 'samsung_health_permission_dialog_confirmed',
-      onConfirm: () async {
-        Navigator.of(context).pop();
-        await _syncHealthData(
-          serviceName: 'Samsung Health',
-          buttonEvent: 'workout_sync_samsung_health',
-          successEvent: 'workout_sync_samsung_health_success',
-          failedEvent: 'workout_sync_samsung_health_failed',
-          syncMethod:
-              () => ref.read(workoutSyncFacadeProvider).syncSamsungHealthData(),
+  /// 공통 OAuth 기반 권한 요청 (Garmin, Suunto 등)
+  Future<void> _requestOAuthPermission({
+    required String serviceName,
+    required String buttonEvent,
+    required String successEvent,
+    required String failedEvent,
+    required Future<AppResult<IntegrationAuth>> Function() requestMethod,
+  }) async {
+    AmplitudeAnalytics.logButtonClick(buttonEvent);
+
+    try {
+      final AppResult<IntegrationAuth> result = await requestMethod();
+
+      if (result.isSuccess) {
+        final IntegrationAuth data = result.dataOrNull!;
+        final String authUrl = data.url;
+
+        if (authUrl.isNotEmpty && mounted) {
+          await WebViewNavigation.navigateToWebView(
+            context,
+            url: authUrl,
+            title: '$serviceName 연동',
+            onAuthSuccess: () {
+              AmplitudeAnalytics.logEvent(
+                successEvent,
+                properties: <String, dynamic>{},
+              );
+
+              ref
+                  .read(syncScreenNotifierProvider.notifier)
+                  .checkIntegrationStatus();
+
+              if (mounted) {
+                showSuccessMessage(context, '$serviceName 연동이 완료되었습니다.');
+              }
+            },
+            onAuthFailure: (String? reason) {
+              AmplitudeAnalytics.logEvent(
+                failedEvent,
+                properties: <String, dynamic>{'reason': reason ?? 'unknown'},
+              );
+
+              if (mounted) {
+                showErrorMessage(
+                  context,
+                  '$serviceName 연동에 실패했습니다.\n\n'
+                  '잠시 후 다시 시도해 주세요.\n'
+                  '문제가 지속될 경우 설정 > 문의하기를 통해\n'
+                  '자세한 상황을 알려주시면 빠르게 도와드리겠습니다.',
+                );
+              }
+            },
+          );
+        } else if (mounted) {
+          showErrorMessage(context, '연동 링크를 받을 수 없습니다.');
+        }
+      } else if (mounted) {
+        showErrorMessage(
+          context,
+          '$serviceName 권한 요청 실패: ${result.exceptionOrNull?.message}',
         );
-      },
-    );
+      }
+    } catch (e) {
+      if (mounted) {
+        if (e is PlatformException) {
+          showErrorMessage(context, '지원하지 않는 플랫폼입니다');
+        } else {
+          showErrorMessage(context, '$serviceName 권한 요청 중 오류가 발생했습니다');
+        }
+      }
+    }
   }
 
   /// Garmin Connect 권한 요청
   Future<void> _requestGarminConnectPermission() async {
-    AmplitudeAnalytics.logButtonClick('workout_sync_garmin_connect');
-
-    try {
-      final WorkoutSyncFacade facade = ref.read(workoutSyncFacadeProvider);
-      final AppResult<IntegrationAuth> result =
-          await facade.requestGarminPermission();
-
-      if (result.isSuccess) {
-        final IntegrationAuth data = result.dataOrNull!;
-        final String authUrl = data.url;
-
-        if (authUrl.isNotEmpty) {
-          if (mounted) {
-            await WebViewNavigation.navigateToWebView(
-              context,
-              url: authUrl,
-              title: 'Garmin Connect 연동',
-              onAuthSuccess: () {
-                // Amplitude 이벤트 로깅
-                AmplitudeAnalytics.logEvent(
-                  'garmin_connect_auth_success',
-                  properties: <String, dynamic>{},
-                );
-
-                // 연동 성공 시 상태 업데이트
-                ref
-                    .read(syncScreenNotifierProvider.notifier)
-                    .checkIntegrationStatus();
-
-                // 성공 메시지 표시
-                if (mounted) {
-                  showSuccessMessage(context, 'Garmin Connect 연동이 완료되었습니다.');
-                }
-              },
-              onAuthFailure: (String? reason) {
-                // Amplitude 이벤트 로깅
-                AmplitudeAnalytics.logEvent(
-                  'garmin_connect_auth_failed',
-                  properties: <String, dynamic>{'reason': reason ?? 'unknown'},
-                );
-
-                // 연동 실패 시 안내 메시지 표시
-                if (mounted) {
-                  showErrorMessage(
-                    context,
-                    'Garmin Connect 연동에 실패했습니다.\n\n'
-                    '잠시 후 다시 시도해 주세요.\n'
-                    '문제가 지속될 경우 설정 > 문의하기를 통해\n'
-                    '자세한 상황을 알려주시면 빠르게 도와드리겠습니다.',
-                  );
-                }
-              },
-            );
-          }
-        } else {
-          if (mounted) {
-            showErrorMessage(context, '연동 링크를 받을 수 없습니다.');
-          }
-        }
-      } else {
-        if (mounted) {
-          showErrorMessage(
-            context,
-            'Garmin Connect 권한 요청 실패: ${result.exceptionOrNull?.message}',
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        if (e is PlatformException) {
-          showErrorMessage(context, '지원하지 않는 플랫폼입니다');
-        } else {
-          showErrorMessage(context, 'Garmin Connect 권한 요청 중 오류가 발생했습니다');
-        }
-      }
-    }
+    await _requestOAuthPermission(
+      serviceName: 'Garmin Connect',
+      buttonEvent: 'workout_sync_garmin_connect',
+      successEvent: 'garmin_connect_auth_success',
+      failedEvent: 'garmin_connect_auth_failed',
+      requestMethod:
+          () => ref.read(workoutSyncFacadeProvider).requestGarminPermission(),
+    );
   }
 
   /// Suunto 권한 요청
   Future<void> _requestSuuntoPermission() async {
-    AmplitudeAnalytics.logButtonClick('workout_sync_suunto');
-
-    try {
-      final WorkoutSyncFacade facade = ref.read(workoutSyncFacadeProvider);
-      final AppResult<IntegrationAuth> result =
-          await facade.requestSuuntoPermission();
-
-      if (result.isSuccess) {
-        final IntegrationAuth data = result.dataOrNull!;
-        final String authUrl = data.url;
-
-        if (authUrl.isNotEmpty) {
-          if (mounted) {
-            await WebViewNavigation.navigateToWebView(
-              context,
-              url: authUrl,
-              title: 'Suunto 연동',
-              onAuthSuccess: () {
-                // Amplitude 이벤트 로깅
-                AmplitudeAnalytics.logEvent(
-                  'suunto_auth_success',
-                  properties: <String, dynamic>{},
-                );
-
-                // 연동 성공 시 상태 업데이트
-                ref
-                    .read(syncScreenNotifierProvider.notifier)
-                    .checkIntegrationStatus();
-
-                // 성공 메시지 표시
-                if (mounted) {
-                  showSuccessMessage(context, 'Suunto 연동이 완료되었습니다.');
-                }
-              },
-              onAuthFailure: (String? reason) {
-                // Amplitude 이벤트 로깅
-                AmplitudeAnalytics.logEvent(
-                  'suunto_auth_failed',
-                  properties: <String, dynamic>{'reason': reason ?? 'unknown'},
-                );
-
-                // 연동 실패 시 안내 메시지 표시
-                if (mounted) {
-                  showErrorMessage(
-                    context,
-                    'Suunto 연동에 실패했습니다.\n\n'
-                    '잠시 후 다시 시도해 주세요.\n'
-                    '문제가 지속될 경우 설정 > 문의하기를 통해\n'
-                    '자세한 상황을 알려주시면 빠르게 도와드리겠습니다.',
-                  );
-                }
-              },
-            );
-          }
-        } else {
-          if (mounted) {
-            showErrorMessage(context, '연동 링크를 받을 수 없습니다.');
-          }
-        }
-      } else {
-        if (mounted) {
-          showErrorMessage(
-            context,
-            'Suunto 권한 요청 실패: ${result.exceptionOrNull?.message}',
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        if (e is PlatformException) {
-          showErrorMessage(context, '지원하지 않는 플랫폼입니다');
-        } else {
-          showErrorMessage(context, 'Suunto 권한 요청 중 오류가 발생했습니다');
-        }
-      }
-    }
+    await _requestOAuthPermission(
+      serviceName: 'Suunto',
+      buttonEvent: 'workout_sync_suunto',
+      successEvent: 'suunto_auth_success',
+      failedEvent: 'suunto_auth_failed',
+      requestMethod:
+          () => ref.read(workoutSyncFacadeProvider).requestSuuntoPermission(),
+    );
   }
 
   @override
@@ -597,93 +566,136 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
           icon: Icons.arrow_back_ios_new,
         ),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              // Apple Health Kit 섹션
-              _buildSyncButton(
-                provider: HealthProvider.appleHealthKit,
-                isConnected:
-                    syncState.connectionStatus[HealthProvider.appleHealthKit] ??
-                    false,
-                isLoading: syncState.isLoading,
-                onPressed: _syncAppleHealthKit,
-                onDisconnectPressed:
-                    () => _showDisconnectModal(
-                      HealthProvider.appleHealthKit.serviceName,
-                    ),
+      body: Stack(
+        children: <Widget>[
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  // Apple Health Kit 섹션 (iOS 전용)
+                  _buildSyncButton(
+                    provider: HealthProvider.appleHealthKit,
+                    isConnected:
+                        syncState.connectionStatus[HealthProvider
+                            .appleHealthKit] ??
+                        false,
+                    isLoading:
+                        syncState.loadingStatus[HealthProvider
+                            .appleHealthKit] ??
+                        false,
+                    onPressed: _syncAppleHealthKit,
+                    onDisconnectPressed:
+                        () => _showDisconnectModal(
+                          HealthProvider.appleHealthKit.serviceName,
+                        ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Google Health Connect 섹션 (Android 전용)
+                  _buildSyncButton(
+                    provider: HealthProvider.healthConnect,
+                    isConnected:
+                        syncState.connectionStatus[HealthProvider
+                            .healthConnect] ??
+                        false,
+                    isLoading:
+                        syncState.loadingStatus[HealthProvider.healthConnect] ??
+                        false,
+                    onPressed: _syncHealthConnectData,
+                    onDisconnectPressed:
+                        () => _showDisconnectModal(
+                          HealthProvider.healthConnect.serviceName,
+                        ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Samsung Health 섹션 (Android 전용)
+                  _buildSyncButton(
+                    provider: HealthProvider.samsungHealth,
+                    isConnected:
+                        syncState.connectionStatus[HealthProvider
+                            .samsungHealth] ??
+                        false,
+                    isLoading:
+                        syncState.loadingStatus[HealthProvider.samsungHealth] ??
+                        false,
+                    onPressed: _syncSamsungHealthData,
+                    onDisconnectPressed:
+                        () => _showDisconnectModal(
+                          HealthProvider.samsungHealth.serviceName,
+                        ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Garmin Connect 섹션
+                  _buildSyncButton(
+                    provider: HealthProvider.garmin,
+                    isConnected:
+                        syncState.connectionStatus[HealthProvider.garmin] ??
+                        false,
+                    isLoading:
+                        syncState.loadingStatus[HealthProvider.garmin] ?? false,
+                    onPressed: _requestGarminConnectPermission,
+                    onDisconnectPressed:
+                        () => _showDisconnectModal(
+                          HealthProvider.garmin.serviceName,
+                        ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Suunto 섹션
+                  _buildSyncButton(
+                    provider: HealthProvider.suunto,
+                    isConnected:
+                        syncState.connectionStatus[HealthProvider.suunto] ??
+                        false,
+                    isLoading:
+                        syncState.loadingStatus[HealthProvider.suunto] ?? false,
+                    onPressed: _requestSuuntoPermission,
+                    onDisconnectPressed:
+                        () => _showDisconnectModal(
+                          HealthProvider.suunto.serviceName,
+                        ),
+                  ),
+                ],
               ),
-
-              const SizedBox(height: 16),
-
-              // Google Health Connect 섹션
-              _buildSyncButton(
-                provider: HealthProvider.healthConnect,
-                isConnected:
-                    syncState.connectionStatus[HealthProvider.healthConnect] ??
-                    false,
-                isLoading: syncState.isLoading,
-                onPressed: _syncHealthConnectData,
-                onDisconnectPressed:
-                    () => _showDisconnectModal(
-                      HealthProvider.healthConnect.serviceName,
-                    ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Samsung Health 섹션
-              _buildSyncButton(
-                provider: HealthProvider.samsungHealth,
-                isConnected:
-                    syncState.connectionStatus[HealthProvider.samsungHealth] ??
-                    false,
-                isLoading: syncState.isLoading,
-                onPressed: _syncSamsungHealthData,
-                onDisconnectPressed:
-                    () => _showDisconnectModal(
-                      HealthProvider.samsungHealth.serviceName,
-                    ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Garmin Connect 섹션
-              _buildSyncButton(
-                provider: HealthProvider.garmin,
-                isConnected:
-                    syncState.connectionStatus[HealthProvider.garmin] ?? false,
-                isLoading: syncState.isLoading,
-                onPressed: _requestGarminConnectPermission,
-                onDisconnectPressed:
-                    () =>
-                        _showDisconnectModal(HealthProvider.garmin.serviceName),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Suunto 섹션
-              _buildSyncButton(
-                provider: HealthProvider.suunto,
-                isConnected:
-                    syncState.connectionStatus[HealthProvider.suunto] ?? false,
-                isLoading: syncState.isLoading,
-                onPressed: _requestSuuntoPermission,
-                onDisconnectPressed:
-                    () =>
-                        _showDisconnectModal(HealthProvider.suunto.serviceName),
-              ),
-
-              if (syncState.isLoading) ...<Widget>[
-                const SizedBox(height: 24),
-                const Center(child: AppLoadingIndicator()),
-              ],
-            ],
+            ),
           ),
-        ),
+          // 전체 화면 로딩 오버레이
+          if (syncState.isLoading)
+            Container(
+              color: Colors.black.withValues(alpha: 0.5),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: colors.backgroundElevatedNormal,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      const AppLoadingIndicator(),
+                      const SizedBox(height: 16),
+                      Text(
+                        '헬스 데이터 연동 중...\n최대 1분 정도 소요될 수 있습니다.',
+                        style: AppTextStyles.body2.normalRegular.copyWith(
+                          color: colors.labelNormal,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

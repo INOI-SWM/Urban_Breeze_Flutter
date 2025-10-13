@@ -32,11 +32,13 @@ import '../data/datasources/workout_statistics_datasource.dart';
 import '../data/repositories/apple_health_connect_repository_impl.dart';
 import '../data/repositories/apple_health_kit_sync_repository_impl.dart';
 import '../data/repositories/google_health_connect_sync_repository_impl.dart';
+import '../data/repositories/terra_repository_impl.dart';
 import '../data/repositories/workout_history_repository_impl.dart';
 import '../data/repositories/workout_statistics_repository_impl.dart';
 import '../domain/repositories/apple_health_connect_repository.dart';
 import '../domain/repositories/google_health_connect_sync_repository.dart';
 import '../domain/repositories/health_kit_sync_repository.dart';
+import '../domain/repositories/terra_repository.dart';
 import '../domain/repositories/workout_history_repository.dart';
 import '../domain/repositories/workout_statistics_repository.dart';
 import '../presentation/notifiers/sync_screen_notifier.dart';
@@ -227,31 +229,34 @@ final Provider<ConnectAppleHealthUseCase> connectAppleHealthUseCaseProvider =
       return ConnectAppleHealthUseCase(repository: repository);
     });
 
+// Terra Repository Provider
+final Provider<TerraRepository> terraRepositoryProvider =
+    Provider<TerraRepository>((Ref<TerraRepository> ref) {
+      final TerraApiDataSource dataSource = ref.watch(
+        terraApiDataSourceProvider,
+      );
+      return TerraRepositoryImpl(dataSource: dataSource);
+    });
+
 // Terra Use Case Providers
 final Provider<InitializeTerraUseCase> initializeTerraUseCaseProvider =
     Provider<InitializeTerraUseCase>((Ref<InitializeTerraUseCase> ref) {
-      final TerraApiDataSource terraDataSource = ref.watch(
-        terraApiDataSourceProvider,
-      );
-      return InitializeTerraUseCase(terraDataSource: terraDataSource);
+      final TerraRepository repository = ref.watch(terraRepositoryProvider);
+      return InitializeTerraUseCase(repository: repository);
     });
 
 final Provider<ConnectTerraHealthAppUseCase>
 connectTerraHealthAppUseCaseProvider = Provider<ConnectTerraHealthAppUseCase>((
   Ref<ConnectTerraHealthAppUseCase> ref,
 ) {
-  final TerraApiDataSource terraDataSource = ref.watch(
-    terraApiDataSourceProvider,
-  );
-  return ConnectTerraHealthAppUseCase(terraDataSource: terraDataSource);
+  final TerraRepository repository = ref.watch(terraRepositoryProvider);
+  return ConnectTerraHealthAppUseCase(repository: repository);
 });
 
 final Provider<SyncTerraHealthDataUseCase> syncTerraHealthDataUseCaseProvider =
     Provider<SyncTerraHealthDataUseCase>((Ref<SyncTerraHealthDataUseCase> ref) {
-      final TerraApiDataSource terraDataSource = ref.watch(
-        terraApiDataSourceProvider,
-      );
-      return SyncTerraHealthDataUseCase(terraDataSource: terraDataSource);
+      final TerraRepository repository = ref.watch(terraRepositoryProvider);
+      return SyncTerraHealthDataUseCase(repository: repository);
     });
 
 // Apple Health Workout Data Source Provider

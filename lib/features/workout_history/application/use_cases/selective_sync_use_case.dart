@@ -77,19 +77,19 @@ class SelectiveSyncUseCase {
       );
     }
 
-    // Samsung Health가 연동된 경우
+    // Samsung Health가 연동된 경우 (데이터 가져오기)
     if (lastSyncTimes.containsKey(HealthProvider.samsungHealth)) {
       final DateTime lastSyncAt = lastSyncTimes[HealthProvider.samsungHealth]!;
-      return await _workoutSyncFacade.syncSamsungHealthData(
+      return await _workoutSyncFacade.fetchSamsungHealthData(
         startDate: lastSyncAt,
         endDate: DateTime.now(),
       );
     }
 
-    // Health Connect가 연동된 경우
+    // Health Connect가 연동된 경우 (데이터 가져오기)
     if (lastSyncTimes.containsKey(HealthProvider.healthConnect)) {
       final DateTime lastSyncAt = lastSyncTimes[HealthProvider.healthConnect]!;
-      return await _workoutSyncFacade.syncHealthConnectData(
+      return await _workoutSyncFacade.fetchHealthConnectData(
         startDate: lastSyncAt,
         endDate: DateTime.now(),
       );

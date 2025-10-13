@@ -65,7 +65,7 @@ class SyncScreenNotifier extends StateNotifier<SyncScreenState>
 
   /// Apple Health Kit 연동
   Future<void> connectAppleHealth() async {
-    state = state.copyWith(isLoading: true);
+    setServiceLoading(HealthProvider.appleHealthKit, true);
 
     try {
       // 1. Apple Health Kit 권한 요청
@@ -86,8 +86,8 @@ class SyncScreenNotifier extends StateNotifier<SyncScreenState>
             properties: <String, dynamic>{'source': 'sync_screen'},
           );
           // 권한 거부 시 상태 업데이트
+          setServiceLoading(HealthProvider.appleHealthKit, false);
           state = state.copyWith(
-            isLoading: false,
             lastDisconnectResult: const DisconnectResult(
               isSuccess: false,
               serviceName: 'Apple Health Kit',
@@ -109,6 +109,9 @@ class SyncScreenNotifier extends StateNotifier<SyncScreenState>
           'workout_sync_apple_health_success',
           properties: <String, dynamic>{'sync_method': 'direct'},
         );
+
+        await Future<void>.delayed(const Duration(seconds: 2));
+
         // 연동 상태 다시 확인
         await checkIntegrationStatus();
       } else {
@@ -125,7 +128,7 @@ class SyncScreenNotifier extends StateNotifier<SyncScreenState>
         properties: <String, dynamic>{'error_message': e.toString()},
       );
     } finally {
-      state = state.copyWith(isLoading: false);
+      setServiceLoading(HealthProvider.appleHealthKit, false);
     }
   }
 
@@ -201,6 +204,28 @@ class SyncScreenNotifier extends StateNotifier<SyncScreenState>
     state = state.copyWith(lastDisconnectResult: null);
   }
 
+  /// 로딩 상태 설정 (전체)
+  void setLoading(bool isLoading) {
+    state = state.copyWith(isLoading: isLoading);
+  }
+
+  /// 서비스별 로딩 상태 설정
+  void setServiceLoading(HealthProvider provider, bool isLoading) {
+    final Map<HealthProvider, bool> newLoadingStatus =
+        Map<HealthProvider, bool>.from(state.loadingStatus);
+    newLoadingStatus[provider] = isLoading;
+
+    // 전체 로딩 상태도 업데이트 (하나라도 로딩 중이면 true)
+    final bool hasAnyLoading = newLoadingStatus.values.any(
+      (bool loading) => loading,
+    );
+
+    state = state.copyWith(
+      loadingStatus: newLoadingStatus,
+      isLoading: hasAnyLoading,
+    );
+  }
+
   /// 서비스명을 API providerName으로 변환
   String _getProviderName(String serviceName) {
     for (final HealthProvider provider in HealthProvider.values) {
@@ -217,21 +242,25 @@ class SyncScreenState {
   const SyncScreenState({
     this.isLoading = false,
     this.connectionStatus = const <HealthProvider, bool>{},
+    this.loadingStatus = const <HealthProvider, bool>{},
     this.lastDisconnectResult,
   });
 
   final bool isLoading;
   final Map<HealthProvider, bool> connectionStatus;
+  final Map<HealthProvider, bool> loadingStatus; // 서비스별 로딩 상태
   final DisconnectResult? lastDisconnectResult;
 
   SyncScreenState copyWith({
     bool? isLoading,
     Map<HealthProvider, bool>? connectionStatus,
+    Map<HealthProvider, bool>? loadingStatus,
     DisconnectResult? lastDisconnectResult,
   }) {
     return SyncScreenState(
       isLoading: isLoading ?? this.isLoading,
       connectionStatus: connectionStatus ?? this.connectionStatus,
+      loadingStatus: loadingStatus ?? this.loadingStatus,
       lastDisconnectResult: lastDisconnectResult ?? this.lastDisconnectResult,
     );
   }

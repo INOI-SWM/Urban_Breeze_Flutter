@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:terra_flutter_bridge/models/enums.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/exceptions/integration_exceptions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
@@ -166,26 +167,50 @@ class WorkoutSyncFacade {
     }
   }
 
-  /// Health Connect에서 데이터 가져오기
-  Future<AppResult<Map<String, dynamic>?>> syncHealthConnectData({
+  /// Health Connect 연결 (초기화 + 권한 요청만)
+  Future<AppResult<void>> syncHealthConnectData({
     DateTime? startDate,
     DateTime? endDate,
     bool toWebhook = true,
   }) async {
-    return terraHealthSyncFacade.syncHealthConnectData(
+    return terraHealthSyncFacade.connectHealthApp(
+      connection: Connection.healthConnect,
+    );
+  }
+
+  /// Samsung Health 연결 (초기화 + 권한 요청만)
+  Future<AppResult<void>> syncSamsungHealthData({
+    DateTime? startDate,
+    DateTime? endDate,
+    bool toWebhook = true,
+  }) async {
+    return terraHealthSyncFacade.connectHealthApp(
+      connection: Connection.samsung,
+    );
+  }
+
+  /// Health Connect 데이터 가져오기 (이미 연동된 상태)
+  Future<AppResult<Map<String, dynamic>?>> fetchHealthConnectData({
+    DateTime? startDate,
+    DateTime? endDate,
+    bool toWebhook = true,
+  }) async {
+    return terraHealthSyncFacade.getHealthData(
+      connection: Connection.healthConnect,
       startDate: startDate,
       endDate: endDate,
       toWebhook: toWebhook,
     );
   }
 
-  /// Samsung Health에서 데이터 가져오기
-  Future<AppResult<Map<String, dynamic>?>> syncSamsungHealthData({
+  /// Samsung Health 데이터 가져오기 (이미 연동된 상태)
+  Future<AppResult<Map<String, dynamic>?>> fetchSamsungHealthData({
     DateTime? startDate,
     DateTime? endDate,
     bool toWebhook = true,
   }) async {
-    return terraHealthSyncFacade.syncSamsungHealthData(
+    return terraHealthSyncFacade.getHealthData(
+      connection: Connection.samsung,
       startDate: startDate,
       endDate: endDate,
       toWebhook: toWebhook,
