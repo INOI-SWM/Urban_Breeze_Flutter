@@ -1,12 +1,12 @@
 import 'package:terra_flutter_bridge/models/enums.dart';
 import 'package:urban_breeze/core/exceptions/integration_exceptions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
-import 'package:urban_breeze/features/workout_history/data/datasources/terra_api_datasoiurce.dart';
+import 'package:urban_breeze/features/workout_history/domain/repositories/terra_repository.dart';
 
 class SyncTerraHealthDataUseCase {
-  const SyncTerraHealthDataUseCase({required this.terraDataSource});
+  const SyncTerraHealthDataUseCase({required this.repository});
 
-  final TerraApiDataSource terraDataSource;
+  final TerraRepository repository;
 
   Future<AppResult<Map<String, dynamic>?>> execute({
     required Connection connection,
@@ -15,8 +15,8 @@ class SyncTerraHealthDataUseCase {
     bool toWebhook = true,
   }) async {
     try {
-      final Map<String, dynamic>? result = await terraDataSource.getData(
-        connection,
+      final Map<String, dynamic>? result = await repository.getHealthData(
+        connection: connection,
         startDate: startDate,
         endDate: endDate,
         toWebhook: toWebhook,
