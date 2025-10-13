@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/INOI-SWM/Urban_Breeze_Flutter/compare/v1.0.1...v1.0.2) (2025-10-13)
+
+
+### Bug Fixes
+
+* terra sdk 연동 버그 수정 ([#176](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/176)) ([9c41c7b](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/9c41c7bc50e0692ad793bea7ebca5d6bf2e73dc9))
+
 ## [1.0.1](https://github.com/INOI-SWM/Urban_Breeze_Flutter/compare/v1.0.0...v1.0.1) (2025-10-10)
 
 ### Bug Fixes
