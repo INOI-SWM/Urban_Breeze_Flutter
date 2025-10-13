@@ -35,6 +35,10 @@ class TerraApiDataSource extends BaseRemoteDataSource {
     if (result?.error != null) {
       throw Exception(result?.error);
     }
+
+    if (result == null || result.success != true) {
+      throw Exception('Terra 초기화에 실패했습니다.');
+    }
   }
 
   Future<void> initialiseConnection(Connection connection) async {
@@ -57,10 +61,21 @@ class TerraApiDataSource extends BaseRemoteDataSource {
       token,
       schedulerOn,
       customPermissions,
+    ).timeout(
+      const Duration(seconds: 45),
+      onTimeout: () {
+        throw Exception('헬스 앱 연결 시간이 초과되었습니다.');
+      },
     );
 
+    // 에러 체크
     if (result?.error != null) {
       throw Exception(result?.error);
+    }
+
+    // 성공 여부 체크 (권한 거부 시 대응)
+    if (result == null || result.success != true) {
+      throw Exception('권한 승인이 필요합니다. 헬스 앱에서 필요한 권한을 허용해주세요.');
     }
   }
 
@@ -93,6 +108,11 @@ class TerraApiDataSource extends BaseRemoteDataSource {
       startDate,
       endDate,
       toWebhook: toWebhook,
+    ).timeout(
+      const Duration(seconds: 60),
+      onTimeout: () {
+        throw Exception('데이터 가져오기 시간이 초과되었습니다.');
+      },
     );
 
     if (result?.error != null) {
