@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
-import 'package:urban_breeze/core/exceptions/integration_exceptions.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/core/services/deep_link_service.dart';
@@ -113,12 +112,12 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
         );
 
         if (mounted) {
-          // iOS에서 Health Connect나 Samsung Health 사용 시 지원하지 않는 플랫폼 메시지 표시
-          if (result.exceptionOrNull is PlatformException ||
-              result.exceptionOrNull is IntegrationException) {
+          // iOS에서 Health Connect나 Samsung Health 사용 시 플랫폼 체크
+          if (result.exceptionOrNull is PlatformException) {
             showErrorMessage(context, '지원하지 않는 플랫폼입니다');
           } else {
-            showErrorMessage(context, '$serviceName 연결 실패: $errorMessage');
+            // Terra SDK의 실제 에러 메시지 표시
+            showErrorMessage(context, '연동에 실패했습니다.');
           }
         }
       }
