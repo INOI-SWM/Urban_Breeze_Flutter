@@ -33,15 +33,18 @@ class HealthConnectPlugin(private var activity: Activity? = null) : FlutterPlugi
         const val ERROR_NO_DATA = "NO_DATA"
         const val ERROR_UNKNOWN = "UNKNOWN_ERROR"
         
+        // 디버그 모드 플래그 (필요 시 false로 변경)
+        private const val DEBUG_MODE = true
+        
         // 디버그 로그 헬퍼
         private fun logDebug(tag: String, message: String) {
-            if (com.inoi.urbanbreeze.BuildConfig.DEBUG) {
+            if (DEBUG_MODE) {
                 android.util.Log.d(tag, "🔍 $message")
             }
         }
         
         private fun logError(tag: String, message: String, e: Exception? = null) {
-            if (com.inoi.urbanbreeze.BuildConfig.DEBUG) {
+            if (DEBUG_MODE) {
                 if (e != null) {
                     android.util.Log.e(tag, "❌ $message", e)
                 } else {

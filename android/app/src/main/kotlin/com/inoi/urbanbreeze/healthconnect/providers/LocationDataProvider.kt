@@ -4,9 +4,12 @@ import android.content.Context
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.ExerciseRouteResult
+import androidx.health.connect.client.records.ExerciseRoute
 import com.inoi.urbanbreeze.healthconnect.HealthConnectManager
 import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 
 /**
@@ -62,18 +65,24 @@ class LocationDataProvider(
                         val exerciseRoute = exerciseRouteResult.exerciseRoute
                         val locations = exerciseRoute.route.orEmpty()
                         
+                        android.util.Log.d(TAG, "Found ${locations.size} location points in exercise route")
+                        
                         for (location in locations) {
                             val locationMap = convertRouteLocationToMap(location, exerciseRecord.metadata.id)
                             routeLocations.add(locationMap)
                         }
                     }
                     is ExerciseRouteResult.ConsentRequired -> {
-                        // TODO: 사용자에게 경로 데이터 접근 권한 요청 UI 표시
-                        // 현재는 로그만 출력하고 빈 데이터 반환
+                        // 경로 데이터 접근에 추가 권한 필요
+                        android.util.Log.w(TAG, "Consent required for exercise route data. User needs to grant additional permission.")
+                        // Flutter에서 처리: 빈 리스트 반환하고 에러는 발생시키지 않음
                     }
                     is ExerciseRouteResult.NoData -> {
+                        // 경로 데이터가 없는 운동 세션
+                        android.util.Log.d(TAG, "No route data available for this exercise session")
                     }
                     else -> {
+                        android.util.Log.w(TAG, "Unknown ExerciseRouteResult type")
                     }
                 }
         } catch (e: Exception) {
@@ -89,51 +98,52 @@ class LocationDataProvider(
      * @return 위치 데이터 목록
      */
     private suspend fun fetchLocationDataForSession(sessionId: String): List<Map<String, Any>> {
-        val routeLocations = mutableListOf<Map<String, Any>>()
-        
-        try {
-            val client = healthConnectManager.getClient()
+        return withContext(Dispatchers.IO) {
+            val routeLocations = mutableListOf<Map<String, Any>>()
             
-            if (client == null) {
-                return routeLocations
-            }
-
-            // 권한 확인 (기본 권한 체크)
             try {
-                val grantedPermissions = client.permissionController.getGrantedPermissions()
-            } catch (e: Exception) {
-            }
+                val client = healthConnectManager.getClient()
+                
+                if (client == null) {
+                    android.util.Log.w(TAG, "Health Connect client is null")
+                    return@withContext routeLocations
+                }
 
-            // 특정 세션 ID로 운동 세션 조회
-            val exerciseRecord = client.readRecord(ExerciseSessionRecord::class, sessionId)
+                // 특정 세션 ID로 운동 세션 조회
+                val exerciseRecord = client.readRecord(ExerciseSessionRecord::class, sessionId)
+                
+                // 해당 세션의 경로 데이터 추출
+                val sessionRouteLocations = extractRouteFromExerciseSession(client, exerciseRecord.record)
+                routeLocations.addAll(sessionRouteLocations)
+                
+                android.util.Log.d(TAG, "Fetched ${routeLocations.size} location points for session $sessionId")
+                
+            } catch (e: SecurityException) {
+                // 권한 없음
+                android.util.Log.w(TAG, "Location permission not granted for session $sessionId")
+            } catch (e: Exception) {
+                android.util.Log.e(TAG, "Error fetching location data for session $sessionId: ${e.message}")
+            }
             
-            // 해당 세션의 경로 데이터 추출
-            val sessionRouteLocations = extractRouteFromExerciseSession(client, exerciseRecord.record)
-            routeLocations.addAll(sessionRouteLocations)
-            
-        } catch (e: Exception) {
+            routeLocations
         }
-        
-        return routeLocations
     }
 
     /**
      * 경로 위치를 Map으로 변환
      * 
-     * @param location 경로 위치
+     * @param location 경로 위치 (ExerciseRoute.Location)
      * @param sessionId 세션 ID
      * @return Flutter에서 사용할 Map 형태 데이터
      */
-    private fun convertRouteLocationToMap(location: Any, sessionId: String): Map<String, Any> {
-        // TODO: Health Connect 1.1.0-alpha12에서 실제 Location 타입 확인 필요
-        // 현재는 임시로 기본 데이터 반환
+    private fun convertRouteLocationToMap(location: ExerciseRoute.Location, sessionId: String): Map<String, Any> {
         return mapOf(
-            "timestamp" to System.currentTimeMillis(),
-            "latitude" to 0.0,
-            "longitude" to 0.0,
-            "altitude" to 0.0,
-            "accuracy" to 0.0,
-            "source" to "unknown",
+            "timestamp" to location.time.toEpochMilli(),
+            "latitude" to location.latitude,
+            "longitude" to location.longitude,
+            "altitude" to (location.altitude?.inMeters ?: 0.0),
+            "accuracy" to (location.horizontalAccuracy?.inMeters ?: 0.0),
+            "verticalAccuracy" to (location.verticalAccuracy?.inMeters ?: 0.0),
             "type" to "route",
             "sessionId" to sessionId
         )
