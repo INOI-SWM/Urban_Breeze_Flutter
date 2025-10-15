@@ -166,6 +166,9 @@ final Provider<AuthSignInFacade> authSignInFacadeProvider =
       final UserAgreementNotifier userAgreementNotifier = ref.watch(
         userAgreementNotifierProvider.notifier,
       );
+      final LoginInProgressNotifier loginInProgressNotifier = ref.watch(
+        loginInProgressNotifierProvider.notifier,
+      );
 
       return AuthSignInFacade(
         signInWithGoogleUseCase: signInWithGoogleUseCase,
@@ -174,6 +177,7 @@ final Provider<AuthSignInFacade> authSignInFacadeProvider =
         tokenRepository: tokenRepository,
         userSessionNotifier: userSessionNotifier,
         userAgreementNotifier: userAgreementNotifier,
+        loginInProgressNotifier: loginInProgressNotifier,
       );
     });
 
@@ -270,6 +274,13 @@ final Provider<bool> isAuthInitializedProvider = Provider<bool>(
   (Ref<bool> ref) => ref.watch(authInitializationNotifierProvider),
 );
 
+// 로그인 진행 중 상태 Provider
+final StateNotifierProvider<LoginInProgressNotifier, bool>
+loginInProgressNotifierProvider =
+    StateNotifierProvider<LoginInProgressNotifier, bool>(
+      (Ref ref) => LoginInProgressNotifier(),
+    );
+
 // UserAgreement Providers
 final StateNotifierProvider<UserAgreementNotifier, UserAgreement?>
 userAgreementNotifierProvider =
@@ -284,10 +295,16 @@ final Provider<bool> shouldShowConsentScreenProvider = Provider<bool>((
   Ref<bool> ref,
 ) {
   final User? user = ref.watch(userSessionNotifierProvider);
-  final UserAgreementNotifier agreementNotifier = ref.watch(
-    userAgreementNotifierProvider.notifier,
-  );
-  return agreementNotifier.shouldShowConsentScreen(user);
+  final UserAgreement? agreement = ref.watch(userAgreementNotifierProvider);
+  final bool loginInProgress = ref.watch(loginInProgressNotifierProvider);
+
+  // 로그인 진행 중이면 동의 창을 표시하지 않음 (깜빡임 방지)
+  if (loginInProgress) {
+    return false;
+  }
+
+  // 로그인되어 있지만 약관 동의가 완료되지 않은 경우 동의 창 표시
+  return user != null && (agreement == null || !agreement.isCompleted);
 });
 
 // Agreement Providers

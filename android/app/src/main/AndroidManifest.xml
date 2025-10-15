@@ -6,7 +6,20 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
     
-    <!-- Health Connect 권한 (사이클링 운동 기록에 필요한 최소 권한만) -->
+    <!-- Health Connect 권한 (사이클링 운동 기록 관리 및 통계 제공용) -->
+    <!-- 
+        권한 사용 목적:
+        - READ_EXERCISE: 사이클링 운동 기록(시작/종료 시간, 운동 종류)을 불러와 주간/월간 성과 추적
+        - READ_HEART_RATE: 운동 중 심박수로 운동 강도 분석 및 건강 상태 추적
+        - READ_SPEED: 라이딩 속도 데이터 분석 및 성과 개선 인사이트 제공
+        - READ_DISTANCE: 이동 거리 측정 및 운동 목표 달성도 추적
+        - READ_TOTAL_CALORIES_BURNED: 총 칼로리 소모량 계산 및 건강 관리 지원
+        - READ_ACTIVE_CALORIES_BURNED: 활동 칼로리 추적 및 정확한 운동 강도 파악
+        - READ_EXERCISE_ROUTE: GPS 경로 데이터로 지도 시각화 및 고도 정보 분석
+        - ACTIVITY_RECOGNITION: 운동 활동 자동 감지 및 정확한 기록
+        
+        모든 데이터는 안전하게 암호화되어 저장되며, 사용자 동의 없이 제3자와 공유되지 않습니다.
+    -->
     <uses-permission android:name="android.permission.health.READ_EXERCISE"/>
     <uses-permission android:name="android.permission.health.READ_HEART_RATE"/>
     <uses-permission android:name="android.permission.health.READ_SPEED"/>
@@ -74,16 +87,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
             
-            <!-- Health Connect 권한 화면 연결 -->
-            <intent-filter>
-                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
-            </intent-filter>
-            
-            <!-- Health Connect 개인정보 처리방침 연결 -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
-                <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
-            </intent-filter>
             
             <!-- 연동 콜백 처리 -->
             <intent-filter>
@@ -101,6 +104,28 @@
                 <data android:scheme="urbanbreeze" android:host="route" />
             </intent-filter>
         </activity>
+        
+        <!-- Health Connect 권한 근거(Rationale) 표시 Activity -->
+        <!-- Android 13 이하: 사용자가 개인정보 처리방침 링크 클릭 시 표시 -->
+        <activity
+            android:name=".PermissionsRationaleActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+        </activity>
+        
+        <!-- Android 14 이상: 권한 사용 세부정보 화면 -->
+        <activity-alias
+            android:name="ViewPermissionUsageActivity"
+            android:exported="true"
+            android:targetActivity=".PermissionsRationaleActivity"
+            android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+                <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+            </intent-filter>
+        </activity-alias>
         
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

@@ -102,5 +102,8 @@ dependencies {
     implementation("androidx.health.connect:connect-client:1.1.0-alpha12")
     implementation("androidx.activity:activity-compose:1.7.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
-    implementation ("androidx.activity:activity-ktx:1.10.1")
+    implementation("androidx.activity:activity-ktx:1.10.1")
+    
+    // AppCompat (권한 근거 화면용)
+    implementation("androidx.appcompat:appcompat:1.6.1")
 }

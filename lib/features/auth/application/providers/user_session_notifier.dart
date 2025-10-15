@@ -150,6 +150,15 @@ class AuthInitializationNotifier extends StateNotifier<bool> {
   }
 }
 
+/// 로그인 진행 중 상태 관리
+class LoginInProgressNotifier extends StateNotifier<bool> {
+  LoginInProgressNotifier() : super(false);
+
+  void setInProgress(bool inProgress) {
+    state = inProgress;
+  }
+}
+
 class UserAgreementNotifier extends StateNotifier<UserAgreement?> {
   UserAgreementNotifier({required UserSessionRepository repository})
     : _repository = repository,
