@@ -7,6 +7,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import com.inoi.urbanbreeze.BuildConfig
 import com.inoi.urbanbreeze.healthconnect.providers.*
 
 /**
@@ -35,13 +36,13 @@ class HealthConnectPlugin(private var activity: Activity? = null) : FlutterPlugi
         
         // 디버그 로그 헬퍼
         private fun logDebug(tag: String, message: String) {
-            if (com.inoi.urbanbreeze.BuildConfig.DEBUG) {
+            if (BuildConfig.DEBUG) {
                 android.util.Log.d(tag, "🔍 $message")
             }
         }
         
         private fun logError(tag: String, message: String, e: Exception? = null) {
-            if (com.inoi.urbanbreeze.BuildConfig.DEBUG) {
+            if (BuildConfig.DEBUG) {
                 if (e != null) {
                     android.util.Log.e(tag, "❌ $message", e)
                 } else {
