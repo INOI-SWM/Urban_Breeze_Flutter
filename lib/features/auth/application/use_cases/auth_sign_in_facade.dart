@@ -17,12 +17,14 @@ class AuthSignInFacade {
     required TokenRepository tokenRepository,
     required UserSessionNotifier userSessionNotifier,
     required UserAgreementNotifier userAgreementNotifier,
+    required LoginInProgressNotifier loginInProgressNotifier,
   }) : _signInWithGoogleUseCase = signInWithGoogleUseCase,
        _signInWithAppleUseCase = signInWithAppleUseCase,
        _signInWithKakaoUseCase = signInWithKakaoUseCase,
        _tokenRepository = tokenRepository,
        _userSessionNotifier = userSessionNotifier,
-       _userAgreementNotifier = userAgreementNotifier;
+       _userAgreementNotifier = userAgreementNotifier,
+       _loginInProgressNotifier = loginInProgressNotifier;
 
   final SignInWithGoogleUseCase _signInWithGoogleUseCase;
   final SignInWithAppleUseCase _signInWithAppleUseCase;
@@ -30,9 +32,13 @@ class AuthSignInFacade {
   final TokenRepository _tokenRepository;
   final UserSessionNotifier _userSessionNotifier;
   final UserAgreementNotifier _userAgreementNotifier;
+  final LoginInProgressNotifier _loginInProgressNotifier;
 
   Future<AppResult<User>> signIn(LoginProvider provider) async {
     try {
+      // 로그인 시작 - UI 깜빡임 방지
+      _loginInProgressNotifier.setInProgress(true);
+
       final AuthLoginResult? result = switch (provider) {
         LoginProvider.google => await _signInWithGoogleUseCase.execute(),
         LoginProvider.apple => await _signInWithAppleUseCase.execute(),
@@ -40,18 +46,21 @@ class AuthSignInFacade {
       };
 
       if (result == null) {
+        _loginInProgressNotifier.setInProgress(false);
         return const AppFailure<User>(AuthCanceledException());
       }
 
+      // 모든 데이터를 저장 (user와 agreement를 함께)
       await _tokenRepository.saveTokens(result.tokens);
       await _userSessionNotifier.setUserSession(result.user);
       await _userAgreementNotifier.setUserAgreement(result.agreement);
 
-      // 약관 동의 상태를 새로고침하여 UI가 올바르게 반영되도록 함
-      await _userAgreementNotifier.refreshAgreement();
+      // 모든 저장이 완료된 후 로그인 완료 상태로 변경
+      _loginInProgressNotifier.setInProgress(false);
 
       return AppSuccess<User>(result.user);
     } catch (e) {
+      _loginInProgressNotifier.setInProgress(false);
       return const AppFailure<User>(AuthExchangeFailedException());
     }
   }
