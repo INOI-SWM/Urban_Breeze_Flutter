@@ -68,6 +68,15 @@ class SelectiveSyncUseCase {
   Future<AppResult<Map<String, dynamic>?>> _performSelectiveSync(
     Map<HealthProvider, DateTime> lastSyncTimes,
   ) async {
+    // Google Health Connect가 연동된 경우 (Android 우선)
+    if (lastSyncTimes.containsKey(HealthProvider.healthConnect)) {
+      final DateTime lastSyncAt = lastSyncTimes[HealthProvider.healthConnect]!;
+      return await _workoutSyncFacade.syncGoogleHealthConnectData(
+        startDate: lastSyncAt,
+        endDate: DateTime.now(),
+      );
+    }
+
     // Apple Health Kit이 연동된 경우
     if (lastSyncTimes.containsKey(HealthProvider.appleHealthKit)) {
       final DateTime lastSyncAt = lastSyncTimes[HealthProvider.appleHealthKit]!;

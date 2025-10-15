@@ -182,7 +182,7 @@ class SyncScreenNotifier extends StateNotifier<SyncScreenState>
 
       if (result.isSuccess) {
         AmplitudeAnalytics.logEvent(
-          'google_health_connect_sync_success',
+          'google_health_connect_connect_success',
           properties: <String, dynamic>{'sync_method': 'direct'},
         );
 
@@ -192,7 +192,7 @@ class SyncScreenNotifier extends StateNotifier<SyncScreenState>
         await checkIntegrationStatus();
       } else {
         AmplitudeAnalytics.logEvent(
-          'google_health_connect_sync_failed',
+          'google_health_connect_connect_failed',
           properties: <String, dynamic>{
             'error_message': result.exceptionOrNull?.message ?? 'Unknown error',
           },
