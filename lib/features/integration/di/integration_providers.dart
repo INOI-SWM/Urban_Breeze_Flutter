@@ -7,8 +7,6 @@ import '../application/use_cases/delete_provider_use_case.dart';
 import '../application/use_cases/get_api_usage_use_case.dart';
 import '../application/use_cases/get_integration_activity_use_case.dart';
 import '../application/use_cases/get_integration_status_use_case.dart';
-import '../application/use_cases/request_garmin_permission_use_case.dart';
-import '../application/use_cases/request_suunto_permission_use_case.dart';
 import '../data/datasources/api_usage_datasource.dart';
 import '../data/datasources/integration_datasource.dart';
 import '../data/datasources/provider_datasource.dart';
@@ -73,24 +71,6 @@ final Provider<ProviderRepository> providerRepositoryProvider =
 // Use Cases
 // ============================================
 
-final Provider<RequestGarminPermissionUseCase>
-requestGarminPermissionUseCaseProvider =
-    Provider<RequestGarminPermissionUseCase>((Ref ref) {
-      final IntegrationRepository repository = ref.watch(
-        integrationRepositoryProvider,
-      );
-      return RequestGarminPermissionUseCase(repository: repository);
-    });
-
-final Provider<RequestSuuntoPermissionUseCase>
-requestSuuntoPermissionUseCaseProvider =
-    Provider<RequestSuuntoPermissionUseCase>((Ref ref) {
-      final IntegrationRepository repository = ref.watch(
-        integrationRepositoryProvider,
-      );
-      return RequestSuuntoPermissionUseCase(repository: repository);
-    });
-
 final Provider<GetIntegrationActivityUseCase>
 getIntegrationActivityUseCaseProvider = Provider<GetIntegrationActivityUseCase>(
   (Ref ref) {
@@ -131,16 +111,10 @@ final Provider<DeleteProviderUseCase> deleteProviderUseCaseProvider =
 
 final Provider<IntegrationSyncFacade> integrationSyncFacadeProvider =
     Provider<IntegrationSyncFacade>((Ref ref) {
-      final RequestGarminPermissionUseCase requestGarminPermissionUseCase = ref
-          .watch(requestGarminPermissionUseCaseProvider);
-      final RequestSuuntoPermissionUseCase requestSuuntoPermissionUseCase = ref
-          .watch(requestSuuntoPermissionUseCaseProvider);
       final GetIntegrationActivityUseCase getIntegrationActivityUseCase = ref
           .watch(getIntegrationActivityUseCaseProvider);
 
       return IntegrationSyncFacade(
-        requestGarminPermissionUseCase: requestGarminPermissionUseCase,
-        requestSuuntoPermissionUseCase: requestSuuntoPermissionUseCase,
         getIntegrationActivityUseCase: getIntegrationActivityUseCase,
       );
     });

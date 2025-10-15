@@ -34,7 +34,6 @@ dependencies:
   flutter_secure_storage: ^9.2.4
   firebase_core: ^4.0.0
   firebase_crashlytics: ^5.0.0
-  terra_flutter_bridge: ^0.8.0
   amplitude_flutter: ^4.3.7
   app_tracking_transparency: ^2.0.6+1
   webview_flutter: ^4.13.0

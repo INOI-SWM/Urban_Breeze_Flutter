@@ -1,14 +1,11 @@
 import 'dart:io';
 
-import 'package:terra_flutter_bridge/models/enums.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/exceptions/integration_exceptions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/integration/application/facades/integration_sync_facade.dart';
 import 'package:urban_breeze/features/integration/application/use_cases/get_integration_status_use_case.dart';
 import 'package:urban_breeze/features/integration/domain/entities/api_usage.dart';
-import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
-import 'package:urban_breeze/features/workout_history/application/facades/terra_health_sync_facade.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/import_apple_health_workouts_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_apple_health_kit_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_google_health_connect_data_use_case.dart';
@@ -19,10 +16,8 @@ import 'package:urban_breeze/features/workout_history/domain/entities/workout_re
 import 'package:urban_breeze/features/workout_history/domain/exceptions/apple_health_kit_exceptions.dart';
 
 /// 워크아웃 동기화 통합 Facade
-/// Terra API와 Integration API를 모두 관리
 class WorkoutSyncFacade {
   const WorkoutSyncFacade({
-    required this.terraHealthSyncFacade,
     required this.integrationSyncFacade,
     required this.syncAppleHealthKitDataUseCase,
     required this.syncGoogleHealthConnectDataUseCase,
@@ -30,7 +25,6 @@ class WorkoutSyncFacade {
     required this.getIntegrationStatusUseCase,
   });
 
-  final TerraHealthSyncFacade terraHealthSyncFacade;
   final IntegrationSyncFacade integrationSyncFacade;
   final SyncAppleHealthKitDataUseCase syncAppleHealthKitDataUseCase;
   final SyncGoogleHealthConnectDataUseCase syncGoogleHealthConnectDataUseCase;
@@ -165,66 +159,6 @@ class WorkoutSyncFacade {
         HealthKitDataException('Apple Health Kit 동기화 실패: $e'),
       );
     }
-  }
-
-  /// Health Connect 연결 (초기화 + 권한 요청만)
-  Future<AppResult<void>> syncHealthConnectData({
-    DateTime? startDate,
-    DateTime? endDate,
-    bool toWebhook = true,
-  }) async {
-    return terraHealthSyncFacade.connectHealthApp(
-      connection: Connection.healthConnect,
-    );
-  }
-
-  /// Samsung Health 연결 (초기화 + 권한 요청만)
-  Future<AppResult<void>> syncSamsungHealthData({
-    DateTime? startDate,
-    DateTime? endDate,
-    bool toWebhook = true,
-  }) async {
-    return terraHealthSyncFacade.connectHealthApp(
-      connection: Connection.samsung,
-    );
-  }
-
-  /// Health Connect 데이터 가져오기 (이미 연동된 상태)
-  Future<AppResult<Map<String, dynamic>?>> fetchHealthConnectData({
-    DateTime? startDate,
-    DateTime? endDate,
-    bool toWebhook = true,
-  }) async {
-    return terraHealthSyncFacade.getHealthData(
-      connection: Connection.healthConnect,
-      startDate: startDate,
-      endDate: endDate,
-      toWebhook: toWebhook,
-    );
-  }
-
-  /// Samsung Health 데이터 가져오기 (이미 연동된 상태)
-  Future<AppResult<Map<String, dynamic>?>> fetchSamsungHealthData({
-    DateTime? startDate,
-    DateTime? endDate,
-    bool toWebhook = true,
-  }) async {
-    return terraHealthSyncFacade.getHealthData(
-      connection: Connection.samsung,
-      startDate: startDate,
-      endDate: endDate,
-      toWebhook: toWebhook,
-    );
-  }
-
-  /// Garmin Connect 연동 링크 요청
-  Future<AppResult<IntegrationAuth>> requestGarminPermission() async {
-    return integrationSyncFacade.requestGarminPermission();
-  }
-
-  /// Suunto 연동 링크 요청
-  Future<AppResult<IntegrationAuth>> requestSuuntoPermission() async {
-    return integrationSyncFacade.requestSuuntoPermission();
   }
 
   /// 연동된 서비스들의 활동 기록 새로고침

@@ -77,24 +77,6 @@ class SelectiveSyncUseCase {
       );
     }
 
-    // Samsung Health가 연동된 경우 (데이터 가져오기)
-    if (lastSyncTimes.containsKey(HealthProvider.samsungHealth)) {
-      final DateTime lastSyncAt = lastSyncTimes[HealthProvider.samsungHealth]!;
-      return await _workoutSyncFacade.fetchSamsungHealthData(
-        startDate: lastSyncAt,
-        endDate: DateTime.now(),
-      );
-    }
-
-    // Health Connect가 연동된 경우 (데이터 가져오기)
-    if (lastSyncTimes.containsKey(HealthProvider.healthConnect)) {
-      final DateTime lastSyncAt = lastSyncTimes[HealthProvider.healthConnect]!;
-      return await _workoutSyncFacade.fetchHealthConnectData(
-        startDate: lastSyncAt,
-        endDate: DateTime.now(),
-      );
-    }
-
     // 기본적으로 전체 동기화 수행
     return await _workoutSyncFacade.performFullSync();
   }

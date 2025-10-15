@@ -1245,14 +1245,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.2"
-  terra_flutter_bridge:
-    dependency: "direct main"
-    description:
-      name: terra_flutter_bridge
-      sha256: "2e9ac16f5efb54a77997113943060f9e1455d6d546e735709044b21ad4f6e24e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.8.0"
   test_api:
     dependency: transitive
     description:
