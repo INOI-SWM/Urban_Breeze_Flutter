@@ -8,6 +8,7 @@ import 'package:urban_breeze/features/integration/di/integration_providers.dart'
 import '../application/facades/workout_refresh_facade.dart';
 import '../application/facades/workout_sync_facade.dart';
 import '../application/use_cases/connect_apple_health_use_case.dart';
+import '../application/use_cases/connect_google_health_connect_use_case.dart';
 import '../application/use_cases/delete_workout_image_use_case.dart';
 import '../application/use_cases/delete_workout_use_case.dart';
 import '../application/use_cases/get_workout_detail_use_case.dart';
@@ -22,14 +23,17 @@ import '../application/use_cases/upload_workout_images_use_case.dart';
 import '../data/datasources/apple_health_connect_datasource.dart';
 import '../data/datasources/apple_health_workout_datasource.dart';
 import '../data/datasources/google_health_connect_datasource.dart';
+import '../data/datasources/google_health_connect_server_datasource.dart';
 import '../data/datasources/remote_workout_history_datasource.dart';
 import '../data/datasources/workout_statistics_datasource.dart';
 import '../data/repositories/apple_health_connect_repository_impl.dart';
 import '../data/repositories/apple_health_kit_sync_repository_impl.dart';
+import '../data/repositories/google_health_connect_repository_impl.dart';
 import '../data/repositories/google_health_connect_sync_repository_impl.dart';
 import '../data/repositories/workout_history_repository_impl.dart';
 import '../data/repositories/workout_statistics_repository_impl.dart';
 import '../domain/repositories/apple_health_connect_repository.dart';
+import '../domain/repositories/google_health_connect_repository.dart';
 import '../domain/repositories/google_health_connect_sync_repository.dart';
 import '../domain/repositories/health_kit_sync_repository.dart';
 import '../domain/repositories/workout_history_repository.dart';
@@ -213,6 +217,39 @@ final Provider<ConnectAppleHealthUseCase> connectAppleHealthUseCaseProvider =
         appleHealthConnectRepositoryProvider,
       );
       return ConnectAppleHealthUseCase(repository: repository);
+    });
+
+// Google Health Connect Server DataSource Provider
+final Provider<GoogleHealthConnectServerDataSource>
+googleHealthConnectServerDataSourceProvider =
+    Provider<GoogleHealthConnectServerDataSource>((
+      Ref<GoogleHealthConnectServerDataSource> ref,
+    ) {
+      final http.Client client = ref.watch(authorizedHttpClientProvider);
+      return GoogleHealthConnectServerDataSource(client: client);
+    });
+
+// Google Health Connect Repository Provider
+final Provider<GoogleHealthConnectRepository>
+googleHealthConnectRepositoryProvider = Provider<GoogleHealthConnectRepository>(
+  (Ref<GoogleHealthConnectRepository> ref) {
+    final GoogleHealthConnectServerDataSource dataSource = ref.watch(
+      googleHealthConnectServerDataSourceProvider,
+    );
+    return GoogleHealthConnectRepositoryImpl(dataSource: dataSource);
+  },
+);
+
+// Google Health Connect UseCase Provider
+final Provider<ConnectGoogleHealthConnectUseCase>
+connectGoogleHealthConnectUseCaseProvider =
+    Provider<ConnectGoogleHealthConnectUseCase>((
+      Ref<ConnectGoogleHealthConnectUseCase> ref,
+    ) {
+      final GoogleHealthConnectRepository repository = ref.watch(
+        googleHealthConnectRepositoryProvider,
+      );
+      return ConnectGoogleHealthConnectUseCase(repository: repository);
     });
 
 // Apple Health Workout Data Source Provider

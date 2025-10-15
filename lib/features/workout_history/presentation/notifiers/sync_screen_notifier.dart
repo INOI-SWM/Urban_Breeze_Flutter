@@ -7,6 +7,7 @@ import 'package:urban_breeze/features/integration/application/use_cases/get_inte
 import 'package:urban_breeze/features/integration/di/integration_providers.dart';
 import 'package:urban_breeze/features/integration/domain/enums/health_provider.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/connect_apple_health_use_case.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/connect_google_health_connect_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_apple_health_kit_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_google_health_connect_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
@@ -171,15 +172,32 @@ class SyncScreenNotifier extends StateNotifier<SyncScreenState>
         }
       }
 
-      AmplitudeAnalytics.logEvent(
-        'google_health_connect_sync_success',
-        properties: <String, dynamic>{'sync_method': 'direct'},
+      // 2. 서버에 연동 알림
+      final ConnectGoogleHealthConnectUseCase
+      connectGoogleHealthConnectUseCase = ref.read(
+        connectGoogleHealthConnectUseCaseProvider,
       );
+      final AppResult<void> result =
+          await connectGoogleHealthConnectUseCase.execute();
 
-      await Future<void>.delayed(const Duration(seconds: 2));
+      if (result.isSuccess) {
+        AmplitudeAnalytics.logEvent(
+          'google_health_connect_sync_success',
+          properties: <String, dynamic>{'sync_method': 'direct'},
+        );
 
-      // 연동 상태 다시 확인
-      await checkIntegrationStatus();
+        await Future<void>.delayed(const Duration(seconds: 2));
+
+        // 연동 상태 다시 확인
+        await checkIntegrationStatus();
+      } else {
+        AmplitudeAnalytics.logEvent(
+          'google_health_connect_sync_failed',
+          properties: <String, dynamic>{
+            'error_message': result.exceptionOrNull?.message ?? 'Unknown error',
+          },
+        );
+      }
     } catch (e) {
       AmplitudeAnalytics.logEvent(
         'google_health_connect_sync_exception',

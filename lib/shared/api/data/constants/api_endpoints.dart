@@ -36,6 +36,8 @@ class ApiEndpoints {
   static const String terraAuthToken = '/api/v1/integration/terra/auth-token';
   static const String apiUsage = '/api/v1/integration/usage';
   static const String appleHealthConnect = '/api/v1/integration/apple/connect';
+  static const String googleHealthConnect =
+      '/api/v1/integration/google/connect';
   static String deleteProvider(String providerName) =>
       '/api/v1/integration/provider/$providerName';
 
