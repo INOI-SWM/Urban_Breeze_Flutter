@@ -5,6 +5,18 @@ class GoogleHealthConnectPermissionException extends BaseDomainException {
   const GoogleHealthConnectPermissionException(super.message, [super.code]);
 }
 
+/// Google Health Connect 권한 거부 오류
+class GoogleHealthConnectPermissionDeniedException extends BaseDomainException {
+  const GoogleHealthConnectPermissionDeniedException()
+    : super('사용자가 권한을 거부했습니다', 'PERMISSION_DENIED');
+}
+
+/// Google Health Connect 사용 불가 오류
+class GoogleHealthConnectNotAvailableException extends BaseDomainException {
+  const GoogleHealthConnectNotAvailableException()
+    : super('Health Connect를 사용할 수 없습니다', 'NOT_AVAILABLE');
+}
+
 /// Google Health Connect 데이터 관련 오류
 class GoogleHealthConnectException extends BaseDomainException {
   const GoogleHealthConnectException(super.message, [super.code]);

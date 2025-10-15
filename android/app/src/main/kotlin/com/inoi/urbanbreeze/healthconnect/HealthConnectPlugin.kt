@@ -24,6 +24,32 @@ class HealthConnectPlugin(private var activity: Activity? = null) : FlutterPlugi
     private lateinit var permissionManager: HealthConnectPermissionManager
     private lateinit var dataProvider: HealthConnectDataProvider
     private val coroutineScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main)
+    
+    // 응답 코드 상수
+    companion object {
+        const val SUCCESS = "SUCCESS"
+        const val ERROR_PERMISSION_DENIED = "PERMISSION_DENIED"
+        const val ERROR_NOT_AVAILABLE = "NOT_AVAILABLE"
+        const val ERROR_NO_DATA = "NO_DATA"
+        const val ERROR_UNKNOWN = "UNKNOWN_ERROR"
+        
+        // 디버그 로그 헬퍼
+        private fun logDebug(tag: String, message: String) {
+            if (com.inoi.urbanbreeze.BuildConfig.DEBUG) {
+                android.util.Log.d(tag, "🔍 $message")
+            }
+        }
+        
+        private fun logError(tag: String, message: String, e: Exception? = null) {
+            if (com.inoi.urbanbreeze.BuildConfig.DEBUG) {
+                if (e != null) {
+                    android.util.Log.e(tag, "❌ $message", e)
+                } else {
+                    android.util.Log.e(tag, "❌ $message")
+                }
+            }
+        }
+    }
 
     override fun onAttachedToEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(binding.binaryMessenger, CHANNEL)
@@ -44,6 +70,8 @@ class HealthConnectPlugin(private var activity: Activity? = null) : FlutterPlugi
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
+        logDebug("HealthConnectPlugin", "onMethodCall(): ${call.method}")
+        
         try {
             when (call.method) {
                 "isAvailable" -> handleIsAvailable(result)
@@ -53,10 +81,14 @@ class HealthConnectPlugin(private var activity: Activity? = null) : FlutterPlugi
                 "getHeartRateData" -> handleGetHeartRateData(call, result)
                 "getDistanceData" -> handleGetDistanceData(call, result)
                 "getLocationDataForSession" -> handleGetLocationDataForSession(call, result)
-                else -> result.notImplemented()
+                else -> {
+                    logError("HealthConnectPlugin", "구현되지 않은 메서드: ${call.method}")
+                    result.notImplemented()
+                }
             }
         } catch (e: Exception) {
-            result.error("PLUGIN_ERROR", "Unexpected error: ${e.message}", null)
+            logError("HealthConnectPlugin", "메서드 실행 중 오류 발생", e)
+            result.error(ERROR_UNKNOWN, "예상치 못한 오류: ${e.message}", null)
         }
     }
 
@@ -75,29 +107,34 @@ class HealthConnectPlugin(private var activity: Activity? = null) : FlutterPlugi
     }
 
     private fun handleRequestPermissions(result: Result) {
+        logDebug("HealthConnectPlugin", "handleRequestPermissions() 호출")
+        
         val mainActivity = activity as? com.inoi.urbanbreeze.MainActivity
         if (mainActivity != null) {
             // MainActivity의 권한 요청 사용
             mainActivity.requestHealthConnectPermissions { granted ->
+                logDebug("HealthConnectPlugin", "권한 요청 결과: granted=$granted")
+                
                 if (granted) {
-                    result.success("ALL_PERMISSIONS_GRANTED")
+                    result.success(SUCCESS)
                 } else {
-                    result.success("PERMISSIONS_DENIED")
+                    result.error(ERROR_PERMISSION_DENIED, "사용자가 권한을 거부했습니다", null)
                 }
             }
         } else {
-            // Activity가 없으면 기존 방식 사용
-            permissionManager.requestPermissions(result)
+            logError("HealthConnectPlugin", "MainActivity 참조를 찾을 수 없습니다")
+            result.error(ERROR_UNKNOWN, "Activity 참조가 없습니다", null)
         }
     }
 
     private fun handleHasPermissions(result: Result) {
-        // 임시로 기본 가용성 체크만 수행
         try {
             val isAvailable = healthConnectManager.isHealthConnectAvailable()
+            logDebug("HealthConnectPlugin", "hasPermissions() 결과: $isAvailable")
             result.success(isAvailable)
         } catch (e: Exception) {
-            result.error("PERMISSION_CHECK_ERROR", e.message, null)
+            logError("HealthConnectPlugin", "권한 확인 실패", e)
+            result.error(ERROR_UNKNOWN, "권한 확인 중 오류 발생: ${e.message}", null)
         }
     }
 

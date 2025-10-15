@@ -55,6 +55,7 @@ class MainActivity : FlutterFragmentActivity() {
         
         // Health Connect Plugin 등록
         healthConnectPlugin = HealthConnectPlugin(this)
+        healthConnectPlugin.setActivity(this)
         flutterEngine.plugins.add(healthConnectPlugin)
     }
     
