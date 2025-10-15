@@ -8,12 +8,13 @@ import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.*
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.android.FlutterFragmentActivity
-// import com.inoi.urbanbreeze.healthconnect.HealthConnectPlugin
-// import com.inoi.urbanbreeze.healthconnect.HealthConnectManager
+import com.inoi.urbanbreeze.healthconnect.HealthConnectPlugin
+import com.inoi.urbanbreeze.healthconnect.HealthConnectManager
 
 class MainActivity : FlutterFragmentActivity() {
 
-    // private lateinit var healthConnectManager: HealthConnectManager
+    private lateinit var healthConnectManager: HealthConnectManager
+    private lateinit var healthConnectPlugin: HealthConnectPlugin
     private lateinit var permissionLauncher: ActivityResultLauncher<Set<String>>
     private var permissionResultCallback: ((Boolean) -> Unit)? = null
 
@@ -29,6 +30,9 @@ class MainActivity : FlutterFragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Health Connect Manager 초기화
+        healthConnectManager = HealthConnectManager(this)
+
         // registerForActivityResult는 반드시 onCreate에서 호출
         permissionLauncher = registerForActivityResult(
             PermissionController.createRequestPermissionResultContract()
@@ -36,11 +40,29 @@ class MainActivity : FlutterFragmentActivity() {
             val allGranted = granted.containsAll(permissions)
             permissionResultCallback?.invoke(allGranted)
             permissionResultCallback = null
+            
+            // Health Connect Manager에 결과 전달
+            if (allGranted) {
+                healthConnectManager.onPermissionGranted()
+            } else {
+                healthConnectManager.onPermissionDenied()
+            }
         }
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        // HealthConnect 기능이 비활성화됨
+        
+        // Health Connect Plugin 등록
+        healthConnectPlugin = HealthConnectPlugin(this)
+        flutterEngine.plugins.add(healthConnectPlugin)
+    }
+    
+    /**
+     * Health Connect 권한 요청 (Plugin에서 호출)
+     */
+    fun requestHealthConnectPermissions(callback: (Boolean) -> Unit) {
+        permissionResultCallback = callback
+        permissionLauncher.launch(permissions)
     }
 }

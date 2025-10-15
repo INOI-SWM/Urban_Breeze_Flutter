@@ -122,6 +122,38 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     );
   }
 
+  /// Google Health Connect 동기화
+  Future<void> _syncGoogleHealthConnect() async {
+    // 플랫폼 체크 (Android 전용)
+    if (!Platform.isAndroid) {
+      showErrorMessage(context, 'Google Health Connect는 Android 전용 기능입니다.');
+      AmplitudeAnalytics.logEvent(
+        'google_health_connect_wrong_platform_clicked',
+      );
+      return;
+    }
+
+    AmplitudeAnalytics.logButtonClick('workout_sync_google_health_connect');
+
+    // 권한 요청 전 안내 모달 표시
+    await _showHealthConnectPermissionInfoDialog();
+  }
+
+  /// Health Connect 권한 안내 다이얼로그 표시
+  Future<void> _showHealthConnectPermissionInfoDialog() async {
+    await _showHealthPermissionDialog(
+      title: 'Google Health Connect 연동',
+      serviceName: 'Google Health Connect',
+      cancelEvent: 'google_health_connect_permission_dialog_cancelled',
+      confirmEvent: 'google_health_connect_permission_dialog_confirmed',
+      onConfirm: () async {
+        await ref
+            .read(syncScreenNotifierProvider.notifier)
+            .connectGoogleHealthConnect();
+      },
+    );
+  }
+
   /// 공통 헬스 권한 안내 다이얼로그
   Future<void> _showHealthPermissionDialog({
     required String title,
@@ -358,6 +390,25 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
                     onDisconnectPressed:
                         () => _showDisconnectModal(
                           HealthProvider.appleHealthKit.serviceName,
+                        ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Google Health Connect 섹션 (Android 전용)
+                  _buildSyncButton(
+                    provider: HealthProvider.healthConnect,
+                    isConnected:
+                        syncState.connectionStatus[HealthProvider
+                            .healthConnect] ??
+                        false,
+                    isLoading:
+                        syncState.loadingStatus[HealthProvider.healthConnect] ??
+                        false,
+                    onPressed: _syncGoogleHealthConnect,
+                    onDisconnectPressed:
+                        () => _showDisconnectModal(
+                          HealthProvider.healthConnect.serviceName,
                         ),
                   ),
 

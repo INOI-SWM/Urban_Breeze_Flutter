@@ -8,6 +8,7 @@ import 'package:urban_breeze/features/integration/di/integration_providers.dart'
 import 'package:urban_breeze/features/integration/domain/enums/health_provider.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/connect_apple_health_use_case.dart';
 import 'package:urban_breeze/features/workout_history/application/use_cases/sync_apple_health_kit_data_use_case.dart';
+import 'package:urban_breeze/features/workout_history/application/use_cases/sync_google_health_connect_data_use_case.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
@@ -129,6 +130,63 @@ class SyncScreenNotifier extends StateNotifier<SyncScreenState>
       );
     } finally {
       setServiceLoading(HealthProvider.appleHealthKit, false);
+    }
+  }
+
+  /// Google Health Connect 연동
+  Future<void> connectGoogleHealthConnect() async {
+    setServiceLoading(HealthProvider.healthConnect, true);
+
+    try {
+      // 1. Google Health Connect 권한 요청
+      final SyncGoogleHealthConnectDataUseCase
+      syncGoogleHealthConnectDataUseCase = ref.read(
+        syncGoogleHealthConnectDataUseCaseProvider,
+      );
+
+      // 권한 확인
+      final bool hasPermission =
+          await syncGoogleHealthConnectDataUseCase.checkPermissions();
+
+      if (!hasPermission) {
+        // 권한 요청
+        final bool permissionGranted =
+            await syncGoogleHealthConnectDataUseCase.requestPermissions();
+        if (!permissionGranted) {
+          AmplitudeAnalytics.logEvent(
+            'google_health_connect_permission_denied',
+            properties: <String, dynamic>{'source': 'sync_screen'},
+          );
+          // 권한 거부 시 상태 업데이트
+          setServiceLoading(HealthProvider.healthConnect, false);
+          state = state.copyWith(
+            lastDisconnectResult: const DisconnectResult(
+              isSuccess: false,
+              serviceName: 'Google Health Connect',
+              errorMessage:
+                  'Google Health Connect 권한이 거부되었습니다. 설정에서 권한을 허용해주세요.',
+            ),
+          );
+          return;
+        }
+      }
+
+      AmplitudeAnalytics.logEvent(
+        'google_health_connect_sync_success',
+        properties: <String, dynamic>{'sync_method': 'direct'},
+      );
+
+      await Future<void>.delayed(const Duration(seconds: 2));
+
+      // 연동 상태 다시 확인
+      await checkIntegrationStatus();
+    } catch (e) {
+      AmplitudeAnalytics.logEvent(
+        'google_health_connect_sync_exception',
+        properties: <String, dynamic>{'error_message': e.toString()},
+      );
+    } finally {
+      setServiceLoading(HealthProvider.healthConnect, false);
     }
   }
 

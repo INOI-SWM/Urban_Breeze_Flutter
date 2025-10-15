@@ -1,6 +1,7 @@
 /// 건강 데이터 제공자 열거형
 enum HealthProvider {
   appleHealthKit('Apple HealthKit', 'APPLE-HEALTH-KIT'),
+  healthConnect('Health Connect', 'HEALTH-CONNECT'),
   strava('Strava', 'STRAVA');
 
   const HealthProvider(this.displayName, this.apiProviderName);
@@ -26,6 +27,8 @@ enum HealthProvider {
     switch (this) {
       case HealthProvider.appleHealthKit:
         return 'Apple Health Kit';
+      case HealthProvider.healthConnect:
+        return 'Google Health Connect';
       case HealthProvider.strava:
         return 'Strava';
     }

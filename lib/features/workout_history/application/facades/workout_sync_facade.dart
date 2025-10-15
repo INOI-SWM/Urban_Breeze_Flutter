@@ -161,6 +161,129 @@ class WorkoutSyncFacade {
     }
   }
 
+  /// Google Health Connect 데이터 동기화
+  Future<AppResult<Map<String, dynamic>?>> syncGoogleHealthConnectData({
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    try {
+      // 1. API 사용량 체크
+      final AppResult<ApiUsage> usageResult =
+          await getIntegrationStatusUseCase.executeWithApiUsage();
+
+      if (usageResult.isSuccess) {
+        final ApiUsage apiUsage = usageResult.dataOrNull!;
+        if (apiUsage.remainingUsage <= 0 || apiUsage.isExceeded) {
+          AmplitudeAnalytics.logEvent(
+            'google_health_connect_sync_quota_exceeded',
+            properties: <String, dynamic>{
+              'remaining_usage': apiUsage.remainingUsage,
+              'monthly_limit': apiUsage.monthlyLimit,
+            },
+          );
+          return const AppFailure<Map<String, dynamic>?>(
+            IntegrationQuotaExceededException(
+              '이번 달 동기화 가능 횟수를 모두 사용했습니다.\n다음 달에 다시 시도해주세요.',
+            ),
+          );
+        }
+      }
+
+      // 2. 권한 확인
+      final bool hasPermission =
+          await syncGoogleHealthConnectDataUseCase.checkPermissions();
+
+      if (!hasPermission) {
+        // 권한 요청
+        final bool permissionGranted =
+            await syncGoogleHealthConnectDataUseCase.requestPermissions();
+        if (!permissionGranted) {
+          AmplitudeAnalytics.logEvent(
+            'google_health_connect_permission_denied',
+          );
+          return const AppFailure<Map<String, dynamic>?>(
+            HealthKitPermissionException(
+              'Google Health Connect 권한이 거부되었습니다. 설정에서 권한을 허용해주세요.',
+            ),
+          );
+        }
+      }
+
+      // 3. 운동 데이터 가져오기
+      final List<WorkoutRecord> workouts =
+          await syncGoogleHealthConnectDataUseCase.fetchBasicWorkoutData(
+            startDate:
+                startDate ?? DateTime.now().subtract(const Duration(days: 30)),
+            endDate: endDate ?? DateTime.now(),
+          );
+
+      AmplitudeAnalytics.logEvent(
+        'google_health_connect_sync_started',
+        properties: <String, dynamic>{
+          'workout_count': workouts.length,
+          'start_date': startDate?.toIso8601String(),
+          'end_date': endDate?.toIso8601String(),
+        },
+      );
+
+      // 4. 서버로 전송 (Apple Health와 동일한 로직)
+      if (workouts.isNotEmpty) {
+        try {
+          final List<AppleHealthWorkoutModel> workoutModels =
+              workouts
+                  .map(
+                    (WorkoutRecord workout) =>
+                        _convertToAppleHealthWorkoutModel(workout),
+                  )
+                  .toList();
+
+          final AppResult<void> uploadResult =
+              await importAppleHealthWorkoutsUseCase.execute(
+                workouts: workoutModels,
+              );
+
+          if (uploadResult.isSuccess) {
+            AmplitudeAnalytics.logEvent(
+              'google_health_connect_server_upload_success',
+              properties: <String, dynamic>{'workout_count': workouts.length},
+            );
+          } else {
+            AmplitudeAnalytics.logEvent(
+              'google_health_connect_server_upload_failed',
+              properties: <String, dynamic>{
+                'error_message':
+                    uploadResult.exceptionOrNull?.toString() ?? 'Unknown error',
+              },
+            );
+          }
+        } catch (e) {
+          AmplitudeAnalytics.logEvent(
+            'google_health_connect_server_upload_exception',
+            properties: <String, dynamic>{'error_message': e.toString()},
+          );
+        }
+      }
+
+      AmplitudeAnalytics.logEvent(
+        'google_health_connect_sync_success',
+        properties: <String, dynamic>{
+          'workout_count': workouts.length,
+          'start_date': startDate?.toIso8601String(),
+          'end_date': endDate?.toIso8601String(),
+        },
+      );
+
+      return AppSuccess<Map<String, dynamic>?>(<String, dynamic>{
+        'workouts': workouts,
+        'count': workouts.length,
+      });
+    } catch (e) {
+      return AppFailure<Map<String, dynamic>?>(
+        HealthKitDataException('Google Health Connect 동기화 실패: $e'),
+      );
+    }
+  }
+
   /// 연동된 서비스들의 활동 기록 새로고침
   Future<AppResult<Map<String, dynamic>>> refreshIntegrationActivity() async {
     return integrationSyncFacade.refreshIntegrationActivity();
