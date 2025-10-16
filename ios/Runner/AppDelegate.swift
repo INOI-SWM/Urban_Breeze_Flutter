@@ -1,6 +1,5 @@
 import Flutter
 import UIKit
-import TerraiOS
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -9,7 +8,6 @@ import TerraiOS
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
-    Terra.setUpBackgroundDelivery()
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }

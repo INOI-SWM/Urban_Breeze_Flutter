@@ -20,7 +20,26 @@ class GoogleHealthConnectDataSource {
       // 에러 코드별 처리
       switch (e.code) {
         case 'PERMISSION_DENIED':
-          throw const GoogleHealthConnectPermissionDeniedException();
+          // 상세 정보 추출
+          final Map<dynamic, dynamic>? details =
+              e.details as Map<dynamic, dynamic>?;
+          final List<dynamic>? deniedPermissionNames =
+              details?['deniedPermissionNames'] as List<dynamic>?;
+          final int? grantedCount = details?['grantedCount'] as int?;
+          final int? requiredCount = details?['requiredCount'] as int?;
+
+          String detailedMessage = e.message ?? '일부 권한이 거부되었습니다';
+
+          if (deniedPermissionNames != null &&
+              deniedPermissionNames.isNotEmpty) {
+            detailedMessage = '${deniedPermissionNames.join(", ")} 권한이 필요합니다';
+          }
+
+          if (grantedCount != null && requiredCount != null) {
+            detailedMessage += '\n(허용: $grantedCount/$requiredCount)';
+          }
+
+          throw GoogleHealthConnectException(detailedMessage);
         case 'NOT_AVAILABLE':
           throw const GoogleHealthConnectNotAvailableException();
         default:

@@ -110,22 +110,56 @@ class HealthConnectPlugin(private var activity: Activity? = null) : FlutterPlugi
     }
 
     private fun handleRequestPermissions(result: Result) {
-        logDebug("HealthConnectPlugin", "handleRequestPermissions() 호출")
+        val sdkAvailable = healthConnectManager.isHealthConnectAvailable()
+        
+        if (!sdkAvailable) {
+            val intent = healthConnectManager.createPlayStoreIntent()
+            activity?.startActivity(intent)
+            
+            val errorDetails = mapOf(
+                "requiresInstall" to true,
+                "playStoreRedirected" to true
+            )
+            result.error(ERROR_NOT_AVAILABLE, "Health Connect 앱 설치가 필요합니다. Play Store로 이동합니다.", errorDetails)
+            return
+        }
         
         val mainActivity = activity as? com.inoi.urbanbreeze.MainActivity
         if (mainActivity != null) {
-            // MainActivity의 권한 요청 사용
-            mainActivity.requestHealthConnectPermissions { granted ->
-                logDebug("HealthConnectPlugin", "권한 요청 결과: granted=$granted")
-                
+            mainActivity.requestHealthConnectPermissions { granted, deniedPermissions ->
                 if (granted) {
                     result.success(SUCCESS)
                 } else {
-                    result.error(ERROR_PERMISSION_DENIED, "사용자가 권한을 거부했습니다", null)
+                    val deniedPermissionNames = deniedPermissions.map { permission ->
+                        when {
+                            permission.contains("READ_EXERCISE") -> "운동 세션"
+                            permission.contains("READ_HEART_RATE") -> "심박수"
+                            permission.contains("READ_DISTANCE") -> "거리"
+                            permission.contains("READ_TOTAL_CALORIES") -> "칼로리"
+                            permission.contains("READ_SPEED") -> "속도"
+                            permission.contains("READ_EXERCISE_ROUTES") -> "GPS 경로"
+                            else -> permission
+                        }
+                    }
+                    
+                    val errorMessage = "다음 권한이 거부되었습니다: ${deniedPermissionNames.joinToString(", ")}"
+                    
+                    val errorDetails = mapOf(
+                        "allGranted" to false,
+                        "deniedPermissions" to deniedPermissions,
+                        "deniedPermissionNames" to deniedPermissionNames,
+                        "requiredCount" to 5,
+                        "grantedCount" to (5 - deniedPermissions.size)
+                    )
+                    
+                    result.error(
+                        ERROR_PERMISSION_DENIED, 
+                        errorMessage,
+                        errorDetails
+                    )
                 }
             }
         } else {
-            logError("HealthConnectPlugin", "MainActivity 참조를 찾을 수 없습니다")
             result.error(ERROR_UNKNOWN, "Activity 참조가 없습니다", null)
         }
     }

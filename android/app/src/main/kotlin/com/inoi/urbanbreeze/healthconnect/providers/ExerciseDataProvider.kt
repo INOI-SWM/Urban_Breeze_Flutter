@@ -33,7 +33,7 @@ class ExerciseDataProvider(
         }
     }
 
-    suspend fun fetchExerciseSessionsFromHealthConnect(startTime: Long, endTime: Long): List<Map<String, Any?>> {
+    private suspend fun fetchExerciseSessionsFromHealthConnect(startTime: Long, endTime: Long): List<Map<String, Any?>> {
         return withContext(Dispatchers.IO) {
             val exerciseSessions = mutableListOf<Map<String, Any?>>()
             val client = healthConnectManager.getClient() ?: return@withContext exerciseSessions

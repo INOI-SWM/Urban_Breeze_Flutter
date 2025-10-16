@@ -136,10 +136,6 @@ PODS:
   - sqflite_darwin (0.0.4):
     - Flutter
     - FlutterMacOS
-  - terra_flutter_bridge (0.4.3):
-    - Flutter
-    - TerraiOS (~> 1.6.28)
-  - TerraiOS (1.6.28)
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -163,7 +159,6 @@ DEPENDENCIES:
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
-  - terra_flutter_bridge (from `.symlinks/plugins/terra_flutter_bridge/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
 SPEC REPOS:
@@ -190,7 +185,6 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - PromisesSwift
-    - TerraiOS
 
 EXTERNAL SOURCES:
   amplitude_flutter:
@@ -229,8 +223,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sign_in_with_apple/ios"
   sqflite_darwin:
     :path: ".symlinks/plugins/sqflite_darwin/darwin"
-  terra_flutter_bridge:
-    :path: ".symlinks/plugins/terra_flutter_bridge/ios"
   webview_flutter_wkwebview:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
@@ -275,8 +267,6 @@ SPEC CHECKSUMS:
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
   sign_in_with_apple: c5dcc141574c8c54d5ac99dd2163c0c72ad22418
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
-  terra_flutter_bridge: d87e891e3cea43f47245072b0c55a028fdd95711
-  TerraiOS: 131a86c453923b98c47e84dc79db2ea6bab7e3cc
   webview_flutter_wkwebview: 1821ceac936eba6f7984d89a9f3bcb4dea99ebb2
 
 PODFILE CHECKSUM: ae9e65fc23486119b8e977fd41d9213f251e537a

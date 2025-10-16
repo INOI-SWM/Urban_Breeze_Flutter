@@ -19,17 +19,15 @@ class MainActivity : FlutterFragmentActivity() {
     private lateinit var healthConnectManager: HealthConnectManager
     private lateinit var healthConnectPlugin: HealthConnectPlugin
     private lateinit var permissionLauncher: ActivityResultLauncher<Set<String>>
-    private var permissionResultCallback: ((Boolean) -> Unit)? = null
+    private var permissionResultCallback: ((Boolean, List<String>) -> Unit)? = null
 
     // 요청할 Health Connect 권한 목록
     private val permissions = setOf(
         HealthPermission.getReadPermission(ExerciseSessionRecord::class),
-        HealthPermission.getWritePermission(ExerciseSessionRecord::class),
         HealthPermission.getReadPermission(HeartRateRecord::class),
         HealthPermission.getReadPermission(DistanceRecord::class),
         HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
         HealthPermission.getReadPermission(SpeedRecord::class),
-
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,10 +41,11 @@ class MainActivity : FlutterFragmentActivity() {
             PermissionController.createRequestPermissionResultContract()
         ) { granted ->
             val allGranted = granted.containsAll(permissions)
-            permissionResultCallback?.invoke(allGranted)
+            val deniedList = permissions.filter { !granted.contains(it) }
+            
+            permissionResultCallback?.invoke(allGranted, deniedList)
             permissionResultCallback = null
             
-            // Health Connect Manager에 결과 전달
             if (allGranted) {
                 healthConnectManager.onPermissionGranted()
             } else {
@@ -66,8 +65,10 @@ class MainActivity : FlutterFragmentActivity() {
     
     /**
      * Health Connect 권한 요청 (Plugin에서 호출)
+     * 
+     * @param callback 권한 결과 콜백 (allGranted, deniedPermissions)
      */
-    fun requestHealthConnectPermissions(callback: (Boolean) -> Unit) {
+    fun requestHealthConnectPermissions(callback: (Boolean, List<String>) -> Unit) {
         permissionResultCallback = callback
         permissionLauncher.launch(permissions)
     }
