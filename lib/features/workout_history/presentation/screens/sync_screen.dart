@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -7,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
-import 'package:urban_breeze/core/services/deep_link_service.dart';
 import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
 import 'package:urban_breeze/features/integration/domain/enums/health_provider.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
@@ -32,36 +30,16 @@ class SyncScreen extends ConsumerStatefulWidget {
 
 class _SyncScreenState extends ConsumerState<SyncScreen>
     with ErrorDisplayMixin {
-  StreamSubscription<IntegrationCallback>? _deepLinkSubscription;
-
   @override
   void initState() {
     super.initState();
     // 화면 조회 이벤트
     AmplitudeAnalytics.logScreenView('workout_sync_screen');
 
-    // Deep Link 콜백 리스너 등록
-    _deepLinkSubscription = DeepLinkService().callbackStream.listen(
-      _handleIntegrationCallback,
-    );
-
     // 연동 상태 확인
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(syncScreenNotifierProvider.notifier).checkIntegrationStatus();
     });
-  }
-
-  @override
-  void dispose() {
-    _deepLinkSubscription?.cancel();
-    super.dispose();
-  }
-
-  /// Deep Link 콜백 처리
-  void _handleIntegrationCallback(IntegrationCallback callback) {
-    debugPrint('연동 콜백 수신: $callback');
-    // 연동 상태 다시 확인
-    ref.read(syncScreenNotifierProvider.notifier).checkIntegrationStatus();
   }
 
   /// 공통 헬스 앱 연결 메서드

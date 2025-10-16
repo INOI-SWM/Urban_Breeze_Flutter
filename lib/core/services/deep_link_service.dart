@@ -2,14 +2,12 @@ import 'dart:async';
 
 import 'package:app_links/app_links.dart';
 
-/// Deep Link 처리 서비스
+/// Universal Link 처리 서비스
+/// https://urbanbreeze.org 및 https://devlink.urbanbreeze.org 도메인의 링크를 처리합니다.
 class DeepLinkService {
   factory DeepLinkService() => _instance;
   DeepLinkService._internal();
   static final DeepLinkService _instance = DeepLinkService._internal();
-
-  final StreamController<IntegrationCallback> _callbackController =
-      StreamController<IntegrationCallback>.broadcast();
 
   final StreamController<RouteShareCallback> _routeShareController =
       StreamController<RouteShareCallback>.broadcast();
@@ -18,61 +16,67 @@ class DeepLinkService {
   _recommendedCourseController =
       StreamController<RecommendedCourseCallback>.broadcast();
 
-  Stream<IntegrationCallback> get callbackStream => _callbackController.stream;
   Stream<RouteShareCallback> get routeShareStream =>
       _routeShareController.stream;
   Stream<RecommendedCourseCallback> get recommendedCourseStream =>
       _recommendedCourseController.stream;
 
-  /// Deep Link 초기화
+  /// Universal Link 초기화
   Future<void> initialize() async {
     try {
       final AppLinks appLinks = AppLinks();
 
-      // 앱이 종료된 상태에서 Deep Link로 실행된 경우
+      // 앱이 종료된 상태에서 Universal Link로 실행된 경우
       final Uri? initialLink = await appLinks.getInitialLink();
       if (initialLink != null) {
-        _processDeepLink(initialLink);
+        _processLink(initialLink);
       }
 
-      // 앱이 실행 중일 때 Deep Link 수신
+      // 앱이 실행 중일 때 Universal Link 수신
       appLinks.uriLinkStream.listen((Uri link) {
-        _processDeepLink(link);
+        _processLink(link);
       });
     } catch (e) {
-      // Deep Link 초기화 오류 처리
+      // Universal Link 초기화 오류 처리
     }
   }
 
-  /// Deep Link 처리 (Universal Links + Deep Links)
-  void _processDeepLink(Uri link) {
+  /// Universal Link 처리
+  void _processLink(Uri link) {
     // Universal Links 처리 (https://urbanbreeze.org 또는 https://devlink.urbanbreeze.org)
     if (link.scheme == 'https' &&
         (link.host == 'urbanbreeze.org' ||
             link.host == 'devlink.urbanbreeze.org')) {
-      if (link.path.startsWith('/integration')) {
-        final IntegrationCallback callback = IntegrationCallback.fromUri(link);
-        _callbackController.add(callback);
-      } else if (link.path.startsWith('/route')) {
-        final RouteShareCallback callback = RouteShareCallback.fromUri(link);
-        _routeShareController.add(callback);
-      } else if (link.path.startsWith('/course')) {
-        final RecommendedCourseCallback callback =
-            RecommendedCourseCallback.fromUri(link);
-        _recommendedCourseController.add(callback);
+      // 통합 /share 엔드포인트 처리
+      if (link.path.startsWith('/share')) {
+        final String? type = link.queryParameters['type'];
+        final String? id = link.queryParameters['id'];
+
+        if (type == 'route' && id != null) {
+          // route 타입: routeId 파라미터로 변환하여 처리
+          final Uri convertedUri = Uri(
+            scheme: link.scheme,
+            host: link.host,
+            path: '/route',
+            queryParameters: <String, String>{'routeId': id},
+          );
+          final RouteShareCallback callback = RouteShareCallback.fromUri(
+            convertedUri,
+          );
+          _routeShareController.add(callback);
+        } else if (type == 'course' && id != null) {
+          // course 타입: courseId 파라미터로 변환하여 처리
+          final Uri convertedUri = Uri(
+            scheme: link.scheme,
+            host: link.host,
+            path: '/course',
+            queryParameters: <String, String>{'courseId': id},
+          );
+          final RecommendedCourseCallback callback =
+              RecommendedCourseCallback.fromUri(convertedUri);
+          _recommendedCourseController.add(callback);
+        }
       }
-    }
-    // Deep Links 처리 (Fallback: urbanbreeze://)
-    else if (link.scheme == 'urbanbreeze' && link.host == 'integration') {
-      final IntegrationCallback callback = IntegrationCallback.fromUri(link);
-      _callbackController.add(callback);
-    } else if (link.scheme == 'urbanbreeze' && link.host == 'route') {
-      final RouteShareCallback callback = RouteShareCallback.fromUri(link);
-      _routeShareController.add(callback);
-    } else if (link.scheme == 'urbanbreeze' && link.host == 'course') {
-      final RecommendedCourseCallback callback =
-          RecommendedCourseCallback.fromUri(link);
-      _recommendedCourseController.add(callback);
     }
     // 카카오 OAuth 딥링크는 무시 (카카오 SDK가 자동 처리)
     else if (link.scheme.startsWith('kakao') && link.host == 'oauth') {
@@ -86,29 +90,8 @@ class DeepLinkService {
 
   /// 리소스 정리
   void dispose() {
-    _callbackController.close();
     _routeShareController.close();
     _recommendedCourseController.close();
-  }
-}
-
-/// 연동 콜백 데이터 모델
-class IntegrationCallback {
-  const IntegrationCallback({required this.status});
-
-  factory IntegrationCallback.fromUri(Uri uri) {
-    final String? status = uri.queryParameters['status'];
-
-    return IntegrationCallback(status: status ?? 'error');
-  }
-
-  final String status;
-
-  bool get isSuccess => status == 'success';
-
-  @override
-  String toString() {
-    return 'IntegrationCallback(status: $status)';
   }
 }
 
