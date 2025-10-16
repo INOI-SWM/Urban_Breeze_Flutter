@@ -44,9 +44,26 @@ class DeepLinkService {
     }
   }
 
-  /// Deep Link 처리
+  /// Deep Link 처리 (Universal Links + Deep Links)
   void _processDeepLink(Uri link) {
-    if (link.scheme == 'urbanbreeze' && link.host == 'integration') {
+    // Universal Links 처리 (https://urbanbreeze.org 또는 https://devlink.urbanbreeze.org)
+    if (link.scheme == 'https' &&
+        (link.host == 'urbanbreeze.org' ||
+            link.host == 'devlink.urbanbreeze.org')) {
+      if (link.path.startsWith('/integration')) {
+        final IntegrationCallback callback = IntegrationCallback.fromUri(link);
+        _callbackController.add(callback);
+      } else if (link.path.startsWith('/route')) {
+        final RouteShareCallback callback = RouteShareCallback.fromUri(link);
+        _routeShareController.add(callback);
+      } else if (link.path.startsWith('/course')) {
+        final RecommendedCourseCallback callback =
+            RecommendedCourseCallback.fromUri(link);
+        _recommendedCourseController.add(callback);
+      }
+    }
+    // Deep Links 처리 (Fallback: urbanbreeze://)
+    else if (link.scheme == 'urbanbreeze' && link.host == 'integration') {
       final IntegrationCallback callback = IntegrationCallback.fromUri(link);
       _callbackController.add(callback);
     } else if (link.scheme == 'urbanbreeze' && link.host == 'route') {
@@ -56,10 +73,14 @@ class DeepLinkService {
       final RecommendedCourseCallback callback =
           RecommendedCourseCallback.fromUri(link);
       _recommendedCourseController.add(callback);
-    } else if (link.scheme.startsWith('kakao') && link.host == 'oauth') {
-      // 카카오 OAuth 딥링크는 무시 (카카오 SDK가 자동 처리)
-    } else {
-      // 기타 딥링크는 무시
+    }
+    // 카카오 OAuth 딥링크는 무시 (카카오 SDK가 자동 처리)
+    else if (link.scheme.startsWith('kakao') && link.host == 'oauth') {
+      // 무시
+    }
+    // 기타 딥링크는 무시
+    else {
+      // 무시
     }
   }
 
