@@ -2,10 +2,13 @@ package com.inoi.urbanbreeze
 
 import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
-import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
-import androidx.health.connect.client.records.*
+import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
+import androidx.health.connect.client.records.SpeedRecord
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.android.FlutterFragmentActivity
 import com.inoi.urbanbreeze.healthconnect.HealthConnectPlugin
@@ -21,10 +24,12 @@ class MainActivity : FlutterFragmentActivity() {
     // 요청할 Health Connect 권한 목록
     private val permissions = setOf(
         HealthPermission.getReadPermission(ExerciseSessionRecord::class),
+        HealthPermission.getWritePermission(ExerciseSessionRecord::class),
         HealthPermission.getReadPermission(HeartRateRecord::class),
         HealthPermission.getReadPermission(DistanceRecord::class),
         HealthPermission.getReadPermission(TotalCaloriesBurnedRecord::class),
         HealthPermission.getReadPermission(SpeedRecord::class),
+
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

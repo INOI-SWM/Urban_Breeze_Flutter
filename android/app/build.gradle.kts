@@ -99,7 +99,7 @@ flutter {
 
 dependencies {
     // Health Connect 의존성 - 운동 경로 기능 포함 버전
-    implementation("androidx.health.connect:connect-client:1.1.0-alpha12")
+    implementation("androidx.health.connect:connect-client:1.1.0")
     implementation("androidx.activity:activity-compose:1.7.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     implementation("androidx.activity:activity-ktx:1.10.1")
