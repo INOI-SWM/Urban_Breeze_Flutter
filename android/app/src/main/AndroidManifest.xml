@@ -93,9 +93,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="urbanbreeze.org" />
-                <data android:pathPrefix="/integration" />
-                <data android:pathPrefix="/route" />
-                <data android:pathPrefix="/course" />
+                <data android:pathPrefix="/share" />
             </intent-filter>
             
             <!-- Universal Links (App Links) - Dev -->
@@ -104,33 +102,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="devlink.urbanbreeze.org" />
-                <data android:pathPrefix="/integration" />
-                <data android:pathPrefix="/route" />
-                <data android:pathPrefix="/course" />
-            </intent-filter>
-            
-            <!-- Deep Links (Fallback) - 연동 콜백 처리 -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="urbanbreeze" android:host="integration" />
-            </intent-filter>
-            
-            <!-- Deep Links (Fallback) - 경로 공유 처리 -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="urbanbreeze" android:host="route" />
-            </intent-filter>
-            
-            <!-- Deep Links (Fallback) - 추천 경로 공유 처리 -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="urbanbreeze" android:host="course" />
+                <data android:pathPrefix="/share" />
             </intent-filter>
         </activity>
         
