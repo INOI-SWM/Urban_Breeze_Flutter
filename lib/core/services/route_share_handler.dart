@@ -5,7 +5,6 @@ import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/core/services/universal_link_service.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
-import 'package:urban_breeze/features/my_route/application/usecases/get_my_route_detail_usecase.dart';
 import 'package:urban_breeze/features/my_route/application/usecases/save_shared_route_usecase.dart';
 import 'package:urban_breeze/features/my_route/di/my_route_providers.dart';
 import 'package:urban_breeze/features/my_route/domain/exceptions/route_share_exceptions.dart';
@@ -113,35 +112,7 @@ class RouteShareHandler with ErrorDisplayMixin {
     }
 
     try {
-      // 1단계: 경로 존재 여부 확인
-      final GetMyRouteDetailUseCase getRouteDetailUseCase = ref.read(
-        getMyRouteDetailUseCaseProvider,
-      );
-
-      try {
-        await getRouteDetailUseCase.call(callback.routeId);
-      } catch (e) {
-        // 경로 조회 실패 로깅
-        AmplitudeAnalytics.logEvent(
-          'route_share_check_failed',
-          properties: <String, dynamic>{
-            'route_id': callback.routeId,
-            'error': 'route_not_found',
-            'timestamp': DateTime.now().toIso8601String(),
-          },
-        );
-
-        if (!context.mounted) return;
-
-        // 경로가 없거나 접근할 수 없는 경우
-        showErrorMessage(context, '없는 경로입니다');
-        _isProcessing = false;
-        return;
-      }
-
-      if (!context.mounted) return;
-
-      // 2단계: 경로가 존재하면 저장 시도
+      // 경로 저장 시도
       final SaveSharedRouteUseCase saveSharedRouteUseCase = ref.read(
         saveSharedRouteUseCaseProvider,
       );
@@ -225,36 +196,19 @@ class RouteShareHandler with ErrorDisplayMixin {
               (BuildContext context) => MyRouteDetailScreen(routeId: routeId),
         ),
       );
-    } else if (exception is RouteNotFoundException ||
-        exception is RouteAccessDeniedException) {
-      // 404, 403: 경로를 찾을 수 없음 또는 접근 거부
-      AmplitudeAnalytics.logEvent(
-        'route_share_failed',
-        properties: <String, dynamic>{
-          'route_id': routeId,
-          'error':
-              exception is RouteNotFoundException
-                  ? 'not_found'
-                  : 'access_denied',
-          'error_code': exception is RouteNotFoundException ? '404' : '403',
-          'timestamp': DateTime.now().toIso8601String(),
-        },
-      );
-
-      showErrorMessage(context, '없는 경로입니다');
     } else {
-      // 기타 에러 - 일반적인 에러 처리
+      // 404, 403, 기타 모든 에러 → "경로를 찾을 수 없습니다"
       AmplitudeAnalytics.logEvent(
         'route_share_failed',
         properties: <String, dynamic>{
           'route_id': routeId,
-          'error': 'unknown',
+          'error': exception.runtimeType.toString(),
           'error_message': exception.message,
           'timestamp': DateTime.now().toIso8601String(),
         },
       );
 
-      showErrorMessage(context, '경로 저장 중 오류가 발생했습니다');
+      showErrorMessage(context, '경로를 찾을 수 없습니다');
     }
   }
 }
