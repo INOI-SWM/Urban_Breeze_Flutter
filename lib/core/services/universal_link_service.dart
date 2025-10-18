@@ -4,10 +4,11 @@ import 'package:app_links/app_links.dart';
 
 /// Universal Link 처리 서비스
 /// https://urbanbreeze.org 및 https://devlink.urbanbreeze.org 도메인의 링크를 처리합니다.
-class DeepLinkService {
-  factory DeepLinkService() => _instance;
-  DeepLinkService._internal();
-  static final DeepLinkService _instance = DeepLinkService._internal();
+class UniversalLinkService {
+  factory UniversalLinkService() => _instance;
+  UniversalLinkService._internal();
+  static final UniversalLinkService _instance =
+      UniversalLinkService._internal();
 
   final StreamController<RouteShareCallback> _routeShareController =
       StreamController<RouteShareCallback>.broadcast();

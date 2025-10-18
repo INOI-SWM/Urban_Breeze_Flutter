@@ -1,41 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
-import 'package:urban_breeze/core/services/deep_link_service.dart';
+import 'package:urban_breeze/core/services/universal_link_service.dart';
 import 'package:urban_breeze/features/recommended_course/presentation/screens/recommended_course_detail_screen.dart';
 
-/// 추천경로 딥링크 핸들러
+/// 추천경로 Universal Link 핸들러
 class RecommendedCourseHandler {
   factory RecommendedCourseHandler() => _instance;
   RecommendedCourseHandler._internal();
   static final RecommendedCourseHandler _instance =
       RecommendedCourseHandler._internal();
 
-  /// 추천경로 딥링크 진입 추적
-  Future<void> _trackDeepLinkEntry(String courseId) async {
+  /// 추천경로 Universal Link 진입 추적
+  Future<void> _trackUniversalLinkEntry(String courseId) async {
     try {
       // Amplitude에 이벤트 전송
       await AmplitudeAnalytics.logEvent(
-        'recommended_course_deep_link_received',
+        'recommended_course_universal_link_received',
         properties: <String, dynamic>{
           'course_id': courseId,
           'timestamp': DateTime.now().toIso8601String(),
         },
       );
     } catch (e) {
-      // 딥링크 추적 실패해도 메인 기능은 계속 진행
+      // Universal Link 추적 실패해도 메인 기능은 계속 진행
     }
   }
 
   static void initialize(WidgetRef ref, BuildContext context) {
     try {
-      DeepLinkService().recommendedCourseStream.listen(
+      UniversalLinkService().recommendedCourseStream.listen(
         (RecommendedCourseCallback callback) {
           if (!context.mounted) return;
           _instance._handleRecommendedCourseShare(ref, context, callback);
         },
         onError: (Object error) {
-          // 딥링크 스트림 오류 처리
+          // Universal Link 스트림 오류 처리
         },
       );
     } catch (e) {
@@ -63,8 +63,8 @@ class RecommendedCourseHandler {
         return;
       }
 
-      // 딥링크 진입 추적
-      await _trackDeepLinkEntry(callback.courseId);
+      // Universal Link 진입 추적
+      await _trackUniversalLinkEntry(callback.courseId);
 
       // 추천경로 상세 화면으로 이동
       if (context.mounted) {
