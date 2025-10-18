@@ -78,14 +78,6 @@ class DeepLinkService {
         }
       }
     }
-    // 카카오 OAuth 딥링크는 무시 (카카오 SDK가 자동 처리)
-    else if (link.scheme.startsWith('kakao') && link.host == 'oauth') {
-      // 무시
-    }
-    // 기타 딥링크는 무시
-    else {
-      // 무시
-    }
   }
 
   /// 리소스 정리

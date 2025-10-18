@@ -49,7 +49,19 @@ class RecommendedCourseHandler {
     RecommendedCourseCallback callback,
   ) async {
     try {
-      if (!callback.isValid) return;
+      // ID 유효성 검사
+      if (!callback.isValid) {
+        // 유효하지 않은 링크 추적
+        AmplitudeAnalytics.logEvent(
+          'universal_link_invalid',
+          properties: <String, dynamic>{
+            'type': 'course',
+            'reason': 'empty_course_id',
+            'timestamp': DateTime.now().toIso8601String(),
+          },
+        );
+        return;
+      }
 
       // 딥링크 진입 추적
       await _trackDeepLinkEntry(callback.courseId);
@@ -66,6 +78,14 @@ class RecommendedCourseHandler {
       }
     } catch (e) {
       // 딥링크 처리 실패 시 무시
+      AmplitudeAnalytics.logEvent(
+        'universal_link_error',
+        properties: <String, dynamic>{
+          'type': 'course',
+          'course_id': callback.courseId,
+          'error': e.toString(),
+        },
+      );
     }
   }
 }
