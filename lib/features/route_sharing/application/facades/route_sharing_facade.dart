@@ -5,6 +5,7 @@ import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
+import 'package:urban_breeze/core/config/environment_config.dart';
 import 'package:urban_breeze/features/route_sharing/application/use_cases/get_route_share_link_use_case.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
@@ -17,12 +18,13 @@ class RouteSharingFacade {
     final Rect origin = _getSharePositionOrigin(context);
 
     try {
-      // 딥링크 생성
-      final String deepLink = 'urbanbreeze://route?routeId=$routeId';
+      // 유니버셜 링크 생성 (통합 share 엔드포인트 사용)
+      final String universalLink =
+          '${EnvironmentConfig.shareBaseUrl}/share?type=route&id=$routeId';
 
       await SharePlus.instance.share(
         ShareParams(
-          text: '어반브리즈에서 공유된 경로를 확인해주세요! \n $deepLink',
+          text: '어반브리즈에서 공유된 경로를 확인해주세요! \n $universalLink',
           sharePositionOrigin: origin,
         ),
       );
@@ -32,7 +34,9 @@ class RouteSharingFacade {
         'route_sharing_link_success',
         properties: <String, dynamic>{
           'route_id': routeId,
-          'share_url': deepLink,
+          'share_url': universalLink,
+          'link_type': 'universal_link',
+          'share_type': 'route',
         },
       );
     } catch (e) {

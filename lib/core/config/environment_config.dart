@@ -72,4 +72,16 @@ class EnvironmentConfig {
         return 'Urban Breeze';
     }
   }
+
+  /// 공유 링크 도메인 (Universal Links)
+  static String get shareBaseUrl {
+    switch (_environment) {
+      case Environment.dev:
+        return 'https://devlink.urbanbreeze.org';
+      case Environment.staging:
+        return 'https://devlink.urbanbreeze.org'; // staging도 dev 도메인 사용
+      case Environment.prod:
+        return 'https://urbanbreeze.org';
+    }
+  }
 }

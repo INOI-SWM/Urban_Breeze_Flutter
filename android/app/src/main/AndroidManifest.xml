@@ -82,26 +82,36 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
+            <!-- Flutter 3.24+ 기본 딥링크 처리 비활성화 (app_links 패키지 사용) -->
+            <meta-data
+              android:name="flutter_deeplinking_enabled"
+              android:value="false"
+              />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
             
-            
-            <!-- 연동 콜백 처리 -->
-            <intent-filter>
+            <!-- Universal Links (App Links) - Prod -->
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="urbanbreeze" android:host="integration" />
+                <data
+                    android:scheme="https"
+                    android:host="urbanbreeze.org"
+                    android:pathPrefix="/share" />
             </intent-filter>
             
-            <!-- 경로 공유 처리 -->
-            <intent-filter>
+            <!-- Universal Links (App Links) - Dev -->
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="urbanbreeze" android:host="route" />
+                <data
+                    android:scheme="https"
+                    android:host="devlink.urbanbreeze.org"
+                    android:pathPrefix="/share" />
             </intent-filter>
         </activity>
         

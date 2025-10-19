@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
+import 'package:urban_breeze/core/config/environment_config.dart';
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/get_course_gpx_use_case.dart';
@@ -17,20 +18,21 @@ class ShareRecommendedCourseUseCase {
   final GetCourseGpxUseCase _getCourseGpxUseCase;
   final RouteSharingFacade _routeSharingFacade;
 
-  /// 딥링크 공유
+  /// 유니버셜 링크 공유
   Future<AppResult<void>> shareDeepLink(
     BuildContext context,
     String courseId,
   ) async {
     try {
-      // 추천경로용 딥링크 생성
-      final String deepLink = 'urbanbreeze://course?courseId=$courseId';
-      final String shareMessage = '어반브리즈에서 추천하는 경로를 확인해보세요!\n$deepLink';
+      // 유니버셜 링크 생성 (통합 share 엔드포인트 사용)
+      final String universalLink =
+          '${EnvironmentConfig.shareBaseUrl}/share?type=course&id=$courseId';
+      final String shareMessage = '어반브리즈에서 추천하는 경로를 확인해보세요!\n$universalLink';
 
       // 공유 위치 계산
       final Rect sharePositionOrigin = _getSharePositionOrigin(context);
 
-      // 딥링크 공유
+      // 유니버셜 링크 공유
       await SharePlus.instance.share(
         ShareParams(
           text: shareMessage,
@@ -43,7 +45,9 @@ class ShareRecommendedCourseUseCase {
         'recommended_course_share_success',
         properties: <String, dynamic>{
           'course_id': courseId,
-          'share_url': deepLink,
+          'share_url': universalLink,
+          'link_type': 'universal_link',
+          'share_type': 'course',
         },
       );
 

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Urban Breeze</title>
+  </head>
+  <body>
+    <script>
+      // 디바이스 감지
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isAndroid = /Android/.test(navigator.userAgent);
+
+      // 스토어 URL
+      const appStoreUrl = "https://apps.apple.com/app/6753627033";
+      const playStoreUrl =
+        "https://play.google.com/store/apps/details?id=com.inoi.urbanbreeze";
+
+      // 즉시 리다이렉트
+      if (isIOS) {
+        window.location.href = appStoreUrl;
+      } else if (isAndroid) {
+        window.location.href = playStoreUrl;
+      } else {
+        // 데스크톱: App Store로 리다이렉트 (또는 안내 페이지)
+        window.location.href = appStoreUrl;
+      }
+    </script>
+  </body>
+</html>

@@ -8,7 +8,7 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_service.dart';
 import 'package:urban_breeze/core/config/environment_config.dart';
 import 'package:urban_breeze/core/services/app_tracking_service.dart';
-import 'package:urban_breeze/core/services/deep_link_service.dart';
+import 'package:urban_breeze/core/services/universal_link_service.dart';
 import 'package:urban_breeze/core/theme/app_theme.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
 import 'package:urban_breeze/features/auth/presentation/screens/consent_screen.dart';
@@ -50,9 +50,9 @@ Future<void> main() async {
   }
 
   try {
-    await DeepLinkService().initialize();
+    await UniversalLinkService().initialize();
   } catch (e) {
-    debugPrint('Deep Link 초기화 실패: $e');
+    debugPrint('Universal Link 초기화 실패: $e');
   }
 
   runApp(RestartableApp(key: restartableAppKey));
