@@ -434,15 +434,21 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   Widget _buildBottomBar() {
-    return RouteCreateBottomPanel(
-      mode: _isSaveMode ? RouteCreateMode.save : RouteCreateMode.create,
-      totalDistance: formattedTotalDistance,
-      totalDuration: formattedTotalDuration,
-      elevationGain: formattedElevationGain,
-      hasRoute: _routeSegments.isNotEmpty,
-      onSave: _enterSaveMode,
-      onBack: _exitSaveMode,
-      onComplete: _completeRouteSave,
+    return IgnorePointer(
+      ignoring: _isRouteLoading,
+      child: Opacity(
+        opacity: _isRouteLoading ? 0.5 : 1.0,
+        child: RouteCreateBottomPanel(
+          mode: _isSaveMode ? RouteCreateMode.save : RouteCreateMode.create,
+          totalDistance: formattedTotalDistance,
+          totalDuration: formattedTotalDuration,
+          elevationGain: formattedElevationGain,
+          hasRoute: _routeSegments.isNotEmpty,
+          onSave: _enterSaveMode,
+          onBack: _exitSaveMode,
+          onComplete: _completeRouteSave,
+        ),
+      ),
     );
   }
 
@@ -589,12 +595,18 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                     Positioned(
                       right: 16,
                       bottom: 16,
-                      child: RouteCreationActionButtons(
-                        isPinButtonPressed: _isButtonPressed,
-                        onTogglePinButton: _toggleButtonState,
-                        onRemoveLastPin: _removeLastPin,
-                        onMoveToCurrentLocation: _moveToCurrentLocation,
-                        hasPins: _pins.isNotEmpty,
+                      child: IgnorePointer(
+                        ignoring: _isRouteLoading,
+                        child: Opacity(
+                          opacity: _isRouteLoading ? 0.5 : 1.0,
+                          child: RouteCreationActionButtons(
+                            isPinButtonPressed: _isButtonPressed,
+                            onTogglePinButton: _toggleButtonState,
+                            onRemoveLastPin: _removeLastPin,
+                            onMoveToCurrentLocation: _moveToCurrentLocation,
+                            hasPins: _pins.isNotEmpty,
+                          ),
+                        ),
                       ),
                     ),
                 ],
