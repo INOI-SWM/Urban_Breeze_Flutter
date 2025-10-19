@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/INOI-SWM/Urban_Breeze_Flutter/compare/v1.0.2...v1.1.0) (2025-10-19)
+
+
+### Features
+
+* 딥링크 -&gt; 유니버셜 링크로 변환 ([#179](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/179)) ([b0fa74a](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/b0fa74a123ffd9d4b68c352f76834409e3712830))
+
 ## [1.0.2](https://github.com/INOI-SWM/Urban_Breeze_Flutter/compare/v1.0.1...v1.0.2) (2025-10-13)
 
 
