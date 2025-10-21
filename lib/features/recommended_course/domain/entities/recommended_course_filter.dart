@@ -10,10 +10,10 @@ class RecommendedCourseFilter extends BaseFilter {
     this.regions,
     this.difficulty,
     this.recommendationTypes,
-    super.minDistance = RecommendedCourseConstants.defaultMinDistance,
-    super.maxDistance = RecommendedCourseConstants.defaultMaxDistance,
-    super.minElevation = RecommendedCourseConstants.defaultMinElevation,
-    super.maxElevation = RecommendedCourseConstants.defaultMaxElevation,
+    super.minDistance,
+    super.maxDistance,
+    super.minElevation,
+    super.maxElevation,
     this.userLon,
     this.userLat,
   });
@@ -26,17 +26,9 @@ class RecommendedCourseFilter extends BaseFilter {
   final double? userLat; // 사용자 위도 (가까운 순 정렬용)
 
   @override
-  double getDefaultMaxDistance() =>
-      RecommendedCourseConstants.defaultMaxDistance;
-
-  @override
-  double getDefaultMaxElevation() =>
-      RecommendedCourseConstants.defaultMaxElevation;
-
-  @override
   bool get hasAppliedFilters {
-    return hasDistanceFilter ||
-        hasElevationFilter ||
+    return (minDistance != null || maxDistance != null) ||
+        (minElevation != null || maxElevation != null) ||
         regions != null ||
         difficulty != null ||
         recommendationTypes != null;

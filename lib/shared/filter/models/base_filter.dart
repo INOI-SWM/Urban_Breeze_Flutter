@@ -25,20 +25,24 @@ abstract class BaseFilter {
   bool get hasAppliedFilters;
 
   /// 거리 필터가 적용되었는지 확인
+  /// 기본 최대값과 비교하려면 getDefaultMaxDistance()를 오버라이드하세요
   bool get hasDistanceFilter =>
       (minDistance != null && minDistance! > 0) ||
       (maxDistance != null && maxDistance! < getDefaultMaxDistance());
 
   /// 고도 필터가 적용되었는지 확인
+  /// 기본 최대값과 비교하려면 getDefaultMaxElevation()를 오버라이드하세요
   bool get hasElevationFilter =>
       (minElevation != null && minElevation! > 0) ||
       (maxElevation != null && maxElevation! < getDefaultMaxElevation());
 
-  /// 기본 최대 거리값 (하위 클래스에서 구현)
-  double getDefaultMaxDistance();
+  /// 기본 최대 거리값
+  /// hasDistanceFilter를 사용하는 경우 하위 클래스에서 오버라이드
+  double getDefaultMaxDistance() => double.infinity;
 
-  /// 기본 최대 고도값 (하위 클래스에서 구현)
-  double getDefaultMaxElevation();
+  /// 기본 최대 고도값
+  /// hasElevationFilter를 사용하는 경우 하위 클래스에서 오버라이드
+  double getDefaultMaxElevation() => double.infinity;
 
   /// 필터 업데이트 (하위 클래스에서 구현)
   BaseFilter copyWith({
