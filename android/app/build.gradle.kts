@@ -79,10 +79,16 @@ android {
         getByName("debug") {
             // flavor별 키스토어 설정 사용
             signingConfig = null // flavor별 signingConfig 사용
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
         getByName("release") {
             // flavor별 키스토어 설정 사용
             signingConfig = null // flavor별 signingConfig 사용
+            
+            // 난독화 및 최적화 활성화
+            isMinifyEnabled = true
+            isShrinkResources = true
             
             // ProGuard 규칙 적용
             proguardFiles(

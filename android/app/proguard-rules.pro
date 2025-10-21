@@ -38,3 +38,36 @@
 -keep class androidx.health.connect.** { *; }
 -keepclassmembers class androidx.health.connect.** { *; }
 
+# Kakao SDK
+-keep class com.kakao.sdk.** { *; }
+-keep interface com.kakao.sdk.** { *; }
+-keepclassmembers class com.kakao.sdk.** { *; }
+-keep class com.kakao.** { *; }
+-keepclassmembers class com.kakao.** { *; }
+
+# Kakao SDK - 네트워킹 (Retrofit/OkHttp)
+-dontwarn okhttp3.**
+-dontwarn retrofit2.**
+-keep class okhttp3.** { *; }
+-keep class retrofit2.** { *; }
+-keepattributes Signature
+-keepattributes Exceptions
+
+# Google Sign In & Google Play Services Auth
+-keep class com.google.android.gms.auth.** { *; }
+-keep class com.google.android.gms.common.** { *; }
+-keep class com.google.android.gms.tasks.** { *; }
+-keep class com.google.android.gms.signin.** { *; }
+-keepclassmembers class com.google.android.gms.** { *; }
+-dontwarn com.google.android.gms.**
+
+# Firebase Auth
+-keep class com.google.firebase.auth.** { *; }
+-keepclassmembers class com.google.firebase.auth.** { *; }
+-dontwarn com.google.firebase.auth.**
+
+# Google Sign In - 추가 규칙
+-keep class com.google.api.client.** { *; }
+-keep class com.google.api.services.** { *; }
+-keepclassmembers class com.google.api.** { *; }
+
