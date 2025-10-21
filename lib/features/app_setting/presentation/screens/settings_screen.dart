@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
@@ -101,11 +102,21 @@ class SettingsScreen extends ConsumerWidget with ErrorDisplayMixin {
                   title: '버전 정보',
                   rightWidget: Padding(
                     padding: const EdgeInsets.only(right: 6),
-                    child: Text(
-                      '1.0.0',
-                      style: AppTextStyles.body2.normalRegular.copyWith(
-                        color: colors.labelAssistive,
-                      ),
+                    child: FutureBuilder<PackageInfo>(
+                      future: PackageInfo.fromPlatform(),
+                      builder: (
+                        BuildContext context,
+                        AsyncSnapshot<PackageInfo> snapshot,
+                      ) {
+                        return Text(
+                          snapshot.hasData
+                              ? '${snapshot.data!.version}+${snapshot.data!.buildNumber}'
+                              : '...',
+                          style: AppTextStyles.body2.normalRegular.copyWith(
+                            color: colors.labelAssistive,
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
