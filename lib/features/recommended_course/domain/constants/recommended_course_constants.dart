@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 /// 추천 코스 관련 상수들
 /// 카테고리 분류 및 필터링에 사용되는 상수 정의
 class RecommendedCourseConstants {
@@ -106,24 +104,6 @@ class RecommendedCourseConstants {
         'FAMOUS': '유명 코스',
       };
 
-  // === Range 기본값 ===
-
-  /// 고도 범위 기본값
-  static const RangeValues defaultElevationRange = RangeValues(0, 1000);
-
-  /// 거리 범위 기본값
-  static const RangeValues defaultDistanceRange = RangeValues(0, 100);
-
   /// API 기본값들
   static const int defaultPageSize = 10;
-  static const String defaultSortType = 'NEAREST';
-  static const double defaultMinDistance = 0.0;
-  static const double defaultMaxDistance = 1000.0;
-  static const double defaultMinElevation = 0.0;
-  static const double defaultMaxElevation = 1000.0;
-
-  /// 정렬 타입 옵션
-  static const List<String> sortTypeOptions = <String>[
-    'NEAREST', // 가까운 순 (기본값)
-  ];
 }
