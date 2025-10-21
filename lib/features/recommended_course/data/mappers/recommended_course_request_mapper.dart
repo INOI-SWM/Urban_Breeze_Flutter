@@ -116,6 +116,7 @@ class RecommendedCourseRequestMapper {
         _extractSelectedRecommendationTypes(filterData);
 
     return RecommendedCourseFilter(
+      page: 0, // 필터 변경 시 첫 페이지부터
       sortType: sortType,
       regions: regions,
       difficulty: difficulties,

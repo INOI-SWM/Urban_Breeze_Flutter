@@ -51,8 +51,12 @@ class _RecommendedCourseScreenState
 
   List<RecommendedCourse> courseList = <RecommendedCourse>[];
   bool isLoading = true;
+  bool isLoadingMore = false;
   String? errorMessage;
   RecommendedCourseList courseListData = RecommendedCourseList.empty();
+
+  // 페이지네이션을 위한 ScrollController
+  final ScrollController _scrollController = ScrollController();
 
   // 서버에서 받은 범위로 동적으로 필터 생성
   List<FilterItem> get filters {
@@ -71,15 +75,35 @@ class _RecommendedCourseScreenState
   void initState() {
     super.initState();
     _loadCourseList();
+    _scrollController.addListener(_onScroll);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AmplitudeAnalytics.logScreenView('recommended_course_screen');
     });
   }
 
-  Future<void> _loadCourseList() async {
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      // 끝에서 200px 전에 다음 페이지 로드
+      if (!isLoadingMore && courseListData.hasNext) {
+        _loadMoreCourses();
+      }
+    }
+  }
+
+  Future<void> _loadCourseList({bool isInitialLoad = true}) async {
     setState(() {
-      isLoading = true;
+      if (isInitialLoad) {
+        isLoading = true;
+        courseList.clear();
+      }
       errorMessage = null;
     });
 
@@ -89,7 +113,10 @@ class _RecommendedCourseScreenState
     // 필터가 없으면(첫 로딩) 필터 없이 요청, 있으면 필터 적용
     if (currentFilter == null) {
       // 첫 로딩: 범위 필터 없이 기본 요청
-      filterModel = RecommendedCourseFilter(sortType: selectedSortOption);
+      filterModel = RecommendedCourseFilter(
+        sortType: selectedSortOption,
+        page: 0, // 첫 페이지부터
+      );
     } else {
       // 필터 적용 - Mapper 사용
       filterModel = RecommendedCourseRequestMapper.fromFilterData(
@@ -123,6 +150,54 @@ class _RecommendedCourseScreenState
         errorMessage = '데이터를 불러올 수 없습니다';
         courseListData = RecommendedCourseList.empty();
         courseList.clear();
+      }
+    });
+  }
+
+  Future<void> _loadMoreCourses() async {
+    if (isLoadingMore || !courseListData.hasNext) return;
+
+    setState(() {
+      isLoadingMore = true;
+    });
+
+    late RecommendedCourseFilter filterModel;
+
+    // 현재 필터에 다음 페이지 번호 추가
+    if (currentFilter == null) {
+      filterModel = RecommendedCourseFilter(
+        sortType: selectedSortOption,
+        page: courseListData.currentPage + 1,
+      );
+    } else {
+      filterModel = RecommendedCourseRequestMapper.fromFilterData(
+        currentFilter!,
+        selectedSortOption,
+      ).copyWith(page: courseListData.currentPage + 1);
+    }
+
+    final AppResult<RecommendedCourseList> result = await ref
+        .read(getRecommendedCourseListUseCaseProvider)
+        .execute(filter: filterModel);
+
+    setState(() {
+      isLoadingMore = false;
+      if (result.isSuccess) {
+        final RecommendedCourseList newData = result.dataOrNull!;
+        courseListData = RecommendedCourseList(
+          courses: <RecommendedCourse>[...courseList, ...newData.courses],
+          currentPage: newData.currentPage,
+          totalPages: newData.totalPages,
+          totalElements: newData.totalElements,
+          size: newData.size,
+          hasNext: newData.hasNext,
+          hasPrevious: newData.hasPrevious,
+          maxDistance: newData.maxDistance,
+          maxElevationGain: newData.maxElevationGain,
+          minDistance: newData.minDistance,
+          minElevationGain: newData.minElevationGain,
+        );
+        courseList = courseListData.courses;
       }
     });
   }
@@ -258,9 +333,18 @@ class _RecommendedCourseScreenState
                     : courseList.isEmpty
                     ? const Center(child: Text('추천 코스가 없습니다'))
                     : ListView.builder(
+                      controller: _scrollController,
                       physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: courseList.length,
+                      itemCount: courseList.length + (isLoadingMore ? 1 : 0),
                       itemBuilder: (BuildContext context, int index) {
+                        // 로딩 인디케이터
+                        if (index == courseList.length) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Center(child: AppLoadingIndicator()),
+                          );
+                        }
+
                         final RecommendedCourse course = courseList[index];
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
