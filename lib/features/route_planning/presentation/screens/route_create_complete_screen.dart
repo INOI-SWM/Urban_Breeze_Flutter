@@ -44,7 +44,7 @@ class _RouteCreateCompleteScreenState extends State<RouteCreateCompleteScreen> {
               BuildContext context,
               Animation<double> animation,
               Animation<double> secondaryAnimation,
-            ) => const NavigationScaffold(initialIndex: 1),
+            ) => const NavigationScaffold(initialIndex: 2),
         transitionsBuilder: (
           BuildContext context,
           Animation<double> animation,
