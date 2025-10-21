@@ -46,20 +46,30 @@ class _RecommendedCourseScreenState
   RecommendedCourseSortType selectedSortOption =
       RecommendedCourseSortType.nearest;
 
-  // 필터 생성
-  List<FilterItem> get filters => const RecommendedCourseFilterConfig().filters;
-
-  late FilterData currentFilter;
+  // 필터는 서버 응답 후에 생성됨
+  FilterData? currentFilter;
 
   List<RecommendedCourse> courseList = <RecommendedCourse>[];
   bool isLoading = true;
   String? errorMessage;
   RecommendedCourseList courseListData = RecommendedCourseList.empty();
 
+  // 서버에서 받은 범위로 동적으로 필터 생성
+  List<FilterItem> get filters {
+    if (courseListData.isEmpty) {
+      return const RecommendedCourseFilterConfig().filters;
+    }
+    return RecommendedCourseFilterConfig(
+      maxDistance: courseListData.maxDistance.ceilToDouble(),
+      minDistance: courseListData.minDistance.floorToDouble(),
+      maxElevationGain: courseListData.maxElevationGain.ceilToDouble(),
+      minElevationGain: courseListData.minElevationGain.floorToDouble(),
+    ).filters;
+  }
+
   @override
   void initState() {
     super.initState();
-    currentFilter = FilterData.fromFilterItems(filters);
     _loadCourseList();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -76,11 +86,17 @@ class _RecommendedCourseScreenState
     late AppResult<RecommendedCourseList> result;
     late RecommendedCourseFilter filterModel;
 
-    // 필터 적용 - Mapper 사용
-    filterModel = RecommendedCourseRequestMapper.fromFilterData(
-      currentFilter,
-      selectedSortOption,
-    );
+    // 필터가 없으면(첫 로딩) 필터 없이 요청, 있으면 필터 적용
+    if (currentFilter == null) {
+      // 첫 로딩: 범위 필터 없이 기본 요청
+      filterModel = RecommendedCourseFilter(sortType: selectedSortOption);
+    } else {
+      // 필터 적용 - Mapper 사용
+      filterModel = RecommendedCourseRequestMapper.fromFilterData(
+        currentFilter!,
+        selectedSortOption,
+      );
+    }
 
     result = await ref
         .read(getRecommendedCourseListUseCaseProvider)
@@ -92,8 +108,17 @@ class _RecommendedCourseScreenState
         courseListData = result.dataOrNull!;
         courseList = courseListData.courses;
 
-        // 초기 로딩 시만 UI 필터 설정
-        currentFilter = FilterData.fromFilterItems(filters);
+        // 필터가 없었으면(첫 로딩) 서버에서 받은 실제 범위로 필터 생성
+        if (currentFilter == null) {
+          final RecommendedCourseFilterConfig
+          filterConfig = RecommendedCourseFilterConfig(
+            maxDistance: courseListData.maxDistance.ceilToDouble(),
+            minDistance: courseListData.minDistance.floorToDouble(),
+            maxElevationGain: courseListData.maxElevationGain.ceilToDouble(),
+            minElevationGain: courseListData.minElevationGain.floorToDouble(),
+          );
+          currentFilter = FilterData.fromFilterItems(filterConfig.filters);
+        }
       } else {
         errorMessage = '데이터를 불러올 수 없습니다';
         courseListData = RecommendedCourseList.empty();
@@ -128,6 +153,9 @@ class _RecommendedCourseScreenState
   }
 
   void _showFilterModal({String? selectedTab}) {
+    // 필터가 아직 준비되지 않았으면 리턴 (첫 로딩 중)
+    if (currentFilter == null) return;
+
     final RecommendedCourseFilterConfig filterConfig =
         RecommendedCourseFilterConfig(
           maxDistance: courseListData.maxDistance.ceilToDouble(),
@@ -139,7 +167,7 @@ class _RecommendedCourseScreenState
     final List<FilterItem> bottomSheetFilters = filterConfig.filters;
 
     final FilterData initialData = filterConfig
-        .createFilterDataWithCurrentValues(currentFilter);
+        .createFilterDataWithCurrentValues(currentFilter!);
 
     FilterModal.show(
       context: context,
@@ -177,6 +205,10 @@ class _RecommendedCourseScreenState
 
   @override
   Widget build(BuildContext context) {
+    // currentFilter가 null이면 기본 빈 FilterData 사용
+    final FilterData activeFilter =
+        currentFilter ?? FilterData.fromFilterItems(filters);
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Column(
@@ -184,12 +216,12 @@ class _RecommendedCourseScreenState
         children: <Widget>[
           CategoryFilter(
             categories: RecommendedCourseCategoryConfig.buildCategoryInfos(
-              currentFilter,
+              activeFilter,
               filters,
               selectedSortOption.displayName,
             ),
             selectedCategories: FilterDisplayUtils.getSelectedCategories(
-              currentFilter,
+              activeFilter,
               filters,
               selectedSortOption != RecommendedCourseSortType.nearest
                   ? selectedSortOption.displayName
@@ -209,7 +241,7 @@ class _RecommendedCourseScreenState
             mode: CategoryFilterMode.alternative,
             showFilterIndicator: true,
             filterCount: FilterDisplayUtils.getAppliedFiltersCount(
-              currentFilter,
+              activeFilter,
               filters,
             ),
             onFilterTap: () {
