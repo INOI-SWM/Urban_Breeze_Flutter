@@ -153,47 +153,51 @@ class _MapWithBottomSheetLayoutState extends State<MapWithBottomSheetLayout> {
                   topRight: Radius.circular(12),
                 ),
               ),
-              child: SingleChildScrollView(
-                controller: scrollController,
-                physics: const ClampingScrollPhysics(),
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      width: 40,
-                      height: 4,
-                      margin: const EdgeInsets.only(top: 12, bottom: 8),
-                      decoration: BoxDecoration(
-                        color: colors.lineNormalNormal,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    CustomAppBar(
-                      leading: CustomIconButton(
-                        icon: Icons.arrow_back_ios_new_rounded,
-                        onTap: () => Navigator.pop(context),
-                      ),
-                      actions: <Widget>[
-                        CustomIconButton(
-                          icon: Icons.file_download_outlined,
-                          onTap: () => widget.onDownloadButtonTap(context),
+              child: SafeArea(
+                top: false,
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  physics: const ClampingScrollPhysics(),
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.only(top: 12, bottom: 8),
+                        decoration: BoxDecoration(
+                          color: colors.lineNormalNormal,
+                          borderRadius: BorderRadius.circular(2),
                         ),
-                        CustomIconButton(
-                          icon: Icons.share_outlined,
-                          onTap: () => widget.onShareButtonTap(context),
+                      ),
+                      CustomAppBar(
+                        leading: CustomIconButton(
+                          icon: Icons.arrow_back_ios_new_rounded,
+                          onTap: () => Navigator.pop(context),
                         ),
-                        if (widget.showOptionButton)
+                        actions: <Widget>[
                           CustomIconButton(
-                            icon: Icons.more_horiz_outlined,
-                            onTap:
-                                () => widget.onOptionButtonTap?.call(context),
+                            icon: Icons.file_download_outlined,
+                            onTap: () => widget.onDownloadButtonTap(context),
                           ),
-                      ],
-                      enableSafeArea: false,
-                      safeAreaTop: false,
-                      safeAreaBottom: false,
-                    ),
-                    Container(key: _contentKey, child: widget.sheetChild),
-                  ],
+                          CustomIconButton(
+                            icon: Icons.share_outlined,
+                            onTap: () => widget.onShareButtonTap(context),
+                          ),
+                          if (widget.showOptionButton)
+                            CustomIconButton(
+                              icon: Icons.more_horiz_outlined,
+                              onTap:
+                                  () => widget.onOptionButtonTap?.call(context),
+                            ),
+                        ],
+                        enableSafeArea: false,
+                        safeAreaTop: false,
+                        safeAreaBottom: false,
+                      ),
+                      Container(key: _contentKey, child: widget.sheetChild),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
             ),
