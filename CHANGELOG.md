@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.1](https://github.com/INOI-SWM/Urban_Breeze_Flutter/compare/v1.1.0...v1.1.1) (2025-10-22)
+
+
+### Bug Fixes
+
+* detail 화면 하단 safezone 추가로 겹치는 레이아웃 수정 ([46af390](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/46af390de49d53915f10209bafc76e4203dd2a4f))
+* detail 화면 하단 겹치는 레이아웃 수정 ([#185](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/185)) ([46af390](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/46af390de49d53915f10209bafc76e4203dd2a4f))
+* 추천코스 페이지네이션 버그 수정, 경로 생성 완료 시 나의경로 창으로 이동 ([#184](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/184)) ([33912f1](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/33912f124af48f23f446adf3530a845ad55dca0d))
+* 추천코스 필터 버그 수정 ([#182](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/182)) ([067e4bb](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/067e4bb8c485a2f4eabebebe3979b5e567002258))
+
 ## [1.1.0](https://github.com/INOI-SWM/Urban_Breeze_Flutter/compare/v1.0.2...v1.1.0) (2025-10-19)
 
 
