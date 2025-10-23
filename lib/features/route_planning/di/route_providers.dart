@@ -106,7 +106,7 @@ final Provider<GetCurrentLocationUseCase> getCurrentLocationUseCaseProvider =
 
 final Provider<ManageRoutePinsUseCase> manageRoutePinsUseCaseProvider =
     Provider<ManageRoutePinsUseCase>((Ref<ManageRoutePinsUseCase> ref) {
-      return const ManageRoutePinsUseCase();
+      return const ManageRoutePinsUseCase(maxPinCount: 99);
     });
 
 final Provider<RouteStatsUseCase> routeStatsUseCaseProvider =
