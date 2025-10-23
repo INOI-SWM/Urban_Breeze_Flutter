@@ -15,6 +15,22 @@ class RoutePinMarker extends StatelessWidget {
   final bool hasWaypoint;
   final Waypoint? waypoint;
 
+  /// 마커의 실제 크기를 반환합니다.
+  double get markerSize {
+    if (hasWaypoint && waypoint != null) {
+      return 28.0; // waypoint 마커 크기
+    }
+    return 24.0; // 일반 핀 크기
+  }
+
+  /// FlutterMap Marker에 필요한 크기를 반환합니다 (테두리와 그림자 고려).
+  double get flutterMapMarkerSize {
+    if (hasWaypoint && waypoint != null) {
+      return 32.0; // 28px + 테두리(2px) + 그림자 여유공간(2px)
+    }
+    return 28.0; // 일반 핀은 여유공간 불필요
+  }
+
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
@@ -25,8 +41,8 @@ class RoutePinMarker extends StatelessWidget {
       final IconData icon = waypoint!.type.icon;
 
       return Container(
-        width: 28,
-        height: 28,
+        width: markerSize,
+        height: markerSize,
         decoration: BoxDecoration(
           color: backgroundColor,
           shape: BoxShape.circle,
@@ -45,8 +61,8 @@ class RoutePinMarker extends StatelessWidget {
 
     // 일반 핀 (waypoint가 없는 경우)
     return Container(
-      width: 24,
-      height: 24,
+      width: markerSize,
+      height: markerSize,
       decoration: BoxDecoration(
         color: colors.accentBackgroundRedOrange,
         shape: BoxShape.circle,

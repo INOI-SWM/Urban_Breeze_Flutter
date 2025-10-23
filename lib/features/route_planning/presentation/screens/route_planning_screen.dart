@@ -11,9 +11,11 @@ import 'package:urban_breeze/features/place_search/presentation/screens/place_se
 import 'package:urban_breeze/features/route_planning/application/use_cases/route_planning_facade.dart';
 import 'package:urban_breeze/features/route_planning/di/route_providers.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/waypoint.dart';
 import 'package:urban_breeze/features/route_planning/presentation/screens/route_create_complete_screen.dart';
 import 'package:urban_breeze/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:urban_breeze/features/route_planning/presentation/widgets/route_creation_actions.dart';
+import 'package:urban_breeze/features/route_planning/presentation/widgets/waypoint_setting_modal.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
@@ -46,6 +48,8 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   bool _isButtonPressed = false;
   final List<LatLng> _pins = <LatLng>[];
   final List<RouteSegment> _routeSegments = <RouteSegment>[];
+  final Map<int, Waypoint> _waypoints =
+      <int, Waypoint>{}; // 핀 인덱스 -> Waypoint 매핑
   bool _isRouteLoading = false;
   bool _isSaveMode = false;
   Place? _selectedPlace;
@@ -264,7 +268,11 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
   void _removeLastPin({bool shouldRemoveRouteSegment = true}) {
     setState(() {
+      final int removedPinIndex = _pins.length - 1;
       _pins.removeLast();
+
+      // 해당 핀의 waypoint도 제거
+      _waypoints.remove(removedPinIndex);
 
       if (shouldRemoveRouteSegment) {
         // 사용자가 직접 핀을 제거하는 경우
@@ -456,6 +464,40 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     // TODO: 장소 마커 탭 시 동작 추가
   }
 
+  void _onPinTap(int pinIndex) {
+    final LatLng pinPosition = _pins[pinIndex];
+    final Waypoint? existingWaypoint = _waypoints[pinIndex];
+
+    showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (BuildContext context) => WaypointSettingModal(
+            position: pinPosition,
+            initialWaypoint: existingWaypoint,
+            onSave: (Waypoint waypoint) {
+              setState(() {
+                _waypoints[pinIndex] = waypoint;
+              });
+
+              AmplitudeAnalytics.logEvent(
+                'route_planning_waypoint_set',
+                properties: <String, dynamic>{
+                  'pin_index': pinIndex,
+                  'waypoint_type': waypoint.type.name,
+                  'waypoint_title': waypoint.title,
+                },
+              );
+            },
+            onCancel: () {
+              AmplitudeAnalytics.logEvent('route_planning_waypoint_cancelled');
+            },
+          ),
+    );
+  }
+
   void _onSearchResultMarkerTap(Place place) {
     // 검색 결과 마커를 탭했을 때 해당 장소로 지도 이동
     _moveToPlace(place);
@@ -522,11 +564,21 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                             ) {
                               final int index = entry.key;
                               final LatLng position = entry.value;
+                              final Waypoint? waypoint = _waypoints[index];
+                              final RoutePinMarker pinMarker = RoutePinMarker(
+                                index: index,
+                                hasWaypoint: waypoint != null,
+                                waypoint: waypoint,
+                              );
+
                               return Marker(
                                 point: position,
-                                width: 24,
-                                height: 24,
-                                child: RoutePinMarker(index: index),
+                                width: pinMarker.flutterMapMarkerSize,
+                                height: pinMarker.flutterMapMarkerSize,
+                                child: GestureDetector(
+                                  onTap: () => _onPinTap(index),
+                                  child: pinMarker,
+                                ),
                               );
                             }).toList(),
                       ),
