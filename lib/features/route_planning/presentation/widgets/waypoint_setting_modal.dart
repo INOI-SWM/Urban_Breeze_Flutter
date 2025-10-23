@@ -104,85 +104,88 @@ class _WaypointSettingModalState extends State<WaypointSettingModal> {
           color: colors.backgroundNormalNormal,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            // 헤더
-            Row(
-              children: <Widget>[
-                Icon(Icons.place, color: colors.primaryNormal, size: 24),
-                const SizedBox(width: 8),
-                Text(
-                  'Waypoint 설정',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: colors.labelNormal,
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              // 헤더
+              Row(
+                children: <Widget>[
+                  Icon(Icons.place, color: colors.primaryNormal, size: 24),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Waypoint 설정',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: colors.labelNormal,
+                    ),
                   ),
-                ),
-                const Spacer(),
-                if (widget.initialWaypoint != null)
-                  IconButton(
-                    onPressed: _onDelete,
-                    icon: const Icon(Icons.delete_forever, color: Colors.red),
-                  )
-                else
-                  IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: Icon(Icons.close, color: colors.labelNormal),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 12),
+                  const Spacer(),
+                  if (widget.initialWaypoint != null)
+                    IconButton(
+                      onPressed: _onDelete,
+                      icon: const Icon(Icons.delete_forever, color: Colors.red),
+                    )
+                  else
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icon(Icons.close, color: colors.labelNormal),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
 
-            // 제목 입력
-            Text('제목', style: _getLabelStyle(colors)),
-            const SizedBox(height: 8),
-            CustomTextField(
-              controller: _titleController,
-              hintText: '예: 한강공원 휴식',
-            ),
-            const SizedBox(height: 24),
+              // 제목 입력
+              Text('제목', style: _getLabelStyle(colors)),
+              const SizedBox(height: 8),
+              CustomTextField(
+                controller: _titleController,
+                hintText: '예: 한강공원 휴식',
+              ),
+              const SizedBox(height: 24),
 
-            // 설명 입력
-            Text('설명', style: _getLabelStyle(colors)),
-            const SizedBox(height: 8),
-            CustomTextField(
-              controller: _descriptionController,
-              hintText: '추가 정보를 입력하세요',
-            ),
-            const SizedBox(height: 24),
-            // Waypoint 타입 선택
-            Text('타입', style: _getLabelStyle(colors)),
-            const SizedBox(height: 8),
-            _buildTypeSelector(colors),
+              // 설명 입력
+              Text('설명', style: _getLabelStyle(colors)),
+              const SizedBox(height: 8),
+              CustomTextField(
+                controller: _descriptionController,
+                hintText: '추가 정보를 입력하세요',
+              ),
+              const SizedBox(height: 24),
+              // Waypoint 타입 선택
+              Text('타입', style: _getLabelStyle(colors)),
+              const SizedBox(height: 8),
+              _buildTypeSelector(colors),
 
-            // 버튼들
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: ButtonOutlined(
-                    text: '취소',
-                    textColor: colors.labelNormal,
-                    borderColor: colors.lineNormalNormal,
-                    onPressed: () => Navigator.of(context).pop(),
-                    size: ButtonSize.large,
+              // 버튼들
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: ButtonOutlined(
+                      text: '취소',
+                      textColor: colors.labelNormal,
+                      borderColor: colors.lineNormalNormal,
+                      onPressed: () => Navigator.of(context).pop(),
+                      size: ButtonSize.large,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ButtonSolid(
-                    text: '저장',
-                    textColor: colors.staticWhite,
-                    backgroundColor: colors.primaryNormal,
-                    onPressed: _onSave,
-                    size: ButtonSize.large,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ButtonSolid(
+                      text: '저장',
+                      textColor: colors.staticWhite,
+                      backgroundColor: colors.primaryNormal,
+                      onPressed: _onSave,
+                      size: ButtonSize.large,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
