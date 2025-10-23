@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
 enum WaypointType {
@@ -128,6 +129,39 @@ extension WaypointTypeExtension on WaypointType {
         return '무제한급 오르막';
       case WaypointType.sprint:
         return '스프린트';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case WaypointType.generic:
+        return Icons.place;
+      case WaypointType.summit:
+        return Icons.landscape;
+      case WaypointType.valley:
+        return Icons.water;
+      case WaypointType.water:
+        return Icons.water_drop;
+      case WaypointType.food:
+        return Icons.restaurant;
+      case WaypointType.danger:
+        return Icons.warning;
+      case WaypointType.left:
+        return Icons.turn_left;
+      case WaypointType.right:
+        return Icons.turn_right;
+      case WaypointType.straight:
+        return Icons.straight;
+      case WaypointType.firstAid:
+        return Icons.medical_services;
+      case WaypointType.category4:
+      case WaypointType.category3:
+      case WaypointType.category2:
+      case WaypointType.category1:
+      case WaypointType.horsCategory:
+        return Icons.trending_up;
+      case WaypointType.sprint:
+        return Icons.speed;
     }
   }
 }
