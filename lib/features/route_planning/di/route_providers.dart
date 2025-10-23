@@ -90,13 +90,9 @@ final Provider<SaveRouteUseCase> saveRouteUseCaseProvider =
       final RouteRepository routeRepository = ref.watch(
         routeRepositoryProvider,
       );
-      final RouteStatsUseCase routeStatsUseCase = ref.watch(
-        routeStatsUseCaseProvider,
-      );
       return SaveRouteUseCase(
         bboxService: bboxService,
         routeRepository: routeRepository,
-        routeStatsUseCase: routeStatsUseCase,
       );
     });
 
