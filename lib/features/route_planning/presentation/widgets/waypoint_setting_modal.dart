@@ -204,6 +204,10 @@ class _WaypointSettingModalState extends State<WaypointSettingModal> {
             FocusScope.of(context).unfocus();
             setState(() {
               _selectedType = type;
+              // 제목이 비어있으면 타입명을 제목에 입력
+              if (_titleController.text.trim().isEmpty) {
+                _titleController.text = type.displayName;
+              }
             });
           },
           child: Container(
