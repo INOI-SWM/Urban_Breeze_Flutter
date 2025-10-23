@@ -2,11 +2,15 @@ import 'package:urban_breeze/features/route_planning/domain/entities/route_pin.d
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
 
 /// 계획 중인 경로 전체를 관리하는 엔티티
+///
+/// 핀과 세그먼트의 관계:
+/// - 완성된 상태: pins.length = segments.length + 1
+/// - 중간 상태: 핀 추가 후 세그먼트 생성 전, pins.length > segments.length + 1 가능
 class PlannedRoute {
   PlannedRoute({required this.pins, required this.segments, this.title})
     : assert(
-        pins.isEmpty || segments.isEmpty || pins.length == segments.length + 1,
-        'pins.length must equal segments.length + 1 when both are not empty',
+        segments.length <= pins.length,
+        'segments count must be less than or equal to pins count',
       );
 
   final List<RoutePin> pins; // 모든 핀들
