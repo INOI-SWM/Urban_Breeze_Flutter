@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
 
 enum WaypointType {
   generic, // 일반
@@ -167,32 +166,24 @@ extension WaypointTypeExtension on WaypointType {
 }
 
 class Waypoint {
-  const Waypoint({
-    required this.id,
-    required this.position,
-    required this.type,
-    required this.title,
-    this.description,
-    this.isOptional = false,
-  });
+  factory Waypoint.fromJson(Map<String, dynamic> json) {
+    return Waypoint(
+      type: WaypointType.values.firstWhere(
+        (WaypointType type) => type.name == json['type'],
+      ),
+      title: json['title'] as String,
+      description: json['description'] as String?,
+    );
+  }
 
-  final String id;
-  final LatLng position;
+  const Waypoint({required this.type, required this.title, this.description});
+
   final WaypointType type;
   final String title;
   final String? description;
-  final bool isOptional; // 선택적 waypoint인지
 
-  Waypoint copyWith({
-    String? id,
-    LatLng? position,
-    WaypointType? type,
-    String? title,
-    String? description,
-  }) {
+  Waypoint copyWith({WaypointType? type, String? title, String? description}) {
     return Waypoint(
-      id: id ?? this.id,
-      position: position ?? this.position,
       type: type ?? this.type,
       title: title ?? this.title,
       description: description ?? this.description,
@@ -202,14 +193,22 @@ class Waypoint {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is Waypoint && other.id == id;
+    return other is Waypoint && other.type == type && other.title == title;
   }
 
   @override
-  int get hashCode => id.hashCode;
+  int get hashCode => Object.hash(type, title);
 
   @override
   String toString() {
-    return 'Waypoint(id: $id, title: $title, type: ${type.displayName}, position: $position)';
+    return 'Waypoint(title: $title, type: ${type.displayName})';
+  }
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'type': type.name,
+      'title': title,
+      if (description != null) 'description': description,
+    };
   }
 }

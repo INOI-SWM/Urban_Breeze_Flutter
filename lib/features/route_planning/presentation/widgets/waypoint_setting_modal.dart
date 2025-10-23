@@ -73,10 +73,6 @@ class _WaypointSettingModalState extends State<WaypointSettingModal> {
     }
 
     final Waypoint waypoint = Waypoint(
-      id:
-          widget.initialWaypoint?.id ??
-          DateTime.now().millisecondsSinceEpoch.toString(),
-      position: widget.position,
       type: _selectedType,
       title: _title.trim(),
       description:
