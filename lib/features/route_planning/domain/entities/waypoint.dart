@@ -23,37 +23,37 @@ extension WaypointTypeExtension on WaypointType {
   String get displayName {
     switch (this) {
       case WaypointType.generic:
-        return 'Generic';
+        return '일반';
       case WaypointType.summit:
-        return 'Summit';
+        return '정상';
       case WaypointType.valley:
-        return 'Valley';
+        return '계곡';
       case WaypointType.water:
-        return 'Water';
+        return '물';
       case WaypointType.food:
-        return 'Food';
+        return '보급';
       case WaypointType.danger:
-        return 'Danger';
+        return '위험';
       case WaypointType.left:
-        return 'Left';
+        return '좌회전';
       case WaypointType.right:
-        return 'Right';
+        return '우회전';
       case WaypointType.straight:
-        return 'Straight';
+        return '직진';
       case WaypointType.firstAid:
-        return 'First Aid';
+        return '응급처치';
       case WaypointType.category4:
-        return '4th Category';
+        return '4등급 오르막';
       case WaypointType.category3:
-        return '3rd Category';
+        return '3등급 오르막';
       case WaypointType.category2:
-        return '2nd Category';
+        return '2등급 오르막';
       case WaypointType.category1:
-        return '1st Category';
+        return '1등급 오르막';
       case WaypointType.horsCategory:
-        return 'Hors Category';
+        return '무제한급 오르막';
       case WaypointType.sprint:
-        return 'Sprint';
+        return '스프린트';
     }
   }
 
