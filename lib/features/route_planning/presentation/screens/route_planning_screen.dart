@@ -487,8 +487,19 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                 },
               );
             },
-            onCancel: () {
-              AmplitudeAnalytics.logEvent('route_planning_waypoint_cancelled');
+            onDelete: () {
+              // waypoint 삭제 (기본 핀으로 되돌리기)
+              setState(() {
+                _route = _route.updatePinWaypoint(
+                  pinIndex,
+                  RoutePin(position: pin.position), // waypoint 없는 기본 핀
+                );
+              });
+
+              AmplitudeAnalytics.logEvent(
+                'route_planning_waypoint_deleted',
+                properties: <String, dynamic>{'pin_index': pinIndex},
+              );
             },
           ),
     );

@@ -14,13 +14,13 @@ class WaypointSettingModal extends StatefulWidget {
     required this.position,
     this.initialWaypoint,
     this.onSave,
-    this.onCancel,
+    this.onDelete,
   });
 
   final LatLng position;
   final Waypoint? initialWaypoint;
   final ValueChanged<Waypoint>? onSave;
-  final VoidCallback? onCancel;
+  final VoidCallback? onDelete;
 
   @override
   State<WaypointSettingModal> createState() => _WaypointSettingModalState();
@@ -76,8 +76,8 @@ class _WaypointSettingModalState extends State<WaypointSettingModal> {
     Navigator.of(context).pop();
   }
 
-  void _onCancel() {
-    widget.onCancel?.call();
+  void _onDelete() {
+    widget.onDelete?.call();
     Navigator.of(context).pop();
   }
 
@@ -122,10 +122,16 @@ class _WaypointSettingModalState extends State<WaypointSettingModal> {
                   ),
                 ),
                 const Spacer(),
-                IconButton(
-                  onPressed: _onCancel,
-                  icon: Icon(Icons.close, color: colors.labelNormal),
-                ),
+                if (widget.initialWaypoint != null)
+                  IconButton(
+                    onPressed: _onDelete,
+                    icon: const Icon(Icons.delete_forever, color: Colors.red),
+                  )
+                else
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: Icon(Icons.close, color: colors.labelNormal),
+                  ),
               ],
             ),
             const SizedBox(height: 12),
@@ -160,7 +166,7 @@ class _WaypointSettingModalState extends State<WaypointSettingModal> {
                     text: '취소',
                     textColor: colors.labelNormal,
                     borderColor: colors.lineNormalNormal,
-                    onPressed: _onCancel,
+                    onPressed: () => Navigator.of(context).pop(),
                     size: ButtonSize.large,
                   ),
                 ),
