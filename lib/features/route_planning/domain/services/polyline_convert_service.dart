@@ -68,6 +68,7 @@ class PolylineConvertService {
       final RouteSegment segment = routeSegments[segmentIndex];
       final RoutePin startPin = pins[segmentIndex];
       final RoutePin endPin = pins[segmentIndex + 1];
+      final bool isFirstSegment = segmentIndex == 0;
 
       // 세그먼트의 geometry를 순회하며 GeometryPoint 생성
       for (
@@ -79,9 +80,17 @@ class PolylineConvertService {
         final double longitude = coord[0];
         final double latitude = coord[1];
         final double elevation = coord.length > 2 ? coord[2] : 0.0;
+        final bool isFirstCoord = coordIndex == 0;
+        final bool isLastCoord =
+            coordIndex == segment.originalGeometry.length - 1;
 
-        // 시작 지점인지 확인 (첫 번째 좌표)
-        if (coordIndex == 0 && startPin.hasWaypoint) {
+        // 중복 방지: 첫 번째 세그먼트가 아니면 시작점 스킵 (이전 세그먼트의 끝점과 중복)
+        if (!isFirstSegment && isFirstCoord) {
+          continue;
+        }
+
+        // 시작 지점 (첫 번째 좌표)
+        if (isFirstCoord && startPin.hasWaypoint) {
           geometry.add(
             GeometryPoint(
               longitude: longitude,
@@ -91,9 +100,8 @@ class PolylineConvertService {
             ),
           );
         }
-        // 끝 지점인지 확인 (마지막 좌표)
-        else if (coordIndex == segment.originalGeometry.length - 1 &&
-            endPin.hasWaypoint) {
+        // 끝 지점 (마지막 좌표)
+        else if (isLastCoord && endPin.hasWaypoint) {
           geometry.add(
             GeometryPoint(
               longitude: longitude,
