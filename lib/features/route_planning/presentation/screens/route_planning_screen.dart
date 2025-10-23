@@ -48,7 +48,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   final MapController _mapController = MapController();
 
   bool _isButtonPressed = false;
-  PlannedRoute _route = const PlannedRoute(
+  PlannedRoute _route = PlannedRoute(
     pins: <RoutePin>[],
     segments: <RouteSegment>[],
   ); // 경로 전체 관리

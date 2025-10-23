@@ -2,9 +2,12 @@ import 'package:urban_breeze/features/route_planning/domain/entities/route_pin.d
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
 
 /// 계획 중인 경로 전체를 관리하는 엔티티
-/// 핀들과 세그먼트들의 관계를 명확하게 관리합니다.
 class PlannedRoute {
-  const PlannedRoute({required this.pins, required this.segments, this.title});
+  PlannedRoute({required this.pins, required this.segments, this.title})
+    : assert(
+        pins.isEmpty || segments.isEmpty || pins.length == segments.length + 1,
+        'pins.length must equal segments.length + 1 when both are not empty',
+      );
 
   final List<RoutePin> pins; // 모든 핀들
   final List<RouteSegment> segments; // 핀들 사이의 세그먼트들
@@ -62,7 +65,7 @@ class PlannedRoute {
 
   /// 경로를 초기화합니다.
   PlannedRoute clear() {
-    return const PlannedRoute(pins: <RoutePin>[], segments: <RouteSegment>[]);
+    return PlannedRoute(pins: <RoutePin>[], segments: <RouteSegment>[]);
   }
 
   /// 경로 제목을 설정합니다.

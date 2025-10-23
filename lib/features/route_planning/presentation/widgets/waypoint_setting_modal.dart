@@ -146,7 +146,7 @@ class _WaypointSettingModalState extends State<WaypointSettingModal> {
             const SizedBox(height: 24),
 
             // 설명 입력
-            Text('설명 (선택사항)', style: _getLabelStyle(colors)),
+            Text('설명', style: _getLabelStyle(colors)),
             const SizedBox(height: 8),
             CustomTextField(
               controller: _descriptionController,

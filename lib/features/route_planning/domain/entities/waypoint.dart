@@ -170,6 +170,7 @@ class Waypoint {
     return Waypoint(
       type: WaypointType.values.firstWhere(
         (WaypointType type) => type.name == json['type'],
+        orElse: () => WaypointType.generic, // 알 수 없는 타입은 기본값으로
       ),
       title: json['title'] as String?,
       description: json['description'] as String?,

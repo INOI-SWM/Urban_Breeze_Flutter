@@ -3,6 +3,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/geometry_point.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_pin.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/waypoint.dart';
 
 class PolylineConvertService {
   static String encodeRouteSegments(List<RouteSegment> routeSegments) {
@@ -85,42 +86,29 @@ class PolylineConvertService {
             coordIndex == segment.originalGeometry.length - 1;
 
         // 중복 방지: 첫 번째 세그먼트가 아니면 시작점 스킵 (이전 세그먼트의 끝점과 중복)
+        // 단, 시작 핀에 waypoint가 있는 경우는 이미 이전 세그먼트의 끝점에서 처리됨
         if (!isFirstSegment && isFirstCoord) {
           continue;
         }
 
-        // 시작 지점 (첫 번째 좌표)
+        // waypoint 판단: 시작점 또는 끝점
+        final Waypoint? waypointToAdd;
         if (isFirstCoord && startPin.hasWaypoint) {
-          geometry.add(
-            GeometryPoint(
-              longitude: longitude,
-              latitude: latitude,
-              elevation: elevation,
-              waypoint: startPin.waypoint,
-            ),
-          );
+          waypointToAdd = startPin.waypoint;
+        } else if (isLastCoord && endPin.hasWaypoint) {
+          waypointToAdd = endPin.waypoint;
+        } else {
+          waypointToAdd = null;
         }
-        // 끝 지점 (마지막 좌표)
-        else if (isLastCoord && endPin.hasWaypoint) {
-          geometry.add(
-            GeometryPoint(
-              longitude: longitude,
-              latitude: latitude,
-              elevation: elevation,
-              waypoint: endPin.waypoint,
-            ),
-          );
-        }
-        // 일반 포인트
-        else {
-          geometry.add(
-            GeometryPoint(
-              longitude: longitude,
-              latitude: latitude,
-              elevation: elevation,
-            ),
-          );
-        }
+
+        geometry.add(
+          GeometryPoint(
+            longitude: longitude,
+            latitude: latitude,
+            elevation: elevation,
+            waypoint: waypointToAdd,
+          ),
+        );
       }
     }
 
