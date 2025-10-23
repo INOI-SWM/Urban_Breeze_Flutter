@@ -512,6 +512,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
     return Scaffold(
       backgroundColor: colors.backgroundNormalNormal,
+      resizeToAvoidBottomInset: _isSaveMode, // 저장 모드에서만 키보드 리사이즈 허용
       body: SafeArea(
         child: Column(
           children: <Widget>[
