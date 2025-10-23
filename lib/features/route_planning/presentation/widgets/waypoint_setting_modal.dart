@@ -96,103 +96,112 @@ class _WaypointSettingModalState extends State<WaypointSettingModal> {
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: colors.backgroundNormalNormal,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          // 헤더
-          Row(
-            children: <Widget>[
-              Icon(Icons.place, color: colors.primaryNormal, size: 24),
-              const SizedBox(width: 8),
-              Text(
-                'Waypoint 설정',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: colors.labelNormal,
+    return GestureDetector(
+      onTap: () {
+        // 화면의 다른 부분을 클릭하면 키보드 닫기
+        FocusScope.of(context).unfocus();
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: colors.backgroundNormalNormal,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            // 헤더
+            Row(
+              children: <Widget>[
+                Icon(Icons.place, color: colors.primaryNormal, size: 24),
+                const SizedBox(width: 8),
+                Text(
+                  'Waypoint 설정',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: colors.labelNormal,
+                  ),
                 ),
-              ),
-              const Spacer(),
-              IconButton(
-                onPressed: _onCancel,
-                icon: Icon(Icons.close, color: colors.labelNormal),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Waypoint 타입 선택
-          Text(
-            '타입',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: colors.labelNormal,
-            ),
-          ),
-          const SizedBox(height: 8),
-          _buildTypeSelector(colors),
-          // 제목 입력
-          Text(
-            '제목',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: colors.labelNormal,
-            ),
-          ),
-          const SizedBox(height: 8),
-          CustomTextField(controller: _titleController, hintText: '예: 한강공원 휴식'),
-          const SizedBox(height: 24),
-
-          // 설명 입력
-          Text(
-            '설명 (선택사항)',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: colors.labelNormal,
-            ),
-          ),
-          const SizedBox(height: 8),
-          CustomTextField(
-            controller: _descriptionController,
-            hintText: '추가 정보를 입력하세요',
-          ),
-          const SizedBox(height: 24),
-
-          // 버튼들
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: ButtonOutlined(
-                  text: '취소',
-                  textColor: colors.labelNormal,
-                  borderColor: colors.lineNormalNormal,
+                const Spacer(),
+                IconButton(
                   onPressed: _onCancel,
-                  size: ButtonSize.large,
+                  icon: Icon(Icons.close, color: colors.labelNormal),
                 ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // 제목 입력
+            Text(
+              '제목',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: colors.labelNormal,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ButtonSolid(
-                  text: '저장',
-                  textColor: colors.staticWhite,
-                  backgroundColor: colors.primaryNormal,
-                  onPressed: _onSave,
-                  size: ButtonSize.large,
+            ),
+            const SizedBox(height: 8),
+            CustomTextField(
+              controller: _titleController,
+              hintText: '예: 한강공원 휴식',
+            ),
+            const SizedBox(height: 24),
+
+            // 설명 입력
+            Text(
+              '설명 (선택사항)',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: colors.labelNormal,
+              ),
+            ),
+            const SizedBox(height: 8),
+            CustomTextField(
+              controller: _descriptionController,
+              hintText: '추가 정보를 입력하세요',
+            ),
+            const SizedBox(height: 24),
+            // Waypoint 타입 선택
+            Text(
+              '타입',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: colors.labelNormal,
+              ),
+            ),
+            const SizedBox(height: 8),
+            _buildTypeSelector(colors),
+
+            // 버튼들
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: ButtonOutlined(
+                    text: '취소',
+                    textColor: colors.labelNormal,
+                    borderColor: colors.lineNormalNormal,
+                    onPressed: _onCancel,
+                    size: ButtonSize.large,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ButtonSolid(
+                    text: '저장',
+                    textColor: colors.staticWhite,
+                    backgroundColor: colors.primaryNormal,
+                    onPressed: _onSave,
+                    size: ButtonSize.large,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -215,6 +224,8 @@ class _WaypointSettingModalState extends State<WaypointSettingModal> {
 
         return GestureDetector(
           onTap: () {
+            // 키보드 닫기
+            FocusScope.of(context).unfocus();
             setState(() {
               _selectedType = type;
             });
