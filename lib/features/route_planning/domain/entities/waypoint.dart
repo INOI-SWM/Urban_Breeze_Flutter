@@ -171,15 +171,15 @@ class Waypoint {
       type: WaypointType.values.firstWhere(
         (WaypointType type) => type.name == json['type'],
       ),
-      title: json['title'] as String,
+      title: json['title'] as String?,
       description: json['description'] as String?,
     );
   }
 
-  const Waypoint({required this.type, required this.title, this.description});
+  const Waypoint({required this.type, this.title, this.description});
 
   final WaypointType type;
-  final String title;
+  final String? title;
   final String? description;
 
   Waypoint copyWith({WaypointType? type, String? title, String? description}) {
@@ -207,7 +207,7 @@ class Waypoint {
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'type': type.name,
-      'title': title,
+      if (title != null) 'title': title,
       if (description != null) 'description': description,
     };
   }

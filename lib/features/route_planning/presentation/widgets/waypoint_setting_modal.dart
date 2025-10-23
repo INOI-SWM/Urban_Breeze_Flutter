@@ -28,9 +28,6 @@ class WaypointSettingModal extends StatefulWidget {
 
 class _WaypointSettingModalState extends State<WaypointSettingModal> {
   late WaypointType _selectedType;
-  late String _title;
-  String? _description;
-
   late final TextEditingController _titleController;
   late final TextEditingController _descriptionController;
 
@@ -39,22 +36,17 @@ class _WaypointSettingModalState extends State<WaypointSettingModal> {
     super.initState();
     if (widget.initialWaypoint != null) {
       _selectedType = widget.initialWaypoint!.type;
-      _title = widget.initialWaypoint!.title;
-      _description = widget.initialWaypoint!.description;
+      _titleController = TextEditingController(
+        text: widget.initialWaypoint!.title ?? '',
+      );
+      _descriptionController = TextEditingController(
+        text: widget.initialWaypoint!.description ?? '',
+      );
     } else {
       _selectedType = WaypointType.generic;
-      _title = '';
+      _titleController = TextEditingController();
+      _descriptionController = TextEditingController();
     }
-
-    _titleController = TextEditingController(text: _title);
-    _descriptionController = TextEditingController(text: _description ?? '');
-
-    _titleController.addListener(() {
-      _title = _titleController.text;
-    });
-    _descriptionController.addListener(() {
-      _description = _descriptionController.text;
-    });
   }
 
   @override
@@ -65,18 +57,19 @@ class _WaypointSettingModalState extends State<WaypointSettingModal> {
   }
 
   void _onSave() {
-    if (_title.trim().isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('제목을 입력해주세요')));
-      return;
-    }
+    final String? title =
+        _titleController.text.trim().isEmpty
+            ? null
+            : _titleController.text.trim();
+    final String? description =
+        _descriptionController.text.trim().isEmpty
+            ? null
+            : _descriptionController.text.trim();
 
     final Waypoint waypoint = Waypoint(
       type: _selectedType,
-      title: _title.trim(),
-      description:
-          _description?.trim().isEmpty == true ? null : _description?.trim(),
+      title: title,
+      description: description,
     );
 
     widget.onSave?.call(waypoint);
@@ -86,6 +79,14 @@ class _WaypointSettingModalState extends State<WaypointSettingModal> {
   void _onCancel() {
     widget.onCancel?.call();
     Navigator.of(context).pop();
+  }
+
+  TextStyle _getLabelStyle(SemanticColors colors) {
+    return TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      color: colors.labelNormal,
+    );
   }
 
   @override
@@ -130,14 +131,7 @@ class _WaypointSettingModalState extends State<WaypointSettingModal> {
             const SizedBox(height: 12),
 
             // 제목 입력
-            Text(
-              '제목',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: colors.labelNormal,
-              ),
-            ),
+            Text('제목', style: _getLabelStyle(colors)),
             const SizedBox(height: 8),
             CustomTextField(
               controller: _titleController,
@@ -146,14 +140,7 @@ class _WaypointSettingModalState extends State<WaypointSettingModal> {
             const SizedBox(height: 24),
 
             // 설명 입력
-            Text(
-              '설명 (선택사항)',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: colors.labelNormal,
-              ),
-            ),
+            Text('설명 (선택사항)', style: _getLabelStyle(colors)),
             const SizedBox(height: 8),
             CustomTextField(
               controller: _descriptionController,
@@ -161,14 +148,7 @@ class _WaypointSettingModalState extends State<WaypointSettingModal> {
             ),
             const SizedBox(height: 24),
             // Waypoint 타입 선택
-            Text(
-              '타입',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: colors.labelNormal,
-              ),
-            ),
+            Text('타입', style: _getLabelStyle(colors)),
             const SizedBox(height: 8),
             _buildTypeSelector(colors),
 
