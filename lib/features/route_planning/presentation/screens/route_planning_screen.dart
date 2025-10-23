@@ -10,10 +10,14 @@ import 'package:urban_breeze/features/place_search/domain/entities/search_result
 import 'package:urban_breeze/features/place_search/presentation/screens/place_search_screen.dart';
 import 'package:urban_breeze/features/route_planning/application/use_cases/route_planning_facade.dart';
 import 'package:urban_breeze/features/route_planning/di/route_providers.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/planned_route.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/route_pin.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/waypoint.dart';
 import 'package:urban_breeze/features/route_planning/presentation/screens/route_create_complete_screen.dart';
 import 'package:urban_breeze/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:urban_breeze/features/route_planning/presentation/widgets/route_creation_actions.dart';
+import 'package:urban_breeze/features/route_planning/presentation/widgets/waypoint_setting_modal.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
@@ -44,8 +48,10 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   final MapController _mapController = MapController();
 
   bool _isButtonPressed = false;
-  final List<LatLng> _pins = <LatLng>[];
-  final List<RouteSegment> _routeSegments = <RouteSegment>[];
+  PlannedRoute _route = PlannedRoute(
+    pins: <RoutePin>[],
+    segments: <RouteSegment>[],
+  ); // 경로 전체 관리
   bool _isRouteLoading = false;
   bool _isSaveMode = false;
   Place? _selectedPlace;
@@ -196,15 +202,15 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   Future<void> _getRoute() async {
-    if (_pins.length < 2) return;
+    if (_route.pins.length < 2) return;
 
     setState(() {
       _isRouteLoading = true;
     });
 
     final AppResult<RouteSegment> result = await _facade.createRoute.execute(
-      _pins[_pins.length - 2],
-      _pins[_pins.length - 1],
+      _route.pins[_route.pins.length - 2].position,
+      _route.pins[_route.pins.length - 1].position,
     );
 
     if (mounted) {
@@ -215,15 +221,14 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       switch (result) {
         case final AppSuccess<RouteSegment> success:
           setState(() {
-            _routeSegments.add(success.data);
-            _pins[_pins.length - 2] = success.data.points.first;
-            _pins[_pins.length - 1] = success.data.points.last;
+            // addSegment가 자동으로 핀 위치도 업데이트
+            _route = _route.addSegment(success.data);
           });
           AmplitudeAnalytics.logEvent(
             'route_planning_route_created',
             properties: <String, dynamic>{
-              'route_segments_count': _routeSegments.length,
-              'total_pins': _pins.length,
+              'route_segments_count': _route.segments.length,
+              'total_pins': _route.pins.length,
             },
           );
         case final AppFailure<RouteSegment> failure:
@@ -243,20 +248,26 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   void _addPin(LatLng position) {
     if (_isRouteLoading) return;
 
-    if (_facade.managePins.shouldAddPin(_isButtonPressed, _pins)) {
+    // managePins UseCase는 여전히 LatLng 리스트를 받으므로 변환 필요
+    final List<LatLng> pinPositions =
+        _route.pins.map((RoutePin pin) => pin.position).toList();
+
+    if (_facade.managePins.shouldAddPin(_isButtonPressed, pinPositions)) {
       setState(() {
-        _pins.add(position);
+        _route = _route.addPin(RoutePin(position: position));
       });
       AmplitudeAnalytics.logEvent(
         'route_planning_pin_added',
         properties: <String, dynamic>{
-          'pin_count': _pins.length,
+          'pin_count': _route.pins.length,
           'pin_latitude': position.latitude,
           'pin_longitude': position.longitude,
         },
       );
 
-      if (_facade.managePins.shouldGetRoute(_pins)) {
+      final List<LatLng> updatedPinPositions =
+          _route.pins.map((RoutePin pin) => pin.position).toList();
+      if (_facade.managePins.shouldGetRoute(updatedPinPositions)) {
         _getRoute();
       }
     }
@@ -264,29 +275,20 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
   void _removeLastPin({bool shouldRemoveRouteSegment = true}) {
     setState(() {
-      _pins.removeLast();
-
-      if (shouldRemoveRouteSegment) {
-        // 사용자가 직접 핀을 제거하는 경우
-        if (_pins.length >= 2) {
-          _routeSegments.removeLast();
-        } else {
-          _routeSegments.clear();
-        }
-      }
+      _route = _route.removeLastPin(removeSegment: shouldRemoveRouteSegment);
     });
 
     AmplitudeAnalytics.logEvent(
       'route_planning_pin_removed',
       properties: <String, dynamic>{
-        'remaining_pins': _pins.length,
-        'remaining_segments': _routeSegments.length,
+        'remaining_pins': _route.pins.length,
+        'remaining_segments': _route.segments.length,
       },
     );
   }
 
   void _fitMapToAllRoutes() {
-    final LatLngBounds bounds = _facade.fitMapToRoutes.execute(_routeSegments);
+    final LatLngBounds bounds = _facade.fitMapToRoutes.execute(_route.segments);
     _mapController.fitCamera(
       CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(20)),
     );
@@ -349,7 +351,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
         'total_distance': formattedTotalDistance,
         'total_duration': formattedTotalDuration,
         'elevation_gain': formattedElevationGain,
-        'route_segments_count': _routeSegments.length,
+        'route_segments_count': _route.segments.length,
       },
     );
   }
@@ -370,7 +372,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     );
 
     try {
-      await _facade.saveRoute.execute(_routeSegments, title);
+      await _facade.saveRoute.execute(_route.withTitle(title));
 
       if (!mounted) return;
 
@@ -384,7 +386,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
           'total_distance': formattedTotalDistance,
           'total_duration': formattedTotalDuration,
           'elevation_gain': formattedElevationGain,
-          'route_segments_count': _routeSegments.length,
+          'route_segments_count': _route.segments.length,
         },
       );
 
@@ -417,11 +419,11 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   String get formattedTotalDistance =>
-      _facade.routeStats.getFormattedTotalDistance(_routeSegments);
+      _facade.routeStats.getFormattedTotalDistance(_route.segments);
   String get formattedTotalDuration =>
-      _facade.routeStats.getFormattedTotalDuration(_routeSegments);
+      _facade.routeStats.getFormattedTotalDuration(_route.segments);
   String get formattedElevationGain =>
-      _facade.routeStats.getFormattedElevationGain(_routeSegments);
+      _facade.routeStats.getFormattedElevationGain(_route.segments);
 
   String _getSearchText() {
     if (_selectedPlace != null) {
@@ -443,7 +445,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
           totalDistance: formattedTotalDistance,
           totalDuration: formattedTotalDuration,
           elevationGain: formattedElevationGain,
-          hasRoute: _routeSegments.isNotEmpty,
+          hasRoute: _route.segments.isNotEmpty,
           onSave: _enterSaveMode,
           onBack: _exitSaveMode,
           onComplete: _completeRouteSave,
@@ -454,6 +456,53 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
   void _onMarkerTap() {
     // TODO: 장소 마커 탭 시 동작 추가
+  }
+
+  void _onPinTap(int pinIndex) {
+    final RoutePin pin = _route.pins[pinIndex];
+
+    showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (BuildContext context) => WaypointSettingModal(
+            position: pin.position,
+            initialWaypoint: pin.waypoint,
+            onSave: (Waypoint waypoint) {
+              setState(() {
+                _route = _route.updatePinWaypoint(
+                  pinIndex,
+                  pin.copyWithWaypoint(waypoint),
+                );
+              });
+
+              AmplitudeAnalytics.logEvent(
+                'route_planning_waypoint_set',
+                properties: <String, dynamic>{
+                  'pin_index': pinIndex,
+                  'waypoint_type': waypoint.type.name,
+                  'waypoint_title': waypoint.title,
+                },
+              );
+            },
+            onDelete: () {
+              // waypoint 삭제 (기본 핀으로 되돌리기)
+              setState(() {
+                _route = _route.updatePinWaypoint(
+                  pinIndex,
+                  RoutePin(position: pin.position), // waypoint 없는 기본 핀
+                );
+              });
+
+              AmplitudeAnalytics.logEvent(
+                'route_planning_waypoint_deleted',
+                properties: <String, dynamic>{'pin_index': pinIndex},
+              );
+            },
+          ),
+    );
   }
 
   void _onSearchResultMarkerTap(Place place) {
@@ -470,6 +519,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
     return Scaffold(
       backgroundColor: colors.backgroundNormalNormal,
+      resizeToAvoidBottomInset: _isSaveMode, // 저장 모드에서만 키보드 리사이즈 허용
       body: SafeArea(
         child: Column(
           children: <Widget>[
@@ -504,7 +554,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                         ),
                       PolylineLayer<LatLng>(
                         polylines:
-                            _routeSegments
+                            _route.segments
                                 .map(
                                   (RouteSegment segment) => Polyline<LatLng>(
                                     points: segment.points,
@@ -517,16 +567,25 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                       ),
                       MarkerLayer(
                         markers:
-                            _pins.asMap().entries.map((
-                              MapEntry<int, LatLng> entry,
+                            _route.pins.asMap().entries.map((
+                              MapEntry<int, RoutePin> entry,
                             ) {
                               final int index = entry.key;
-                              final LatLng position = entry.value;
+                              final RoutePin pin = entry.value;
+                              final RoutePinMarker pinMarker = RoutePinMarker(
+                                index: index,
+                                hasWaypoint: pin.hasWaypoint,
+                                waypoint: pin.waypoint,
+                              );
+
                               return Marker(
-                                point: position,
-                                width: 24,
-                                height: 24,
-                                child: RoutePinMarker(index: index),
+                                point: pin.position,
+                                width: pinMarker.flutterMapMarkerSize,
+                                height: pinMarker.flutterMapMarkerSize,
+                                child: GestureDetector(
+                                  onTap: () => _onPinTap(index),
+                                  child: pinMarker,
+                                ),
                               );
                             }).toList(),
                       ),
@@ -604,7 +663,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                             onTogglePinButton: _toggleButtonState,
                             onRemoveLastPin: _removeLastPin,
                             onMoveToCurrentLocation: _moveToCurrentLocation,
-                            hasPins: _pins.isNotEmpty,
+                            hasPins: _route.pins.isNotEmpty,
                           ),
                         ),
                       ),

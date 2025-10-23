@@ -90,13 +90,9 @@ final Provider<SaveRouteUseCase> saveRouteUseCaseProvider =
       final RouteRepository routeRepository = ref.watch(
         routeRepositoryProvider,
       );
-      final RouteStatsUseCase routeStatsUseCase = ref.watch(
-        routeStatsUseCaseProvider,
-      );
       return SaveRouteUseCase(
         bboxService: bboxService,
         routeRepository: routeRepository,
-        routeStatsUseCase: routeStatsUseCase,
       );
     });
 
@@ -110,7 +106,7 @@ final Provider<GetCurrentLocationUseCase> getCurrentLocationUseCaseProvider =
 
 final Provider<ManageRoutePinsUseCase> manageRoutePinsUseCaseProvider =
     Provider<ManageRoutePinsUseCase>((Ref<ManageRoutePinsUseCase> ref) {
-      return const ManageRoutePinsUseCase();
+      return const ManageRoutePinsUseCase(maxPinCount: 99);
     });
 
 final Provider<RouteStatsUseCase> routeStatsUseCaseProvider =

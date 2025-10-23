@@ -1,7 +1,9 @@
 import 'package:google_polyline_algorithm/google_polyline_algorithm.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/geometry_point.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/route_pin.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/waypoint.dart';
 
 class PolylineConvertService {
   static String encodeRouteSegments(List<RouteSegment> routeSegments) {
@@ -44,6 +46,67 @@ class PolylineConvertService {
             longitude: coord[0],
             latitude: coord[1],
             elevation: coord.length > 2 ? coord[2] : 0.0,
+          ),
+        );
+      }
+    }
+
+    return geometry;
+  }
+
+  static List<GeometryPoint> extractGeometryFromSegmentsWithWaypoints(
+    List<RouteSegment> routeSegments,
+    List<RoutePin> pins,
+  ) {
+    final List<GeometryPoint> geometry = <GeometryPoint>[];
+
+    // PlannedRoute 구조 활용: segments[i]는 pins[i] → pins[i+1] 사이의 경로
+    for (
+      int segmentIndex = 0;
+      segmentIndex < routeSegments.length;
+      segmentIndex++
+    ) {
+      final RouteSegment segment = routeSegments[segmentIndex];
+      final RoutePin startPin = pins[segmentIndex];
+      final RoutePin endPin = pins[segmentIndex + 1];
+      final bool isFirstSegment = segmentIndex == 0;
+
+      // 세그먼트의 geometry를 순회하며 GeometryPoint 생성
+      for (
+        int coordIndex = 0;
+        coordIndex < segment.originalGeometry.length;
+        coordIndex++
+      ) {
+        final List<double> coord = segment.originalGeometry[coordIndex];
+        final double longitude = coord[0];
+        final double latitude = coord[1];
+        final double elevation = coord.length > 2 ? coord[2] : 0.0;
+        final bool isFirstCoord = coordIndex == 0;
+        final bool isLastCoord =
+            coordIndex == segment.originalGeometry.length - 1;
+
+        // 중복 방지: 첫 번째 세그먼트가 아니면 시작점 스킵 (이전 세그먼트의 끝점과 중복)
+        // 단, 시작 핀에 waypoint가 있는 경우는 이미 이전 세그먼트의 끝점에서 처리됨
+        if (!isFirstSegment && isFirstCoord) {
+          continue;
+        }
+
+        // waypoint 판단: 시작점 또는 끝점
+        final Waypoint? waypointToAdd;
+        if (isFirstCoord && startPin.hasWaypoint) {
+          waypointToAdd = startPin.waypoint;
+        } else if (isLastCoord && endPin.hasWaypoint) {
+          waypointToAdd = endPin.waypoint;
+        } else {
+          waypointToAdd = null;
+        }
+
+        geometry.add(
+          GeometryPoint(
+            longitude: longitude,
+            latitude: latitude,
+            elevation: elevation,
+            waypoint: waypointToAdd,
           ),
         );
       }

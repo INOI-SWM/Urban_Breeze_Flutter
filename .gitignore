@@ -18,6 +18,7 @@ migrate_working_dir/
 *.iws
 .idea/
 
+
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
 # is commented out by default.
@@ -48,8 +49,10 @@ app.*.map.json
 .env
 .env.*
 
+
 # 키스토어 파일 (보안)
 *.jks
+*.der
 *.keystore
 key.properties
 android/key.properties

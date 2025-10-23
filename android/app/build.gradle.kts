@@ -25,9 +25,9 @@ android {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
-    // Firebase SHA-1과 일치하는 전역 debug keystore 사용
+    // Google Play App Signing 인증서 사용
     signingConfigs {
-        // 프로덕션용 릴리즈 키스토어
+        // 프로덕션용 릴리즈 키스토어 (Google Play 인증서)
         create("release") {
             keyAlias = "upload"
             keyPassword = "urbanbreeze2025"
@@ -70,7 +70,7 @@ android {
             manifestPlaceholders["googleClientId"] = "723259332020-2ms0qnupo6ntk7um52d6f8ct4s0fvk3h.apps.googleusercontent.com"
             manifestPlaceholders["kakaoScheme"] = "kakaoea26fa3b97208688a71b31b17df4813c"
             manifestPlaceholders["appLabel"] = "Urban Breeze"
-            // Prod는 항상 release 키스토어 사용 (Firebase SHA-1 일치)
+            // Prod는 Google Play App Signing 인증서 사용
             signingConfig = signingConfigs.getByName("release")
         }
     }

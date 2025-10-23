@@ -18,6 +18,14 @@
           "client_type": 1,
           "android_info": {
             "package_name": "com.inoi.urbanbreeze",
+            "certificate_hash": "8442629a6ff3f587dec71f0b5771c36081035da0"
+          }
+        },
+        {
+          "client_id": "723259332020-7uh3c23l7bovabgal8f1iaoluosk0u4k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inoi.urbanbreeze",
             "certificate_hash": "2413f948b2c3e54c30ad53009f027c6f38bde68d"
           }
         },

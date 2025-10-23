@@ -1,5 +1,5 @@
-import 'package:urban_breeze/features/route_planning/application/use_cases/route_stats_use_case.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/geometry_point.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/planned_route.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
 import 'package:urban_breeze/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 import 'package:urban_breeze/features/route_planning/domain/repositories/route_repository.dart';
@@ -10,45 +10,36 @@ class SaveRouteUseCase {
   const SaveRouteUseCase({
     required BboxService bboxService,
     required RouteRepository routeRepository,
-    required RouteStatsUseCase routeStatsUseCase,
   }) : _bboxService = bboxService,
-       _routeRepository = routeRepository,
-       _routeStatsUseCase = routeStatsUseCase;
+       _routeRepository = routeRepository;
 
   final BboxService _bboxService;
   final RouteRepository _routeRepository;
-  final RouteStatsUseCase _routeStatsUseCase;
 
-  Future<void> execute(List<RouteSegment> routeSegments, String title) async {
+  Future<void> execute(PlannedRoute route) async {
     try {
       final String encodedPolyline = PolylineConvertService.encodeRouteSegments(
-        routeSegments,
+        route.segments,
       );
 
       final List<List<double>> allBboxes =
-          routeSegments.map((RouteSegment segment) => segment.bbox).toList();
+          route.segments.map((RouteSegment segment) => segment.bbox).toList();
 
       final List<double> mergedBbox = _bboxService.mergeBboxes(allBboxes);
-      final double totalDistance = _routeStatsUseCase.getTotalDistance(
-        routeSegments,
-      );
-      final int totalDuration = _routeStatsUseCase.getTotalDuration(
-        routeSegments,
-      );
-      final double elevationGain = _routeStatsUseCase.getTotalElevationGain(
-        routeSegments,
-      );
 
       final List<GeometryPoint> geometry =
-          PolylineConvertService.extractGeometryFromSegments(routeSegments);
+          PolylineConvertService.extractGeometryFromSegmentsWithWaypoints(
+            route.segments,
+            route.pins,
+          );
 
       await _routeRepository.saveRoute(
-        title: title,
+        title: route.title ?? '',
         encodedPolyline: encodedPolyline,
         bbox: mergedBbox,
-        distance: totalDistance,
-        duration: totalDuration,
-        elevationGain: elevationGain,
+        distance: route.totalDistance,
+        duration: route.totalDuration,
+        elevationGain: route.totalElevationGain,
         geometry: geometry,
       );
     } catch (e) {
