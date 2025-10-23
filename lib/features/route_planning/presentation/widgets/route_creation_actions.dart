@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/route_planning/presentation/widgets/route_help_content.dart';
 import 'package:urban_breeze/shared/design_system/tokens/decorations/app_shadows.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/icon_button_solid.dart';
 import 'package:urban_breeze/shared/design_system/widgets/icon/icon_size.dart';
+import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
 
 class RouteCreationActionButtons extends StatelessWidget {
   const RouteCreationActionButtons({
@@ -22,6 +24,15 @@ class RouteCreationActionButtons extends StatelessWidget {
   final VoidCallback onRemoveLastPin;
   final VoidCallback onMoveToCurrentLocation;
   final bool hasPins;
+
+  void _showHelpModal(BuildContext context) {
+    ModalShow.show(
+      context: context,
+      title: '경로 생성 방법',
+      content: RouteHelpContent(colors: context.semanticColor),
+      showCloseButton: true,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +60,19 @@ class RouteCreationActionButtons extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
+        IconButtonSolid(
+          icon: Icons.help_outline,
+          onPressed: () {
+            AmplitudeAnalytics.logButtonClick('route_planning_help');
+            _showHelpModal(context);
+          },
+          iconSize: _iconSize,
+          backgroundColor: context.semanticColor.backgroundNormalNormal,
+          iconColor: context.semanticColor.labelNormal,
+          buttonSize: _buttonSize,
+          shadow: AppShadows.instance.emphasize,
+        ),
+        const SizedBox(height: 12),
         IconButtonSolid(
           icon: Icons.push_pin,
           onPressed: onTogglePinButton,
