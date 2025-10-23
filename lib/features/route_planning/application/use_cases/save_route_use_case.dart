@@ -1,5 +1,6 @@
 import 'package:urban_breeze/features/route_planning/application/use_cases/route_stats_use_case.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/geometry_point.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/route_pin.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
 import 'package:urban_breeze/features/route_planning/domain/exceptions/route_domain_exceptions.dart';
 import 'package:urban_breeze/features/route_planning/domain/repositories/route_repository.dart';
@@ -19,7 +20,11 @@ class SaveRouteUseCase {
   final RouteRepository _routeRepository;
   final RouteStatsUseCase _routeStatsUseCase;
 
-  Future<void> execute(List<RouteSegment> routeSegments, String title) async {
+  Future<void> execute(
+    List<RouteSegment> routeSegments,
+    String title,
+    List<RoutePin> pins,
+  ) async {
     try {
       final String encodedPolyline = PolylineConvertService.encodeRouteSegments(
         routeSegments,
@@ -40,7 +45,10 @@ class SaveRouteUseCase {
       );
 
       final List<GeometryPoint> geometry =
-          PolylineConvertService.extractGeometryFromSegments(routeSegments);
+          PolylineConvertService.extractGeometryFromSegmentsWithWaypoints(
+            routeSegments,
+            pins,
+          );
 
       await _routeRepository.saveRoute(
         title: title,

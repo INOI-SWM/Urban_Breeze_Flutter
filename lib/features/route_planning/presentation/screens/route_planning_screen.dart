@@ -10,6 +10,7 @@ import 'package:urban_breeze/features/place_search/domain/entities/search_result
 import 'package:urban_breeze/features/place_search/presentation/screens/place_search_screen.dart';
 import 'package:urban_breeze/features/route_planning/application/use_cases/route_planning_facade.dart';
 import 'package:urban_breeze/features/route_planning/di/route_providers.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/route_pin.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/waypoint.dart';
 import 'package:urban_breeze/features/route_planning/presentation/screens/route_create_complete_screen.dart';
@@ -46,10 +47,8 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   final MapController _mapController = MapController();
 
   bool _isButtonPressed = false;
-  final List<LatLng> _pins = <LatLng>[];
+  final List<RoutePin> _pins = <RoutePin>[]; // 핀 위치 + waypoint 통합
   final List<RouteSegment> _routeSegments = <RouteSegment>[];
-  final Map<int, Waypoint> _waypoints =
-      <int, Waypoint>{}; // 핀 인덱스 -> Waypoint 매핑
   bool _isRouteLoading = false;
   bool _isSaveMode = false;
   Place? _selectedPlace;
@@ -207,8 +206,8 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     });
 
     final AppResult<RouteSegment> result = await _facade.createRoute.execute(
-      _pins[_pins.length - 2],
-      _pins[_pins.length - 1],
+      _pins[_pins.length - 2].position,
+      _pins[_pins.length - 1].position,
     );
 
     if (mounted) {
@@ -220,8 +219,15 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
         case final AppSuccess<RouteSegment> success:
           setState(() {
             _routeSegments.add(success.data);
-            _pins[_pins.length - 2] = success.data.points.first;
-            _pins[_pins.length - 1] = success.data.points.last;
+            // 서버에서 받은 정확한 위치로 핀 업데이트 (waypoint는 유지)
+            _pins[_pins.length - 2] = RoutePin(
+              position: success.data.points.first,
+              waypoint: _pins[_pins.length - 2].waypoint,
+            );
+            _pins[_pins.length - 1] = RoutePin(
+              position: success.data.points.last,
+              waypoint: _pins[_pins.length - 1].waypoint,
+            );
           });
           AmplitudeAnalytics.logEvent(
             'route_planning_route_created',
@@ -247,9 +253,13 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   void _addPin(LatLng position) {
     if (_isRouteLoading) return;
 
-    if (_facade.managePins.shouldAddPin(_isButtonPressed, _pins)) {
+    // managePins UseCase는 여전히 LatLng 리스트를 받으므로 변환 필요
+    final List<LatLng> pinPositions =
+        _pins.map((RoutePin pin) => pin.position).toList();
+
+    if (_facade.managePins.shouldAddPin(_isButtonPressed, pinPositions)) {
       setState(() {
-        _pins.add(position);
+        _pins.add(RoutePin(position: position));
       });
       AmplitudeAnalytics.logEvent(
         'route_planning_pin_added',
@@ -260,7 +270,11 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
         },
       );
 
-      if (_facade.managePins.shouldGetRoute(_pins)) {
+      if (_facade.managePins.shouldGetRoute(
+        pinPositions.length == _pins.length
+            ? pinPositions
+            : _pins.map((RoutePin pin) => pin.position).toList(),
+      )) {
         _getRoute();
       }
     }
@@ -268,11 +282,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
   void _removeLastPin({bool shouldRemoveRouteSegment = true}) {
     setState(() {
-      final int removedPinIndex = _pins.length - 1;
-      _pins.removeLast();
-
-      // 해당 핀의 waypoint도 제거
-      _waypoints.remove(removedPinIndex);
+      _pins.removeLast(); // RoutePin이므로 waypoint도 함께 제거됨
 
       if (shouldRemoveRouteSegment) {
         // 사용자가 직접 핀을 제거하는 경우
@@ -378,7 +388,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     );
 
     try {
-      await _facade.saveRoute.execute(_routeSegments, title);
+      await _facade.saveRoute.execute(_routeSegments, title, _pins);
 
       if (!mounted) return;
 
@@ -465,8 +475,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   void _onPinTap(int pinIndex) {
-    final LatLng pinPosition = _pins[pinIndex];
-    final Waypoint? existingWaypoint = _waypoints[pinIndex];
+    final RoutePin pin = _pins[pinIndex];
 
     showModalBottomSheet<void>(
       context: context,
@@ -475,11 +484,11 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       backgroundColor: Colors.transparent,
       builder:
           (BuildContext context) => WaypointSettingModal(
-            position: pinPosition,
-            initialWaypoint: existingWaypoint,
+            position: pin.position,
+            initialWaypoint: pin.waypoint,
             onSave: (Waypoint waypoint) {
               setState(() {
-                _waypoints[pinIndex] = waypoint;
+                _pins[pinIndex] = pin.copyWithWaypoint(waypoint);
               });
 
               AmplitudeAnalytics.logEvent(
@@ -561,19 +570,18 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                       MarkerLayer(
                         markers:
                             _pins.asMap().entries.map((
-                              MapEntry<int, LatLng> entry,
+                              MapEntry<int, RoutePin> entry,
                             ) {
                               final int index = entry.key;
-                              final LatLng position = entry.value;
-                              final Waypoint? waypoint = _waypoints[index];
+                              final RoutePin pin = entry.value;
                               final RoutePinMarker pinMarker = RoutePinMarker(
                                 index: index,
-                                hasWaypoint: waypoint != null,
-                                waypoint: waypoint,
+                                hasWaypoint: pin.hasWaypoint,
+                                waypoint: pin.waypoint,
                               );
 
                               return Marker(
-                                point: position,
+                                point: pin.position,
                                 width: pinMarker.flutterMapMarkerSize,
                                 height: pinMarker.flutterMapMarkerSize,
                                 child: GestureDetector(
