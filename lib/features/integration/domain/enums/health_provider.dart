@@ -5,7 +5,8 @@ enum HealthProvider {
   samsungHealth('Samsung Health', 'SAMSUNG-HEALTH'),
   garmin('Garmin', 'GARMIN'),
   suunto('Suunto', 'SUUNTO'),
-  strava('Strava', 'STRAVA');
+  strava('Strava', 'STRAVA'),
+  wahoo('Wahoo', 'WAHOO');
 
   const HealthProvider(this.displayName, this.apiProviderName);
 
@@ -40,6 +41,8 @@ enum HealthProvider {
         return 'Suunto';
       case HealthProvider.strava:
         return 'Strava';
+      case HealthProvider.wahoo:
+        return 'Wahoo';
     }
   }
 }
