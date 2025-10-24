@@ -109,9 +109,7 @@ class SettingsScreen extends ConsumerWidget with ErrorDisplayMixin {
                         AsyncSnapshot<PackageInfo> snapshot,
                       ) {
                         return Text(
-                          snapshot.hasData
-                              ? '${snapshot.data!.version}+${snapshot.data!.buildNumber}'
-                              : '...',
+                          snapshot.hasData ? snapshot.data!.version : '...',
                           style: AppTextStyles.body2.normalRegular.copyWith(
                             color: colors.labelAssistive,
                           ),

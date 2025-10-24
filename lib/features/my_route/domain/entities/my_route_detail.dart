@@ -1,3 +1,4 @@
+import 'package:urban_breeze/features/route_planning/domain/entities/waypoint.dart';
 import 'package:urban_breeze/shared/utils/display_formatter.dart';
 
 class MyRouteDetail {
@@ -37,8 +38,17 @@ class MyRouteDetail {
 }
 
 class TrackPoint {
-  const TrackPoint({required this.index, required this.elevation});
+  const TrackPoint({
+    required this.index,
+    required this.latitude,
+    required this.longitude,
+    required this.elevation,
+    this.waypoint,
+  });
 
   final int index;
+  final double latitude;
+  final double longitude;
   final double elevation;
+  final Waypoint? waypoint;
 }

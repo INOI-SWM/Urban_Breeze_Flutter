@@ -11,6 +11,8 @@ import 'package:urban_breeze/features/my_route/application/usecases/get_my_route
 import 'package:urban_breeze/features/my_route/application/usecases/get_route_gpx_usecase.dart';
 import 'package:urban_breeze/features/my_route/di/my_route_providers.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route_detail.dart';
+import 'package:urban_breeze/features/my_route/presentation/widgets/waypoint_info_modal.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/waypoint.dart';
 import 'package:urban_breeze/features/route_planning/domain/services/polyline_convert_service.dart';
 import 'package:urban_breeze/features/route_sharing/application/facades/route_sharing_facade.dart';
 import 'package:urban_breeze/features/route_sharing/di/route_sharing_providers.dart';
@@ -20,6 +22,7 @@ import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_sty
 import 'package:urban_breeze/shared/design_system/widgets/card/user_info_in_card.dart';
 import 'package:urban_breeze/shared/design_system/widgets/info/info_items_row.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
+import 'package:urban_breeze/shared/design_system/widgets/marker/route_pin_marker.dart';
 import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
 import 'package:urban_breeze/shared/layout/map_with_bottom_sheet_layout.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
@@ -305,24 +308,53 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
           ),
         );
 
-        // 시작점과 끝점 마커 추가 - 공통 위젯 사용
-        overlays.add(
-          MarkerLayer(
-            markers: <Marker>[
-              MapMarkerWidget.createStartMarker(
-                routePoints.first,
-                colors.statusPositive,
-                colors,
-              ),
-              if (routePoints.length > 1)
-                MapMarkerWidget.createEndMarker(
-                  routePoints.last,
-                  colors.statusNegative,
-                  colors,
+        // 마커 레이어 생성
+        final List<Marker> markers = <Marker>[];
+
+        // Waypoint 마커 추가 (먼저 추가하여 아래에 렌더링)
+        for (final TrackPoint trackPoint in routeDetail.trackPoints) {
+          if (trackPoint.waypoint != null) {
+            final RoutePinMarker waypointMarker = RoutePinMarker(
+              index: trackPoint.index,
+              hasWaypoint: true,
+              waypoint: trackPoint.waypoint,
+            );
+
+            markers.add(
+              Marker(
+                point: LatLng(trackPoint.latitude, trackPoint.longitude),
+                width: waypointMarker.flutterMapMarkerSize,
+                height: waypointMarker.flutterMapMarkerSize,
+                child: GestureDetector(
+                  onTap: () => _showWaypointInfo(context, trackPoint.waypoint!),
+                  child: waypointMarker,
                 ),
-            ],
+              ),
+            );
+          }
+        }
+
+        // 시작점 마커 (나중에 추가하여 위에 렌더링)
+        markers.add(
+          MapMarkerWidget.createStartMarker(
+            routePoints.first,
+            colors.statusPositive,
+            colors,
           ),
         );
+
+        // 끝점 마커 (나중에 추가하여 위에 렌더링)
+        if (routePoints.length > 1) {
+          markers.add(
+            MapMarkerWidget.createEndMarker(
+              routePoints.last,
+              colors.statusNegative,
+              colors,
+            ),
+          );
+        }
+
+        overlays.add(MarkerLayer(markers: markers));
       }
     }
 
@@ -482,5 +514,19 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
         '경로 삭제 중 오류가 발생했습니다: ${e.toString()}',
       );
     }
+  }
+
+  /// Waypoint 정보 모달 표시
+  void _showWaypointInfo(BuildContext context, Waypoint waypoint) {
+    AmplitudeAnalytics.logEvent(
+      'my_route_waypoint_view',
+      properties: <String, dynamic>{
+        'waypoint_type': waypoint.type.name,
+        'has_title': waypoint.title != null,
+        'has_description': waypoint.description != null,
+      },
+    );
+
+    WaypointInfoModal.show(context, waypoint: waypoint);
   }
 }
