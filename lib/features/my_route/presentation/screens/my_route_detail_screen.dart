@@ -311,16 +311,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
         // 마커 레이어 생성
         final List<Marker> markers = <Marker>[];
 
-        // 시작점 마커
-        markers.add(
-          MapMarkerWidget.createStartMarker(
-            routePoints.first,
-            colors.statusPositive,
-            colors,
-          ),
-        );
-
-        // Waypoint 마커 추가
+        // Waypoint 마커 추가 (먼저 추가하여 아래에 렌더링)
         for (final TrackPoint trackPoint in routeDetail.trackPoints) {
           if (trackPoint.waypoint != null) {
             final RoutePinMarker waypointMarker = RoutePinMarker(
@@ -343,7 +334,16 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
           }
         }
 
-        // 끝점 마커
+        // 시작점 마커 (나중에 추가하여 위에 렌더링)
+        markers.add(
+          MapMarkerWidget.createStartMarker(
+            routePoints.first,
+            colors.statusPositive,
+            colors,
+          ),
+        );
+
+        // 끝점 마커 (나중에 추가하여 위에 렌더링)
         if (routePoints.length > 1) {
           markers.add(
             MapMarkerWidget.createEndMarker(

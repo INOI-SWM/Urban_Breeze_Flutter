@@ -12,15 +12,15 @@ class MapMarkerWidget {
   ) {
     return Marker(
       point: point,
-      width: 24,
-      height: 24,
+      width: 20,
+      height: 20,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
           border: Border.all(color: color, width: 1),
         ),
-        child: Icon(Icons.directions_bike, color: color, size: 16),
+        child: Icon(Icons.directions_bike, color: color, size: 14),
       ),
     );
   }
@@ -33,15 +33,15 @@ class MapMarkerWidget {
   ) {
     return Marker(
       point: point,
-      width: 24,
-      height: 24,
+      width: 20,
+      height: 20,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
           border: Border.all(color: color, width: 1),
         ),
-        child: Icon(Icons.sports_score, color: color, size: 16),
+        child: Icon(Icons.sports_score, color: color, size: 14),
       ),
     );
   }
