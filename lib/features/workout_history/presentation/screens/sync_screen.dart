@@ -509,6 +509,18 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     );
   }
 
+  /// Wahoo 권한 요청
+  Future<void> _requestWahooPermission() async {
+    await _requestOAuthPermission(
+      serviceName: 'Wahoo',
+      buttonEvent: 'workout_sync_wahoo',
+      successEvent: 'wahoo_auth_success',
+      failedEvent: 'wahoo_auth_failed',
+      requestMethod:
+          () => ref.read(workoutSyncFacadeProvider).requestWahooPermission(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
@@ -639,6 +651,23 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
                     onDisconnectPressed:
                         () => _showDisconnectModal(
                           HealthProvider.suunto.serviceName,
+                        ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Wahoo 섹션
+                  _buildSyncButton(
+                    provider: HealthProvider.wahoo,
+                    isConnected:
+                        syncState.connectionStatus[HealthProvider.wahoo] ??
+                        false,
+                    isLoading:
+                        syncState.loadingStatus[HealthProvider.wahoo] ?? false,
+                    onPressed: _requestWahooPermission,
+                    onDisconnectPressed:
+                        () => _showDisconnectModal(
+                          HealthProvider.wahoo.serviceName,
                         ),
                   ),
                 ],
