@@ -77,19 +77,64 @@ class MyRouteDetailModel {
 }
 
 class TrackPointModel {
-  const TrackPointModel({required this.index, required this.elevation});
+  const TrackPointModel({
+    required this.index,
+    required this.latitude,
+    required this.longitude,
+    required this.elevation,
+    this.waypoint,
+  });
 
   factory TrackPointModel.fromJson(Map<String, dynamic> json) {
     return TrackPointModel(
       index: json['index'] as int,
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
       elevation: (json['elevation'] as num).toDouble(),
+      waypoint:
+          json['waypoint'] != null
+              ? WaypointModel.fromJson(json['waypoint'] as Map<String, dynamic>)
+              : null,
     );
   }
 
   final int index;
+  final double latitude;
+  final double longitude;
   final double elevation;
+  final WaypointModel? waypoint;
 
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{'index': index, 'elevation': elevation};
+    return <String, dynamic>{
+      'index': index,
+      'latitude': latitude,
+      'longitude': longitude,
+      'elevation': elevation,
+      if (waypoint != null) 'waypoint': waypoint!.toJson(),
+    };
+  }
+}
+
+class WaypointModel {
+  const WaypointModel({required this.type, this.title, this.description});
+
+  factory WaypointModel.fromJson(Map<String, dynamic> json) {
+    return WaypointModel(
+      type: json['type'] as String,
+      title: json['title'] as String?,
+      description: json['description'] as String?,
+    );
+  }
+
+  final String type;
+  final String? title;
+  final String? description;
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'type': type,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+    };
   }
 }
