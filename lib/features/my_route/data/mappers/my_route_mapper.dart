@@ -7,6 +7,7 @@ import 'package:urban_breeze/features/my_route/domain/entities/my_route_detail.d
 import 'package:urban_breeze/features/my_route/domain/entities/my_route_filter.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route_list.dart';
 import 'package:urban_breeze/features/my_route/domain/enums/my_route_sort_type.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/waypoint.dart';
 import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 
 class MyRouteMapper {
@@ -136,11 +137,34 @@ class MyRouteMapper {
       trackPoints:
           data.trackPoints
               .map(
-                (TrackPointModel model) =>
-                    TrackPoint(index: model.index, elevation: model.elevation),
+                (TrackPointModel model) => TrackPoint(
+                  index: model.index,
+                  latitude: model.latitude,
+                  longitude: model.longitude,
+                  elevation: model.elevation,
+                  waypoint:
+                      model.waypoint != null
+                          ? _waypointModelToEntity(model.waypoint!)
+                          : null,
+                ),
               )
               .toList(),
       bbox: data.bbox,
+    );
+  }
+
+  /// WaypointModel을 Waypoint 엔티티로 변환
+  static Waypoint _waypointModelToEntity(WaypointModel model) {
+    // type 문자열을 WaypointType enum으로 변환
+    final WaypointType type = WaypointType.values.firstWhere(
+      (WaypointType e) => e.name == model.type,
+      orElse: () => WaypointType.generic,
+    );
+
+    return Waypoint(
+      type: type,
+      title: model.title,
+      description: model.description,
     );
   }
 }
