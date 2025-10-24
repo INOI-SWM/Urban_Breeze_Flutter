@@ -20,6 +20,7 @@ import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_sty
 import 'package:urban_breeze/shared/design_system/widgets/card/user_info_in_card.dart';
 import 'package:urban_breeze/shared/design_system/widgets/info/info_items_row.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
+import 'package:urban_breeze/shared/design_system/widgets/marker/route_pin_marker.dart';
 import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
 import 'package:urban_breeze/shared/layout/map_with_bottom_sheet_layout.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
@@ -305,24 +306,50 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
           ),
         );
 
-        // 시작점과 끝점 마커 추가 - 공통 위젯 사용
-        overlays.add(
-          MarkerLayer(
-            markers: <Marker>[
-              MapMarkerWidget.createStartMarker(
-                routePoints.first,
-                colors.statusPositive,
-                colors,
-              ),
-              if (routePoints.length > 1)
-                MapMarkerWidget.createEndMarker(
-                  routePoints.last,
-                  colors.statusNegative,
-                  colors,
-                ),
-            ],
+        // 마커 레이어 생성
+        final List<Marker> markers = <Marker>[];
+
+        // 시작점 마커
+        markers.add(
+          MapMarkerWidget.createStartMarker(
+            routePoints.first,
+            colors.statusPositive,
+            colors,
           ),
         );
+
+        // Waypoint 마커 추가
+        for (final TrackPoint trackPoint in routeDetail.trackPoints) {
+          if (trackPoint.waypoint != null) {
+            final RoutePinMarker waypointMarker = RoutePinMarker(
+              index: trackPoint.index,
+              hasWaypoint: true,
+              waypoint: trackPoint.waypoint,
+            );
+
+            markers.add(
+              Marker(
+                point: LatLng(trackPoint.latitude, trackPoint.longitude),
+                width: waypointMarker.flutterMapMarkerSize,
+                height: waypointMarker.flutterMapMarkerSize,
+                child: waypointMarker,
+              ),
+            );
+          }
+        }
+
+        // 끝점 마커
+        if (routePoints.length > 1) {
+          markers.add(
+            MapMarkerWidget.createEndMarker(
+              routePoints.last,
+              colors.statusNegative,
+              colors,
+            ),
+          );
+        }
+
+        overlays.add(MarkerLayer(markers: markers));
       }
     }
 
