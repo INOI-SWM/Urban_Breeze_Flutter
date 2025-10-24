@@ -155,9 +155,13 @@ class MyRouteMapper {
 
   /// WaypointModel을 Waypoint 엔티티로 변환
   static Waypoint _waypointModelToEntity(WaypointModel model) {
-    // type 문자열을 WaypointType enum으로 변환
+    // type 문자열을 WaypointType enum으로 변환 (대소문자 구분 없이, 언더스코어 제거)
+    final String typeString = model.type.toLowerCase().replaceAll(
+      '_',
+      '',
+    ); // FIRST_AID -> firstaid
     final WaypointType type = WaypointType.values.firstWhere(
-      (WaypointType e) => e.name == model.type,
+      (WaypointType e) => e.name.toLowerCase() == typeString,
       orElse: () => WaypointType.generic,
     );
 
