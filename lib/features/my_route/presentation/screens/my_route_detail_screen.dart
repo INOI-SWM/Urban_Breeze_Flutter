@@ -9,6 +9,7 @@ import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/my_route/application/usecases/delete_route_usecase.dart';
 import 'package:urban_breeze/features/my_route/application/usecases/get_my_route_detail_usecase.dart';
 import 'package:urban_breeze/features/my_route/application/usecases/get_route_gpx_usecase.dart';
+import 'package:urban_breeze/features/my_route/application/usecases/get_route_tcx_usecase.dart';
 import 'package:urban_breeze/features/my_route/di/my_route_providers.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route_detail.dart';
 import 'package:urban_breeze/features/my_route/presentation/widgets/waypoint_info_modal.dart';
@@ -140,6 +141,22 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
                       );
                     },
                   ),
+                  PlatformActionSheetOption(
+                    title: 'TCX로 다운로드',
+                    onSelected: () {
+                      AmplitudeAnalytics.logEvent(
+                        'my_route_download_tcx',
+                        properties: <String, dynamic>{
+                          'route_id': widget.routeId,
+                        },
+                      );
+                      _handleTcxDownloadOrShare(
+                        context,
+                        isDownload: true,
+                        routeTitle: routeDetail.title,
+                      );
+                    },
+                  ),
                 ],
               );
             },
@@ -172,6 +189,22 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
                         },
                       );
                       _handleGpxDownloadOrShare(
+                        context,
+                        isDownload: false,
+                        routeTitle: routeDetail.title,
+                      );
+                    },
+                  ),
+                  PlatformActionSheetOption(
+                    title: 'TCX 파일로 공유',
+                    onSelected: () {
+                      AmplitudeAnalytics.logEvent(
+                        'my_route_share_tcx',
+                        properties: <String, dynamic>{
+                          'route_id': widget.routeId,
+                        },
+                      );
+                      _handleTcxDownloadOrShare(
                         context,
                         isDownload: false,
                         routeTitle: routeDetail.title,
@@ -436,6 +469,60 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
       ErrorDisplay.showErrorMessage(
         context,
         'GPX 처리 중 오류가 발생했습니다: ${e.toString()}',
+      );
+    }
+  }
+
+  /// TCX 다운로드 및 공유 처리
+  Future<void> _handleTcxDownloadOrShare(
+    BuildContext context, {
+    required bool isDownload,
+    String? routeTitle,
+  }) async {
+    final GetRouteTcxUseCase tcxUseCase = ref.read(getRouteTcxUseCaseProvider);
+    final RouteSharingFacade routeSharingFacade = ref.read(
+      routeSharingFacadeProvider,
+    );
+
+    try {
+      final AppResult<String> result = await tcxUseCase.execute(
+        routeId: widget.routeId,
+      );
+
+      if (!context.mounted) return;
+
+      if (result.isFailure) {
+        ErrorDisplay.showErrorMessage(
+          context,
+          result.exceptionOrNull?.message ?? 'TCX 데이터를 가져올 수 없습니다',
+        );
+        return;
+      }
+
+      final String tcxData = result.dataOrNull!;
+
+      if (isDownload) {
+        // 다운로드 모드: TCX 파일을 생성해서 공유
+        await routeSharingFacade.shareTcxFromData(
+          context,
+          tcxData,
+          widget.routeId,
+          routeTitle: routeTitle,
+        );
+      } else {
+        // 공유 모드: TCX 파일을 생성해서 공유
+        await routeSharingFacade.shareTcxFromData(
+          context,
+          tcxData,
+          widget.routeId,
+          routeTitle: routeTitle,
+        );
+      }
+    } catch (e) {
+      if (!context.mounted) return;
+      ErrorDisplay.showErrorMessage(
+        context,
+        'TCX 처리 중 오류가 발생했습니다: ${e.toString()}',
       );
     }
   }

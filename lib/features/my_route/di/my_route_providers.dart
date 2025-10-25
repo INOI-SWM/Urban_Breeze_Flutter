@@ -5,6 +5,7 @@ import 'package:urban_breeze/features/my_route/application/usecases/delete_route
 import 'package:urban_breeze/features/my_route/application/usecases/get_my_route_detail_usecase.dart';
 import 'package:urban_breeze/features/my_route/application/usecases/get_my_route_list_usecase.dart';
 import 'package:urban_breeze/features/my_route/application/usecases/get_route_gpx_usecase.dart';
+import 'package:urban_breeze/features/my_route/application/usecases/get_route_tcx_usecase.dart';
 import 'package:urban_breeze/features/my_route/application/usecases/save_shared_route_usecase.dart';
 import 'package:urban_breeze/features/my_route/data/datasources/my_route_remote_datasource.dart';
 import 'package:urban_breeze/features/my_route/data/repositories/my_route_repository_impl.dart';
@@ -40,6 +41,12 @@ final Provider<GetRouteGpxUseCase> getRouteGpxUseCaseProvider =
     Provider<GetRouteGpxUseCase>((Ref<GetRouteGpxUseCase> ref) {
       final MyRouteRepository repository = ref.watch(myRouteRepositoryProvider);
       return GetRouteGpxUseCase(repository: repository);
+    });
+
+final Provider<GetRouteTcxUseCase> getRouteTcxUseCaseProvider =
+    Provider<GetRouteTcxUseCase>((Ref<GetRouteTcxUseCase> ref) {
+      final MyRouteRepository repository = ref.watch(myRouteRepositoryProvider);
+      return GetRouteTcxUseCase(repository: repository);
     });
 
 final Provider<DeleteRouteUseCase> deleteRouteUseCaseProvider =
