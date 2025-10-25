@@ -43,6 +43,14 @@ class MyRouteRepositoryImpl implements MyRouteRepository {
   }
 
   @override
+  Future<String> getRouteTCX(String routeId) async {
+    final ApiResponseModel<String> response = await _remoteDataSource
+        .getRouteTCX(routeId);
+
+    return response.data;
+  }
+
+  @override
   Future<void> deleteRoute(String routeId) async {
     await _remoteDataSource.deleteRoute(routeId);
   }
