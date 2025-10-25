@@ -69,6 +69,37 @@ class MyRouteRemoteDataSource extends BaseRemoteDataSource {
     );
   }
 
+  Future<ApiResponseModel<String>> getRouteTCX(String routeId) async {
+    final http.Response response = await get(
+      ApiEndpoints.routeTCXDownload(routeId),
+    );
+
+    // HTTP 상태 코드 확인
+    if (response.statusCode != 200) {
+      throw NetworkException('TCX 다운로드 실패: HTTP ${response.statusCode}');
+    }
+
+    // 서버에서 body에 TCX 데이터를 직접 string으로 보내므로 JSON parsing 없이 처리
+    final String tcxData = response.body;
+
+    if (tcxData.isEmpty) {
+      throw const NetworkException('TCX 데이터가 비어있습니다');
+    }
+
+    // TCX 형식 기본 검증
+    if (!tcxData.contains('<?xml') ||
+        !tcxData.contains('<TrainingCenterDatabase')) {
+      throw const NetworkException('유효하지 않은 TCX 형식입니다');
+    }
+
+    // ApiResponseModel로 감싸서 반환 (다른 API와 일관성 유지)
+    return ApiResponseModel<String>(
+      code: '200',
+      message: 'success',
+      data: tcxData,
+    );
+  }
+
   /// 경로 삭제
   Future<void> deleteRoute(String routeId) async {
     try {
