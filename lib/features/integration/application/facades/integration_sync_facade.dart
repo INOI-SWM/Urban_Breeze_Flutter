@@ -4,17 +4,20 @@ import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/integration/application/use_cases/get_integration_activity_use_case.dart';
 import 'package:urban_breeze/features/integration/application/use_cases/request_garmin_permission_use_case.dart';
 import 'package:urban_breeze/features/integration/application/use_cases/request_suunto_permission_use_case.dart';
+import 'package:urban_breeze/features/integration/application/use_cases/request_wahoo_permission_use_case.dart';
 import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
 
 class IntegrationSyncFacade {
   const IntegrationSyncFacade({
     required this.requestGarminPermissionUseCase,
     required this.requestSuuntoPermissionUseCase,
+    required this.requestWahooPermissionUseCase,
     required this.getIntegrationActivityUseCase,
   });
 
   final RequestGarminPermissionUseCase requestGarminPermissionUseCase;
   final RequestSuuntoPermissionUseCase requestSuuntoPermissionUseCase;
+  final RequestWahooPermissionUseCase requestWahooPermissionUseCase;
   final GetIntegrationActivityUseCase getIntegrationActivityUseCase;
 
   /// Garmin Connect 연동 링크 요청
@@ -81,6 +84,41 @@ class IntegrationSyncFacade {
       // Suunto 연동 링크 요청 예외 이벤트
       AmplitudeAnalytics.logEvent(
         'suunto_permission_request_exception',
+        properties: <String, dynamic>{'error_message': e.toString()},
+      );
+      return AppFailure<IntegrationAuth>(IntegrationException(e.toString()));
+    }
+  }
+
+  /// Wahoo 연동 링크 요청
+  Future<AppResult<IntegrationAuth>> requestWahooPermission() async {
+    try {
+      // Wahoo 연동 링크 요청
+      final AppResult<IntegrationAuth> result =
+          await requestWahooPermissionUseCase.execute();
+
+      if (result.isSuccess) {
+        // Wahoo 연동 링크 요청 성공 이벤트
+        AmplitudeAnalytics.logEvent(
+          'wahoo_permission_request_success',
+          properties: <String, dynamic>{},
+        );
+        return result;
+      } else {
+        // Wahoo 연동 링크 요청 실패 이벤트
+        AmplitudeAnalytics.logEvent(
+          'wahoo_permission_request_failed',
+          properties: <String, dynamic>{
+            'error_message':
+                result.exceptionOrNull?.toString() ?? 'Unknown error',
+          },
+        );
+        return result;
+      }
+    } catch (e) {
+      // Wahoo 연동 링크 요청 예외 이벤트
+      AmplitudeAnalytics.logEvent(
+        'wahoo_permission_request_exception',
         properties: <String, dynamic>{'error_message': e.toString()},
       );
       return AppFailure<IntegrationAuth>(IntegrationException(e.toString()));

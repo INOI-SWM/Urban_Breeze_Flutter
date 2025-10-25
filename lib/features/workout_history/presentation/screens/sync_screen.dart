@@ -422,8 +422,51 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
   }) async {
     AmplitudeAnalytics.logButtonClick(buttonEvent);
 
+    // 로딩 다이얼로그 표시
+    if (mounted) {
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          final SemanticColors colors = context.semanticColor;
+          return PopScope(
+            canPop: false,
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.all(30),
+                decoration: BoxDecoration(
+                  color: colors.backgroundElevatedNormal,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const AppLoadingIndicator(),
+                    const SizedBox(height: 16),
+                    Text(
+                      '$serviceName 연동 준비 중...',
+                      style: AppTextStyles.body2.normalRegular.copyWith(
+                        color: colors.labelNormal,
+                        decoration: TextDecoration.none,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     try {
       final AppResult<IntegrationAuth> result = await requestMethod();
+
+      // 로딩 다이얼로그 닫기
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
 
       if (result.isSuccess) {
         final IntegrationAuth data = result.dataOrNull!;
@@ -475,6 +518,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
         );
       }
     } catch (e) {
+      // 에러 발생 시 로딩 다이얼로그 닫기
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+
       if (mounted) {
         if (e is PlatformException) {
           showErrorMessage(context, '지원하지 않는 플랫폼입니다');
@@ -506,6 +554,18 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
       failedEvent: 'suunto_auth_failed',
       requestMethod:
           () => ref.read(workoutSyncFacadeProvider).requestSuuntoPermission(),
+    );
+  }
+
+  /// Wahoo 권한 요청
+  Future<void> _requestWahooPermission() async {
+    await _requestOAuthPermission(
+      serviceName: 'Wahoo',
+      buttonEvent: 'workout_sync_wahoo',
+      successEvent: 'wahoo_auth_success',
+      failedEvent: 'wahoo_auth_failed',
+      requestMethod:
+          () => ref.read(workoutSyncFacadeProvider).requestWahooPermission(),
     );
   }
 
@@ -639,6 +699,23 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
                     onDisconnectPressed:
                         () => _showDisconnectModal(
                           HealthProvider.suunto.serviceName,
+                        ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Wahoo 섹션
+                  _buildSyncButton(
+                    provider: HealthProvider.wahoo,
+                    isConnected:
+                        syncState.connectionStatus[HealthProvider.wahoo] ??
+                        false,
+                    isLoading:
+                        syncState.loadingStatus[HealthProvider.wahoo] ?? false,
+                    onPressed: _requestWahooPermission,
+                    onDisconnectPressed:
+                        () => _showDisconnectModal(
+                          HealthProvider.wahoo.serviceName,
                         ),
                   ),
                 ],

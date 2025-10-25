@@ -227,6 +227,11 @@ class WorkoutSyncFacade {
     return integrationSyncFacade.requestSuuntoPermission();
   }
 
+  /// Wahoo 연동 링크 요청
+  Future<AppResult<IntegrationAuth>> requestWahooPermission() async {
+    return integrationSyncFacade.requestWahooPermission();
+  }
+
   /// 연동된 서비스들의 활동 기록 새로고침
   Future<AppResult<Map<String, dynamic>>> refreshIntegrationActivity() async {
     return integrationSyncFacade.refreshIntegrationActivity();

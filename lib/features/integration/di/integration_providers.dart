@@ -9,6 +9,7 @@ import '../application/use_cases/get_integration_activity_use_case.dart';
 import '../application/use_cases/get_integration_status_use_case.dart';
 import '../application/use_cases/request_garmin_permission_use_case.dart';
 import '../application/use_cases/request_suunto_permission_use_case.dart';
+import '../application/use_cases/request_wahoo_permission_use_case.dart';
 import '../data/datasources/api_usage_datasource.dart';
 import '../data/datasources/integration_datasource.dart';
 import '../data/datasources/provider_datasource.dart';
@@ -91,6 +92,16 @@ requestSuuntoPermissionUseCaseProvider =
       return RequestSuuntoPermissionUseCase(repository: repository);
     });
 
+final Provider<RequestWahooPermissionUseCase>
+requestWahooPermissionUseCaseProvider = Provider<RequestWahooPermissionUseCase>(
+  (Ref ref) {
+    final IntegrationRepository repository = ref.watch(
+      integrationRepositoryProvider,
+    );
+    return RequestWahooPermissionUseCase(repository: repository);
+  },
+);
+
 final Provider<GetIntegrationActivityUseCase>
 getIntegrationActivityUseCaseProvider = Provider<GetIntegrationActivityUseCase>(
   (Ref ref) {
@@ -135,12 +146,15 @@ final Provider<IntegrationSyncFacade> integrationSyncFacadeProvider =
           .watch(requestGarminPermissionUseCaseProvider);
       final RequestSuuntoPermissionUseCase requestSuuntoPermissionUseCase = ref
           .watch(requestSuuntoPermissionUseCaseProvider);
+      final RequestWahooPermissionUseCase requestWahooPermissionUseCase = ref
+          .watch(requestWahooPermissionUseCaseProvider);
       final GetIntegrationActivityUseCase getIntegrationActivityUseCase = ref
           .watch(getIntegrationActivityUseCaseProvider);
 
       return IntegrationSyncFacade(
         requestGarminPermissionUseCase: requestGarminPermissionUseCase,
         requestSuuntoPermissionUseCase: requestSuuntoPermissionUseCase,
+        requestWahooPermissionUseCase: requestWahooPermissionUseCase,
         getIntegrationActivityUseCase: getIntegrationActivityUseCase,
       );
     });
