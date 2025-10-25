@@ -17,6 +17,8 @@ class ApiEndpoints {
       '/api/v1/activities/$workoutId/title';
   static String routeGPXDownload(String routeId) =>
       '/api/v1/routes/$routeId/gpx';
+  static String routeTCXDownload(String routeId) =>
+      '/api/v1/routes/$routeId/tcx';
   static String routeDelete(String routeId) => '/api/v1/routes/$routeId';
   static const String saveSharedRoute = '/api/v1/routes/my-routes';
 
