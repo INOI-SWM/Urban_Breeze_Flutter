@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.0](https://github.com/INOI-SWM/Urban_Breeze_Flutter/compare/v1.1.1...v1.2.0) (2025-10-25)
+
+
+### Features
+
+* my_route detail화면에 waypoint 띄우기 ([#190](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/190)) ([8f32c40](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/8f32c40c73030b653452072fa17d7803498b1c66))
+* tcx 다운로드 기능 추가 ([#192](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/192)) ([6e052cd](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/6e052cd7efce11cf29aca53fd57c6c28618f212c))
+* 경로 생시 웨이포인트 추가 ([#186](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/186)) ([464b376](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/464b3768c3beeb549ce3caeec2b519ff4cea2dfd))
+* 와후 연동 버튼 추가 ([#191](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/191)) ([3219e54](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/3219e54e9dcdc9de8193f469cf6d4dbce940ed4f))
+
+
+### Bug Fixes
+
+* android layout깨짐 수정을 위한 safearea추가 ([#189](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/189)) ([550c821](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/550c8216019bae52897eb37eac887bfdf7d705a8))
+* 경로생성 시 조건검사로 인한 크래시 수정 ([#188](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/188)) ([540e398](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/540e398a8c09ba266dc7aa6142825c9913c2ee28))
+
 ## [1.1.1](https://github.com/INOI-SWM/Urban_Breeze_Flutter/compare/v1.1.0...v1.1.1) (2025-10-22)
 
 
