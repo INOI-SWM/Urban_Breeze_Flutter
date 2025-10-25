@@ -167,9 +167,14 @@ extension WaypointTypeExtension on WaypointType {
 
 class Waypoint {
   factory Waypoint.fromJson(Map<String, dynamic> json) {
+    // type 문자열을 대소문자 구분 없이 파싱 (언더스코어 제거)
+    final String typeString = (json['type'] as String).toLowerCase().replaceAll(
+      '_',
+      '',
+    ); // FIRST_AID -> firstaid
     return Waypoint(
       type: WaypointType.values.firstWhere(
-        (WaypointType type) => type.name == json['type'],
+        (WaypointType type) => type.name.toLowerCase() == typeString,
         orElse: () => WaypointType.generic, // 알 수 없는 타입은 기본값으로
       ),
       title: json['title'] as String?,
