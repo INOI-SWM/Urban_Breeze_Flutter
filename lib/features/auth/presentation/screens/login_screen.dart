@@ -143,7 +143,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   children: <Widget>[
                     _buildLoginButton(
                       text: 'Kakao로 계속하기',
-                      iconPath: 'assets/icons/svg/kakao_logo.svg',
+                      iconPath:
+                          Theme.of(context).brightness == Brightness.dark
+                              ? 'assets/icons/svg/kakao_logo_white.svg'
+                              : 'assets/icons/svg/kakao_logo.svg',
                       provider: LoginProvider.kakao,
                     ),
                     const SizedBox(height: 12),
@@ -156,7 +159,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                       const SizedBox(height: 12),
                       _buildLoginButton(
                         text: 'Apple로 계속하기',
-                        iconPath: 'assets/icons/svg/apple_logo.svg',
+                        iconPath:
+                            Theme.of(context).brightness == Brightness.dark
+                                ? 'assets/icons/svg/apple_logo_white.svg'
+                                : 'assets/icons/svg/apple_logo.svg',
                         provider: LoginProvider.apple,
                       ),
                     ],
