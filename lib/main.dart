@@ -10,6 +10,7 @@ import 'package:urban_breeze/core/config/environment_config.dart';
 import 'package:urban_breeze/core/services/app_tracking_service.dart';
 import 'package:urban_breeze/core/services/universal_link_service.dart';
 import 'package:urban_breeze/core/theme/app_theme.dart';
+import 'package:urban_breeze/features/app_setting/di/app_setting_providers.dart';
 import 'package:urban_breeze/features/auth/di/auth_providers.dart';
 import 'package:urban_breeze/features/auth/presentation/screens/consent_screen.dart';
 import 'package:urban_breeze/features/auth/presentation/screens/login_screen.dart';
@@ -122,13 +123,14 @@ class MyApp extends ConsumerWidget {
     final bool isAuthInitialized = ref.watch(isAuthInitializedProvider);
     final bool isLoggedIn = ref.watch(isLoggedInProvider);
     final bool shouldShowConsent = ref.watch(shouldShowConsentScreenProvider);
+    final ThemeMode themeMode = ref.watch(themeModeNotifierProvider);
 
     return MaterialApp(
       title: 'Urban Breeze',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       navigatorKey: navigatorKey,
       home: _buildHomeScreen(
         isAuthInitialized: isAuthInitialized,

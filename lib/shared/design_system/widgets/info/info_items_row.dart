@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/shared/design_system/widgets/info/info_item.dart';
 
 class InfoItemsRow extends StatelessWidget {
@@ -13,20 +14,25 @@ class InfoItemsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: mainAxisAlignment,
-      children:
-          items.map((InfoItemData item) {
-            return Expanded(
-              child: InfoItem(
-                label: item.label,
-                value: item.value,
-                alignment: item.alignment,
-                labelColor: item.labelColor,
-                valueColor: item.valueColor,
-              ),
-            );
-          }).toList(),
+    return Container(
+      decoration: BoxDecoration(
+        color: context.semanticColor.backgroundNormalNormal,
+      ),
+      child: Row(
+        mainAxisAlignment: mainAxisAlignment,
+        children:
+            items.map((InfoItemData item) {
+              return Expanded(
+                child: InfoItem(
+                  label: item.label,
+                  value: item.value,
+                  alignment: item.alignment,
+                  labelColor: item.labelColor,
+                  valueColor: item.valueColor,
+                ),
+              );
+            }).toList(),
+      ),
     );
   }
 }

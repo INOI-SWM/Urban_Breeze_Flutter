@@ -89,7 +89,10 @@ class _TabItem<T> extends StatelessWidget {
           child: Text(
             text,
             style: AppTextStyles.body2.normalBold.copyWith(
-              color: isSelected ? colors.labelStrong : colors.labelAssistive,
+              color:
+                  isSelected
+                      ? colors.labelStrong
+                      : colors.labelAlternative.withValues(alpha: 0.5),
             ),
           ),
         ),

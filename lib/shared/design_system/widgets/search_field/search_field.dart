@@ -100,6 +100,9 @@ class _SearchFieldState extends State<SearchField> {
         style: AppTextStyles.body1.normalRegular.copyWith(
           color: colors.labelNormal,
         ),
+        cursorColor: colors.primaryNormal,
+        cursorWidth: 2,
+        cursorRadius: const Radius.circular(1),
         decoration: InputDecoration(
           hintText: SearchField._hintText,
           hintStyle: AppTextStyles.body1.normalRegular.copyWith(
