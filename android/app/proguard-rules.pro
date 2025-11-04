@@ -71,3 +71,5 @@
 -keep class com.google.api.services.** { *; }
 -keepclassmembers class com.google.api.** { *; }
 
+-keep class com.kakao.vectormap.** { *; }
+-keep interface com.kakao.vectormap.**
