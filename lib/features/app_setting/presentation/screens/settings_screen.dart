@@ -132,6 +132,29 @@ class SettingsScreen extends ConsumerWidget with ErrorDisplayMixin {
                 //   },
                 // ),
                 SettingsItem(
+                  title: '테마 모드',
+                  rightWidget: Padding(
+                    padding: const EdgeInsets.only(right: 6),
+                    child: Consumer(
+                      builder: (BuildContext context, WidgetRef ref, _) {
+                        final ThemeMode currentThemeMode = ref.watch(
+                          themeModeNotifierProvider,
+                        );
+                        return Text(
+                          _getThemeModeDisplayName(currentThemeMode),
+                          style: AppTextStyles.body2.normalRegular.copyWith(
+                            color: colors.labelAlternative,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  onPressed: () {
+                    AmplitudeAnalytics.logButtonClick('settings_theme_mode');
+                    _showThemeModeDialog(context, ref);
+                  },
+                ),
+                SettingsItem(
                   title: '계정 관리',
                   onPressed: () {
                     AmplitudeAnalytics.logButtonClick(
@@ -307,5 +330,136 @@ class SettingsScreen extends ConsumerWidget with ErrorDisplayMixin {
       ErrorDisplay.showErrorMessage(context, '로그아웃 실패: ${e.toString()}');
       Navigator.of(context).pop();
     }
+  }
+
+  String _getThemeModeDisplayName(ThemeMode themeMode) {
+    switch (themeMode) {
+      case ThemeMode.light:
+        return '라이트 모드';
+      case ThemeMode.dark:
+        return '다크 모드';
+      case ThemeMode.system:
+        return '시스템 설정';
+    }
+  }
+
+  void _showThemeModeDialog(BuildContext context, WidgetRef ref) {
+    final SemanticColors colors = context.semanticColor;
+    final ThemeMode currentThemeMode = ref.read(themeModeNotifierProvider);
+    final ValueNotifier<ThemeMode> selectedThemeMode = ValueNotifier<ThemeMode>(
+      currentThemeMode,
+    );
+
+    ModalShow.show(
+      context: context,
+      title: '테마 모드',
+      content: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: ValueListenableBuilder<ThemeMode>(
+          valueListenable: selectedThemeMode,
+          builder: (
+            BuildContext context,
+            ThemeMode selectedMode,
+            Widget? child,
+          ) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                _buildThemeModeOption(
+                  context,
+                  ref,
+                  colors,
+                  ThemeMode.light,
+                  '라이트 모드',
+                  selectedMode == ThemeMode.light,
+                  selectedThemeMode,
+                ),
+                const SizedBox(height: 12),
+                _buildThemeModeOption(
+                  context,
+                  ref,
+                  colors,
+                  ThemeMode.dark,
+                  '다크 모드',
+                  selectedMode == ThemeMode.dark,
+                  selectedThemeMode,
+                ),
+                const SizedBox(height: 12),
+                _buildThemeModeOption(
+                  context,
+                  ref,
+                  colors,
+                  ThemeMode.system,
+                  '시스템 설정',
+                  selectedMode == ThemeMode.system,
+                  selectedThemeMode,
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+      primaryButtonText: '확인',
+      secondaryButtonText: '취소',
+      onPrimaryButtonPressed: () {
+        final ThemeMode newThemeMode = selectedThemeMode.value;
+        if (newThemeMode != currentThemeMode) {
+          ref
+              .read(themeModeNotifierProvider.notifier)
+              .setThemeMode(newThemeMode);
+          AmplitudeAnalytics.logEvent(
+            'theme_mode_changed',
+            properties: <String, dynamic>{'theme_mode': newThemeMode.name},
+          );
+        }
+      },
+      onSecondaryButtonPressed: () {},
+    );
+  }
+
+  Widget _buildThemeModeOption(
+    BuildContext context,
+    WidgetRef ref,
+    SemanticColors colors,
+    ThemeMode themeMode,
+    String title,
+    bool isSelected,
+    ValueNotifier<ThemeMode> selectedThemeMode,
+  ) {
+    return GestureDetector(
+      onTap: () {
+        selectedThemeMode.value = themeMode;
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color:
+              isSelected
+                  ? colors.primaryNormal.withValues(alpha: 0.1)
+                  : colors.backgroundElevatedAlternative,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? colors.primaryNormal : colors.lineNormalNeutral,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                title,
+                style: AppTextStyles.body1.normalMedium.copyWith(
+                  color: isSelected ? colors.primaryNormal : colors.labelNormal,
+                ),
+              ),
+            ),
+            if (isSelected)
+              Icon(Icons.check_circle, color: colors.primaryNormal, size: 24),
+          ],
+        ),
+      ),
+    );
   }
 }

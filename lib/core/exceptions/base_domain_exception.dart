@@ -23,3 +23,8 @@ class ServerException extends BaseDomainException {
 class ParsingException extends BaseDomainException {
   const ParsingException(super.message, [super.code]);
 }
+
+/// 로컬 저장소 관련 오류
+class LocalStorageException extends BaseDomainException {
+  const LocalStorageException(super.message, [super.code]);
+}

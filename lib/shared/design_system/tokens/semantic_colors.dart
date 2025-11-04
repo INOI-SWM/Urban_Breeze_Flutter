@@ -84,7 +84,7 @@ class LightSemanticColors implements SemanticColors {
   @override
   Color get labelNeutral => Atomic.instance.coolNeutral.c22.withAlpha(224);
   @override
-  Color get labelAlternative => Atomic.instance.coolNeutral.c22.withAlpha(176);
+  Color get labelAlternative => Atomic.instance.coolNeutral.c22.withAlpha(170);
   @override
   Color get labelAssistive => Atomic.instance.coolNeutral.c25.withAlpha(71);
   @override
@@ -205,7 +205,7 @@ class DarkSemanticColors implements SemanticColors {
   @override
   Color get labelNeutral => Atomic.instance.coolNeutral.c90.withAlpha(224);
   @override
-  Color get labelAlternative => Atomic.instance.coolNeutral.c100.withAlpha(190);
+  Color get labelAlternative => Atomic.instance.coolNeutral.c100.withAlpha(170);
   @override
   Color get labelAssistive => Atomic.instance.coolNeutral.c80.withAlpha(71);
   @override
