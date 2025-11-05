@@ -165,19 +165,19 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   void _handleSearchResult(dynamic result) {
-    setState(() {
-      if (result is Place) {
-        _handleSinglePlaceSelection(result);
-      } else if (result is SearchResult) {
-        _handleMultiplePlacesSelection(result);
-      }
-    });
+    if (result is Place) {
+      _handleSinglePlaceSelection(result);
+    } else if (result is SearchResult) {
+      _handleMultiplePlacesSelection(result);
+    }
   }
 
   void _handleSinglePlaceSelection(Place place) {
-    _selectedPlace = place;
-    _searchedPlaces.clear();
-    _lastSearchQuery = null;
+    setState(() {
+      _selectedPlace = place;
+      _searchedPlaces.clear();
+      _lastSearchQuery = null;
+    });
     _moveToPlace(place);
     _updateSearchPlaceMarkers();
 
@@ -192,10 +192,12 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   void _handleMultiplePlacesSelection(SearchResult searchResult) {
-    _selectedPlace = null;
-    _searchedPlaces.clear();
-    _lastSearchQuery = searchResult.query;
-    _searchedPlaces.addAll(searchResult.places);
+    setState(() {
+      _selectedPlace = null;
+      _searchedPlaces.clear();
+      _lastSearchQuery = searchResult.query;
+      _searchedPlaces.addAll(searchResult.places);
+    });
 
     if (searchResult.places.isNotEmpty) {
       _fitMapToSearchResults(searchResult);
@@ -237,12 +239,14 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       _isRouteLoading = true;
     });
 
+    // 인덱스 접근을 변수로 저장하여 중복 계산 방지
+    final int pinsLength = _route.pins.length;
+    final latlong2.LatLng startPosition = _route.pins[pinsLength - 2].position;
+    final latlong2.LatLng endPosition = _route.pins[pinsLength - 1].position;
+
     final AppResult<route_planning.RouteSegment> result = await _facade
         .createRoute
-        .execute(
-          _route.pins[_route.pins.length - 2].position,
-          _route.pins[_route.pins.length - 1].position,
-        );
+        .execute(startPosition, endPosition);
 
     if (mounted) {
       setState(() {
@@ -282,12 +286,11 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       return;
     }
 
-    final List<latlong2.LatLng> pinPositions =
-        _route.pins.map((RoutePin pin) => pin.position).toList();
-
+    // shouldAddPin은 pins.length만 확인하므로 리스트 생성 불필요
+    final int currentPinCount = _route.pins.length;
     final bool canAddPin = _facade.managePins.shouldAddPin(
       _isButtonPressed,
-      pinPositions,
+      _route.pins.map((RoutePin pin) => pin.position).toList(),
     );
 
     if (canAddPin) {
@@ -304,9 +307,8 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
         },
       );
 
-      final List<latlong2.LatLng> updatedPinPositions =
-          _route.pins.map((RoutePin pin) => pin.position).toList();
-      if (_facade.managePins.shouldGetRoute(updatedPinPositions)) {
+      // shouldGetRoute는 단순히 pins.length >= 2를 확인
+      if (currentPinCount + 1 >= 2) {
         _getRoute();
       }
     }
@@ -316,8 +318,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     setState(() {
       _route = _route.removeLastPin(removeSegment: shouldRemoveRouteSegment);
     });
-
-    await Future<void>.delayed(const Duration(milliseconds: 50));
 
     _updateRoutePins();
     _updateRouteLines();
@@ -334,33 +334,24 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   Future<void> _fitMapToAllRoutes() async {
     if (_mapController == null || _route.segments.isEmpty) return;
 
+    // fitMapPoints를 사용하여 더 효율적으로 처리
     final List<kakao.LatLng> fitPoints = <kakao.LatLng>[];
     for (final route_planning.RouteSegment segment in _route.segments) {
-      fitPoints.addAll(
-        segment.points
-            .map(
-              (latlong2.LatLng point) =>
-                  kakao.LatLng(point.latitude, point.longitude),
-            )
-            .toList(),
-      );
+      if (segment.points.isNotEmpty) {
+        fitPoints.addAll(
+          segment.points.map(
+            (latlong2.LatLng point) =>
+                kakao.LatLng(point.latitude, point.longitude),
+          ),
+        );
+      }
     }
 
     if (fitPoints.isNotEmpty) {
-      double minLat = fitPoints[0].latitude;
-      double maxLat = fitPoints[0].latitude;
-      double minLng = fitPoints[0].longitude;
-      double maxLng = fitPoints[0].longitude;
-      for (final kakao.LatLng point in fitPoints) {
-        if (point.latitude < minLat) minLat = point.latitude;
-        if (point.latitude > maxLat) maxLat = point.latitude;
-        if (point.longitude < minLng) minLng = point.longitude;
-        if (point.longitude > maxLng) maxLng = point.longitude;
-      }
-      final double centerLat = (minLat + maxLat) / 2;
-      final double centerLng = (minLng + maxLng) / 2;
-      final kakao.CameraUpdate cameraUpdate = kakao
-          .CameraUpdate.newCenterPosition(kakao.LatLng(centerLat, centerLng));
+      final kakao.CameraUpdate cameraUpdate = kakao.CameraUpdate.fitMapPoints(
+        fitPoints,
+        padding: 20,
+      );
       await _mapController!.moveCamera(cameraUpdate);
     }
   }
@@ -620,34 +611,42 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
       final SemanticColors colors = context.semanticColor;
 
+      final List<Future<void>> pinFutures = <Future<void>>[];
       for (int i = 0; i < _route.pins.length; i++) {
-        if (!mounted || _mapController == null) return;
+        if (!mounted || _mapController == null) break;
 
-        try {
-          final RoutePin pin = _route.pins[i];
-          final RoutePinMarker marker = RoutePinMarker(
-            index: i,
-            hasWaypoint: pin.hasWaypoint,
-            waypoint: pin.waypoint,
-          );
+        final int pinIndex = i;
+        final RoutePin pin = _route.pins[pinIndex];
+        final RoutePinMarker marker = RoutePinMarker(
+          index: pinIndex,
+          hasWaypoint: pin.hasWaypoint,
+          waypoint: pin.waypoint,
+        );
 
-          final kakao.KImage iconImage = await kakao.KImage.fromWidget(
-            SemanticTheme(data: colors, child: marker),
-            const Size(24, 24),
-          );
+        pinFutures.add(
+          kakao.KImage.fromWidget(
+                SemanticTheme(data: colors, child: marker),
+                const Size(24, 24),
+              )
+              .then((kakao.KImage iconImage) async {
+                if (!mounted || _mapController == null) return;
 
-          final kakao.Poi poi = await _mapController!.labelLayer.addPoi(
-            kakao.LatLng(pin.position.latitude, pin.position.longitude),
-            style: kakao.PoiStyle(icon: iconImage),
-          );
-          if (mounted) {
-            _routePinPois.add(poi);
-            _poiIdToPinIndex[poi.id] = i;
-          }
-        } catch (e) {
-          debugPrint('경로 핀 추가 실패 (인덱스 $i): $e');
-        }
+                final kakao.Poi poi = await _mapController!.labelLayer.addPoi(
+                  kakao.LatLng(pin.position.latitude, pin.position.longitude),
+                  style: kakao.PoiStyle(icon: iconImage),
+                );
+                if (mounted) {
+                  _routePinPois.add(poi);
+                  _poiIdToPinIndex[poi.id] = pinIndex;
+                }
+              })
+              .catchError((Object e) {
+                debugPrint('경로 핀 추가 실패 (인덱스 $pinIndex): $e');
+              }),
+        );
       }
+
+      await Future.wait(pinFutures);
     } catch (e) {
       debugPrint('경로 핀 업데이트 실패: $e');
     }
@@ -666,8 +665,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       }
 
       _routeRoutes.clear();
-
-      await Future<void>.delayed(const Duration(milliseconds: 50));
 
       if (!mounted || _mapController == null) return;
 
@@ -717,57 +714,74 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     if (_mapController == null || !mounted) return;
 
     try {
-      for (final kakao.Poi poi in _searchPlacePois) {
-        try {
-          await _mapController!.labelLayer.removePoi(poi);
-        } catch (e) {
-          debugPrint('검색 장소 POI 제거 실패: $e');
-        }
-      }
+      // 기존 POI 제거를 병렬로 처리
+      final List<Future<void>> removeFutures =
+          _searchPlacePois.map((kakao.Poi poi) async {
+            try {
+              await _mapController!.labelLayer.removePoi(poi);
+            } catch (e) {
+              debugPrint('검색 장소 POI 제거 실패: $e');
+            }
+          }).toList();
+      await Future.wait(removeFutures);
       _searchPlacePois.clear();
 
       if (!mounted || _mapController == null) return;
 
       final SemanticColors colors = context.semanticColor;
 
+      final List<Future<void>> addFutures = <Future<void>>[];
+
       if (_selectedPlace != null) {
-        try {
-          final kakao.KImage placeIcon = await kakao.KImage.fromWidget(
-            Icon(Icons.place, color: colors.primaryNormal, size: 36),
-            const Size(36, 36),
-          );
-          final kakao.Poi poi = await _mapController!.labelLayer.addPoi(
-            kakao.LatLng(_selectedPlace!.latitude, _selectedPlace!.longitude),
-            style: kakao.PoiStyle(icon: placeIcon),
-          );
-          if (mounted) {
-            _searchPlacePois.add(poi);
-          }
-        } catch (e) {
-          debugPrint('선택된 장소 마커 추가 실패: $e');
-        }
+        final Place selectedPlace = _selectedPlace!;
+        addFutures.add(
+          kakao.KImage.fromWidget(
+                Icon(Icons.place, color: colors.primaryNormal, size: 36),
+                const Size(36, 36),
+              )
+              .then((kakao.KImage placeIcon) async {
+                if (!mounted || _mapController == null) return;
+                final kakao.Poi poi = await _mapController!.labelLayer.addPoi(
+                  kakao.LatLng(selectedPlace.latitude, selectedPlace.longitude),
+                  style: kakao.PoiStyle(icon: placeIcon),
+                );
+                if (mounted) {
+                  _searchPlacePois.add(poi);
+                }
+              })
+              .catchError((Object e) {
+                debugPrint('선택된 장소 마커 추가 실패: $e');
+              }),
+        );
       }
 
       for (int i = 0; i < _searchedPlaces.length; i++) {
-        if (!mounted || _mapController == null) return;
+        if (!mounted || _mapController == null) break;
 
-        try {
-          final Place place = _searchedPlaces[i];
-          final kakao.KImage locationIcon = await kakao.KImage.fromWidget(
-            Icon(Icons.location_on, color: colors.primaryNormal, size: 34),
-            const Size(34, 34),
-          );
-          final kakao.Poi poi = await _mapController!.labelLayer.addPoi(
-            kakao.LatLng(place.latitude, place.longitude),
-            style: kakao.PoiStyle(icon: locationIcon),
-          );
-          if (mounted) {
-            _searchPlacePois.add(poi);
-          }
-        } catch (e) {
-          debugPrint('검색 결과 마커 추가 실패 (인덱스 $i): $e');
-        }
+        final Place place = _searchedPlaces[i];
+        final int placeIndex = i;
+        addFutures.add(
+          kakao.KImage.fromWidget(
+                Icon(Icons.location_on, color: colors.primaryNormal, size: 34),
+                const Size(34, 34),
+              )
+              .then((kakao.KImage locationIcon) async {
+                if (!mounted || _mapController == null) return;
+                final kakao.Poi poi = await _mapController!.labelLayer.addPoi(
+                  kakao.LatLng(place.latitude, place.longitude),
+                  style: kakao.PoiStyle(icon: locationIcon),
+                );
+                if (mounted) {
+                  _searchPlacePois.add(poi);
+                }
+              })
+              .catchError((Object e) {
+                debugPrint('검색 결과 마커 추가 실패 (인덱스 $placeIndex): $e');
+              }),
+        );
       }
+
+      await Future.wait(addFutures);
     } catch (e) {
       debugPrint('검색 장소 마커 업데이트 실패: $e');
     }
