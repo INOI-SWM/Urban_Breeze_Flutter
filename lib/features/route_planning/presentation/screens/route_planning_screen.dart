@@ -89,7 +89,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
           _currentPosition = position;
           _isLocationLoading = false;
         });
-        // _updateCurrentLocationMarker(); // addPoi 관련 코드 주석처리
+        _updateCurrentLocationMarker();
       }
     } catch (e) {
       if (mounted) {
@@ -520,8 +520,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   // kakao_map_sdk 오버레이 업데이트 메서드들
-  // addPoi 관련 코드 주석처리 (크래시 방지)
-  /*
   Future<void> _updateCurrentLocationMarker() async {
     if (_mapController == null || !mounted) return;
 
@@ -538,13 +536,18 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
       if (_currentPosition != null && mounted && _mapController != null) {
         try {
-          // 현위치 마커는 핀과 구분되도록 다른 스타일 사용
+          // 현위치 마커 추가 - icon을 제공하여 NSNull 크래시 방지
+          final kakao.KImage iconImage = kakao.KImage.fromAsset(
+            'assets/icons/png/current_location_pin.png',
+            24,
+            24,
+          );
           final kakao.Poi poi = await _mapController!.labelLayer.addPoi(
             kakao.LatLng(
               _currentPosition!.latitude,
               _currentPosition!.longitude,
             ),
-            style: kakao.PoiStyle(),
+            style: kakao.PoiStyle(icon: iconImage),
           );
           if (mounted) {
             _currentLocationPois.add(poi);
@@ -557,7 +560,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       debugPrint('현위치 마커 업데이트 실패: $e');
     }
   }
-  */
 
   // 핀찍기 관련 코드 주석처리 (크래시 방지)
   /*
@@ -719,7 +721,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                       _mapController = controller;
                       // 지도 준비 후 마커 업데이트 (순차적으로 실행하여 크래시 방지)
                       try {
-                        // await _updateCurrentLocationMarker(); // addPoi 관련 코드 주석처리
+                        await _updateCurrentLocationMarker();
                         await Future<void>.delayed(
                           const Duration(milliseconds: 50),
                         );
