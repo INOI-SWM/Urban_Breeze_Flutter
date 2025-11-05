@@ -612,31 +612,65 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   Future<void> _updateRouteLines() async {
     if (_mapController == null || !mounted) return;
 
-    // 기존 경로 Route 제거
-    await _mapController!.routeLayer.hideAllRoute();
+    try {
+      // 기존 경로 Route 제거
+      await _mapController!.routeLayer.hideAllRoute();
 
-    if (!mounted || _mapController == null) return;
+      // 기존 경로 리스트 클리어
+      _routeRoutes.clear();
 
-    // POLYLINE 데이터 리스트(_route.segments)를 기반으로 모든 경로 다시 추가
-    final SemanticColors colors = context.semanticColor;
-    for (int i = 0; i < _route.segments.length; i++) {
-      final route_planning.RouteSegment segment = _route.segments[i];
-      final List<kakao.LatLng> points =
-          segment.points
-              .map(
-                (latlong2.LatLng point) =>
-                    kakao.LatLng(point.latitude, point.longitude),
-              )
-              .toList();
+      // hideAllRoute() 후 약간의 딜레이 추가
+      await Future<void>.delayed(const Duration(milliseconds: 50));
 
-      final kakao.Route route = await _mapController!.routeLayer.addRoute(
-        points,
-        kakao.RouteStyle(
-          colors.primaryNormal,
-          MapConstants.polylineStrokeWidth,
-        ),
-      );
-      _routeRoutes.add(route);
+      if (!mounted || _mapController == null) return;
+
+      // POLYLINE 데이터 리스트(_route.segments)를 기반으로 모든 경로 다시 추가
+      final SemanticColors colors = context.semanticColor;
+
+      for (int i = 0; i < _route.segments.length; i++) {
+        if (!mounted || _mapController == null) return;
+
+        final route_planning.RouteSegment segment = _route.segments[i];
+
+        // segment.points가 비어있으면 건너뛰기
+        if (segment.points.isEmpty) {
+          continue;
+        }
+
+        final List<kakao.LatLng> points =
+            segment.points
+                .map(
+                  (latlong2.LatLng point) =>
+                      kakao.LatLng(point.latitude, point.longitude),
+                )
+                .toList();
+
+        try {
+          final kakao.RouteStyle routeStyle = kakao.RouteStyle(
+            Color(colors.primaryNormal.toARGB32()),
+            MapConstants.polylineStrokeWidth,
+          );
+
+          final kakao.Route route = await _mapController!.routeLayer.addRoute(
+            points,
+            routeStyle,
+          );
+
+          if (mounted) {
+            _routeRoutes.add(route);
+          }
+        } catch (e) {
+          // 경로 라인 추가 실패 시 무시하고 계속 진행
+        }
+      }
+
+      // hideAllRoute() 후 새로 추가한 Route가 숨겨진 상태일 수 있으므로
+      // 모든 Route를 다시 보이게 함
+      if (_routeRoutes.isNotEmpty) {
+        await _mapController!.routeLayer.showAllRoute();
+      }
+    } catch (e) {
+      // 경로 라인 업데이트 실패 시 무시
     }
   }
 
