@@ -142,7 +142,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       _searchedPlaces.clear();
       _lastSearchQuery = null;
     });
-    // _updateSearchPlaceMarkers(); // addPoi 관련 코드 주석처리
+    _updateSearchPlaceMarkers();
   }
 
   Future<void> _openSearchScreen() async {
@@ -177,7 +177,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     _searchedPlaces.clear();
     _lastSearchQuery = null;
     _moveToPlace(place);
-    // _updateSearchPlaceMarkers(); // addPoi 관련 코드 주석처리
+    _updateSearchPlaceMarkers();
 
     // 단일 장소 선택 이벤트
     AmplitudeAnalytics.logEvent(
@@ -197,10 +197,9 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     _searchedPlaces.addAll(searchResult.places);
 
     if (searchResult.places.isNotEmpty) {
-      _moveToPlace(searchResult.places.first);
       _fitMapToSearchResults(searchResult);
     }
-    // _updateSearchPlaceMarkers(); // addPoi 관련 코드 주석처리
+    _updateSearchPlaceMarkers();
 
     // 다중 장소 선택 이벤트
     AmplitudeAnalytics.logEvent(
@@ -215,11 +214,21 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
   Future<void> _moveToPlace(Place place) async {
     if (_mapController != null) {
-      final kakao.CameraUpdate cameraUpdate = kakao
-          .CameraUpdate.newCenterPosition(
+      // CameraPosition을 사용하여 위치와 zoom level을 명시적으로 설정
+      final kakao.CameraPosition cameraPosition = kakao.CameraPosition(
         kakao.LatLng(place.latitude, place.longitude),
+        initialZoom.toInt(),
+        rotationAngle: 0.0,
+      );
+      final kakao.CameraUpdate cameraUpdate = kakao.CameraUpdate.newCameraPos(
+        cameraPosition,
       );
       await _mapController!.moveCamera(cameraUpdate);
+
+      // 회전을 0도로 명시적으로 리셋하여 북쪽이 위로 오도록 보장
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      final kakao.CameraUpdate rotateUpdate = kakao.CameraUpdate.rotate(0.0);
+      await _mapController!.moveCamera(rotateUpdate);
     }
   }
 
@@ -369,7 +378,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   Future<void> _fitMapToSearchResults(SearchResult searchResult) async {
     if (searchResult.places.isEmpty || _mapController == null) return;
 
-    // bbox 정보가 없는 경우 클라이언트에서 계산
+    // 단일 장소인 경우 해당 장소로 이동
     if (searchResult.places.length == 1) {
       _moveToPlace(searchResult.places.first);
       return;
@@ -382,24 +391,18 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
             .toList();
 
     if (fitPoints.isNotEmpty) {
-      // 최소/최대 좌표 계산
-      double minLat = fitPoints[0].latitude;
-      double maxLat = fitPoints[0].latitude;
-      double minLng = fitPoints[0].longitude;
-      double maxLng = fitPoints[0].longitude;
-      for (final kakao.LatLng point in fitPoints) {
-        if (point.latitude < minLat) minLat = point.latitude;
-        if (point.latitude > maxLat) maxLat = point.latitude;
-        if (point.longitude < minLng) minLng = point.longitude;
-        if (point.longitude > maxLng) maxLng = point.longitude;
-      }
-
-      // 중앙 좌표로 대략적인 범위 맞춤
-      final double centerLat = (minLat + maxLat) / 2;
-      final double centerLng = (minLng + maxLng) / 2;
-      final kakao.CameraUpdate cameraUpdate = kakao
-          .CameraUpdate.newCenterPosition(kakao.LatLng(centerLat, centerLng));
+      // fitMapPoints를 사용하여 모든 검색 결과가 보이도록 카메라 조정
+      // padding은 픽셀 단위 (20px 여유 공간)
+      final kakao.CameraUpdate cameraUpdate = kakao.CameraUpdate.fitMapPoints(
+        fitPoints,
+        padding: 20,
+      );
       await _mapController!.moveCamera(cameraUpdate);
+
+      // 회전을 0도로 명시적으로 리셋하여 북쪽이 위로 오도록 보장
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      final kakao.CameraUpdate rotateUpdate = kakao.CameraUpdate.rotate(0.0);
+      await _mapController!.moveCamera(rotateUpdate);
     }
   }
 
@@ -630,8 +633,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     }
   }
 
-  // addPoi 관련 코드 주석처리 (크래시 방지)
-  /*
   Future<void> _updateSearchPlaceMarkers() async {
     if (_mapController == null || !mounted) return;
 
@@ -648,12 +649,18 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
       if (!mounted || _mapController == null) return;
 
-      // 단일 선택된 장소 마커
+      final SemanticColors colors = context.semanticColor;
+
+      // 단일 선택된 장소 마커 - Icons.place (40 사이즈)
       if (_selectedPlace != null) {
         try {
+          final kakao.KImage placeIcon = await kakao.KImage.fromWidget(
+            Icon(Icons.place, color: colors.primaryNormal, size: 36),
+            const Size(36, 36),
+          );
           final kakao.Poi poi = await _mapController!.labelLayer.addPoi(
             kakao.LatLng(_selectedPlace!.latitude, _selectedPlace!.longitude),
-            style: kakao.PoiStyle(),
+            style: kakao.PoiStyle(icon: placeIcon),
           );
           if (mounted) {
             _searchPlacePois.add(poi);
@@ -663,15 +670,19 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
         }
       }
 
-      // 검색 결과 전체 장소 마커들
+      // 검색 결과 전체 장소 마커들 - Icons.location_on (34 사이즈)
       for (int i = 0; i < _searchedPlaces.length; i++) {
         if (!mounted || _mapController == null) return;
 
         try {
           final Place place = _searchedPlaces[i];
+          final kakao.KImage locationIcon = await kakao.KImage.fromWidget(
+            Icon(Icons.location_on, color: colors.primaryNormal, size: 34),
+            const Size(34, 34),
+          );
           final kakao.Poi poi = await _mapController!.labelLayer.addPoi(
             kakao.LatLng(place.latitude, place.longitude),
-            style: kakao.PoiStyle(),
+            style: kakao.PoiStyle(icon: locationIcon),
           );
           if (mounted) {
             _searchPlacePois.add(poi);
@@ -684,7 +695,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       debugPrint('검색 장소 마커 업데이트 실패: $e');
     }
   }
-  */
 
   @override
   Widget build(BuildContext context) {
@@ -733,7 +743,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                         await Future<void>.delayed(
                           const Duration(milliseconds: 50),
                         );
-                        // await _updateSearchPlaceMarkers(); // addPoi 관련 코드 주석처리
+                        await _updateSearchPlaceMarkers();
                       } catch (e) {
                         debugPrint('지도 준비 후 마커 업데이트 실패: $e');
                       }
