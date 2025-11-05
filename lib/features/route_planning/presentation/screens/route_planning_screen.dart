@@ -613,13 +613,19 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     if (_mapController == null || !mounted) return;
 
     try {
-      // 기존 경로 Route 제거
-      await _mapController!.routeLayer.hideAllRoute();
+      // 기존 경로 Route를 개별적으로 제거
+      for (final kakao.Route route in _routeRoutes) {
+        try {
+          await _mapController!.routeLayer.removeRoute(route);
+        } catch (e) {
+          // Route 제거 실패 시 무시하고 계속 진행
+        }
+      }
 
       // 기존 경로 리스트 클리어
       _routeRoutes.clear();
 
-      // hideAllRoute() 후 약간의 딜레이 추가
+      // Route 제거 후 약간의 딜레이 추가
       await Future<void>.delayed(const Duration(milliseconds: 50));
 
       if (!mounted || _mapController == null) return;
@@ -662,12 +668,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
         } catch (e) {
           // 경로 라인 추가 실패 시 무시하고 계속 진행
         }
-      }
-
-      // hideAllRoute() 후 새로 추가한 Route가 숨겨진 상태일 수 있으므로
-      // 모든 Route를 다시 보이게 함
-      if (_routeRoutes.isNotEmpty) {
-        await _mapController!.routeLayer.showAllRoute();
       }
     } catch (e) {
       // 경로 라인 업데이트 실패 시 무시
