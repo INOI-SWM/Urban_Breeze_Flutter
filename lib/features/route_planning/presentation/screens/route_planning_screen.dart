@@ -15,9 +15,11 @@ import 'package:urban_breeze/features/route_planning/domain/entities/planned_rou
 import 'package:urban_breeze/features/route_planning/domain/entities/route_pin.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart'
     as route_planning;
+import 'package:urban_breeze/features/route_planning/domain/entities/waypoint.dart';
 import 'package:urban_breeze/features/route_planning/presentation/screens/route_create_complete_screen.dart';
 import 'package:urban_breeze/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:urban_breeze/features/route_planning/presentation/widgets/route_creation_actions.dart';
+import 'package:urban_breeze/features/route_planning/presentation/widgets/waypoint_setting_modal.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
@@ -63,6 +65,9 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   final List<kakao.Poi> _routePinPois = <kakao.Poi>[];
   final List<kakao.Poi> _searchPlacePois = <kakao.Poi>[];
   final List<kakao.Route> _routeRoutes = <kakao.Route>[];
+
+  // POI ID를 핀 인덱스에 매핑하는 Map
+  final Map<String, int> _poiIdToPinIndex = <String, int>{};
 
   late final RoutePlanningFacade _facade;
 
@@ -425,6 +430,62 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     AmplitudeAnalytics.logEvent('route_planning_save_mode_exited');
   }
 
+  void _showWaypointSettingModal(int pinIndex) {
+    if (pinIndex < 0 || pinIndex >= _route.pins.length) return;
+
+    final RoutePin pin = _route.pins[pinIndex];
+
+    AmplitudeAnalytics.logEvent(
+      'route_planning_waypoint_modal_opened',
+      properties: <String, dynamic>{
+        'pin_index': pinIndex,
+        'has_waypoint': pin.hasWaypoint,
+      },
+    );
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (BuildContext context) => WaypointSettingModal(
+            position: pin.position,
+            initialWaypoint: pin.waypoint,
+            onSave: (Waypoint waypoint) {
+              _updatePinWaypoint(pinIndex, waypoint);
+            },
+            onDelete:
+                pin.hasWaypoint
+                    ? () {
+                      _updatePinWaypoint(pinIndex, null);
+                    }
+                    : null,
+          ),
+    );
+  }
+
+  void _updatePinWaypoint(int pinIndex, Waypoint? waypoint) {
+    if (pinIndex < 0 || pinIndex >= _route.pins.length) return;
+
+    final RoutePin pin = _route.pins[pinIndex];
+    final RoutePin updatedPin = pin.copyWithWaypoint(waypoint);
+
+    setState(() {
+      _route = _route.updatePinWaypoint(pinIndex, updatedPin);
+    });
+
+    _updateRoutePins();
+
+    AmplitudeAnalytics.logEvent(
+      'route_planning_waypoint_updated',
+      properties: <String, dynamic>{
+        'pin_index': pinIndex,
+        'has_waypoint': waypoint != null,
+        if (waypoint != null) 'waypoint_type': waypoint.type.name,
+      },
+    );
+  }
+
   Future<void> _completeRouteSave(String title) async {
     showDialog<void>(
       context: context,
@@ -570,6 +631,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
         }
       }
       _routePinPois.clear();
+      _poiIdToPinIndex.clear();
 
       if (!mounted || _mapController == null) return;
 
@@ -599,6 +661,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
           );
           if (mounted) {
             _routePinPois.add(poi);
+            _poiIdToPinIndex[poi.id] = i;
           }
         } catch (e) {
           debugPrint('경로 핀 추가 실패 (인덱스 $i): $e');
@@ -787,6 +850,18 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                         await _updateSearchPlaceMarkers();
                       } catch (e) {
                         debugPrint('지도 준비 후 마커 업데이트 실패: $e');
+                      }
+                    },
+                    onPoiClick: (
+                      kakao.LabelController labelController,
+                      kakao.Poi poi,
+                    ) {
+                      // 경로 핀 POI 클릭 시 웨이포인트 설정 모달 표시
+                      if (_poiIdToPinIndex.containsKey(poi.id)) {
+                        final int pinIndex = _poiIdToPinIndex[poi.id]!;
+                        if (pinIndex < _route.pins.length) {
+                          _showWaypointSettingModal(pinIndex);
+                        }
                       }
                     },
                     onMapClick: (kakao.KPoint point, kakao.LatLng latLng) {
