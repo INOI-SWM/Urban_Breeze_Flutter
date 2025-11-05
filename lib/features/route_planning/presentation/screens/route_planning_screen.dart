@@ -49,24 +49,23 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   kakao.KakaoMapController? _mapController;
 
   bool _isButtonPressed = false;
-  DateTime? _lastButtonToggleTime; // 버튼 토글 시간 추적
+  DateTime? _lastButtonToggleTime;
+  bool _isRoutePinPoiClicked = false;
   PlannedRoute _route = PlannedRoute(
     pins: <RoutePin>[],
     segments: <route_planning.RouteSegment>[],
-  ); // 경로 전체 관리
+  );
   bool _isRouteLoading = false;
   bool _isSaveMode = false;
   Place? _selectedPlace;
   final List<Place> _searchedPlaces = <Place>[];
   String? _lastSearchQuery;
 
-  // kakao_map_sdk 오버레이 관리 (Poi와 Route로 관리)
   final List<kakao.Poi> _currentLocationPois = <kakao.Poi>[];
   final List<kakao.Poi> _routePinPois = <kakao.Poi>[];
   final List<kakao.Poi> _searchPlacePois = <kakao.Poi>[];
   final List<kakao.Route> _routeRoutes = <kakao.Route>[];
 
-  // POI ID를 핀 인덱스에 매핑하는 Map
   final Map<String, int> _poiIdToPinIndex = <String, int>{};
 
   late final RoutePlanningFacade _facade;
@@ -121,7 +120,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   void _toggleButtonState() {
-    // 모드 전환 시 자동 핀 추가를 방지하기 위해 시간 기록
     _lastButtonToggleTime = DateTime.now();
 
     setState(() {
@@ -183,7 +181,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     _moveToPlace(place);
     _updateSearchPlaceMarkers();
 
-    // 단일 장소 선택 이벤트
     AmplitudeAnalytics.logEvent(
       'route_planning_place_selected',
       properties: <String, dynamic>{
@@ -205,7 +202,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     }
     _updateSearchPlaceMarkers();
 
-    // 다중 장소 선택 이벤트
     AmplitudeAnalytics.logEvent(
       'route_planning_places_selected',
       properties: <String, dynamic>{
@@ -218,7 +214,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
   Future<void> _moveToPlace(Place place) async {
     if (_mapController != null) {
-      // CameraPosition을 사용하여 위치와 zoom level을 명시적으로 설정
       final kakao.CameraPosition cameraPosition = kakao.CameraPosition(
         kakao.LatLng(place.latitude, place.longitude),
         initialZoom.toInt(),
@@ -229,7 +224,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       );
       await _mapController!.moveCamera(cameraUpdate);
 
-      // 회전을 0도로 명시적으로 리셋하여 북쪽이 위로 오도록 보장
       await Future<void>.delayed(const Duration(milliseconds: 50));
       final kakao.CameraUpdate rotateUpdate = kakao.CameraUpdate.rotate(0.0);
       await _mapController!.moveCamera(rotateUpdate);
@@ -258,7 +252,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       switch (result) {
         case final AppSuccess<route_planning.RouteSegment> success:
           setState(() {
-            // addSegment가 자동으로 핀 위치도 업데이트
             _route = _route.addSegment(success.data);
           });
           _updateRoutePins();
@@ -285,13 +278,19 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   void _addPin(latlong2.LatLng position) {
-    if (_isRouteLoading) return;
+    if (_isRouteLoading) {
+      return;
+    }
 
-    // managePins UseCase는 여전히 LatLng 리스트를 받으므로 변환 필요
     final List<latlong2.LatLng> pinPositions =
         _route.pins.map((RoutePin pin) => pin.position).toList();
 
-    if (_facade.managePins.shouldAddPin(_isButtonPressed, pinPositions)) {
+    final bool canAddPin = _facade.managePins.shouldAddPin(
+      _isButtonPressed,
+      pinPositions,
+    );
+
+    if (canAddPin) {
       setState(() {
         _route = _route.addPin(RoutePin(position: position));
       });
@@ -318,12 +317,9 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       _route = _route.removeLastPin(removeSegment: shouldRemoveRouteSegment);
     });
 
-    // 핀과 경로를 업데이트하기 전에 상태가 확실히 반영되도록 함
     await Future<void>.delayed(const Duration(milliseconds: 50));
 
     _updateRoutePins();
-    // 세그먼트가 제거되었든 아니든, 항상 경로를 업데이트하여
-    // 지도에 표시된 경로가 _route.segments와 일치하도록 함
     _updateRouteLines();
 
     AmplitudeAnalytics.logEvent(
@@ -338,7 +334,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   Future<void> _fitMapToAllRoutes() async {
     if (_mapController == null || _route.segments.isEmpty) return;
 
-    // 모든 경로 세그먼트의 포인트들을 수집
     final List<kakao.LatLng> fitPoints = <kakao.LatLng>[];
     for (final route_planning.RouteSegment segment in _route.segments) {
       fitPoints.addAll(
@@ -352,7 +347,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     }
 
     if (fitPoints.isNotEmpty) {
-      // 최소/최대 좌표 계산
       double minLat = fitPoints[0].latitude;
       double maxLat = fitPoints[0].latitude;
       double minLng = fitPoints[0].longitude;
@@ -363,8 +357,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
         if (point.longitude < minLng) minLng = point.longitude;
         if (point.longitude > maxLng) maxLng = point.longitude;
       }
-
-      // 중앙 좌표로 대략적인 범위 맞춤
       final double centerLat = (minLat + maxLat) / 2;
       final double centerLng = (minLng + maxLng) / 2;
       final kakao.CameraUpdate cameraUpdate = kakao
@@ -376,28 +368,23 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   Future<void> _fitMapToSearchResults(SearchResult searchResult) async {
     if (searchResult.places.isEmpty || _mapController == null) return;
 
-    // 단일 장소인 경우 해당 장소로 이동
     if (searchResult.places.length == 1) {
       _moveToPlace(searchResult.places.first);
       return;
     }
 
-    // 모든 검색 결과를 포함하는 범위로 맞춤
     final List<kakao.LatLng> fitPoints =
         searchResult.places
             .map((Place place) => kakao.LatLng(place.latitude, place.longitude))
             .toList();
 
     if (fitPoints.isNotEmpty) {
-      // fitMapPoints를 사용하여 모든 검색 결과가 보이도록 카메라 조정
-      // padding은 픽셀 단위 (20px 여유 공간)
       final kakao.CameraUpdate cameraUpdate = kakao.CameraUpdate.fitMapPoints(
         fitPoints,
         padding: 20,
       );
       await _mapController!.moveCamera(cameraUpdate);
 
-      // 회전을 0도로 명시적으로 리셋하여 북쪽이 위로 오도록 보장
       await Future<void>.delayed(const Duration(milliseconds: 50));
       final kakao.CameraUpdate rotateUpdate = kakao.CameraUpdate.rotate(0.0);
       await _mapController!.moveCamera(rotateUpdate);
@@ -576,12 +563,10 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     );
   }
 
-  // kakao_map_sdk 오버레이 업데이트 메서드들
   Future<void> _updateCurrentLocationMarker() async {
     if (_mapController == null || !mounted) return;
 
     try {
-      // 기존 현위치 POI 제거
       for (final kakao.Poi poi in _currentLocationPois) {
         try {
           await _mapController!.labelLayer.removePoi(poi);
@@ -593,7 +578,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
       if (_currentPosition != null && mounted && _mapController != null) {
         try {
-          // 현위치 마커 추가 - icon을 제공하여 NSNull 크래시 방지
           final kakao.KImage iconImage = kakao.KImage.fromAsset(
             'assets/icons/png/current_location_pin.png',
             24,
@@ -622,7 +606,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     if (_mapController == null || !mounted) return;
 
     try {
-      // 기존 경로 핀 POI 제거
       for (final kakao.Poi poi in _routePinPois) {
         try {
           await _mapController!.labelLayer.removePoi(poi);
@@ -642,14 +625,12 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
         try {
           final RoutePin pin = _route.pins[i];
-          // RoutePinMarker를 사용하여 숫자가 들어간 원 마커 생성
           final RoutePinMarker marker = RoutePinMarker(
             index: i,
             hasWaypoint: pin.hasWaypoint,
             waypoint: pin.waypoint,
           );
 
-          // SemanticTheme로 감싸서 KImage.fromWidget에 전달
           final kakao.KImage iconImage = await kakao.KImage.fromWidget(
             SemanticTheme(data: colors, child: marker),
             const Size(24, 24),
@@ -676,24 +657,20 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     if (_mapController == null || !mounted) return;
 
     try {
-      // 기존 경로 Route를 개별적으로 제거
       for (final kakao.Route route in _routeRoutes) {
         try {
           await _mapController!.routeLayer.removeRoute(route);
         } catch (e) {
-          // Route 제거 실패 시 무시하고 계속 진행
+          // Route 제거 실패 시 무시
         }
       }
 
-      // 기존 경로 리스트 클리어
       _routeRoutes.clear();
 
-      // Route 제거 후 약간의 딜레이 추가
       await Future<void>.delayed(const Duration(milliseconds: 50));
 
       if (!mounted || _mapController == null) return;
 
-      // POLYLINE 데이터 리스트(_route.segments)를 기반으로 모든 경로 다시 추가
       final SemanticColors colors = context.semanticColor;
 
       for (int i = 0; i < _route.segments.length; i++) {
@@ -701,7 +678,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
         final route_planning.RouteSegment segment = _route.segments[i];
 
-        // segment.points가 비어있으면 건너뛰기
         if (segment.points.isEmpty) {
           continue;
         }
@@ -729,7 +705,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
             _routeRoutes.add(route);
           }
         } catch (e) {
-          // 경로 라인 추가 실패 시 무시하고 계속 진행
+          // 경로 라인 추가 실패 시 무시
         }
       }
     } catch (e) {
@@ -741,7 +717,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     if (_mapController == null || !mounted) return;
 
     try {
-      // 기존 검색 장소 POI 제거
       for (final kakao.Poi poi in _searchPlacePois) {
         try {
           await _mapController!.labelLayer.removePoi(poi);
@@ -755,7 +730,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
       final SemanticColors colors = context.semanticColor;
 
-      // 단일 선택된 장소 마커 - Icons.place (40 사이즈)
       if (_selectedPlace != null) {
         try {
           final kakao.KImage placeIcon = await kakao.KImage.fromWidget(
@@ -774,7 +748,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
         }
       }
 
-      // 검색 결과 전체 장소 마커들 - Icons.location_on (34 사이즈)
       for (int i = 0; i < _searchedPlaces.length; i++) {
         if (!mounted || _mapController == null) return;
 
@@ -833,7 +806,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                     ),
                     onMapReady: (kakao.KakaoMapController controller) async {
                       _mapController = controller;
-                      // 지도 준비 후 마커 업데이트 (순차적으로 실행하여 크래시 방지)
                       try {
                         await _updateCurrentLocationMarker();
                         await Future<void>.delayed(
@@ -856,8 +828,18 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                       kakao.LabelController labelController,
                       kakao.Poi poi,
                     ) {
-                      // 경로 핀 POI 클릭 시 웨이포인트 설정 모달 표시
                       if (_poiIdToPinIndex.containsKey(poi.id)) {
+                        _isRoutePinPoiClicked = true;
+
+                        Future<void>.delayed(
+                          const Duration(milliseconds: 200),
+                          () {
+                            if (mounted) {
+                              _isRoutePinPoiClicked = false;
+                            }
+                          },
+                        );
+
                         final int pinIndex = _poiIdToPinIndex[poi.id]!;
                         if (pinIndex < _route.pins.length) {
                           _showWaypointSettingModal(pinIndex);
@@ -865,24 +847,36 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                       }
                     },
                     onMapClick: (kakao.KPoint point, kakao.LatLng latLng) {
-                      // 지도 클릭 시 핀 추가
-                      // 버튼 토글 직후(500ms 이내)에는 핀 추가를 무시하여
-                      // 버튼 터치로 인한 의도치 않은 핀 추가 방지
-                      if (_isButtonPressed && mounted) {
-                        final DateTime now = DateTime.now();
-                        if (_lastButtonToggleTime != null) {
-                          final Duration timeSinceToggle = now.difference(
-                            _lastButtonToggleTime!,
-                          );
-                          if (timeSinceToggle.inMilliseconds < 500) {
-                            // 버튼 토글 직후(500ms 이내)라면 핀 추가 무시
-                            return;
+                      Future<void>.delayed(
+                        const Duration(milliseconds: 100),
+                        () {
+                          if (!mounted) return;
+
+                          if (_isButtonPressed && !_isRouteLoading) {
+                            if (_isRoutePinPoiClicked) {
+                              _isRoutePinPoiClicked = false;
+                              return;
+                            }
+
+                            if (_lastButtonToggleTime != null) {
+                              final DateTime now = DateTime.now();
+                              final Duration timeSinceToggle = now.difference(
+                                _lastButtonToggleTime!,
+                              );
+                              if (timeSinceToggle.inMilliseconds < 500) {
+                                return;
+                              }
+                            }
+
+                            _addPin(
+                              latlong2.LatLng(
+                                latLng.latitude,
+                                latLng.longitude,
+                              ),
+                            );
                           }
-                        }
-                        _addPin(
-                          latlong2.LatLng(latLng.latitude, latLng.longitude),
-                        );
-                      }
+                        },
+                      );
                     },
                   ),
                   if (_isRouteLoading)
@@ -915,11 +909,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                           child: RouteCreationActionButtons(
                             isPinButtonPressed: _isButtonPressed,
                             onTogglePinButton: () {
-                              // 버튼 클릭 시간을 먼저 기록 (setState 전에)
-                              // 이렇게 하면 버튼 터치가 지도로 전달되어도 핀 추가를 방지할 수 있음
                               _lastButtonToggleTime = DateTime.now();
-
-                              // 상태 변경 (내부에서도 시간을 기록하지만, 여기서 먼저 기록하여 확실히 방지)
                               _toggleButtonState();
                             },
                             onRemoveLastPin: () {
