@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/core/theme/app_theme.dart';
 import 'package:urban_breeze/features/place_search/domain/entities/place.dart';
 import 'package:urban_breeze/features/place_search/domain/entities/search_result.dart';
 import 'package:urban_breeze/features/place_search/presentation/screens/place_search_screen.dart';
@@ -20,6 +21,7 @@ import 'package:urban_breeze/features/route_planning/presentation/widgets/route_
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
+import 'package:urban_breeze/shared/design_system/widgets/marker/route_pin_marker.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
@@ -113,8 +115,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     }
   }
 
-  // 핀찍기 관련 코드 주석처리 (크래시 방지)
-  /*
   void _toggleButtonState() {
     // 모드 전환 시 자동 핀 추가를 방지하기 위해 시간 기록
     _lastButtonToggleTime = DateTime.now();
@@ -128,7 +128,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       properties: <String, dynamic>{'is_pin_mode_active': _isButtonPressed},
     );
   }
-  */
 
   void _onCloseTap() {
     AmplitudeAnalytics.logButtonClick('route_planning_close');
@@ -257,7 +256,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
             // addSegment가 자동으로 핀 위치도 업데이트
             _route = _route.addSegment(success.data);
           });
-          // _updateRoutePins(); // 핀찍기 관련 코드 주석처리
+          _updateRoutePins();
           _updateRouteLines();
           AmplitudeAnalytics.logEvent(
             'route_planning_route_created',
@@ -267,7 +266,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
             },
           );
         case final AppFailure<route_planning.RouteSegment> failure:
-          // _removeLastPin(shouldRemoveRouteSegment: false); // 핀찍기 관련 코드 주석처리
+          _removeLastPin(shouldRemoveRouteSegment: false);
           AmplitudeAnalytics.logEvent(
             'route_planning_route_failed',
             properties: <String, dynamic>{
@@ -280,8 +279,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     }
   }
 
-  // 핀찍기 관련 코드 주석처리 (크래시 방지)
-  /*
   void _addPin(latlong2.LatLng position) {
     if (_isRouteLoading) return;
 
@@ -310,10 +307,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       }
     }
   }
-  */
 
-  // 핀찍기 관련 코드 주석처리 (크래시 방지)
-  /*
   Future<void> _removeLastPin({bool shouldRemoveRouteSegment = true}) async {
     setState(() {
       _route = _route.removeLastPin(removeSegment: shouldRemoveRouteSegment);
@@ -335,7 +329,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       },
     );
   }
-  */
 
   Future<void> _fitMapToAllRoutes() async {
     if (_mapController == null || _route.segments.isEmpty) return;
@@ -564,8 +557,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     }
   }
 
-  // 핀찍기 관련 코드 주석처리 (크래시 방지)
-  /*
   Future<void> _updateRoutePins() async {
     if (_mapController == null || !mounted) return;
 
@@ -580,14 +571,31 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       }
       _routePinPois.clear();
 
+      if (!mounted || _mapController == null) return;
+
+      final SemanticColors colors = context.semanticColor;
+
       for (int i = 0; i < _route.pins.length; i++) {
         if (!mounted || _mapController == null) return;
 
         try {
           final RoutePin pin = _route.pins[i];
+          // RoutePinMarker를 사용하여 숫자가 들어간 원 마커 생성
+          final RoutePinMarker marker = RoutePinMarker(
+            index: i,
+            hasWaypoint: pin.hasWaypoint,
+            waypoint: pin.waypoint,
+          );
+
+          // SemanticTheme로 감싸서 KImage.fromWidget에 전달
+          final kakao.KImage iconImage = await kakao.KImage.fromWidget(
+            SemanticTheme(data: colors, child: marker),
+            const Size(24, 24),
+          );
+
           final kakao.Poi poi = await _mapController!.labelLayer.addPoi(
             kakao.LatLng(pin.position.latitude, pin.position.longitude),
-            style: kakao.PoiStyle(),
+            style: kakao.PoiStyle(icon: iconImage),
           );
           if (mounted) {
             _routePinPois.add(poi);
@@ -600,7 +608,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       debugPrint('경로 핀 업데이트 실패: $e');
     }
   }
-  */
 
   Future<void> _updateRouteLines() async {
     if (_mapController == null || !mounted) return;
@@ -735,7 +742,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                         await Future<void>.delayed(
                           const Duration(milliseconds: 50),
                         );
-                        // await _updateRoutePins(); // 핀찍기 관련 코드 주석처리
+                        await _updateRoutePins();
                         await Future<void>.delayed(
                           const Duration(milliseconds: 50),
                         );
@@ -748,8 +755,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                         debugPrint('지도 준비 후 마커 업데이트 실패: $e');
                       }
                     },
-                    // 핀찍기 관련 코드 주석처리 (크래시 방지)
-                    /*
                     onMapClick: (kakao.KPoint point, kakao.LatLng latLng) {
                       // 지도 클릭 시 핀 추가
                       // 버튼 토글 직후(500ms 이내)에는 핀 추가를 무시하여
@@ -770,7 +775,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                         );
                       }
                     },
-                    */
                   ),
                   if (_isRouteLoading)
                     const Positioned.fill(
@@ -801,8 +805,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                           opacity: _isRouteLoading ? 0.5 : 1.0,
                           child: RouteCreationActionButtons(
                             isPinButtonPressed: _isButtonPressed,
-                            // 핀찍기 관련 코드 주석처리 (크래시 방지)
-                            /*
                             onTogglePinButton: () {
                               // 버튼 클릭 시간을 먼저 기록 (setState 전에)
                               // 이렇게 하면 버튼 터치가 지도로 전달되어도 핀 추가를 방지할 수 있음
@@ -814,13 +816,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                             onRemoveLastPin: () {
                               _lastButtonToggleTime = DateTime.now();
                               _removeLastPin();
-                            },
-                            */
-                            onTogglePinButton: () {
-                              // 핀찍기 기능 비활성화
-                            },
-                            onRemoveLastPin: () {
-                              // 핀찍기 기능 비활성화
                             },
                             onMoveToCurrentLocation: () {
                               _lastButtonToggleTime = DateTime.now();
