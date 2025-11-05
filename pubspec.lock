@@ -788,10 +788,10 @@ packages:
     dependency: "direct main"
     description:
       name: kakao_map_sdk
-      sha256: "3d63684da4175c51636a745c22f755286de19a7a7cce4d4adbfece42323895ed"
+      sha256: "739f9583f7720fd159c5d82038c5c15c1740fe5610afbca2616bb6cde3210b46"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.1"
+    version: "1.2.2"
   latlong2:
     dependency: "direct main"
     description:
