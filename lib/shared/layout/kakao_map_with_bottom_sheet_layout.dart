@@ -5,6 +5,7 @@ import 'package:urban_breeze/features/route_planning/presentation/mappers/lat_ln
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
+import 'package:urban_breeze/shared/layout/bottom_sheet_size_calculator.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
 
 class KakaoMapWithBottomSheetLayout extends StatefulWidget {
@@ -62,30 +63,13 @@ class _KakaoMapWithBottomSheetLayoutState
   }
 
   void _calculateMaxChildSize() {
-    if (_contentKey.currentContext != null) {
-      final RenderBox? renderBox =
-          _contentKey.currentContext!.findRenderObject() as RenderBox?;
-      if (renderBox != null) {
-        final double contentHeight = renderBox.size.height;
-        final double screenHeight = MediaQuery.of(context).size.height;
-
-        // AppBar + 핸들 + 여백을 고려한 전체 높이 계산
-        const double appBarHeight = 56.0;
-        const double handleHeight = 28.0; // 핸들 + 여백
-        const double padding = 40.0; // 상하 여백
-
-        final double totalHeight =
-            contentHeight + appBarHeight + handleHeight + padding;
-        final double calculatedRatio = totalHeight / screenHeight;
-
-        setState(() {
-          _calculatedMaxChildSize = calculatedRatio.clamp(
-            widget.initialChildSize,
-            0.95,
-          );
-        });
-      }
-    }
+    setState(() {
+      _calculatedMaxChildSize = BottomSheetSizeCalculator.calculateMaxChildSize(
+        _contentKey,
+        context,
+        widget.initialChildSize,
+      );
+    });
   }
 
   @override
