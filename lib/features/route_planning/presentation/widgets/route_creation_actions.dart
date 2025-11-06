@@ -68,7 +68,7 @@ class RouteCreationActionButtons extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             IconButtonSolid(
-              icon: Icons.help_outline,
+              icon: Icons.question_mark_outlined,
               onPressed: () {
                 AmplitudeAnalytics.logButtonClick('route_planning_help');
                 _showHelpModal(context);
