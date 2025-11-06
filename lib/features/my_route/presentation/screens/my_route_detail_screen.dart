@@ -51,6 +51,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
   final List<kakao.Poi> _routePois = <kakao.Poi>[];
   final List<kakao.Route> _routeRoutes = <kakao.Route>[];
   final Map<String, Waypoint> _poiIdToWaypoint = <String, Waypoint>{};
+  bool _hasUserDraggedMap = false;
 
   @override
   void initState() {
@@ -64,7 +65,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
     double bottomSheetSize,
     MyRouteDetail routeDetail,
   ) async {
-    if (_mapController == null) return;
+    if (_mapController == null || _hasUserDraggedMap) return;
 
     final List<double> bbox = routeDetail.bbox;
     final List<latlong2.LatLng> fitPoints = <latlong2.LatLng>[
@@ -253,6 +254,11 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
             },
             onSizeChanged: (double size) {
               _updateMapBounds(size, routeDetail);
+            },
+            onCameraMoveStart: (kakao.GestureType gestureType) {
+              if (gestureType == kakao.GestureType.pan) {
+                _hasUserDraggedMap = true;
+              }
             },
             onPoiClick: (String poiId) {
               final Waypoint? waypoint = _poiIdToWaypoint[poiId];

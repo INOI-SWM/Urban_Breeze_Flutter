@@ -26,6 +26,7 @@ class KakaoMapWithBottomSheetLayout extends StatefulWidget {
     this.onMapReady,
     this.onSizeChanged,
     this.onPoiClick,
+    this.onCameraMoveStart,
   });
 
   final double initialChildSize;
@@ -43,6 +44,7 @@ class KakaoMapWithBottomSheetLayout extends StatefulWidget {
   final Function(kakao.KakaoMapController)? onMapReady;
   final ValueChanged<double>? onSizeChanged;
   final Function(String poiId)? onPoiClick;
+  final Function(kakao.GestureType)? onCameraMoveStart;
 
   @override
   State<KakaoMapWithBottomSheetLayout> createState() =>
@@ -123,6 +125,16 @@ class _KakaoMapWithBottomSheetLayoutState
                         kakao.LabelController labelController,
                         kakao.Poi poi,
                       ) => widget.onPoiClick!(poi.id)
+                      : null,
+              onCameraMoveStart:
+                  widget.onCameraMoveStart != null
+                      ? (kakao.GestureType gestureType) {
+                        try {
+                          widget.onCameraMoveStart!(gestureType);
+                        } catch (e) {
+                          debugPrint('onCameraMoveStart 에러: $e');
+                        }
+                      }
                       : null,
             ),
             _buildDraggableSheet(context, colors, constraints),

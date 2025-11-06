@@ -44,6 +44,7 @@ class _RecommendedCourseDetailScreenState
   KakaoMapOverlayService? _mapOverlayService;
   final List<kakao.Poi> _routePois = <kakao.Poi>[];
   final List<kakao.Route> _routeRoutes = <kakao.Route>[];
+  bool _hasUserDraggedMap = false;
 
   @override
   void initState() {
@@ -57,7 +58,7 @@ class _RecommendedCourseDetailScreenState
     double bottomSheetSize,
     RecommendedCourseDetail courseDetail,
   ) async {
-    if (_mapController == null) return;
+    if (_mapController == null || _hasUserDraggedMap) return;
 
     final List<double> bbox = courseDetail.bbox;
     final List<latlong2.LatLng> fitPoints = <latlong2.LatLng>[
@@ -232,6 +233,11 @@ class _RecommendedCourseDetailScreenState
             },
             onSizeChanged: (double size) {
               _updateMapBounds(size, courseDetail);
+            },
+            onCameraMoveStart: (kakao.GestureType gestureType) {
+              if (gestureType == kakao.GestureType.pan) {
+                _hasUserDraggedMap = true;
+              }
             },
             onDownloadButtonTap: (BuildContext context) {
               AmplitudeAnalytics.logButtonClick('recommended_course_download');
