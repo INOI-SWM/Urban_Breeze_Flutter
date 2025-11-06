@@ -72,7 +72,7 @@ class RouteHelpContent extends StatelessWidget {
             Text(
               title,
               style: AppTextStyles.headline2.bold.copyWith(
-                color: colors.staticBlack,
+                color: colors.labelNormal,
               ),
             ),
           ],
@@ -87,14 +87,14 @@ class RouteHelpContent extends StatelessWidget {
                 Text(
                   '• ',
                   style: AppTextStyles.label1.normalMedium.copyWith(
-                    color: colors.staticBlack,
+                    color: colors.labelNormal,
                   ),
                 ),
                 Expanded(
                   child: Text(
                     item,
                     style: AppTextStyles.label1.normalMedium.copyWith(
-                      color: colors.staticBlack,
+                      color: colors.labelNormal,
                     ),
                   ),
                 ),

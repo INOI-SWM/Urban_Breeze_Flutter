@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:kakao_map_sdk/kakao_map_sdk.dart' as kakao;
+import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
@@ -12,17 +12,18 @@ import 'package:urban_breeze/features/route_planning/application/use_cases/route
 import 'package:urban_breeze/features/route_planning/di/route_providers.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/planned_route.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_pin.dart';
-import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart'
+    as route_planning;
 import 'package:urban_breeze/features/route_planning/domain/entities/waypoint.dart';
+import 'package:urban_breeze/features/route_planning/presentation/mappers/lat_lng_mapper.dart';
 import 'package:urban_breeze/features/route_planning/presentation/screens/route_create_complete_screen.dart';
+import 'package:urban_breeze/features/route_planning/presentation/services/kakao_map_overlay_service.dart';
 import 'package:urban_breeze/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:urban_breeze/features/route_planning/presentation/widgets/route_creation_actions.dart';
 import 'package:urban_breeze/features/route_planning/presentation/widgets/waypoint_setting_modal.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
-import 'package:urban_breeze/shared/design_system/widgets/marker/route_pin_marker.dart';
-import 'package:urban_breeze/shared/map/common_map_widgets.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
@@ -36,29 +37,39 @@ class RoutePlanningScreen extends ConsumerStatefulWidget {
 
 class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     with ErrorDisplayMixin {
-  static const LatLng _seoulCityHall = MapConstants.seoulCityHall;
+  static const latlong2.LatLng _seoulCityHall = MapConstants.seoulCityHall;
   static const double _defaultZoom = MapConstants.routePlanningZoom;
 
-  final LatLng initialCenter = _seoulCityHall;
+  final latlong2.LatLng initialCenter = _seoulCityHall;
   final double initialZoom = _defaultZoom;
 
-  LatLng? _currentPosition;
+  latlong2.LatLng? _currentPosition;
   bool _isLocationLoading = true;
 
-  final MapController _mapController = MapController();
+  kakao.KakaoMapController? _mapController;
 
   bool _isButtonPressed = false;
+  DateTime? _lastButtonToggleTime;
+  bool _isRoutePinPoiClicked = false;
   PlannedRoute _route = PlannedRoute(
     pins: <RoutePin>[],
-    segments: <RouteSegment>[],
-  ); // 경로 전체 관리
+    segments: <route_planning.RouteSegment>[],
+  );
   bool _isRouteLoading = false;
   bool _isSaveMode = false;
   Place? _selectedPlace;
   final List<Place> _searchedPlaces = <Place>[];
   String? _lastSearchQuery;
 
+  final List<kakao.Poi> _currentLocationPois = <kakao.Poi>[];
+  final List<kakao.Poi> _routePinPois = <kakao.Poi>[];
+  final List<kakao.Poi> _searchPlacePois = <kakao.Poi>[];
+  final List<kakao.Route> _routeRoutes = <kakao.Route>[];
+
+  final Map<String, int> _poiIdToPinIndex = <String, int>{};
+
   late final RoutePlanningFacade _facade;
+  KakaoMapOverlayService? _mapOverlayService;
 
   @override
   void initState() {
@@ -78,12 +89,14 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
   Future<void> _getCurrentLocation() async {
     try {
-      final LatLng? position = await _facade.getCurrentLocation.execute();
+      final latlong2.LatLng? position =
+          await _facade.getCurrentLocation.execute();
       if (mounted) {
         setState(() {
           _currentPosition = position;
           _isLocationLoading = false;
         });
+        _updateCurrentLocationMarker();
       }
     } catch (e) {
       if (mounted) {
@@ -95,15 +108,21 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     }
   }
 
-  void _moveToCurrentLocation() {
-    if (_currentPosition != null) {
-      _mapController.move(_currentPosition!, initialZoom);
+  Future<void> _moveToCurrentLocation() async {
+    if (_currentPosition != null && _mapController != null) {
+      final kakao.CameraUpdate cameraUpdate = kakao
+          .CameraUpdate.newCenterPosition(
+        LatLngMapper.toKakaoLatLng(_currentPosition!),
+      );
+      await _mapController!.moveCamera(cameraUpdate);
     } else {
       showErrorMessage(context, '휴대폰 설정에서 위치권한을 설정해주세요');
     }
   }
 
   void _toggleButtonState() {
+    _lastButtonToggleTime = DateTime.now();
+
     setState(() {
       _isButtonPressed = !_isButtonPressed;
     });
@@ -126,6 +145,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       _searchedPlaces.clear();
       _lastSearchQuery = null;
     });
+    _updateSearchPlaceMarkers();
   }
 
   Future<void> _openSearchScreen() async {
@@ -146,22 +166,22 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   void _handleSearchResult(dynamic result) {
-    setState(() {
-      if (result is Place) {
-        _handleSinglePlaceSelection(result);
-      } else if (result is SearchResult) {
-        _handleMultiplePlacesSelection(result);
-      }
-    });
+    if (result is Place) {
+      _handleSinglePlaceSelection(result);
+    } else if (result is SearchResult) {
+      _handleMultiplePlacesSelection(result);
+    }
   }
 
   void _handleSinglePlaceSelection(Place place) {
-    _selectedPlace = place;
-    _searchedPlaces.clear();
-    _lastSearchQuery = null;
+    setState(() {
+      _selectedPlace = place;
+      _searchedPlaces.clear();
+      _lastSearchQuery = null;
+    });
     _moveToPlace(place);
+    _updateSearchPlaceMarkers();
 
-    // 단일 장소 선택 이벤트
     AmplitudeAnalytics.logEvent(
       'route_planning_place_selected',
       properties: <String, dynamic>{
@@ -173,17 +193,18 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   void _handleMultiplePlacesSelection(SearchResult searchResult) {
-    _selectedPlace = null;
-    _searchedPlaces.clear();
-    _lastSearchQuery = searchResult.query;
-    _searchedPlaces.addAll(searchResult.places);
+    setState(() {
+      _selectedPlace = null;
+      _searchedPlaces.clear();
+      _lastSearchQuery = searchResult.query;
+      _searchedPlaces.addAll(searchResult.places);
+    });
 
     if (searchResult.places.isNotEmpty) {
-      _moveToPlace(searchResult.places.first);
       _fitMapToSearchResults(searchResult);
     }
+    _updateSearchPlaceMarkers();
 
-    // 다중 장소 선택 이벤트
     AmplitudeAnalytics.logEvent(
       'route_planning_places_selected',
       properties: <String, dynamic>{
@@ -194,11 +215,24 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     );
   }
 
-  void _moveToPlace(Place place) {
-    final LatLng position = LatLng(place.latitude, place.longitude);
+  Future<void> _moveToPlace(Place place) async {
+    if (_mapController != null) {
+      final kakao.CameraPosition cameraPosition = kakao.CameraPosition(
+        LatLngMapper.toKakaoLatLng(
+          latlong2.LatLng(place.latitude, place.longitude),
+        ),
+        initialZoom.toInt(),
+        rotationAngle: 0.0,
+      );
+      final kakao.CameraUpdate cameraUpdate = kakao.CameraUpdate.newCameraPos(
+        cameraPosition,
+      );
+      await _mapController!.moveCamera(cameraUpdate);
 
-    // 선택된 장소로 지도 이동
-    _mapController.move(position, initialZoom);
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      final kakao.CameraUpdate rotateUpdate = kakao.CameraUpdate.rotate(0.0);
+      await _mapController!.moveCamera(rotateUpdate);
+    }
   }
 
   Future<void> _getRoute() async {
@@ -208,10 +242,14 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       _isRouteLoading = true;
     });
 
-    final AppResult<RouteSegment> result = await _facade.createRoute.execute(
-      _route.pins[_route.pins.length - 2].position,
-      _route.pins[_route.pins.length - 1].position,
-    );
+    // 인덱스 접근을 변수로 저장하여 중복 계산 방지
+    final int pinsLength = _route.pins.length;
+    final latlong2.LatLng startPosition = _route.pins[pinsLength - 2].position;
+    final latlong2.LatLng endPosition = _route.pins[pinsLength - 1].position;
+
+    final AppResult<route_planning.RouteSegment> result = await _facade
+        .createRoute
+        .execute(startPosition, endPosition);
 
     if (mounted) {
       setState(() {
@@ -219,11 +257,12 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       });
 
       switch (result) {
-        case final AppSuccess<RouteSegment> success:
+        case final AppSuccess<route_planning.RouteSegment> success:
           setState(() {
-            // addSegment가 자동으로 핀 위치도 업데이트
             _route = _route.addSegment(success.data);
           });
+          _updateRoutePins();
+          _updateRouteLines();
           AmplitudeAnalytics.logEvent(
             'route_planning_route_created',
             properties: <String, dynamic>{
@@ -231,7 +270,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
               'total_pins': _route.pins.length,
             },
           );
-        case final AppFailure<RouteSegment> failure:
+        case final AppFailure<route_planning.RouteSegment> failure:
           _removeLastPin(shouldRemoveRouteSegment: false);
           AmplitudeAnalytics.logEvent(
             'route_planning_route_failed',
@@ -245,17 +284,23 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     }
   }
 
-  void _addPin(LatLng position) {
-    if (_isRouteLoading) return;
+  void _addPin(latlong2.LatLng position) {
+    if (_isRouteLoading) {
+      return;
+    }
 
-    // managePins UseCase는 여전히 LatLng 리스트를 받으므로 변환 필요
-    final List<LatLng> pinPositions =
-        _route.pins.map((RoutePin pin) => pin.position).toList();
+    // shouldAddPin은 pins.length만 확인하므로 리스트 생성 불필요
+    final int currentPinCount = _route.pins.length;
+    final bool canAddPin = _facade.managePins.shouldAddPin(
+      _isButtonPressed,
+      _route.pins.map((RoutePin pin) => pin.position).toList(),
+    );
 
-    if (_facade.managePins.shouldAddPin(_isButtonPressed, pinPositions)) {
+    if (canAddPin) {
       setState(() {
         _route = _route.addPin(RoutePin(position: position));
       });
+      _updateRoutePins();
       AmplitudeAnalytics.logEvent(
         'route_planning_pin_added',
         properties: <String, dynamic>{
@@ -265,18 +310,20 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
         },
       );
 
-      final List<LatLng> updatedPinPositions =
-          _route.pins.map((RoutePin pin) => pin.position).toList();
-      if (_facade.managePins.shouldGetRoute(updatedPinPositions)) {
+      // shouldGetRoute는 단순히 pins.length >= 2를 확인
+      if (currentPinCount + 1 >= 2) {
         _getRoute();
       }
     }
   }
 
-  void _removeLastPin({bool shouldRemoveRouteSegment = true}) {
+  Future<void> _removeLastPin({bool shouldRemoveRouteSegment = true}) async {
     setState(() {
       _route = _route.removeLastPin(removeSegment: shouldRemoveRouteSegment);
     });
+
+    _updateRoutePins();
+    _updateRouteLines();
 
     AmplitudeAnalytics.logEvent(
       'route_planning_pin_removed',
@@ -287,55 +334,53 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     );
   }
 
-  void _fitMapToAllRoutes() {
-    final LatLngBounds bounds = _facade.fitMapToRoutes.execute(_route.segments);
-    _mapController.fitCamera(
-      CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(20)),
-    );
-  }
+  Future<void> _fitMapToAllRoutes() async {
+    if (_mapController == null || _route.segments.isEmpty) return;
 
-  void _fitMapToSearchResults(SearchResult searchResult) {
-    if (searchResult.places.isEmpty) return;
-
-    // 서버에서 받은 bbox 정보를 우선 사용
-    if (searchResult.bbox != null) {
-      final LatLngBounds bounds = LatLngBounds(
-        LatLng(searchResult.bbox!.minLat, searchResult.bbox!.minLon),
-        LatLng(searchResult.bbox!.maxLat, searchResult.bbox!.maxLon),
-      );
-      _mapController.fitCamera(
-        CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)),
-      );
-      return;
+    final List<kakao.LatLng> fitPoints = <kakao.LatLng>[];
+    for (final route_planning.RouteSegment segment in _route.segments) {
+      if (segment.points.isNotEmpty) {
+        fitPoints.addAll(LatLngMapper.toKakaoLatLngList(segment.points));
+      }
     }
 
-    // bbox 정보가 없는 경우 클라이언트에서 계산
+    if (fitPoints.isNotEmpty) {
+      final kakao.CameraUpdate cameraUpdate = kakao.CameraUpdate.fitMapPoints(
+        fitPoints,
+        padding: 20,
+      );
+      await _mapController!.moveCamera(cameraUpdate);
+    }
+  }
+
+  Future<void> _fitMapToSearchResults(SearchResult searchResult) async {
+    if (searchResult.places.isEmpty || _mapController == null) return;
+
     if (searchResult.places.length == 1) {
       _moveToPlace(searchResult.places.first);
       return;
     }
 
-    // 모든 검색 결과를 포함하는 범위 계산
-    double minLat = searchResult.places.first.latitude;
-    double maxLat = searchResult.places.first.latitude;
-    double minLng = searchResult.places.first.longitude;
-    double maxLng = searchResult.places.first.longitude;
+    final List<kakao.LatLng> fitPoints =
+        searchResult.places
+            .map(
+              (Place place) => LatLngMapper.toKakaoLatLng(
+                latlong2.LatLng(place.latitude, place.longitude),
+              ),
+            )
+            .toList();
 
-    for (final Place place in searchResult.places) {
-      if (place.latitude < minLat) minLat = place.latitude;
-      if (place.latitude > maxLat) maxLat = place.latitude;
-      if (place.longitude < minLng) minLng = place.longitude;
-      if (place.longitude > maxLng) maxLng = place.longitude;
+    if (fitPoints.isNotEmpty) {
+      final kakao.CameraUpdate cameraUpdate = kakao.CameraUpdate.fitMapPoints(
+        fitPoints,
+        padding: 20,
+      );
+      await _mapController!.moveCamera(cameraUpdate);
+
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      final kakao.CameraUpdate rotateUpdate = kakao.CameraUpdate.rotate(0.0);
+      await _mapController!.moveCamera(rotateUpdate);
     }
-
-    final LatLngBounds bounds = LatLngBounds(
-      LatLng(minLat, minLng),
-      LatLng(maxLat, maxLng),
-    );
-
-    _mapController.fitCamera(
-      CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(50)),
-    );
   }
 
   void _enterSaveMode() {
@@ -362,6 +407,62 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     });
 
     AmplitudeAnalytics.logEvent('route_planning_save_mode_exited');
+  }
+
+  void _showWaypointSettingModal(int pinIndex) {
+    if (pinIndex < 0 || pinIndex >= _route.pins.length) return;
+
+    final RoutePin pin = _route.pins[pinIndex];
+
+    AmplitudeAnalytics.logEvent(
+      'route_planning_waypoint_modal_opened',
+      properties: <String, dynamic>{
+        'pin_index': pinIndex,
+        'has_waypoint': pin.hasWaypoint,
+      },
+    );
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (BuildContext context) => WaypointSettingModal(
+            position: pin.position,
+            initialWaypoint: pin.waypoint,
+            onSave: (Waypoint waypoint) {
+              _updatePinWaypoint(pinIndex, waypoint);
+            },
+            onDelete:
+                pin.hasWaypoint
+                    ? () {
+                      _updatePinWaypoint(pinIndex, null);
+                    }
+                    : null,
+          ),
+    );
+  }
+
+  void _updatePinWaypoint(int pinIndex, Waypoint? waypoint) {
+    if (pinIndex < 0 || pinIndex >= _route.pins.length) return;
+
+    final RoutePin pin = _route.pins[pinIndex];
+    final RoutePin updatedPin = pin.copyWithWaypoint(waypoint);
+
+    setState(() {
+      _route = _route.updatePinWaypoint(pinIndex, updatedPin);
+    });
+
+    _updateRoutePins();
+
+    AmplitudeAnalytics.logEvent(
+      'route_planning_waypoint_updated',
+      properties: <String, dynamic>{
+        'pin_index': pinIndex,
+        'has_waypoint': waypoint != null,
+        if (waypoint != null) 'waypoint_type': waypoint.type.name,
+      },
+    );
   }
 
   Future<void> _completeRouteSave(String title) async {
@@ -454,65 +555,162 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     );
   }
 
-  void _onMarkerTap() {
-    // TODO: 장소 마커 탭 시 동작 추가
+  Future<void> _updateCurrentLocationMarker() async {
+    if (_mapOverlayService == null || !mounted) return;
+
+    try {
+      await _mapOverlayService!.removeAllPois(_currentLocationPois);
+      _currentLocationPois.clear();
+
+      if (_currentPosition != null && mounted) {
+        try {
+          final kakao.Poi poi = await _mapOverlayService!
+              .addCurrentLocationMarker(_currentPosition!);
+          if (mounted) {
+            _currentLocationPois.add(poi);
+          }
+        } catch (e) {
+          debugPrint('현위치 마커 추가 실패: $e');
+        }
+      }
+    } catch (e) {
+      debugPrint('현위치 마커 업데이트 실패: $e');
+    }
   }
 
-  void _onPinTap(int pinIndex) {
-    final RoutePin pin = _route.pins[pinIndex];
+  Future<void> _updateRoutePins() async {
+    if (_mapOverlayService == null || !mounted) return;
 
-    showModalBottomSheet<void>(
-      context: context,
-      useSafeArea: true,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder:
-          (BuildContext context) => WaypointSettingModal(
-            position: pin.position,
-            initialWaypoint: pin.waypoint,
-            onSave: (Waypoint waypoint) {
-              setState(() {
-                _route = _route.updatePinWaypoint(
-                  pinIndex,
-                  pin.copyWithWaypoint(waypoint),
-                );
-              });
+    try {
+      await _mapOverlayService!.removeAllPois(_routePinPois);
+      _routePinPois.clear();
+      _poiIdToPinIndex.clear();
 
-              AmplitudeAnalytics.logEvent(
-                'route_planning_waypoint_set',
-                properties: <String, dynamic>{
-                  'pin_index': pinIndex,
-                  'waypoint_type': waypoint.type.name,
-                  'waypoint_title': waypoint.title,
-                },
-              );
-            },
-            onDelete: () {
-              // waypoint 삭제 (기본 핀으로 되돌리기)
-              setState(() {
-                _route = _route.updatePinWaypoint(
-                  pinIndex,
-                  RoutePin(position: pin.position), // waypoint 없는 기본 핀
-                );
-              });
+      if (!mounted) return;
 
-              AmplitudeAnalytics.logEvent(
-                'route_planning_waypoint_deleted',
-                properties: <String, dynamic>{'pin_index': pinIndex},
-              );
-            },
-          ),
-    );
+      final List<Future<void>> pinFutures = <Future<void>>[];
+      for (int i = 0; i < _route.pins.length; i++) {
+        if (!mounted) break;
+
+        final int pinIndex = i;
+        final RoutePin pin = _route.pins[pinIndex];
+
+        pinFutures.add(
+          _mapOverlayService!
+              .addRoutePinMarker(pin, pinIndex)
+              .then((kakao.Poi poi) {
+                if (mounted) {
+                  _routePinPois.add(poi);
+                  _poiIdToPinIndex[poi.id] = pinIndex;
+                }
+              })
+              .catchError((Object e) {
+                debugPrint('경로 핀 추가 실패 (인덱스 $pinIndex): $e');
+              }),
+        );
+      }
+
+      await Future.wait(pinFutures);
+    } catch (e) {
+      debugPrint('경로 핀 업데이트 실패: $e');
+    }
   }
 
-  void _onSearchResultMarkerTap(Place place) {
-    // 검색 결과 마커를 탭했을 때 해당 장소로 지도 이동
-    _moveToPlace(place);
+  Future<void> _updateRouteLines() async {
+    if (_mapOverlayService == null || !mounted) return;
+
+    try {
+      await _mapOverlayService!.removeAllRoutes(_routeRoutes);
+      _routeRoutes.clear();
+
+      if (!mounted) return;
+
+      for (int i = 0; i < _route.segments.length; i++) {
+        if (!mounted) return;
+
+        final route_planning.RouteSegment segment = _route.segments[i];
+
+        if (segment.points.isEmpty) {
+          continue;
+        }
+
+        try {
+          final kakao.Route route = await _mapOverlayService!.addRouteLine(
+            segment,
+          );
+          if (mounted) {
+            _routeRoutes.add(route);
+          }
+        } catch (e) {
+          // 경로 라인 추가 실패 시 무시
+        }
+      }
+    } catch (e) {
+      // 경로 라인 업데이트 실패 시 무시
+    }
+  }
+
+  Future<void> _updateSearchPlaceMarkers() async {
+    if (_mapOverlayService == null || !mounted) return;
+
+    try {
+      await _mapOverlayService!.removeAllPois(_searchPlacePois);
+      _searchPlacePois.clear();
+
+      if (!mounted) return;
+
+      final List<Future<void>> addFutures = <Future<void>>[];
+
+      if (_selectedPlace != null) {
+        final Place selectedPlace = _selectedPlace!;
+        addFutures.add(
+          _mapOverlayService!
+              .addSelectedPlaceMarker(selectedPlace)
+              .then((kakao.Poi poi) {
+                if (mounted) {
+                  _searchPlacePois.add(poi);
+                }
+              })
+              .catchError((Object e) {
+                debugPrint('선택된 장소 마커 추가 실패: $e');
+              }),
+        );
+      }
+
+      for (int i = 0; i < _searchedPlaces.length; i++) {
+        if (!mounted) break;
+
+        final Place place = _searchedPlaces[i];
+        final int placeIndex = i;
+        addFutures.add(
+          _mapOverlayService!
+              .addSearchPlaceMarker(place)
+              .then((kakao.Poi poi) {
+                if (mounted) {
+                  _searchPlacePois.add(poi);
+                }
+              })
+              .catchError((Object e) {
+                debugPrint('검색 결과 마커 추가 실패 (인덱스 $placeIndex): $e');
+              }),
+        );
+      }
+
+      await Future.wait(addFutures);
+    } catch (e) {
+      debugPrint('검색 장소 마커 업데이트 실패: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
+
+    // 테마 변경 시 서비스 컬러 업데이트
+    if (_mapOverlayService != null) {
+      _mapOverlayService!.updateColors(colors);
+    }
+
     if (_isLocationLoading) {
       return const Center(child: AppLoadingIndicator());
     }
@@ -526,110 +724,88 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
             Expanded(
               child: Stack(
                 children: <Widget>[
-                  FlutterMap(
-                    mapController: _mapController,
-                    options: MapOptions(
-                      initialCenter: _currentPosition ?? initialCenter,
-                      initialZoom: initialZoom,
-                      interactionOptions: const InteractionOptions(
-                        flags: InteractiveFlag.all,
-                      ),
-                      onTap: (_, LatLng position) => _addPin(position),
+                  kakao.KakaoMap(
+                    option: kakao.KakaoMapOption(
+                      position:
+                          _currentPosition != null
+                              ? LatLngMapper.toKakaoLatLng(_currentPosition!)
+                              : LatLngMapper.toKakaoLatLng(initialCenter),
+                      zoomLevel: initialZoom.toInt(),
+                      mapType: kakao.MapType.normal,
                     ),
-                    children: <Widget>[
-                      CommonMapWidgets.createTileLayer(),
-                      CommonMapWidgets.createAttributionWidget(),
-                      if (_currentPosition != null)
-                        MarkerLayer(
-                          markers: <Marker>[
-                            Marker(
-                              point: _currentPosition!,
-                              width: 32,
-                              height: 32,
-                              child: Image.asset(
-                                'assets/icons/png/current_location_pin.png',
-                              ),
-                            ),
-                          ],
-                        ),
-                      PolylineLayer<LatLng>(
-                        polylines:
-                            _route.segments
-                                .map(
-                                  (RouteSegment segment) => Polyline<LatLng>(
-                                    points: segment.points,
-                                    color: colors.primaryNormal,
-                                    strokeWidth:
-                                        MapConstants.polylineStrokeWidth,
-                                  ),
-                                )
-                                .toList(),
-                      ),
-                      MarkerLayer(
-                        markers:
-                            _route.pins.asMap().entries.map((
-                              MapEntry<int, RoutePin> entry,
-                            ) {
-                              final int index = entry.key;
-                              final RoutePin pin = entry.value;
-                              final RoutePinMarker pinMarker = RoutePinMarker(
-                                index: index,
-                                hasWaypoint: pin.hasWaypoint,
-                                waypoint: pin.waypoint,
-                              );
+                    onMapReady: (kakao.KakaoMapController controller) async {
+                      _mapController = controller;
+                      _mapOverlayService = KakaoMapOverlayService(
+                        mapController: controller,
+                        colors: context.semanticColor,
+                      );
+                      try {
+                        await _updateCurrentLocationMarker();
+                        await Future<void>.delayed(
+                          const Duration(milliseconds: 50),
+                        );
+                        await _updateRoutePins();
+                        await Future<void>.delayed(
+                          const Duration(milliseconds: 50),
+                        );
+                        await _updateRouteLines();
+                        await Future<void>.delayed(
+                          const Duration(milliseconds: 50),
+                        );
+                        await _updateSearchPlaceMarkers();
+                      } catch (e) {
+                        debugPrint('지도 준비 후 마커 업데이트 실패: $e');
+                      }
+                    },
+                    onPoiClick: (
+                      kakao.LabelController labelController,
+                      kakao.Poi poi,
+                    ) {
+                      if (_poiIdToPinIndex.containsKey(poi.id)) {
+                        _isRoutePinPoiClicked = true;
 
-                              return Marker(
-                                point: pin.position,
-                                width: pinMarker.flutterMapMarkerSize,
-                                height: pinMarker.flutterMapMarkerSize,
-                                child: GestureDetector(
-                                  onTap: () => _onPinTap(index),
-                                  child: pinMarker,
-                                ),
+                        Future<void>.delayed(
+                          const Duration(milliseconds: 200),
+                          () {
+                            if (mounted) {
+                              _isRoutePinPoiClicked = false;
+                            }
+                          },
+                        );
+
+                        final int pinIndex = _poiIdToPinIndex[poi.id]!;
+                        if (pinIndex < _route.pins.length) {
+                          _showWaypointSettingModal(pinIndex);
+                        }
+                      }
+                    },
+                    onMapClick: (kakao.KPoint point, kakao.LatLng latLng) {
+                      Future<void>.delayed(
+                        const Duration(milliseconds: 100),
+                        () {
+                          if (!mounted) return;
+
+                          if (_isButtonPressed && !_isRouteLoading) {
+                            if (_isRoutePinPoiClicked) {
+                              _isRoutePinPoiClicked = false;
+                              return;
+                            }
+
+                            if (_lastButtonToggleTime != null) {
+                              final DateTime now = DateTime.now();
+                              final Duration timeSinceToggle = now.difference(
+                                _lastButtonToggleTime!,
                               );
-                            }).toList(),
-                      ),
-                      // 검색된 장소 마커
-                      if (_selectedPlace != null || _searchedPlaces.isNotEmpty)
-                        MarkerLayer(
-                          markers: <Marker>[
-                            // 단일 선택된 장소 마커
-                            if (_selectedPlace != null)
-                              Marker(
-                                point: LatLng(
-                                  _selectedPlace!.latitude,
-                                  _selectedPlace!.longitude,
-                                ),
-                                width: 34,
-                                height: 34,
-                                child: GestureDetector(
-                                  onTap: _onMarkerTap,
-                                  child: Icon(
-                                    Icons.place,
-                                    color: colors.primaryNormal,
-                                    size: 40,
-                                  ),
-                                ),
-                              ),
-                            // 검색 결과 전체 장소 마커들
-                            ..._searchedPlaces.map(
-                              (Place place) => Marker(
-                                point: LatLng(place.latitude, place.longitude),
-                                width: 34,
-                                height: 34,
-                                child: GestureDetector(
-                                  onTap: () => _onSearchResultMarkerTap(place),
-                                  child: Icon(
-                                    Icons.location_on,
-                                    color: colors.primaryNormal,
-                                    size: 34,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
+                              if (timeSinceToggle.inMilliseconds < 500) {
+                                return;
+                              }
+                            }
+
+                            _addPin(LatLngMapper.toLatlong2LatLng(latLng));
+                          }
+                        },
+                      );
+                    },
                   ),
                   if (_isRouteLoading)
                     const Positioned.fill(
@@ -654,15 +830,24 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                     Positioned(
                       right: 16,
                       bottom: 16,
-                      child: IgnorePointer(
-                        ignoring: _isRouteLoading,
+                      child: AbsorbPointer(
+                        absorbing: _isRouteLoading,
                         child: Opacity(
                           opacity: _isRouteLoading ? 0.5 : 1.0,
                           child: RouteCreationActionButtons(
                             isPinButtonPressed: _isButtonPressed,
-                            onTogglePinButton: _toggleButtonState,
-                            onRemoveLastPin: _removeLastPin,
-                            onMoveToCurrentLocation: _moveToCurrentLocation,
+                            onTogglePinButton: () {
+                              _lastButtonToggleTime = DateTime.now();
+                              _toggleButtonState();
+                            },
+                            onRemoveLastPin: () {
+                              _lastButtonToggleTime = DateTime.now();
+                              _removeLastPin();
+                            },
+                            onMoveToCurrentLocation: () {
+                              _lastButtonToggleTime = DateTime.now();
+                              _moveToCurrentLocation();
+                            },
                             hasPins: _route.pins.isNotEmpty,
                           ),
                         ),

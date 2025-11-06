@@ -5,6 +5,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:kakao_map_sdk/kakao_map_sdk.dart';
 import 'package:urban_breeze/core/amplitude/amplitude_service.dart';
 import 'package:urban_breeze/core/config/environment_config.dart';
 import 'package:urban_breeze/core/services/app_tracking_service.dart';
@@ -31,6 +32,19 @@ Future<void> main() async {
 
   // EnvironmentConfig에서 Kakao Native App Key 사용
   KakaoSdk.init(nativeAppKey: EnvironmentConfig.kakaoNativeAppKey);
+
+  // Kakao Map SDK 초기화 (Native App Key 사용)
+  try {
+    final String nativeKey = EnvironmentConfig.kakaoNativeAppKey;
+    if (nativeKey.isEmpty) {
+      debugPrint('경고: KAKAO_NATIVE_APP_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.');
+    } else {
+      await KakaoMapSdk.instance.initialize(nativeKey);
+      debugPrint('Kakao Map SDK 초기화 성공');
+    }
+  } catch (e) {
+    debugPrint('Kakao Map SDK 초기화 실패: $e');
+  }
 
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
   PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
