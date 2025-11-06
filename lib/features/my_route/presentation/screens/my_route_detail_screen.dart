@@ -63,6 +63,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
   Future<void> _updateMapBounds(
     double bottomSheetSize,
     MyRouteDetail routeDetail,
+    BuildContext? context,
   ) async {
     if (_mapController == null || _hasUserDraggedMap) return;
 
@@ -73,9 +74,24 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
     ];
 
     final double latDiff = bbox[3] - bbox[1];
-    final double expansionFactor = bottomSheetSize * 2.4;
-    final double adjustedMinLat = bbox[1] - (latDiff * expansionFactor);
-    fitPoints.add(latlong2.LatLng(adjustedMinLat, bbox[0]));
+
+    // 바텀시트 확장
+    final double bottomExpansionFactor = bottomSheetSize * 2.4;
+    final double adjustedMinLatBottom =
+        bbox[1] - (latDiff * bottomExpansionFactor);
+    fitPoints.add(latlong2.LatLng(adjustedMinLatBottom, bbox[0]));
+
+    // 상단 safezone 확장
+    if (context != null) {
+      final MediaQueryData mediaQuery = MediaQuery.of(context);
+      final double screenHeight = mediaQuery.size.height;
+      final double topSafeArea = mediaQuery.padding.top;
+      final double topSafeAreaRatio = topSafeArea / screenHeight;
+      final double topExpansionFactor = topSafeAreaRatio * 2.4;
+      final double adjustedMaxLatTop = bbox[3] + (latDiff * topExpansionFactor);
+      fitPoints.add(latlong2.LatLng(adjustedMaxLatTop, bbox[0]));
+      fitPoints.add(latlong2.LatLng(adjustedMaxLatTop, bbox[2]));
+    }
 
     final List<kakao.LatLng> kakaoPoints =
         fitPoints
@@ -218,11 +234,13 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
               // 지도 초기화 완료 대기
               await Future<void>.delayed(const Duration(milliseconds: 50));
 
-              await _updateMapBounds(0.5, routeDetail);
+              if (!mounted) return;
+              await _updateMapBounds(0.5, routeDetail, this.context);
               _updateMapOverlays(routeDetail, colors);
             },
             onSizeChanged: (double size) {
-              _updateMapBounds(size, routeDetail);
+              if (!mounted) return;
+              _updateMapBounds(size, routeDetail, this.context);
             },
             onCameraMoveStart: (kakao.GestureType gestureType) {
               if (gestureType == kakao.GestureType.pan) {
