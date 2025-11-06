@@ -5,7 +5,6 @@ import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart'
     as route_planning;
-import 'package:urban_breeze/features/route_planning/presentation/services/kakao_map_overlay_service.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/track_point.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
 import 'package:urban_breeze/shared/chart/common_line_chart_widget.dart';
@@ -13,7 +12,7 @@ import 'package:urban_breeze/shared/chart/workout_data_extractor.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/info/info_item.dart';
 import 'package:urban_breeze/shared/layout/kakao_map_with_bottom_sheet_layout.dart';
-import 'package:urban_breeze/shared/map/map_bounds_calculator.dart';
+import 'package:urban_breeze/shared/map/kakao_map_state_mixin.dart';
 
 enum WorkoutDataType { speed, altitude, heartRate }
 
@@ -64,18 +63,10 @@ class WorkoutDetailRouteScreen extends StatefulWidget {
       _WorkoutDetailRouteScreenState();
 }
 
-class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen> {
-  kakao.KakaoMapController? _mapController;
-  KakaoMapOverlayService? _mapOverlayService;
-  final List<kakao.Poi> _routePois = <kakao.Poi>[];
-  final List<kakao.Route> _routeRoutes = <kakao.Route>[];
-  bool _hasUserDraggedMap = false;
-
+class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen>
+    with KakaoMapStateMixin<WorkoutDetailRouteScreen> {
   Future<void> _updateMapBounds(double bottomSheetSize) async {
-    if (_mapController == null || _hasUserDraggedMap) return;
-
-    await MapBoundsCalculator.fitMapToBounds(
-      _mapController!,
+    await updateMapBounds(
       widget.workoutDetail.bbox,
       bottomSheetSize,
       context: context,
@@ -86,14 +77,11 @@ class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen> {
     WorkoutDetail workoutDetail,
     SemanticColors colors,
   ) async {
-    if (_mapOverlayService == null || !mounted) return;
+    if (mapOverlayService == null || !mounted) return;
 
     try {
       // 기존 오버레이 제거
-      await _mapOverlayService!.removeAllPois(_routePois);
-      await _mapOverlayService!.removeAllRoutes(_routeRoutes);
-      _routePois.clear();
-      _routeRoutes.clear();
+      await clearAllOverlays();
 
       if (!mounted) return;
 
@@ -108,7 +96,7 @@ class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen> {
 
       if (routePoints.isNotEmpty) {
         // 폴리라인 추가
-        final kakao.Route route = await _mapOverlayService!.addRouteLine(
+        final kakao.Route route = await mapOverlayService!.addRouteLine(
           route_planning.RouteSegment(
             points: routePoints,
             distance: workoutDetail.distance,
@@ -132,26 +120,26 @@ class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen> {
           ),
         );
         if (mounted) {
-          _routeRoutes.add(route);
+          addRoute(route);
         }
 
         // 시작점 마커 추가
-        final kakao.Poi startPoi = await _mapOverlayService!.addStartMarker(
+        final kakao.Poi startPoi = await mapOverlayService!.addStartMarker(
           routePoints.first,
           colors.statusPositive,
         );
         if (mounted) {
-          _routePois.add(startPoi);
+          addPoi(startPoi);
         }
 
         // 끝점 마커 추가
         if (routePoints.length > 1) {
-          final kakao.Poi endPoi = await _mapOverlayService!.addEndMarker(
+          final kakao.Poi endPoi = await mapOverlayService!.addEndMarker(
             routePoints.last,
             colors.statusNegative,
           );
           if (mounted) {
-            _routePois.add(endPoi);
+            addPoi(endPoi);
           }
         }
       }
@@ -168,11 +156,7 @@ class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen> {
       body: KakaoMapWithBottomSheetLayout(
         showOptionButton: false,
         onMapReady: (kakao.KakaoMapController controller) async {
-          _mapController = controller;
-          _mapOverlayService = KakaoMapOverlayService(
-            mapController: controller,
-            colors: colors,
-          );
+          initializeMap(controller, colors);
 
           // 지도 초기화 완료 대기
           await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -187,7 +171,7 @@ class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen> {
         },
         onCameraMoveStart: (kakao.GestureType gestureType) {
           if (gestureType == kakao.GestureType.pan) {
-            _hasUserDraggedMap = true;
+            setUserDraggedMap(true);
           }
         },
         onDownloadButtonTap: (BuildContext context) {},

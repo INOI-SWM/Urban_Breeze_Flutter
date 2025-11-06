@@ -4,11 +4,10 @@ import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart'
     as route_planning;
-import 'package:urban_breeze/features/route_planning/presentation/services/kakao_map_overlay_service.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/track_point.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
-import 'package:urban_breeze/shared/map/map_bounds_calculator.dart';
+import 'package:urban_breeze/shared/map/kakao_map_state_mixin.dart';
 
 class WorkoutDetailMapWidget extends StatefulWidget {
   const WorkoutDetailMapWidget({super.key, required this.workoutDetail});
@@ -19,24 +18,17 @@ class WorkoutDetailMapWidget extends StatefulWidget {
   State<WorkoutDetailMapWidget> createState() => _WorkoutDetailMapWidgetState();
 }
 
-class _WorkoutDetailMapWidgetState extends State<WorkoutDetailMapWidget> {
-  kakao.KakaoMapController? _mapController;
-  KakaoMapOverlayService? _mapOverlayService;
-  final List<kakao.Poi> _routePois = <kakao.Poi>[];
-  final List<kakao.Route> _routeRoutes = <kakao.Route>[];
-
+class _WorkoutDetailMapWidgetState extends State<WorkoutDetailMapWidget>
+    with KakaoMapStateMixin<WorkoutDetailMapWidget> {
   Future<void> _updateMapOverlays(
     WorkoutDetail workoutDetail,
     SemanticColors colors,
   ) async {
-    if (_mapOverlayService == null || !mounted) return;
+    if (mapOverlayService == null || !mounted) return;
 
     try {
       // 기존 오버레이 제거
-      await _mapOverlayService!.removeAllPois(_routePois);
-      await _mapOverlayService!.removeAllRoutes(_routeRoutes);
-      _routePois.clear();
-      _routeRoutes.clear();
+      await clearAllOverlays();
 
       if (!mounted) return;
 
@@ -51,7 +43,7 @@ class _WorkoutDetailMapWidgetState extends State<WorkoutDetailMapWidget> {
 
       if (routePoints.isNotEmpty) {
         // 폴리라인 추가
-        final kakao.Route route = await _mapOverlayService!.addRouteLine(
+        final kakao.Route route = await mapOverlayService!.addRouteLine(
           route_planning.RouteSegment(
             points: routePoints,
             distance: workoutDetail.distance,
@@ -75,7 +67,7 @@ class _WorkoutDetailMapWidgetState extends State<WorkoutDetailMapWidget> {
           ),
         );
         if (mounted) {
-          _routeRoutes.add(route);
+          addRoute(route);
         }
       }
     } catch (e) {
@@ -89,11 +81,7 @@ class _WorkoutDetailMapWidgetState extends State<WorkoutDetailMapWidget> {
 
     return kakao.KakaoMap(
       onMapReady: (kakao.KakaoMapController controller) async {
-        _mapController = controller;
-        _mapOverlayService = KakaoMapOverlayService(
-          mapController: controller,
-          colors: colors,
-        );
+        initializeMap(controller, colors);
 
         // 지도 초기화 완료 대기
         await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -101,8 +89,7 @@ class _WorkoutDetailMapWidgetState extends State<WorkoutDetailMapWidget> {
         if (!mounted) return;
 
         // 카메라 위치 조정
-        await MapBoundsCalculator.fitMapToBounds(
-          _mapController!,
+        await updateMapBounds(
           widget.workoutDetail.bbox,
           0.0,
           context: this.context,

@@ -14,7 +14,6 @@ import 'package:urban_breeze/features/recommended_course/domain/entities/recomme
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart'
     as route_planning;
 import 'package:urban_breeze/features/route_planning/domain/services/polyline_convert_service.dart';
-import 'package:urban_breeze/features/route_planning/presentation/services/kakao_map_overlay_service.dart';
 import 'package:urban_breeze/shared/chart/common_line_chart_widget.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
@@ -22,7 +21,7 @@ import 'package:urban_breeze/shared/design_system/widgets/badge/content_badge.da
 import 'package:urban_breeze/shared/design_system/widgets/info/info_items_row.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/layout/kakao_map_with_bottom_sheet_layout.dart';
-import 'package:urban_breeze/shared/map/map_bounds_calculator.dart';
+import 'package:urban_breeze/shared/map/kakao_map_state_mixin.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
 
@@ -38,13 +37,7 @@ class RecommendedCourseDetailScreen extends ConsumerStatefulWidget {
 
 class _RecommendedCourseDetailScreenState
     extends ConsumerState<RecommendedCourseDetailScreen>
-    with ErrorDisplayMixin {
-  kakao.KakaoMapController? _mapController;
-  KakaoMapOverlayService? _mapOverlayService;
-  final List<kakao.Poi> _routePois = <kakao.Poi>[];
-  final List<kakao.Route> _routeRoutes = <kakao.Route>[];
-  bool _hasUserDraggedMap = false;
-
+    with ErrorDisplayMixin, KakaoMapStateMixin<RecommendedCourseDetailScreen> {
   @override
   void initState() {
     super.initState();
@@ -58,28 +51,18 @@ class _RecommendedCourseDetailScreenState
     RecommendedCourseDetail courseDetail,
     BuildContext? context,
   ) async {
-    if (_mapController == null || _hasUserDraggedMap) return;
-
-    await MapBoundsCalculator.fitMapToBounds(
-      _mapController!,
-      courseDetail.bbox,
-      bottomSheetSize,
-      context: context,
-    );
+    await updateMapBounds(courseDetail.bbox, bottomSheetSize, context: context);
   }
 
   Future<void> _updateMapOverlays(
     RecommendedCourseDetail courseDetail,
     SemanticColors colors,
   ) async {
-    if (_mapOverlayService == null || !mounted) return;
+    if (mapOverlayService == null || !mounted) return;
 
     try {
       // 기존 오버레이 제거
-      await _mapOverlayService!.removeAllPois(_routePois);
-      await _mapOverlayService!.removeAllRoutes(_routeRoutes);
-      _routePois.clear();
-      _routeRoutes.clear();
+      await clearAllOverlays();
 
       if (!mounted) return;
 
@@ -90,7 +73,7 @@ class _RecommendedCourseDetailScreenState
 
         if (routePoints.isNotEmpty) {
           // 폴리라인 추가
-          final kakao.Route route = await _mapOverlayService!.addRouteLine(
+          final kakao.Route route = await mapOverlayService!.addRouteLine(
             route_planning.RouteSegment(
               points: routePoints,
               distance: courseDetail.distance,
@@ -114,26 +97,26 @@ class _RecommendedCourseDetailScreenState
             ),
           );
           if (mounted) {
-            _routeRoutes.add(route);
+            addRoute(route);
           }
 
           // 시작점 마커 추가
-          final kakao.Poi startPoi = await _mapOverlayService!.addStartMarker(
+          final kakao.Poi startPoi = await mapOverlayService!.addStartMarker(
             routePoints.first,
             colors.statusPositive,
           );
           if (mounted) {
-            _routePois.add(startPoi);
+            addPoi(startPoi);
           }
 
           // 끝점 마커 추가
           if (routePoints.length > 1) {
-            final kakao.Poi endPoi = await _mapOverlayService!.addEndMarker(
+            final kakao.Poi endPoi = await mapOverlayService!.addEndMarker(
               routePoints.last,
               colors.statusNegative,
             );
             if (mounted) {
-              _routePois.add(endPoi);
+              addPoi(endPoi);
             }
           }
         }
@@ -172,11 +155,7 @@ class _RecommendedCourseDetailScreenState
           return KakaoMapWithBottomSheetLayout(
             showOptionButton: false,
             onMapReady: (kakao.KakaoMapController controller) async {
-              _mapController = controller;
-              _mapOverlayService = KakaoMapOverlayService(
-                mapController: controller,
-                colors: colors,
-              );
+              initializeMap(controller, colors);
 
               // 지도 초기화 완료 대기
               await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -191,7 +170,7 @@ class _RecommendedCourseDetailScreenState
             },
             onCameraMoveStart: (kakao.GestureType gestureType) {
               if (gestureType == kakao.GestureType.pan) {
-                _hasUserDraggedMap = true;
+                setUserDraggedMap(true);
               }
             },
             onDownloadButtonTap: (BuildContext context) {

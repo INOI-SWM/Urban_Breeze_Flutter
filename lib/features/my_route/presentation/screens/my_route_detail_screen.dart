@@ -17,7 +17,6 @@ import 'package:urban_breeze/features/route_planning/domain/entities/route_segme
     as route_planning;
 import 'package:urban_breeze/features/route_planning/domain/entities/waypoint.dart';
 import 'package:urban_breeze/features/route_planning/domain/services/polyline_convert_service.dart';
-import 'package:urban_breeze/features/route_planning/presentation/services/kakao_map_overlay_service.dart';
 import 'package:urban_breeze/features/route_sharing/application/facades/route_sharing_facade.dart';
 import 'package:urban_breeze/features/route_sharing/di/route_sharing_providers.dart';
 import 'package:urban_breeze/shared/chart/common_line_chart_widget.dart';
@@ -28,7 +27,7 @@ import 'package:urban_breeze/shared/design_system/widgets/info/info_items_row.da
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
 import 'package:urban_breeze/shared/layout/kakao_map_with_bottom_sheet_layout.dart';
-import 'package:urban_breeze/shared/map/map_bounds_calculator.dart';
+import 'package:urban_breeze/shared/map/kakao_map_state_mixin.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 import 'package:urban_breeze/shared/utils/date_formatter.dart';
 import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
@@ -44,13 +43,8 @@ class MyRouteDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
-    with ErrorDisplayMixin {
-  kakao.KakaoMapController? _mapController;
-  KakaoMapOverlayService? _mapOverlayService;
-  final List<kakao.Poi> _routePois = <kakao.Poi>[];
-  final List<kakao.Route> _routeRoutes = <kakao.Route>[];
+    with ErrorDisplayMixin, KakaoMapStateMixin<MyRouteDetailScreen> {
   final Map<String, Waypoint> _poiIdToWaypoint = <String, Waypoint>{};
-  bool _hasUserDraggedMap = false;
 
   @override
   void initState() {
@@ -65,28 +59,18 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
     MyRouteDetail routeDetail,
     BuildContext? context,
   ) async {
-    if (_mapController == null || _hasUserDraggedMap) return;
-
-    await MapBoundsCalculator.fitMapToBounds(
-      _mapController!,
-      routeDetail.bbox,
-      bottomSheetSize,
-      context: context,
-    );
+    await updateMapBounds(routeDetail.bbox, bottomSheetSize, context: context);
   }
 
   Future<void> _updateMapOverlays(
     MyRouteDetail routeDetail,
     SemanticColors colors,
   ) async {
-    if (_mapOverlayService == null || !mounted) return;
+    if (mapOverlayService == null || !mounted) return;
 
     try {
       // 기존 오버레이 제거
-      await _mapOverlayService!.removeAllPois(_routePois);
-      await _mapOverlayService!.removeAllRoutes(_routeRoutes);
-      _routePois.clear();
-      _routeRoutes.clear();
+      await clearAllOverlays();
       _poiIdToWaypoint.clear();
 
       if (!mounted) return;
@@ -98,7 +82,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
 
         if (routePoints.isNotEmpty) {
           // 폴리라인 추가
-          final kakao.Route route = await _mapOverlayService!.addRouteLine(
+          final kakao.Route route = await mapOverlayService!.addRouteLine(
             route_planning.RouteSegment(
               points: routePoints,
               distance: routeDetail.distance,
@@ -122,41 +106,41 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
             ),
           );
           if (mounted) {
-            _routeRoutes.add(route);
+            addRoute(route);
           }
 
           // 웨이포인트 마커 추가
           for (final TrackPoint trackPoint in routeDetail.trackPoints) {
             if (trackPoint.waypoint != null) {
-              final kakao.Poi poi = await _mapOverlayService!.addWaypointMarker(
+              final kakao.Poi poi = await mapOverlayService!.addWaypointMarker(
                 latlong2.LatLng(trackPoint.latitude, trackPoint.longitude),
                 trackPoint.index,
                 trackPoint.waypoint!,
               );
               if (mounted) {
-                _routePois.add(poi);
+                addPoi(poi);
                 _poiIdToWaypoint[poi.id] = trackPoint.waypoint!;
               }
             }
           }
 
           // 시작점 마커 추가
-          final kakao.Poi startPoi = await _mapOverlayService!.addStartMarker(
+          final kakao.Poi startPoi = await mapOverlayService!.addStartMarker(
             routePoints.first,
             colors.statusPositive,
           );
           if (mounted) {
-            _routePois.add(startPoi);
+            addPoi(startPoi);
           }
 
           // 끝점 마커 추가
           if (routePoints.length > 1) {
-            final kakao.Poi endPoi = await _mapOverlayService!.addEndMarker(
+            final kakao.Poi endPoi = await mapOverlayService!.addEndMarker(
               routePoints.last,
               colors.statusNegative,
             );
             if (mounted) {
-              _routePois.add(endPoi);
+              addPoi(endPoi);
             }
           }
         }
@@ -195,11 +179,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
           return KakaoMapWithBottomSheetLayout(
             showOptionButton: true,
             onMapReady: (kakao.KakaoMapController controller) async {
-              _mapController = controller;
-              _mapOverlayService = KakaoMapOverlayService(
-                mapController: controller,
-                colors: colors,
-              );
+              initializeMap(controller, colors);
 
               // 지도 초기화 완료 대기
               await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -214,7 +194,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
             },
             onCameraMoveStart: (kakao.GestureType gestureType) {
               if (gestureType == kakao.GestureType.pan) {
-                _hasUserDraggedMap = true;
+                setUserDraggedMap(true);
               }
             },
             onPoiClick: (String poiId) {
