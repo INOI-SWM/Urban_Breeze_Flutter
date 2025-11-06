@@ -690,7 +690,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
         try {
           final kakao.RouteStyle routeStyle = kakao.RouteStyle(
             Color(colors.primaryNormal.toARGB32()),
-            MapConstants.polylineStrokeWidth,
+            6.0, // 폴리라인 두께를 4.0에서 6.0으로 증가
           );
 
           final kakao.Route route = await _mapController!.routeLayer.addRoute(
