@@ -5,7 +5,6 @@ import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
-import 'package:urban_breeze/core/theme/app_theme.dart';
 import 'package:urban_breeze/features/place_search/domain/entities/place.dart';
 import 'package:urban_breeze/features/place_search/domain/entities/search_result.dart';
 import 'package:urban_breeze/features/place_search/presentation/screens/place_search_screen.dart';
@@ -16,14 +15,15 @@ import 'package:urban_breeze/features/route_planning/domain/entities/route_pin.d
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart'
     as route_planning;
 import 'package:urban_breeze/features/route_planning/domain/entities/waypoint.dart';
+import 'package:urban_breeze/features/route_planning/presentation/mappers/lat_lng_mapper.dart';
 import 'package:urban_breeze/features/route_planning/presentation/screens/route_create_complete_screen.dart';
+import 'package:urban_breeze/features/route_planning/presentation/services/kakao_map_overlay_service.dart';
 import 'package:urban_breeze/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
 import 'package:urban_breeze/features/route_planning/presentation/widgets/route_creation_actions.dart';
 import 'package:urban_breeze/features/route_planning/presentation/widgets/waypoint_setting_modal.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
-import 'package:urban_breeze/shared/design_system/widgets/marker/route_pin_marker.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
@@ -69,6 +69,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   final Map<String, int> _poiIdToPinIndex = <String, int>{};
 
   late final RoutePlanningFacade _facade;
+  KakaoMapOverlayService? _mapOverlayService;
 
   @override
   void initState() {
@@ -111,7 +112,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     if (_currentPosition != null && _mapController != null) {
       final kakao.CameraUpdate cameraUpdate = kakao
           .CameraUpdate.newCenterPosition(
-        kakao.LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+        LatLngMapper.toKakaoLatLng(_currentPosition!),
       );
       await _mapController!.moveCamera(cameraUpdate);
     } else {
@@ -217,7 +218,9 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   Future<void> _moveToPlace(Place place) async {
     if (_mapController != null) {
       final kakao.CameraPosition cameraPosition = kakao.CameraPosition(
-        kakao.LatLng(place.latitude, place.longitude),
+        LatLngMapper.toKakaoLatLng(
+          latlong2.LatLng(place.latitude, place.longitude),
+        ),
         initialZoom.toInt(),
         rotationAngle: 0.0,
       );
@@ -334,16 +337,10 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   Future<void> _fitMapToAllRoutes() async {
     if (_mapController == null || _route.segments.isEmpty) return;
 
-    // fitMapPoints를 사용하여 더 효율적으로 처리
     final List<kakao.LatLng> fitPoints = <kakao.LatLng>[];
     for (final route_planning.RouteSegment segment in _route.segments) {
       if (segment.points.isNotEmpty) {
-        fitPoints.addAll(
-          segment.points.map(
-            (latlong2.LatLng point) =>
-                kakao.LatLng(point.latitude, point.longitude),
-          ),
-        );
+        fitPoints.addAll(LatLngMapper.toKakaoLatLngList(segment.points));
       }
     }
 
@@ -366,7 +363,11 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
     final List<kakao.LatLng> fitPoints =
         searchResult.places
-            .map((Place place) => kakao.LatLng(place.latitude, place.longitude))
+            .map(
+              (Place place) => LatLngMapper.toKakaoLatLng(
+                latlong2.LatLng(place.latitude, place.longitude),
+              ),
+            )
             .toList();
 
     if (fitPoints.isNotEmpty) {
@@ -555,32 +556,16 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   Future<void> _updateCurrentLocationMarker() async {
-    if (_mapController == null || !mounted) return;
+    if (_mapOverlayService == null || !mounted) return;
 
     try {
-      for (final kakao.Poi poi in _currentLocationPois) {
-        try {
-          await _mapController!.labelLayer.removePoi(poi);
-        } catch (e) {
-          debugPrint('현위치 POI 제거 실패: $e');
-        }
-      }
+      await _mapOverlayService!.removeAllPois(_currentLocationPois);
       _currentLocationPois.clear();
 
-      if (_currentPosition != null && mounted && _mapController != null) {
+      if (_currentPosition != null && mounted) {
         try {
-          final kakao.KImage iconImage = kakao.KImage.fromAsset(
-            'assets/icons/png/current_location_pin.png',
-            24,
-            24,
-          );
-          final kakao.Poi poi = await _mapController!.labelLayer.addPoi(
-            kakao.LatLng(
-              _currentPosition!.latitude,
-              _currentPosition!.longitude,
-            ),
-            style: kakao.PoiStyle(icon: iconImage),
-          );
+          final kakao.Poi poi = await _mapOverlayService!
+              .addCurrentLocationMarker(_currentPosition!);
           if (mounted) {
             _currentLocationPois.add(poi);
           }
@@ -594,47 +579,26 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   Future<void> _updateRoutePins() async {
-    if (_mapController == null || !mounted) return;
+    if (_mapOverlayService == null || !mounted) return;
 
     try {
-      for (final kakao.Poi poi in _routePinPois) {
-        try {
-          await _mapController!.labelLayer.removePoi(poi);
-        } catch (e) {
-          debugPrint('경로 핀 POI 제거 실패: $e');
-        }
-      }
+      await _mapOverlayService!.removeAllPois(_routePinPois);
       _routePinPois.clear();
       _poiIdToPinIndex.clear();
 
-      if (!mounted || _mapController == null) return;
-
-      final SemanticColors colors = context.semanticColor;
+      if (!mounted) return;
 
       final List<Future<void>> pinFutures = <Future<void>>[];
       for (int i = 0; i < _route.pins.length; i++) {
-        if (!mounted || _mapController == null) break;
+        if (!mounted) break;
 
         final int pinIndex = i;
         final RoutePin pin = _route.pins[pinIndex];
-        final RoutePinMarker marker = RoutePinMarker(
-          index: pinIndex,
-          hasWaypoint: pin.hasWaypoint,
-          waypoint: pin.waypoint,
-        );
 
         pinFutures.add(
-          kakao.KImage.fromWidget(
-                SemanticTheme(data: colors, child: marker),
-                const Size(24, 24),
-              )
-              .then((kakao.KImage iconImage) async {
-                if (!mounted || _mapController == null) return;
-
-                final kakao.Poi poi = await _mapController!.labelLayer.addPoi(
-                  kakao.LatLng(pin.position.latitude, pin.position.longitude),
-                  style: kakao.PoiStyle(icon: iconImage),
-                );
+          _mapOverlayService!
+              .addRoutePinMarker(pin, pinIndex)
+              .then((kakao.Poi poi) {
                 if (mounted) {
                   _routePinPois.add(poi);
                   _poiIdToPinIndex[poi.id] = pinIndex;
@@ -653,25 +617,16 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   Future<void> _updateRouteLines() async {
-    if (_mapController == null || !mounted) return;
+    if (_mapOverlayService == null || !mounted) return;
 
     try {
-      for (final kakao.Route route in _routeRoutes) {
-        try {
-          await _mapController!.routeLayer.removeRoute(route);
-        } catch (e) {
-          // Route 제거 실패 시 무시
-        }
-      }
-
+      await _mapOverlayService!.removeAllRoutes(_routeRoutes);
       _routeRoutes.clear();
 
-      if (!mounted || _mapController == null) return;
-
-      final SemanticColors colors = context.semanticColor;
+      if (!mounted) return;
 
       for (int i = 0; i < _route.segments.length; i++) {
-        if (!mounted || _mapController == null) return;
+        if (!mounted) return;
 
         final route_planning.RouteSegment segment = _route.segments[i];
 
@@ -679,25 +634,10 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
           continue;
         }
 
-        final List<kakao.LatLng> points =
-            segment.points
-                .map(
-                  (latlong2.LatLng point) =>
-                      kakao.LatLng(point.latitude, point.longitude),
-                )
-                .toList();
-
         try {
-          final kakao.RouteStyle routeStyle = kakao.RouteStyle(
-            Color(colors.primaryNormal.toARGB32()),
-            6.0, // 폴리라인 두께를 4.0에서 6.0으로 증가
+          final kakao.Route route = await _mapOverlayService!.addRouteLine(
+            segment,
           );
-
-          final kakao.Route route = await _mapController!.routeLayer.addRoute(
-            points,
-            routeStyle,
-          );
-
           if (mounted) {
             _routeRoutes.add(route);
           }
@@ -711,40 +651,22 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   Future<void> _updateSearchPlaceMarkers() async {
-    if (_mapController == null || !mounted) return;
+    if (_mapOverlayService == null || !mounted) return;
 
     try {
-      // 기존 POI 제거를 병렬로 처리
-      final List<Future<void>> removeFutures =
-          _searchPlacePois.map((kakao.Poi poi) async {
-            try {
-              await _mapController!.labelLayer.removePoi(poi);
-            } catch (e) {
-              debugPrint('검색 장소 POI 제거 실패: $e');
-            }
-          }).toList();
-      await Future.wait(removeFutures);
+      await _mapOverlayService!.removeAllPois(_searchPlacePois);
       _searchPlacePois.clear();
 
-      if (!mounted || _mapController == null) return;
-
-      final SemanticColors colors = context.semanticColor;
+      if (!mounted) return;
 
       final List<Future<void>> addFutures = <Future<void>>[];
 
       if (_selectedPlace != null) {
         final Place selectedPlace = _selectedPlace!;
         addFutures.add(
-          kakao.KImage.fromWidget(
-                Icon(Icons.place, color: colors.primaryNormal, size: 36),
-                const Size(36, 36),
-              )
-              .then((kakao.KImage placeIcon) async {
-                if (!mounted || _mapController == null) return;
-                final kakao.Poi poi = await _mapController!.labelLayer.addPoi(
-                  kakao.LatLng(selectedPlace.latitude, selectedPlace.longitude),
-                  style: kakao.PoiStyle(icon: placeIcon),
-                );
+          _mapOverlayService!
+              .addSelectedPlaceMarker(selectedPlace)
+              .then((kakao.Poi poi) {
                 if (mounted) {
                   _searchPlacePois.add(poi);
                 }
@@ -756,21 +678,14 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
       }
 
       for (int i = 0; i < _searchedPlaces.length; i++) {
-        if (!mounted || _mapController == null) break;
+        if (!mounted) break;
 
         final Place place = _searchedPlaces[i];
         final int placeIndex = i;
         addFutures.add(
-          kakao.KImage.fromWidget(
-                Icon(Icons.location_on, color: colors.primaryNormal, size: 34),
-                const Size(34, 34),
-              )
-              .then((kakao.KImage locationIcon) async {
-                if (!mounted || _mapController == null) return;
-                final kakao.Poi poi = await _mapController!.labelLayer.addPoi(
-                  kakao.LatLng(place.latitude, place.longitude),
-                  style: kakao.PoiStyle(icon: locationIcon),
-                );
+          _mapOverlayService!
+              .addSearchPlaceMarker(place)
+              .then((kakao.Poi poi) {
                 if (mounted) {
                   _searchPlacePois.add(poi);
                 }
@@ -790,6 +705,12 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
+
+    // 테마 변경 시 서비스 컬러 업데이트
+    if (_mapOverlayService != null) {
+      _mapOverlayService!.updateColors(colors);
+    }
+
     if (_isLocationLoading) {
       return const Center(child: AppLoadingIndicator());
     }
@@ -807,19 +728,17 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                     option: kakao.KakaoMapOption(
                       position:
                           _currentPosition != null
-                              ? kakao.LatLng(
-                                _currentPosition!.latitude,
-                                _currentPosition!.longitude,
-                              )
-                              : kakao.LatLng(
-                                initialCenter.latitude,
-                                initialCenter.longitude,
-                              ),
+                              ? LatLngMapper.toKakaoLatLng(_currentPosition!)
+                              : LatLngMapper.toKakaoLatLng(initialCenter),
                       zoomLevel: initialZoom.toInt(),
                       mapType: kakao.MapType.normal,
                     ),
                     onMapReady: (kakao.KakaoMapController controller) async {
                       _mapController = controller;
+                      _mapOverlayService = KakaoMapOverlayService(
+                        mapController: controller,
+                        colors: context.semanticColor,
+                      );
                       try {
                         await _updateCurrentLocationMarker();
                         await Future<void>.delayed(
@@ -882,12 +801,7 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
                               }
                             }
 
-                            _addPin(
-                              latlong2.LatLng(
-                                latLng.latitude,
-                                latLng.longitude,
-                              ),
-                            );
+                            _addPin(LatLngMapper.toLatlong2LatLng(latLng));
                           }
                         },
                       );
