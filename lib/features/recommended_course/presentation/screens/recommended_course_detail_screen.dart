@@ -14,7 +14,6 @@ import 'package:urban_breeze/features/recommended_course/domain/entities/recomme
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart'
     as route_planning;
 import 'package:urban_breeze/features/route_planning/domain/services/polyline_convert_service.dart';
-import 'package:urban_breeze/features/route_planning/presentation/mappers/lat_lng_mapper.dart';
 import 'package:urban_breeze/features/route_planning/presentation/services/kakao_map_overlay_service.dart';
 import 'package:urban_breeze/shared/chart/common_line_chart_widget.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
@@ -23,6 +22,7 @@ import 'package:urban_breeze/shared/design_system/widgets/badge/content_badge.da
 import 'package:urban_breeze/shared/design_system/widgets/info/info_items_row.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/layout/kakao_map_with_bottom_sheet_layout.dart';
+import 'package:urban_breeze/shared/map/map_bounds_calculator.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
 
@@ -60,42 +60,12 @@ class _RecommendedCourseDetailScreenState
   ) async {
     if (_mapController == null || _hasUserDraggedMap) return;
 
-    final List<double> bbox = courseDetail.bbox;
-    final List<latlong2.LatLng> fitPoints = <latlong2.LatLng>[
-      latlong2.LatLng(bbox[1], bbox[0]), // minLat, minLng
-      latlong2.LatLng(bbox[3], bbox[2]), // maxLat, maxLng
-    ];
-
-    final double latDiff = bbox[3] - bbox[1];
-
-    // 바텀시트 확장
-    final double bottomExpansionFactor = bottomSheetSize * 2.4;
-    final double adjustedMinLatBottom =
-        bbox[1] - (latDiff * bottomExpansionFactor);
-    fitPoints.add(latlong2.LatLng(adjustedMinLatBottom, bbox[0]));
-
-    // 상단 safezone 확장
-    if (context != null) {
-      final MediaQueryData mediaQuery = MediaQuery.of(context);
-      final double screenHeight = mediaQuery.size.height;
-      final double topSafeArea = mediaQuery.padding.top;
-      final double topSafeAreaRatio = topSafeArea / screenHeight;
-      final double topExpansionFactor = topSafeAreaRatio * 2.4;
-      final double adjustedMaxLatTop = bbox[3] + (latDiff * topExpansionFactor);
-      fitPoints.add(latlong2.LatLng(adjustedMaxLatTop, bbox[0]));
-      fitPoints.add(latlong2.LatLng(adjustedMaxLatTop, bbox[2]));
-    }
-
-    final List<kakao.LatLng> kakaoPoints =
-        fitPoints
-            .map((latlong2.LatLng p) => LatLngMapper.toKakaoLatLng(p))
-            .toList();
-
-    final kakao.CameraUpdate cameraUpdate = kakao.CameraUpdate.fitMapPoints(
-      kakaoPoints,
-      padding: 20,
+    await MapBoundsCalculator.fitMapToBounds(
+      _mapController!,
+      courseDetail.bbox,
+      bottomSheetSize,
+      context: context,
     );
-    await _mapController!.moveCamera(cameraUpdate);
   }
 
   Future<void> _updateMapOverlays(

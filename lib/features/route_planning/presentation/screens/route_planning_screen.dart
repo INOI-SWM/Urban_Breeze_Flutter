@@ -24,6 +24,7 @@ import 'package:urban_breeze/features/route_planning/presentation/widgets/waypoi
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
+import 'package:urban_breeze/shared/map/map_bounds_calculator.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
@@ -337,20 +338,30 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   Future<void> _fitMapToAllRoutes() async {
     if (_mapController == null || _route.segments.isEmpty) return;
 
-    final List<kakao.LatLng> fitPoints = <kakao.LatLng>[];
+    // 모든 세그먼트의 포인트 수집
+    final List<latlong2.LatLng> allPoints = <latlong2.LatLng>[];
     for (final route_planning.RouteSegment segment in _route.segments) {
       if (segment.points.isNotEmpty) {
-        fitPoints.addAll(LatLngMapper.toKakaoLatLngList(segment.points));
+        allPoints.addAll(segment.points);
       }
     }
 
-    if (fitPoints.isNotEmpty) {
-      final kakao.CameraUpdate cameraUpdate = kakao.CameraUpdate.fitMapPoints(
-        fitPoints,
-        padding: 20,
-      );
-      await _mapController!.moveCamera(cameraUpdate);
-    }
+    if (allPoints.isEmpty) return;
+
+    // bbox 계산
+    final List<double> bbox = MapBoundsCalculator.calculateBboxFromPoints(
+      allPoints,
+    );
+
+    // 바텀시트 확장 (저장 모드일 때 바텀시트가 있으므로 0.5로 가정)
+    final double bottomSheetSize = _isSaveMode ? 0.5 : 0.0;
+
+    await MapBoundsCalculator.fitMapToBounds(
+      _mapController!,
+      bbox,
+      bottomSheetSize,
+      context: context,
+    );
   }
 
   Future<void> _fitMapToSearchResults(SearchResult searchResult) async {
