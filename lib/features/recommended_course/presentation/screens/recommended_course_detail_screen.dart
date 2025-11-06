@@ -1,8 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:kakao_map_sdk/kakao_map_sdk.dart' as kakao;
+import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
@@ -11,16 +11,19 @@ import 'package:urban_breeze/features/recommended_course/application/use_cases/g
 import 'package:urban_breeze/features/recommended_course/application/use_cases/share_recommended_course_use_case.dart';
 import 'package:urban_breeze/features/recommended_course/di/recommended_course_providers.dart';
 import 'package:urban_breeze/features/recommended_course/domain/entities/recommended_course_detail.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart'
+    as route_planning;
 import 'package:urban_breeze/features/route_planning/domain/services/polyline_convert_service.dart';
+import 'package:urban_breeze/features/route_planning/presentation/mappers/lat_lng_mapper.dart';
+import 'package:urban_breeze/features/route_planning/presentation/services/kakao_map_overlay_service.dart';
 import 'package:urban_breeze/shared/chart/common_line_chart_widget.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/badge/content_badge.dart';
 import 'package:urban_breeze/shared/design_system/widgets/info/info_items_row.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
-import 'package:urban_breeze/shared/layout/map_with_bottom_sheet_layout.dart';
+import 'package:urban_breeze/shared/layout/kakao_map_with_bottom_sheet_layout.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
-import 'package:urban_breeze/shared/map/map_marker_widget.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
 
@@ -37,8 +40,10 @@ class RecommendedCourseDetailScreen extends ConsumerStatefulWidget {
 class _RecommendedCourseDetailScreenState
     extends ConsumerState<RecommendedCourseDetailScreen>
     with ErrorDisplayMixin {
-  final MapController _mapController = MapController();
-  final bool _hasUserDraggedMap = false;
+  kakao.KakaoMapController? _mapController;
+  KakaoMapOverlayService? _mapOverlayService;
+  final List<kakao.Poi> _routePois = <kakao.Poi>[];
+  final List<kakao.Route> _routeRoutes = <kakao.Route>[];
 
   @override
   void initState() {
@@ -51,94 +56,118 @@ class _RecommendedCourseDetailScreenState
   void _updateMapBounds(
     double bottomSheetSize,
     RecommendedCourseDetail courseDetail,
-  ) {
-    if (_hasUserDraggedMap) return;
+  ) async {
+    if (_mapController == null) return;
 
     final List<double> bbox = courseDetail.bbox;
-    final LatLngBounds bounds = _calculateAdjustedBounds(bbox, bottomSheetSize);
-    _mapController.fitCamera(
-      CameraFit.bounds(
-        bounds: bounds,
-        padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 30),
-      ),
-    );
-  }
+    final List<latlong2.LatLng> fitPoints = <latlong2.LatLng>[
+      latlong2.LatLng(bbox[1], bbox[0]), // minLat, minLng
+      latlong2.LatLng(bbox[3], bbox[2]), // maxLat, maxLng
+    ];
 
-  LatLngBounds _calculateAdjustedBounds(
-    List<double> bbox,
-    double bottomSheetSize,
-  ) {
-    final double minLng = bbox[0];
-    final double minLat = bbox[1];
-    final double maxLng = bbox[2];
-    final double maxLat = bbox[3];
-
-    final double latDiff = maxLat - minLat;
+    final double latDiff = bbox[3] - bbox[1];
     final double expansionFactor = bottomSheetSize * 2.4;
-    final double adjustedMinLat = minLat - (latDiff * expansionFactor);
+    final double adjustedMinLat = bbox[1] - (latDiff * expansionFactor);
+    fitPoints.add(latlong2.LatLng(adjustedMinLat, bbox[0]));
 
-    return LatLngBounds(LatLng(adjustedMinLat, minLng), LatLng(maxLat, maxLng));
+    final List<kakao.LatLng> kakaoPoints =
+        fitPoints
+            .map((latlong2.LatLng p) => LatLngMapper.toKakaoLatLng(p))
+            .toList();
+
+    final kakao.CameraUpdate cameraUpdate = kakao.CameraUpdate.fitMapPoints(
+      kakaoPoints,
+      padding: 20,
+    );
+    await _mapController!.moveCamera(cameraUpdate);
   }
 
-  List<Widget> _buildMapOverlays(
+  Future<void> _updateMapOverlays(
     RecommendedCourseDetail courseDetail,
     SemanticColors colors,
-  ) {
-    final List<Widget> overlays = <Widget>[];
+  ) async {
+    if (_mapOverlayService == null || !mounted) return;
 
-    // Polyline 디코딩 및 표시
-    if (courseDetail.polyline.isNotEmpty) {
-      final List<LatLng> routePoints = PolylineConvertService.decodeToPoints(
-        courseDetail.polyline,
-      );
+    try {
+      // 기존 오버레이 제거
+      await _mapOverlayService!.removeAllPois(_routePois);
+      await _mapOverlayService!.removeAllRoutes(_routeRoutes);
+      _routePois.clear();
+      _routeRoutes.clear();
 
-      if (routePoints.isNotEmpty) {
-        // PolylineLayer 추가
-        overlays.add(
-          PolylineLayer<LatLng>(
-            polylines: <Polyline<LatLng>>[
-              Polyline<LatLng>(
-                points: routePoints,
-                color: colors.primaryNormal,
-                strokeWidth: MapConstants.polylineStrokeWidth,
-              ),
-            ],
-          ),
-        );
+      if (!mounted) return;
 
-        // 시작점과 끝점 마커 추가
-        overlays.add(
-          MarkerLayer(
-            markers: <Marker>[
-              MapMarkerWidget.createStartMarker(
-                routePoints.first,
-                colors.statusPositive,
-                colors,
-              ),
-              if (routePoints.length > 1)
-                MapMarkerWidget.createEndMarker(
-                  routePoints.last,
-                  colors.statusNegative,
-                  colors,
-                ),
-            ],
-          ),
-        );
+      // Polyline 디코딩 및 표시
+      if (courseDetail.polyline.isNotEmpty) {
+        final List<latlong2.LatLng> routePoints =
+            PolylineConvertService.decodeToPoints(courseDetail.polyline);
+
+        if (routePoints.isNotEmpty) {
+          // 폴리라인 추가
+          final kakao.Route route = await _mapOverlayService!.addRouteLine(
+            route_planning.RouteSegment(
+              points: routePoints,
+              distance: courseDetail.distance,
+              duration: courseDetail.durationSeconds,
+              elevationGain: courseDetail.elevationGain,
+              bbox: courseDetail.bbox,
+              elevations:
+                  courseDetail.trackPoints
+                      .map((TrackPoint p) => p.elevation)
+                      .toList(),
+              originalGeometry:
+                  routePoints
+                      .map(
+                        (latlong2.LatLng p) => <double>[
+                          p.longitude,
+                          p.latitude,
+                          0.0,
+                        ],
+                      )
+                      .toList(),
+            ),
+          );
+          if (mounted) {
+            _routeRoutes.add(route);
+          }
+
+          // 시작점 마커 추가
+          final kakao.Poi startPoi = await _mapOverlayService!.addStartMarker(
+            routePoints.first,
+            colors.statusPositive,
+          );
+          if (mounted) {
+            _routePois.add(startPoi);
+          }
+
+          // 끝점 마커 추가
+          if (routePoints.length > 1) {
+            final kakao.Poi endPoi = await _mapOverlayService!.addEndMarker(
+              routePoints.last,
+              colors.statusNegative,
+            );
+            if (mounted) {
+              _routePois.add(endPoi);
+            }
+          }
+        }
       }
+    } catch (e) {
+      debugPrint('지도 오버레이 업데이트 실패: $e');
     }
-
-    return overlays;
   }
 
-  CameraFit _calculateCameraFit(RecommendedCourseDetail courseDetail) {
+  kakao.CameraPosition _calculateCameraPosition(
+    RecommendedCourseDetail courseDetail,
+  ) {
     final List<double> bbox = courseDetail.bbox;
-    final LatLngBounds bounds = _calculateAdjustedBounds(
-      bbox,
-      0.5,
-    ); // 초기 크기 0.5로 설정
-    return CameraFit.bounds(
-      bounds: bounds,
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 30),
+    final double centerLat = (bbox[1] + bbox[3]) / 2;
+    final double centerLng = (bbox[0] + bbox[2]) / 2;
+
+    return kakao.CameraPosition(
+      LatLngMapper.toKakaoLatLng(latlong2.LatLng(centerLat, centerLng)),
+      MapConstants.defaultZoom.toInt(),
+      rotationAngle: 0.0,
     );
   }
 
@@ -168,11 +197,39 @@ class _RecommendedCourseDetailScreenState
 
           final RecommendedCourseDetail courseDetail = snapshot.data!;
 
-          return MapWithBottomSheetLayout(
+          return KakaoMapWithBottomSheetLayout(
             showOptionButton: false,
-            mapOverlays: _buildMapOverlays(courseDetail, colors),
-            initialCameraFit: _calculateCameraFit(courseDetail),
-            mapController: _mapController,
+            initialCameraPosition: _calculateCameraPosition(courseDetail),
+            onMapReady: (kakao.KakaoMapController controller) async {
+              _mapController = controller;
+              _mapOverlayService = KakaoMapOverlayService(
+                mapController: controller,
+                colors: colors,
+              );
+              await _updateMapOverlays(courseDetail, colors);
+
+              // 초기 카메라 위치 설정
+              final List<double> bbox = courseDetail.bbox;
+              final List<latlong2.LatLng> fitPoints = <latlong2.LatLng>[
+                latlong2.LatLng(bbox[1], bbox[0]),
+                latlong2.LatLng(bbox[3], bbox[2]),
+              ];
+
+              final double latDiff = bbox[3] - bbox[1];
+              final double expansionFactor = 0.5 * 2.4;
+              final double adjustedMinLat =
+                  bbox[1] - (latDiff * expansionFactor);
+              fitPoints.add(latlong2.LatLng(adjustedMinLat, bbox[0]));
+
+              final List<kakao.LatLng> kakaoPoints =
+                  fitPoints
+                      .map((latlong2.LatLng p) => LatLngMapper.toKakaoLatLng(p))
+                      .toList();
+
+              final kakao.CameraUpdate cameraUpdate = kakao
+                  .CameraUpdate.fitMapPoints(kakaoPoints, padding: 20);
+              await controller.moveCamera(cameraUpdate);
+            },
             onSizeChanged: (double size) {
               _updateMapBounds(size, courseDetail);
             },
