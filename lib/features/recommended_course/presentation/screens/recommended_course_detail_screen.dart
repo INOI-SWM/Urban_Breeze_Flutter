@@ -23,7 +23,6 @@ import 'package:urban_breeze/shared/design_system/widgets/badge/content_badge.da
 import 'package:urban_breeze/shared/design_system/widgets/info/info_items_row.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
 import 'package:urban_breeze/shared/layout/kakao_map_with_bottom_sheet_layout.dart';
-import 'package:urban_breeze/shared/map/map_constants.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
 
@@ -54,7 +53,7 @@ class _RecommendedCourseDetailScreenState
     });
   }
 
-  void _updateMapBounds(
+  Future<void> _updateMapBounds(
     double bottomSheetSize,
     RecommendedCourseDetail courseDetail,
   ) async {
@@ -158,20 +157,6 @@ class _RecommendedCourseDetailScreenState
     }
   }
 
-  kakao.CameraPosition _calculateCameraPosition(
-    RecommendedCourseDetail courseDetail,
-  ) {
-    final List<double> bbox = courseDetail.bbox;
-    final double centerLat = (bbox[1] + bbox[3]) / 2;
-    final double centerLng = (bbox[0] + bbox[2]) / 2;
-
-    return kakao.CameraPosition(
-      LatLngMapper.toKakaoLatLng(latlong2.LatLng(centerLat, centerLng)),
-      MapConstants.defaultZoom.toInt(),
-      rotationAngle: 0.0,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
@@ -200,36 +185,18 @@ class _RecommendedCourseDetailScreenState
 
           return KakaoMapWithBottomSheetLayout(
             showOptionButton: false,
-            initialCameraPosition: _calculateCameraPosition(courseDetail),
             onMapReady: (kakao.KakaoMapController controller) async {
               _mapController = controller;
               _mapOverlayService = KakaoMapOverlayService(
                 mapController: controller,
                 colors: colors,
               );
-              await _updateMapOverlays(courseDetail, colors);
 
-              // 초기 카메라 위치 설정
-              final List<double> bbox = courseDetail.bbox;
-              final List<latlong2.LatLng> fitPoints = <latlong2.LatLng>[
-                latlong2.LatLng(bbox[1], bbox[0]),
-                latlong2.LatLng(bbox[3], bbox[2]),
-              ];
+              // 먼저 카메라 위치 설정 (_updateMapBounds와 동일한 로직 사용)
+              await _updateMapBounds(0.5, courseDetail);
 
-              final double latDiff = bbox[3] - bbox[1];
-              final double expansionFactor = 0.5 * 2.4;
-              final double adjustedMinLat =
-                  bbox[1] - (latDiff * expansionFactor);
-              fitPoints.add(latlong2.LatLng(adjustedMinLat, bbox[0]));
-
-              final List<kakao.LatLng> kakaoPoints =
-                  fitPoints
-                      .map((latlong2.LatLng p) => LatLngMapper.toKakaoLatLng(p))
-                      .toList();
-
-              final kakao.CameraUpdate cameraUpdate = kakao
-                  .CameraUpdate.fitMapPoints(kakaoPoints, padding: 20);
-              await controller.moveCamera(cameraUpdate);
+              // 카메라 이동 후 오버레이 업데이트 (백그라운드에서 실행)
+              _updateMapOverlays(courseDetail, colors);
             },
             onSizeChanged: (double size) {
               _updateMapBounds(size, courseDetail);
