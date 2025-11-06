@@ -5,6 +5,8 @@ import 'package:urban_breeze/core/theme/app_theme.dart';
 import 'package:urban_breeze/features/place_search/domain/entities/place.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_pin.dart';
 import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/waypoint.dart'
+    as route_planning;
 import 'package:urban_breeze/features/route_planning/presentation/mappers/lat_lng_mapper.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/marker/route_pin_marker.dart';
@@ -78,6 +80,70 @@ class KakaoMapOverlayService {
     return _mapController.labelLayer.addPoi(
       kakao.LatLng(place.latitude, place.longitude),
       style: kakao.PoiStyle(icon: locationIcon),
+    );
+  }
+
+  /// 시작점 마커 추가 (자전거 아이콘)
+  Future<kakao.Poi> addStartMarker(
+    latlong2.LatLng position,
+    Color color,
+  ) async {
+    final kakao.KImage startIcon = await kakao.KImage.fromWidget(
+      Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(color: color, width: 1),
+        ),
+        child: Icon(Icons.directions_bike, color: color, size: 14),
+      ),
+      const Size(20, 20),
+    );
+    return _mapController.labelLayer.addPoi(
+      LatLngMapper.toKakaoLatLng(position),
+      style: kakao.PoiStyle(icon: startIcon),
+    );
+  }
+
+  /// 끝점 마커 추가 (스포츠 점수 아이콘)
+  Future<kakao.Poi> addEndMarker(latlong2.LatLng position, Color color) async {
+    final kakao.KImage endIcon = await kakao.KImage.fromWidget(
+      Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          border: Border.all(color: color, width: 1),
+        ),
+        child: Icon(Icons.sports_score, color: color, size: 14),
+      ),
+      const Size(20, 20),
+    );
+    return _mapController.labelLayer.addPoi(
+      LatLngMapper.toKakaoLatLng(position),
+      style: kakao.PoiStyle(icon: endIcon),
+    );
+  }
+
+  /// 웨이포인트 마커 추가
+  Future<kakao.Poi> addWaypointMarker(
+    latlong2.LatLng position,
+    int index,
+    route_planning.Waypoint waypoint,
+  ) async {
+    final RoutePinMarker marker = RoutePinMarker(
+      index: index,
+      hasWaypoint: true,
+      waypoint: waypoint,
+    );
+
+    final kakao.KImage iconImage = await kakao.KImage.fromWidget(
+      SemanticTheme(data: _colors, child: marker),
+      Size(marker.markerSize, marker.markerSize),
+    );
+
+    return _mapController.labelLayer.addPoi(
+      LatLngMapper.toKakaoLatLng(position),
+      style: kakao.PoiStyle(icon: iconImage),
     );
   }
 

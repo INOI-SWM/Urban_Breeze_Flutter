@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:kakao_map_sdk/kakao_map_sdk.dart' as kakao;
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/route_planning/presentation/mappers/lat_lng_mapper.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:urban_breeze/shared/layout/bottom_sheet_size_calculator.dart';
-import 'package:urban_breeze/shared/map/common_map_widgets.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
 
-class MapWithBottomSheetLayout extends StatefulWidget {
-  const MapWithBottomSheetLayout({
+class KakaoMapWithBottomSheetLayout extends StatefulWidget {
+  const KakaoMapWithBottomSheetLayout({
     super.key,
-    this.mapOverlays = const <Widget>[],
     this.initialChildSize = 0.5,
     this.minChildSize = 0.2,
     this.maxChildSize = 0.8,
@@ -22,14 +20,14 @@ class MapWithBottomSheetLayout extends StatefulWidget {
     required this.onDownloadButtonTap,
     required this.onShareButtonTap,
     this.onOptionButtonTap,
-    this.initialCenter,
     this.initialZoom,
-    this.initialCameraFit,
-    this.mapController,
+    this.initialCameraPosition,
+    this.onMapReady,
     this.onSizeChanged,
+    this.onPoiClick,
+    this.onCameraMoveStart,
   });
 
-  final List<Widget> mapOverlays;
   final double initialChildSize;
   final double minChildSize;
   final double maxChildSize;
@@ -39,18 +37,20 @@ class MapWithBottomSheetLayout extends StatefulWidget {
   final Function(BuildContext context) onDownloadButtonTap;
   final Function(BuildContext context) onShareButtonTap;
   final Function(BuildContext context)? onOptionButtonTap;
-  final LatLng? initialCenter;
   final double? initialZoom;
-  final CameraFit? initialCameraFit;
-  final MapController? mapController;
+  final kakao.CameraPosition? initialCameraPosition;
+  final Function(kakao.KakaoMapController)? onMapReady;
   final ValueChanged<double>? onSizeChanged;
+  final Function(String poiId)? onPoiClick;
+  final Function(kakao.GestureType)? onCameraMoveStart;
 
   @override
-  State<MapWithBottomSheetLayout> createState() =>
-      _MapWithBottomSheetLayoutState();
+  State<KakaoMapWithBottomSheetLayout> createState() =>
+      _KakaoMapWithBottomSheetLayoutState();
 }
 
-class _MapWithBottomSheetLayoutState extends State<MapWithBottomSheetLayout> {
+class _KakaoMapWithBottomSheetLayoutState
+    extends State<KakaoMapWithBottomSheetLayout> {
   double _calculatedMaxChildSize = 0.8;
   final GlobalKey _contentKey = GlobalKey();
 
@@ -79,22 +79,42 @@ class _MapWithBottomSheetLayoutState extends State<MapWithBottomSheetLayout> {
       builder: (BuildContext context, BoxConstraints constraints) {
         return Stack(
           children: <Widget>[
-            FlutterMap(
-              mapController: widget.mapController,
-              options: MapOptions(
-                initialCenter:
-                    widget.initialCenter ?? MapConstants.seoulCityHall,
-                initialZoom: widget.initialZoom ?? MapConstants.defaultZoom,
-                initialCameraFit: widget.initialCameraFit,
-                interactionOptions: const InteractionOptions(
-                  flags: InteractiveFlag.all,
-                ),
+            kakao.KakaoMap(
+              option: kakao.KakaoMapOption(
+                position:
+                    widget.initialCameraPosition != null
+                        ? widget.initialCameraPosition!.position
+                        : LatLngMapper.toKakaoLatLng(
+                          MapConstants.seoulCityHall,
+                        ),
+                zoomLevel:
+                    widget.initialCameraPosition != null
+                        ? widget.initialCameraPosition!.zoomLevel
+                        : widget.initialZoom != null
+                        ? widget.initialZoom!.toInt()
+                        : MapConstants.defaultZoom.toInt(),
+                mapType: kakao.MapType.normal,
               ),
-              children: <Widget>[
-                CommonMapWidgets.createTileLayer(),
-                ...widget.mapOverlays,
-                CommonMapWidgets.createAttributionWidget(),
-              ],
+              onMapReady: (kakao.KakaoMapController controller) {
+                widget.onMapReady?.call(controller);
+              },
+              onPoiClick:
+                  widget.onPoiClick != null
+                      ? (
+                        kakao.LabelController labelController,
+                        kakao.Poi poi,
+                      ) => widget.onPoiClick!(poi.id)
+                      : null,
+              onCameraMoveStart:
+                  widget.onCameraMoveStart != null
+                      ? (kakao.GestureType gestureType) {
+                        try {
+                          widget.onCameraMoveStart!(gestureType);
+                        } catch (e) {
+                          debugPrint('onCameraMoveStart 에러: $e');
+                        }
+                      }
+                      : null,
             ),
             _buildDraggableSheet(context, colors, constraints),
           ],

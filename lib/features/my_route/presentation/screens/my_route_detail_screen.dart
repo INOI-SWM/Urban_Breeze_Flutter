@@ -1,8 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:kakao_map_sdk/kakao_map_sdk.dart' as kakao;
+import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:urban_breeze/core/amplitude/amplitude_analytics.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
@@ -13,6 +13,8 @@ import 'package:urban_breeze/features/my_route/application/usecases/get_route_tc
 import 'package:urban_breeze/features/my_route/di/my_route_providers.dart';
 import 'package:urban_breeze/features/my_route/domain/entities/my_route_detail.dart';
 import 'package:urban_breeze/features/my_route/presentation/widgets/waypoint_info_modal.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart'
+    as route_planning;
 import 'package:urban_breeze/features/route_planning/domain/entities/waypoint.dart';
 import 'package:urban_breeze/features/route_planning/domain/services/polyline_convert_service.dart';
 import 'package:urban_breeze/features/route_sharing/application/facades/route_sharing_facade.dart';
@@ -23,11 +25,9 @@ import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_sty
 import 'package:urban_breeze/shared/design_system/widgets/card/user_info_in_card.dart';
 import 'package:urban_breeze/shared/design_system/widgets/info/info_items_row.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
-import 'package:urban_breeze/shared/design_system/widgets/marker/route_pin_marker.dart';
 import 'package:urban_breeze/shared/design_system/widgets/modal/modal_show.dart';
-import 'package:urban_breeze/shared/layout/map_with_bottom_sheet_layout.dart';
-import 'package:urban_breeze/shared/map/map_constants.dart';
-import 'package:urban_breeze/shared/map/map_marker_widget.dart';
+import 'package:urban_breeze/shared/layout/kakao_map_with_bottom_sheet_layout.dart';
+import 'package:urban_breeze/shared/map/kakao_map_state_mixin.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 import 'package:urban_breeze/shared/utils/date_formatter.dart';
 import 'package:urban_breeze/shared/utils/platform_action_sheet.dart';
@@ -43,9 +43,8 @@ class MyRouteDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
-    with ErrorDisplayMixin {
-  final MapController _mapController = MapController();
-  final bool _hasUserDraggedMap = false;
+    with ErrorDisplayMixin, KakaoMapStateMixin<MyRouteDetailScreen> {
+  final Map<String, Waypoint> _poiIdToWaypoint = <String, Waypoint>{};
 
   @override
   void initState() {
@@ -55,33 +54,100 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
     });
   }
 
-  void _updateMapBounds(double bottomSheetSize, MyRouteDetail routeDetail) {
-    if (_hasUserDraggedMap) return;
-
-    final List<double> bbox = routeDetail.bbox;
-    final LatLngBounds bounds = _calculateAdjustedBounds(bbox, bottomSheetSize);
-    _mapController.fitCamera(
-      CameraFit.bounds(
-        bounds: bounds,
-        padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 30),
-      ),
-    );
+  Future<void> _updateMapBounds(
+    double bottomSheetSize,
+    MyRouteDetail routeDetail,
+    BuildContext? context,
+  ) async {
+    await updateMapBounds(routeDetail.bbox, bottomSheetSize, context: context);
   }
 
-  LatLngBounds _calculateAdjustedBounds(
-    List<double> bbox,
-    double bottomSheetSize,
-  ) {
-    final double minLng = bbox[0];
-    final double minLat = bbox[1];
-    final double maxLng = bbox[2];
-    final double maxLat = bbox[3];
+  Future<void> _updateMapOverlays(
+    MyRouteDetail routeDetail,
+    SemanticColors colors,
+  ) async {
+    if (mapOverlayService == null || !mounted) return;
 
-    final double latDiff = maxLat - minLat;
-    final double expansionFactor = bottomSheetSize * 2.4;
-    final double adjustedMinLat = minLat - (latDiff * expansionFactor);
+    try {
+      // 기존 오버레이 제거
+      await clearAllOverlays();
+      _poiIdToWaypoint.clear();
 
-    return LatLngBounds(LatLng(adjustedMinLat, minLng), LatLng(maxLat, maxLng));
+      if (!mounted) return;
+
+      // Polyline 디코딩 및 표시
+      if (routeDetail.polyline.isNotEmpty) {
+        final List<latlong2.LatLng> routePoints =
+            PolylineConvertService.decodeToPoints(routeDetail.polyline);
+
+        if (routePoints.isNotEmpty) {
+          // 폴리라인 추가
+          final kakao.Route route = await mapOverlayService!.addRouteLine(
+            route_planning.RouteSegment(
+              points: routePoints,
+              distance: routeDetail.distance,
+              duration: routeDetail.durationMinutes,
+              elevationGain: routeDetail.elevationGain,
+              bbox: routeDetail.bbox,
+              elevations:
+                  routeDetail.trackPoints
+                      .map((TrackPoint p) => p.elevation)
+                      .toList(),
+              originalGeometry:
+                  routePoints
+                      .map(
+                        (latlong2.LatLng p) => <double>[
+                          p.longitude,
+                          p.latitude,
+                          0.0,
+                        ],
+                      )
+                      .toList(),
+            ),
+          );
+          if (mounted) {
+            addRoute(route);
+          }
+
+          // 웨이포인트 마커 추가
+          for (final TrackPoint trackPoint in routeDetail.trackPoints) {
+            if (trackPoint.waypoint != null) {
+              final kakao.Poi poi = await mapOverlayService!.addWaypointMarker(
+                latlong2.LatLng(trackPoint.latitude, trackPoint.longitude),
+                trackPoint.index,
+                trackPoint.waypoint!,
+              );
+              if (mounted) {
+                addPoi(poi);
+                _poiIdToWaypoint[poi.id] = trackPoint.waypoint!;
+              }
+            }
+          }
+
+          // 시작점 마커 추가
+          final kakao.Poi startPoi = await mapOverlayService!.addStartMarker(
+            routePoints.first,
+            colors.statusPositive,
+          );
+          if (mounted) {
+            addPoi(startPoi);
+          }
+
+          // 끝점 마커 추가
+          if (routePoints.length > 1) {
+            final kakao.Poi endPoi = await mapOverlayService!.addEndMarker(
+              routePoints.last,
+              colors.statusNegative,
+            );
+            if (mounted) {
+              addPoi(endPoi);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('지도 오버레이 업데이트 실패: $e');
+    }
   }
 
   @override
@@ -110,13 +176,32 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
 
           final MyRouteDetail routeDetail = snapshot.data!;
 
-          return MapWithBottomSheetLayout(
+          return KakaoMapWithBottomSheetLayout(
             showOptionButton: true,
-            mapOverlays: _buildMapOverlays(routeDetail, colors),
-            initialCameraFit: _calculateCameraFit(routeDetail),
-            mapController: _mapController,
+            onMapReady: (kakao.KakaoMapController controller) async {
+              initializeMap(controller, colors);
+
+              // 지도 초기화 완료 대기
+              await Future<void>.delayed(const Duration(milliseconds: 50));
+
+              if (!mounted) return;
+              await _updateMapBounds(0.5, routeDetail, this.context);
+              _updateMapOverlays(routeDetail, colors);
+            },
             onSizeChanged: (double size) {
-              _updateMapBounds(size, routeDetail);
+              if (!mounted) return;
+              _updateMapBounds(size, routeDetail, this.context);
+            },
+            onCameraMoveStart: (kakao.GestureType gestureType) {
+              if (gestureType == kakao.GestureType.pan) {
+                setUserDraggedMap(true);
+              }
+            },
+            onPoiClick: (String poiId) {
+              final Waypoint? waypoint = _poiIdToWaypoint[poiId];
+              if (waypoint != null) {
+                _showWaypointInfo(context, waypoint);
+              }
             },
             onDownloadButtonTap: (BuildContext context) {
               AmplitudeAnalytics.logButtonClick('my_route_download');
@@ -312,99 +397,6 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
     } else {
       return '$remainingMinutes분';
     }
-  }
-
-  /// 지도에 표시할 오버레이들을 생성
-  List<Widget> _buildMapOverlays(
-    MyRouteDetail routeDetail,
-    SemanticColors colors,
-  ) {
-    final List<Widget> overlays = <Widget>[];
-
-    // Polyline 디코딩 및 표시
-    if (routeDetail.polyline.isNotEmpty) {
-      final List<LatLng> routePoints = PolylineConvertService.decodeToPoints(
-        routeDetail.polyline,
-      );
-
-      if (routePoints.isNotEmpty) {
-        // PolylineLayer 추가 - WorkoutDetailMapWidget 패턴 사용
-        overlays.add(
-          PolylineLayer<LatLng>(
-            polylines: <Polyline<LatLng>>[
-              Polyline<LatLng>(
-                points: routePoints,
-                color: colors.primaryNormal,
-                strokeWidth: MapConstants.polylineStrokeWidth,
-              ),
-            ],
-          ),
-        );
-
-        // 마커 레이어 생성
-        final List<Marker> markers = <Marker>[];
-
-        // Waypoint 마커 추가 (먼저 추가하여 아래에 렌더링)
-        for (final TrackPoint trackPoint in routeDetail.trackPoints) {
-          if (trackPoint.waypoint != null) {
-            final RoutePinMarker waypointMarker = RoutePinMarker(
-              index: trackPoint.index,
-              hasWaypoint: true,
-              waypoint: trackPoint.waypoint,
-            );
-
-            markers.add(
-              Marker(
-                point: LatLng(trackPoint.latitude, trackPoint.longitude),
-                width: waypointMarker.flutterMapMarkerSize,
-                height: waypointMarker.flutterMapMarkerSize,
-                child: GestureDetector(
-                  onTap: () => _showWaypointInfo(context, trackPoint.waypoint!),
-                  child: waypointMarker,
-                ),
-              ),
-            );
-          }
-        }
-
-        // 시작점 마커 (나중에 추가하여 위에 렌더링)
-        markers.add(
-          MapMarkerWidget.createStartMarker(
-            routePoints.first,
-            colors.statusPositive,
-            colors,
-          ),
-        );
-
-        // 끝점 마커 (나중에 추가하여 위에 렌더링)
-        if (routePoints.length > 1) {
-          markers.add(
-            MapMarkerWidget.createEndMarker(
-              routePoints.last,
-              colors.statusNegative,
-              colors,
-            ),
-          );
-        }
-
-        overlays.add(MarkerLayer(markers: markers));
-      }
-    }
-
-    return overlays;
-  }
-
-  /// bbox를 사용하여 카메라 위치를 계산 (초기 로드 시 기본 크기로 조정)
-  CameraFit _calculateCameraFit(MyRouteDetail routeDetail) {
-    final List<double> bbox = routeDetail.bbox;
-    final LatLngBounds bounds = _calculateAdjustedBounds(
-      bbox,
-      0.5,
-    ); // 초기 크기 0.5로 설정
-    return CameraFit.bounds(
-      bounds: bounds,
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 30),
-    );
   }
 
   /// TrackPoints에서 고도 데이터 추출
