@@ -1,19 +1,19 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:kakao_map_sdk/kakao_map_sdk.dart' as kakao;
+import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
+import 'package:urban_breeze/features/route_planning/domain/entities/route_segment.dart'
+    as route_planning;
+import 'package:urban_breeze/features/route_planning/presentation/services/kakao_map_overlay_service.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/track_point.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_detail.dart';
 import 'package:urban_breeze/shared/chart/common_line_chart_widget.dart';
 import 'package:urban_breeze/shared/chart/workout_data_extractor.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
-import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
-import 'package:urban_breeze/shared/design_system/widgets/button/custom_icon_button.dart';
 import 'package:urban_breeze/shared/design_system/widgets/info/info_item.dart';
-import 'package:urban_breeze/shared/map/common_map_widgets.dart';
-import 'package:urban_breeze/shared/map/map_constants.dart';
-import 'package:urban_breeze/shared/map/map_marker_widget.dart';
+import 'package:urban_breeze/shared/layout/kakao_map_with_bottom_sheet_layout.dart';
+import 'package:urban_breeze/shared/map/map_bounds_calculator.dart';
 
 enum WorkoutDataType { speed, altitude, heartRate }
 
@@ -65,181 +65,143 @@ class WorkoutDetailRouteScreen extends StatefulWidget {
 }
 
 class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen> {
-  final MapController _mapController = MapController();
+  kakao.KakaoMapController? _mapController;
+  KakaoMapOverlayService? _mapOverlayService;
+  final List<kakao.Poi> _routePois = <kakao.Poi>[];
+  final List<kakao.Route> _routeRoutes = <kakao.Route>[];
   bool _hasUserDraggedMap = false;
 
-  void _updateMapBounds(double bottomSheetSize) {
-    if (_hasUserDraggedMap) return;
+  Future<void> _updateMapBounds(double bottomSheetSize) async {
+    if (_mapController == null || _hasUserDraggedMap) return;
 
-    final List<LatLng> routePoints =
-        widget.workoutDetail.trackPoints
-            .map((TrackPoint point) => LatLng(point.latitude, point.longitude))
-            .toList();
-
-    if (routePoints.isNotEmpty) {
-      final LatLngBounds bounds = _calculateLatLngBounds(
-        routePoints,
-        bottomSheetSize,
-      );
-      _mapController.fitCamera(
-        CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(30)),
-      );
-    }
+    await MapBoundsCalculator.fitMapToBounds(
+      _mapController!,
+      widget.workoutDetail.bbox,
+      bottomSheetSize,
+      context: context,
+    );
   }
 
-  LatLngBounds _calculateLatLngBounds(
-    List<LatLng> points,
-    double bottomSheetSize,
-  ) {
-    if (points.isEmpty) {
-      throw ArgumentError('Points list cannot be empty');
+  Future<void> _updateMapOverlays(
+    WorkoutDetail workoutDetail,
+    SemanticColors colors,
+  ) async {
+    if (_mapOverlayService == null || !mounted) return;
+
+    try {
+      // 기존 오버레이 제거
+      await _mapOverlayService!.removeAllPois(_routePois);
+      await _mapOverlayService!.removeAllRoutes(_routeRoutes);
+      _routePois.clear();
+      _routeRoutes.clear();
+
+      if (!mounted) return;
+
+      // 경로 포인트 변환
+      final List<latlong2.LatLng> routePoints =
+          workoutDetail.trackPoints
+              .map(
+                (TrackPoint point) =>
+                    latlong2.LatLng(point.latitude, point.longitude),
+              )
+              .toList();
+
+      if (routePoints.isNotEmpty) {
+        // 폴리라인 추가
+        final kakao.Route route = await _mapOverlayService!.addRouteLine(
+          route_planning.RouteSegment(
+            points: routePoints,
+            distance: workoutDetail.distance,
+            duration: workoutDetail.totalDurationMinutes,
+            elevationGain: workoutDetail.elevationGain ?? 0.0,
+            bbox: workoutDetail.bbox,
+            elevations:
+                workoutDetail.trackPoints
+                    .map((TrackPoint p) => p.elevation)
+                    .toList(),
+            originalGeometry:
+                routePoints
+                    .map(
+                      (latlong2.LatLng p) => <double>[
+                        p.longitude,
+                        p.latitude,
+                        0.0,
+                      ],
+                    )
+                    .toList(),
+          ),
+        );
+        if (mounted) {
+          _routeRoutes.add(route);
+        }
+
+        // 시작점 마커 추가
+        final kakao.Poi startPoi = await _mapOverlayService!.addStartMarker(
+          routePoints.first,
+          colors.statusPositive,
+        );
+        if (mounted) {
+          _routePois.add(startPoi);
+        }
+
+        // 끝점 마커 추가
+        if (routePoints.length > 1) {
+          final kakao.Poi endPoi = await _mapOverlayService!.addEndMarker(
+            routePoints.last,
+            colors.statusNegative,
+          );
+          if (mounted) {
+            _routePois.add(endPoi);
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('지도 오버레이 업데이트 실패: $e');
     }
-
-    double minLat = points.first.latitude;
-    double maxLat = points.first.latitude;
-    double minLng = points.first.longitude;
-    double maxLng = points.first.longitude;
-
-    for (final LatLng point in points) {
-      if (point.latitude < minLat) minLat = point.latitude;
-      if (point.latitude > maxLat) maxLat = point.latitude;
-      if (point.longitude < minLng) minLng = point.longitude;
-      if (point.longitude > maxLng) maxLng = point.longitude;
-    }
-
-    final double latDiff = maxLat - minLat;
-
-    final double expansionFactor = bottomSheetSize * 2.4;
-    final double adjustedMinLat = minLat - (latDiff * expansionFactor);
-
-    return LatLngBounds(LatLng(adjustedMinLat, minLng), LatLng(maxLat, maxLng));
   }
 
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
     return Scaffold(
-      backgroundColor: colors.backgroundNormalNormal,
-      appBar: CustomAppBar(
-        title: '상세 경로',
-        leading: CustomIconButton(
-          icon: Icons.arrow_back_ios_new,
-          onTap: () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: Stack(
-        children: <Widget>[
-          _WorkoutDetailRouteMapWidget(
-            workoutDetail: widget.workoutDetail,
-            mapController: _mapController,
-            onMapDragged: () {
-              setState(() {
-                _hasUserDraggedMap = true;
-              });
-            },
-            calculateBounds: _calculateLatLngBounds,
-          ),
-          _DraggableBottomSheet(
-            workoutDetail: widget.workoutDetail,
-            onSizeChanged: (double size) {
-              _updateMapBounds(size);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
+      backgroundColor: Colors.transparent,
+      body: KakaoMapWithBottomSheetLayout(
+        showOptionButton: false,
+        onMapReady: (kakao.KakaoMapController controller) async {
+          _mapController = controller;
+          _mapOverlayService = KakaoMapOverlayService(
+            mapController: controller,
+            colors: colors,
+          );
 
-class _WorkoutDetailRouteMapWidget extends StatelessWidget {
-  const _WorkoutDetailRouteMapWidget({
-    required this.workoutDetail,
-    required this.mapController,
-    required this.onMapDragged,
-    required this.calculateBounds,
-  });
+          // 지도 초기화 완료 대기
+          await Future<void>.delayed(const Duration(milliseconds: 50));
 
-  final WorkoutDetail workoutDetail;
-  final MapController mapController;
-  final VoidCallback onMapDragged;
-  final LatLngBounds Function(List<LatLng>, double) calculateBounds;
-
-  static const LatLng _defaultCenter = MapConstants.seoulCityHall;
-  static const double _defaultZoom = MapConstants.defaultZoom;
-
-  @override
-  Widget build(BuildContext context) {
-    final SemanticColors colors = context.semanticColor;
-    final List<LatLng> routePoints =
-        workoutDetail.trackPoints
-            .map((TrackPoint point) => LatLng(point.latitude, point.longitude))
-            .toList();
-
-    CameraFit? initialCameraFit;
-    if (routePoints.isNotEmpty) {
-      final LatLngBounds bounds = calculateBounds(routePoints, 0.5);
-      initialCameraFit = CameraFit.bounds(
-        bounds: bounds,
-        padding: const EdgeInsets.all(30),
-      );
-    }
-
-    return FlutterMap(
-      mapController: mapController,
-      options: MapOptions(
-        initialCenter: _defaultCenter,
-        initialZoom: _defaultZoom,
-        initialCameraFit: initialCameraFit,
-        interactionOptions: const InteractionOptions(
-          flags: InteractiveFlag.all,
-        ),
-        onPositionChanged: (MapCamera position, bool hasGesture) {
-          if (hasGesture) {
-            onMapDragged();
+          if (!mounted) return;
+          await _updateMapBounds(0.5);
+          _updateMapOverlays(widget.workoutDetail, colors);
+        },
+        onSizeChanged: (double size) {
+          if (!mounted) return;
+          _updateMapBounds(size);
+        },
+        onCameraMoveStart: (kakao.GestureType gestureType) {
+          if (gestureType == kakao.GestureType.pan) {
+            _hasUserDraggedMap = true;
           }
         },
+        onDownloadButtonTap: (BuildContext context) {},
+        onShareButtonTap: (BuildContext context) {},
+        sheetChild: _DraggableBottomSheet(workoutDetail: widget.workoutDetail),
       ),
-      children: <Widget>[
-        CommonMapWidgets.createTileLayer(),
-        if (routePoints.isNotEmpty) ...<Widget>[
-          PolylineLayer<LatLng>(
-            polylines: <Polyline<LatLng>>[
-              Polyline<LatLng>(
-                points: routePoints,
-                color: colors.primaryNormal,
-                strokeWidth: MapConstants.polylineStrokeWidth,
-              ),
-            ],
-          ),
-          MarkerLayer(
-            markers: <Marker>[
-              MapMarkerWidget.createStartMarker(
-                routePoints.first,
-                colors.statusPositive,
-                colors,
-              ),
-              MapMarkerWidget.createEndMarker(
-                routePoints.last,
-                colors.statusNegative,
-                colors,
-              ),
-            ],
-          ),
-        ],
-        CommonMapWidgets.createAttributionWidget(),
-      ],
     );
   }
 }
 
 class _DraggableBottomSheet extends StatefulWidget {
-  const _DraggableBottomSheet({
-    required this.workoutDetail,
-    required this.onSizeChanged,
-  });
+  const _DraggableBottomSheet({required this.workoutDetail});
 
   final WorkoutDetail workoutDetail;
-  final ValueChanged<double> onSizeChanged;
 
   @override
   State<_DraggableBottomSheet> createState() => _DraggableBottomSheetState();
@@ -249,16 +211,8 @@ class _DraggableBottomSheetState extends State<_DraggableBottomSheet> {
   int _selectedCardIndex = 0;
   late List<WorkoutDataType> _availableDataTypes;
 
-  static const double _initialChildSize = 0.5;
-  static const double _maxChildSize = 0.5;
-  static const double _minChildSizeLimit = 0.1;
-  static const double _maxChildSizeLimit = 0.3;
-
   static const double _dragHandleWidth = 40.0;
   static const double _dragHandleHeight = 4.0;
-  static const double _dragHandleTotalHeight = 24.0;
-
-  static const double _borderRadius = 12.0;
 
   @override
   void initState() {
@@ -348,90 +302,34 @@ class _DraggableBottomSheetState extends State<_DraggableBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
-    final MediaQueryData mediaQuery = MediaQuery.of(context);
 
-    final double bottomSafeArea = mediaQuery.viewPadding.bottom;
-    final double totalScreenHeight = mediaQuery.size.height;
-
-    const double minimumRequiredHeight =
-        _dragHandleTotalHeight + _InfoCard._cardHeight + 20;
-    final double minChildSize =
-        (minimumRequiredHeight + bottomSafeArea) / totalScreenHeight;
-
-    return NotificationListener<DraggableScrollableNotification>(
-      onNotification: (DraggableScrollableNotification notification) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          widget.onSizeChanged(notification.extent);
-        });
-        return false;
-      },
-      child: DraggableScrollableSheet(
-        initialChildSize: _initialChildSize,
-        minChildSize: minChildSize.clamp(
-          _minChildSizeLimit,
-          _maxChildSizeLimit,
-        ),
-        maxChildSize: _maxChildSize,
-        snap: true,
-        snapSizes: <double>[
-          minChildSize.clamp(_minChildSizeLimit, _maxChildSizeLimit),
-          _maxChildSize,
+    return SingleChildScrollView(
+      physics: const ClampingScrollPhysics(),
+      child: Column(
+        children: <Widget>[
+          Container(
+            width: _dragHandleWidth,
+            height: _dragHandleHeight,
+            margin: const EdgeInsets.only(top: 12, bottom: 8),
+            decoration: BoxDecoration(
+              color: colors.lineNormalNormal,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          if (_availableDataTypes.isNotEmpty)
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(children: _buildInfoCards()),
+            ),
+          const SizedBox(height: 40),
+          if (_availableDataTypes.isNotEmpty)
+            _WorkoutChart(
+              workoutDetail: widget.workoutDetail,
+              availableDataTypes: _availableDataTypes,
+              selectedIndex: _selectedCardIndex,
+            ),
         ],
-        builder: (BuildContext context, ScrollController scrollController) {
-          return ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(_borderRadius),
-              topRight: Radius.circular(_borderRadius),
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: colors.backgroundNormalNormal,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(_borderRadius),
-                  topRight: Radius.circular(_borderRadius),
-                ),
-              ),
-              child: Column(
-                children: <Widget>[
-                  Expanded(
-                    child: SingleChildScrollView(
-                      controller: scrollController,
-                      physics: const ClampingScrollPhysics(),
-                      child: Column(
-                        children: <Widget>[
-                          Container(
-                            width: _dragHandleWidth,
-                            height: _dragHandleHeight,
-                            margin: const EdgeInsets.only(top: 12, bottom: 8),
-                            decoration: BoxDecoration(
-                              color: colors.lineNormalNormal,
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                          if (_availableDataTypes.isNotEmpty)
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                              ),
-                              child: Row(children: _buildInfoCards()),
-                            ),
-                          const SizedBox(height: 40),
-                          if (_availableDataTypes.isNotEmpty)
-                            _WorkoutChart(
-                              workoutDetail: widget.workoutDetail,
-                              availableDataTypes: _availableDataTypes,
-                              selectedIndex: _selectedCardIndex,
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
       ),
     );
   }
