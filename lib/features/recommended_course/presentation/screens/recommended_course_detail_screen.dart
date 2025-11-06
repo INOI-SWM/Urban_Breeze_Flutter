@@ -192,10 +192,10 @@ class _RecommendedCourseDetailScreenState
                 colors: colors,
               );
 
-              // 먼저 카메라 위치 설정 (_updateMapBounds와 동일한 로직 사용)
-              await _updateMapBounds(0.5, courseDetail);
+              // 지도 초기화 완료 대기
+              await Future<void>.delayed(const Duration(milliseconds: 50));
 
-              // 카메라 이동 후 오버레이 업데이트 (백그라운드에서 실행)
+              await _updateMapBounds(0.5, courseDetail);
               _updateMapOverlays(courseDetail, colors);
             },
             onSizeChanged: (double size) {

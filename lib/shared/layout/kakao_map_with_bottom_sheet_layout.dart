@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kakao_map_sdk/kakao_map_sdk.dart' as kakao;
-import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
 import 'package:urban_breeze/features/route_planning/presentation/mappers/lat_lng_mapper.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
@@ -20,7 +19,6 @@ class KakaoMapWithBottomSheetLayout extends StatefulWidget {
     required this.onDownloadButtonTap,
     required this.onShareButtonTap,
     this.onOptionButtonTap,
-    this.initialCenter,
     this.initialZoom,
     this.initialCameraPosition,
     this.onMapReady,
@@ -38,7 +36,6 @@ class KakaoMapWithBottomSheetLayout extends StatefulWidget {
   final Function(BuildContext context) onDownloadButtonTap;
   final Function(BuildContext context) onShareButtonTap;
   final Function(BuildContext context)? onOptionButtonTap;
-  final latlong2.LatLng? initialCenter;
   final double? initialZoom;
   final kakao.CameraPosition? initialCameraPosition;
   final Function(kakao.KakaoMapController)? onMapReady;
@@ -103,8 +100,6 @@ class _KakaoMapWithBottomSheetLayoutState
                 position:
                     widget.initialCameraPosition != null
                         ? widget.initialCameraPosition!.position
-                        : widget.initialCenter != null
-                        ? LatLngMapper.toKakaoLatLng(widget.initialCenter!)
                         : LatLngMapper.toKakaoLatLng(
                           MapConstants.seoulCityHall,
                         ),
