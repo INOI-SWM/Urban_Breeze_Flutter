@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.0](https://github.com/INOI-SWM/Urban_Breeze_Flutter/compare/v1.2.0...v1.3.0) (2025-11-06)
+
+
+### Features
+
+* 각종 지도 사용 로직 카카오맵으로 맵타일 변경 ([#196](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/196)) ([ae30a4b](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/ae30a4b0abcc7724a1c6a1ecd4c1890ad1a3f3e4))
+* 경로생성 맵타일 카카오맵으로 변경 ([#195](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/195)) ([0ac4983](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/0ac4983c4dd5463c922dab2a5ff63456bbea2251))
+* 다크모드 개선 ([#193](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/193)) ([848bae7](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/848bae7ba2e7f642048c85e766afa7e09b859c6a))
+
 ## [1.2.0](https://github.com/INOI-SWM/Urban_Breeze_Flutter/compare/v1.1.1...v1.2.0) (2025-10-25)
 
 
