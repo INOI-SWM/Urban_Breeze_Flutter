@@ -20,6 +20,9 @@ class WorkoutRefreshPollingFacade {
   /// 폴링 간격 (5초)
   static const Duration pollingInterval = Duration(seconds: 5);
 
+  /// 최대 폴링 시간 (3분)
+  static const Duration maxPollingDuration = Duration(minutes: 3);
+
   /// 새로고침 + 폴링 수행
   /// Stream을 반환하여 UI에서 실시간 상태를 구독할 수 있도록 함
   Stream<SyncPollingState> performRefreshWithPolling() async* {
@@ -68,8 +71,29 @@ class WorkoutRefreshPollingFacade {
     }
 
     // 2. 5초 간격으로 상태 폴링 (Terra/Integration API 원격 동기화)
+    final DateTime startTime = DateTime.now();
+
     while (true) {
       await Future<void>.delayed(pollingInterval);
+
+      // 타임아웃 체크 (최대 3분)
+      final Duration elapsed = DateTime.now().difference(startTime);
+      if (elapsed > maxPollingDuration) {
+        // 3분 초과 시 타임아웃으로 종료
+        yield SyncPollingState(
+          isPolling: false,
+          currentStatus: SyncStatus(
+            jobId: 0,
+            status: SyncStatusType.noActivities,
+            startDate: '',
+            endDate: '',
+            receivedCount: 0,
+            createdAt: DateTime.now(),
+            completedAt: DateTime.now(),
+          ),
+        );
+        return;
+      }
 
       final AppResult<SyncStatus> statusResult =
           await pollSyncStatusUseCase.execute();
