@@ -35,7 +35,7 @@ class IntegrationDataSource extends BaseRemoteDataSource {
     final Uri uri = Uri.parse(ApiEndpoints.integrationActivity);
     final http.Response response = await get(uri.toString());
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 && response.statusCode != 202) {
       throw IntegrationException('Terra 동기화 시작 실패: ${response.statusCode}');
     }
   }

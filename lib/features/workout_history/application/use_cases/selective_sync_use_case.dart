@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/integration/application/use_cases/get_integration_status_use_case.dart';
@@ -71,7 +73,9 @@ class SelectiveSyncUseCase {
           provider != HealthProvider.healthConnect,
     );
 
-    if (lastSyncTimes.containsKey(HealthProvider.appleHealthKit)) {
+    // iOS에서만 Apple HealthKit 동기화
+    if (Platform.isIOS &&
+        lastSyncTimes.containsKey(HealthProvider.appleHealthKit)) {
       final DateTime lastSyncAt = lastSyncTimes[HealthProvider.appleHealthKit]!;
       final AppResult<Map<String, dynamic>?> result = await _workoutSyncFacade
           .syncAppleHealthData(startDate: lastSyncAt, endDate: DateTime.now());
@@ -87,20 +91,60 @@ class SelectiveSyncUseCase {
       return result;
     }
 
-    if (lastSyncTimes.containsKey(HealthProvider.samsungHealth)) {
-      final DateTime lastSyncAt = lastSyncTimes[HealthProvider.samsungHealth]!;
-      return await _workoutSyncFacade.fetchSamsungHealthData(
-        startDate: lastSyncAt,
-        endDate: DateTime.now(),
-      );
+    // Android에서 Samsung Health 및/또는 Google Health Connect 동기화
+    if (Platform.isAndroid) {
+      int totalSuccess = 0;
+      final List<Map<String, dynamic>> allWorkouts = <Map<String, dynamic>>[];
+
+      // 1. Samsung Health 동기화
+      if (lastSyncTimes.containsKey(HealthProvider.samsungHealth)) {
+        final DateTime lastSyncAt =
+            lastSyncTimes[HealthProvider.samsungHealth]!;
+        final AppResult<Map<String, dynamic>?> result = await _workoutSyncFacade
+            .fetchSamsungHealthData(
+              startDate: lastSyncAt,
+              endDate: DateTime.now(),
+            );
+
+        if (result.isSuccess && result.dataOrNull != null) {
+          totalSuccess++;
+          allWorkouts.add(result.dataOrNull!);
+        }
+      }
+
+      // 2. Google Health Connect 동기화
+      if (lastSyncTimes.containsKey(HealthProvider.healthConnect)) {
+        final DateTime lastSyncAt =
+            lastSyncTimes[HealthProvider.healthConnect]!;
+        final AppResult<Map<String, dynamic>?> result = await _workoutSyncFacade
+            .fetchHealthConnectData(
+              startDate: lastSyncAt,
+              endDate: DateTime.now(),
+            );
+
+        if (result.isSuccess && result.dataOrNull != null) {
+          totalSuccess++;
+          allWorkouts.add(result.dataOrNull!);
+        }
+      }
+
+      // 하나라도 성공했으면 결과 반환
+      if (totalSuccess > 0) {
+        return AppSuccess<Map<String, dynamic>?>(<String, dynamic>{
+          'hasRemoteIntegration': hasRemoteIntegration,
+          'totalSuccess': totalSuccess,
+          'allWorkouts': allWorkouts,
+        });
+      }
     }
 
-    if (lastSyncTimes.containsKey(HealthProvider.healthConnect)) {
-      final DateTime lastSyncAt = lastSyncTimes[HealthProvider.healthConnect]!;
-      return await _workoutSyncFacade.fetchHealthConnectData(
-        startDate: lastSyncAt,
-        endDate: DateTime.now(),
-      );
+    // 원격 연동만 있는 경우 또는 플랫폼과 맞지 않는 경우
+    if (hasRemoteIntegration) {
+      // 원격 동기화만 수행 (Apple HealthKit/Samsung/Google Health 없이)
+      return const AppSuccess<Map<String, dynamic>?>(<String, dynamic>{
+        'hasRemoteIntegration': true,
+        'totalSuccess': 0,
+      });
     }
 
     return await _workoutSyncFacade.performFullSync();

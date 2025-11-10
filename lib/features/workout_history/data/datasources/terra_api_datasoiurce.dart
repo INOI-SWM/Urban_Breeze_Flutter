@@ -116,17 +116,40 @@ class TerraApiDataSource extends BaseRemoteDataSource {
     required DateTime endDate,
     bool toWebhook = true,
   }) async {
-    final DataMessage? result = await TerraFlutter.getActivity(
-      connection,
-      startDate,
-      endDate,
-      toWebhook: toWebhook,
-    );
-
-    if (result?.error != null && result?.error != '') {
-      throw Exception(result?.error);
+    // 0. Terra 초기화 확인 (필수!)
+    try {
+      await initTerra();
+    } catch (e) {
+      // 이미 초기화되어 있으면 에러 무시
     }
 
-    return result?.data;
+    // 1. Activity 데이터 가져오기 (운동 기본 정보)
+    final DataMessage? activityResult = await TerraFlutter.getActivity(
+      connection,
+      endDate.subtract(const Duration(days: 30)),
+      endDate,
+      toWebhook: true,
+    );
+
+    if (activityResult?.error != null && activityResult?.error != '') {
+      throw Exception(activityResult?.error);
+    }
+
+    // 4. 모든 데이터 병합
+    final Map<String, dynamic> combinedData = <String, dynamic>{};
+
+    if (activityResult?.data != null) {
+      combinedData['activity'] = activityResult!.data;
+    }
+
+    if (combinedData.isEmpty) {
+      return <String, dynamic>{
+        'success': true,
+        'connection': connection.name,
+        'deliveredToWebhook': toWebhook,
+      };
+    }
+
+    return combinedData;
   }
 }
