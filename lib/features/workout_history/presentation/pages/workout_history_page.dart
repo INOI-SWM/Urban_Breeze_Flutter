@@ -227,85 +227,87 @@ class _SyncModalState extends ConsumerState<SyncModal> {
 
     return PopScope(
       canPop: !refreshState.isRefreshing, // 동기화 중일 때는 뒤로 가기 막기
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: colors.backgroundElevatedNormal,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            // 상태 표시
-            if (refreshState.isRefreshing) ...<Widget>[
-              const AppLoadingIndicator(),
-              const SizedBox(height: 16),
-            ],
+      child: SafeArea(
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: colors.backgroundElevatedNormal,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              // 상태 표시
+              if (refreshState.isRefreshing) ...<Widget>[
+                const AppLoadingIndicator(),
+                const SizedBox(height: 16),
+              ],
 
-            Text(
-              refreshState.statusMessage.isEmpty
-                  ? '동기화를 시작합니다...'
-                  : refreshState.statusMessage,
-              style: AppTextStyles.body1.normalBold.copyWith(
-                color: colors.labelStrong,
-              ),
-              textAlign: TextAlign.center,
-            ),
-
-            if (refreshState.isRefreshing) ...<Widget>[
-              const SizedBox(height: 12),
               Text(
-                '최대 1분 정도 걸릴 수 있습니다.',
-                style: AppTextStyles.body2.normalBold.copyWith(
-                  color: colors.labelAlternative,
+                refreshState.statusMessage.isEmpty
+                    ? '동기화를 시작합니다...'
+                    : refreshState.statusMessage,
+                style: AppTextStyles.body1.normalBold.copyWith(
+                  color: colors.labelStrong,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 8),
-              Text(
-                '앱을 끄지 마세요',
-                style: AppTextStyles.body2.normalBold.copyWith(
-                  color: colors.labelAlternative,
+
+              if (refreshState.isRefreshing) ...<Widget>[
+                const SizedBox(height: 12),
+                Text(
+                  '최대 1분 정도 걸릴 수 있습니다.',
+                  style: AppTextStyles.body2.normalBold.copyWith(
+                    color: colors.labelAlternative,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
+                const SizedBox(height: 8),
+                Text(
+                  '앱을 끄지 마세요',
+                  style: AppTextStyles.body2.normalBold.copyWith(
+                    color: colors.labelAlternative,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+
+              // 진행 상태 표시
+              if (refreshState.syncStatus != null &&
+                  refreshState.syncStatus!.isInProgress) ...<Widget>[
+                const SizedBox(height: 12),
+                Text(
+                  '수신된 기록: ${refreshState.syncStatus!.receivedCount}개',
+                  style: AppTextStyles.caption1.medium.copyWith(
+                    color: colors.labelNormal,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+
+              const SizedBox(height: 24),
+
+              // 동기화 중이 아닐 때만 닫기 버튼 표시
+              if (!refreshState.isRefreshing)
+                SizedBox(
+                  width: double.infinity,
+                  child: ButtonSolid(
+                    text: '닫기',
+                    size: ButtonSize.large,
+                    backgroundColor: colors.primaryNormal,
+                    textColor: colors.staticWhite,
+                    onPressed: () {
+                      // 모달 닫기 전에 동기화 완료 이벤트 발생
+                      ref
+                          .read(syncCompleteProvider.notifier)
+                          .triggerSyncComplete();
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
             ],
-
-            // 진행 상태 표시
-            if (refreshState.syncStatus != null &&
-                refreshState.syncStatus!.isInProgress) ...<Widget>[
-              const SizedBox(height: 12),
-              Text(
-                '수신된 기록: ${refreshState.syncStatus!.receivedCount}개',
-                style: AppTextStyles.caption1.medium.copyWith(
-                  color: colors.labelNormal,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-
-            const SizedBox(height: 24),
-
-            // 동기화 중이 아닐 때만 닫기 버튼 표시
-            if (!refreshState.isRefreshing)
-              SizedBox(
-                width: double.infinity,
-                child: ButtonSolid(
-                  text: '닫기',
-                  size: ButtonSize.large,
-                  backgroundColor: colors.primaryNormal,
-                  textColor: colors.staticWhite,
-                  onPressed: () {
-                    // 모달 닫기 전에 동기화 완료 이벤트 발생
-                    ref
-                        .read(syncCompleteProvider.notifier)
-                        .triggerSyncComplete();
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ),
-          ],
+          ),
         ),
       ),
     );
