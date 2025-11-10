@@ -41,16 +41,16 @@ class WorkoutRefreshPollingFacade {
 
     // Apple HealthKit 전용 동기화 판단:
     // 1. source가 'apple_health_kit'이고
-    // 2. integrationSuccessCount가 없거나 0인 경우
+    // 2. hasRemoteIntegration이 false인 경우
     // → 로컬 동기화만 했으므로 폴링 불필요
     final bool isAppleHealthKitOnly =
         syncData != null && syncData['source'] == 'apple_health_kit';
 
-    final bool hasIntegrationSync =
+    final bool hasRemoteIntegration =
         syncData != null &&
-        (syncData['integrationSuccessCount'] as int? ?? 0) > 0;
+        (syncData['hasRemoteIntegration'] as bool? ?? false);
 
-    if (isAppleHealthKitOnly && !hasIntegrationSync) {
+    if (isAppleHealthKitOnly && !hasRemoteIntegration) {
       // 로컬 동기화만 있는 경우 즉시 완료
       yield SyncPollingState(
         isPolling: false,

@@ -364,7 +364,7 @@ void main() {
         // Arrange: Apple HealthKit만 동기화 (원격 없음)
         final Map<String, dynamic> initialSyncData = <String, dynamic>{
           'source': 'apple_health_kit',
-          'integrationSuccessCount': 0,
+          'hasRemoteIntegration': false,
           'totalSuccess': 5,
         };
 
@@ -399,7 +399,7 @@ void main() {
         // Arrange: Apple HealthKit + 원격(Garmin 등) 동기화
         final Map<String, dynamic> initialSyncData = <String, dynamic>{
           'source': 'apple_health_kit',
-          'integrationSuccessCount': 1, // 원격 동기화 있음!
+          'hasRemoteIntegration': true, // 원격 동기화 있음!
           'totalSuccess': 5,
         };
 

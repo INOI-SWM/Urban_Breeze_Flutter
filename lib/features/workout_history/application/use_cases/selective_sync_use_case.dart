@@ -68,13 +68,29 @@ class SelectiveSyncUseCase {
   Future<AppResult<Map<String, dynamic>?>> _performSelectiveSync(
     Map<HealthProvider, DateTime> lastSyncTimes,
   ) async {
+    // 원격 동기화 서비스 확인 (Terra API를 사용하는 서비스들)
+    final bool hasRemoteIntegration = lastSyncTimes.keys.any(
+      (HealthProvider provider) =>
+          provider != HealthProvider.appleHealthKit &&
+          provider != HealthProvider.samsungHealth &&
+          provider != HealthProvider.healthConnect,
+    );
+
     // Apple Health Kit이 연동된 경우
     if (lastSyncTimes.containsKey(HealthProvider.appleHealthKit)) {
       final DateTime lastSyncAt = lastSyncTimes[HealthProvider.appleHealthKit]!;
-      return await _workoutSyncFacade.syncAppleHealthData(
-        startDate: lastSyncAt,
-        endDate: DateTime.now(),
-      );
+      final AppResult<Map<String, dynamic>?> result = await _workoutSyncFacade
+          .syncAppleHealthData(startDate: lastSyncAt, endDate: DateTime.now());
+
+      // 응답에 원격 연동 여부 추가
+      if (result.isSuccess && result.dataOrNull != null) {
+        final Map<String, dynamic> data = Map<String, dynamic>.from(
+          result.dataOrNull!,
+        );
+        data['hasRemoteIntegration'] = hasRemoteIntegration;
+        return AppSuccess<Map<String, dynamic>?>(data);
+      }
+      return result;
     }
 
     // Samsung Health가 연동된 경우 (데이터 가져오기)
@@ -95,7 +111,7 @@ class SelectiveSyncUseCase {
       );
     }
 
-    // 기본적으로 전체 동기화 수행
+    // 기본적으로 전체 동기화 수행 (원격 서비스만 있는 경우)
     return await _workoutSyncFacade.performFullSync();
   }
 }
