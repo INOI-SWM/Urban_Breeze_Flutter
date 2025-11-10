@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:urban_breeze/core/exceptions/integration_exceptions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/integration/application/use_cases/poll_sync_status_use_case.dart';
 import 'package:urban_breeze/features/integration/domain/entities/sync_status.dart';
@@ -36,7 +37,37 @@ class WorkoutRefreshPollingFacade {
       return;
     }
 
-    // 2. 5초 간격으로 상태 폴링
+    final Map<String, dynamic>? syncData = initialSyncResult.dataOrNull;
+
+    // Apple HealthKit 전용 동기화 판단:
+    // 1. source가 'apple_health_kit'이고
+    // 2. integrationSuccessCount가 없거나 0인 경우
+    // → 로컬 동기화만 했으므로 폴링 불필요
+    final bool isAppleHealthKitOnly =
+        syncData != null && syncData['source'] == 'apple_health_kit';
+
+    final bool hasIntegrationSync =
+        syncData != null &&
+        (syncData['integrationSuccessCount'] as int? ?? 0) > 0;
+
+    if (isAppleHealthKitOnly && !hasIntegrationSync) {
+      // 로컬 동기화만 있는 경우 즉시 완료
+      yield SyncPollingState(
+        isPolling: false,
+        currentStatus: SyncStatus(
+          jobId: 0,
+          status: SyncStatusType.completed,
+          startDate: '',
+          endDate: '',
+          receivedCount: syncData['totalSuccess'] as int? ?? 0,
+          createdAt: DateTime.now(),
+          completedAt: DateTime.now(),
+        ),
+      );
+      return;
+    }
+
+    // 2. 5초 간격으로 상태 폴링 (Terra/Integration API 원격 동기화)
     while (true) {
       await Future<void>.delayed(pollingInterval);
 
@@ -44,6 +75,10 @@ class WorkoutRefreshPollingFacade {
           await pollSyncStatusUseCase.execute();
 
       if (!statusResult.isSuccess) {
+        // 404 에러(작업 없음)는 아직 작업이 시작 안된 것일 수 있으므로 계속 폴링
+        if (statusResult.exceptionOrNull is SyncJobNotFoundException) {
+          continue;
+        }
         yield SyncPollingState(
           isPolling: false,
           errorMessage: statusResult.exceptionOrNull?.message ?? '상태 조회 실패',
