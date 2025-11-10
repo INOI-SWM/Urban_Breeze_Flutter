@@ -42,76 +42,6 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     });
   }
 
-  /// 공통 헬스 앱 연결 메서드
-  Future<void> _syncHealthData({
-    required HealthProvider provider,
-    required String serviceName,
-    required String buttonEvent,
-    required String successEvent,
-    required String failedEvent,
-    required Future<AppResult<void>> Function() syncMethod,
-  }) async {
-    AmplitudeAnalytics.logButtonClick(buttonEvent);
-
-    // 서비스별 로딩 상태 표시
-    ref
-        .read(syncScreenNotifierProvider.notifier)
-        .setServiceLoading(provider, true);
-
-    try {
-      final AppResult<void> result = await syncMethod();
-
-      if (result.isSuccess) {
-        AmplitudeAnalytics.logEvent(
-          successEvent,
-          properties: <String, dynamic>{'sync_method': 'connect_only'},
-        );
-        if (mounted) {
-          showSuccessMessage(context, '$serviceName 연결이 완료되었습니다...');
-        }
-
-        await Future<void>.delayed(const Duration(seconds: 2));
-
-        // 연동 상태 다시 확인
-        await ref
-            .read(syncScreenNotifierProvider.notifier)
-            .checkIntegrationStatus();
-
-        if (mounted) {
-          showSuccessMessage(context, '$serviceName 연동이 완료되었습니다! 🎉');
-        }
-      } else {
-        // 실패 시 예외 타입에 따라 다른 메시지 표시
-        final String errorMessage =
-            result.exceptionOrNull?.message ?? 'Unknown error';
-
-        AmplitudeAnalytics.logEvent(
-          failedEvent,
-          properties: <String, dynamic>{'error_message': errorMessage},
-        );
-
-        // 권한 다이얼로그가 닫히는 애니메이션 대기 (500ms)
-        await Future<void>.delayed(const Duration(milliseconds: 500));
-
-        if (mounted) {
-          // iOS에서 Health Connect나 Samsung Health 사용 시 플랫폼 체크
-          if (result.exceptionOrNull is PlatformException) {
-            showErrorMessage(context, '지원하지 않는 플랫폼입니다');
-          } else {
-            // Terra SDK의 실제 에러 메시지 표시
-            showErrorMessage(context, '연동에 실패했습니다.');
-          }
-        }
-      }
-    } finally {
-      // 로딩 상태 해제도 약간 딜레이 (에러 메시지와 겹치지 않도록)
-      await Future<void>.delayed(const Duration(milliseconds: 300));
-      ref
-          .read(syncScreenNotifierProvider.notifier)
-          .setServiceLoading(provider, false);
-    }
-  }
-
   /// 연동 해제 확인 모달 표시
   Future<void> _showDisconnectModal(String serviceName) async {
     AmplitudeAnalytics.logEvent(
@@ -352,65 +282,9 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     );
   }
 
-  /// Terra 기반 헬스 연결 (Health Connect, Samsung Health)
-  Future<void> _syncTerraHealthData({
-    required HealthProvider provider,
-    required String serviceName,
-    required String buttonEvent,
-    required String dialogTitle,
-    required Future<AppResult<void>> Function() syncMethod,
-  }) async {
-    // 플랫폼 체크 (Android 전용)
-    if (!Platform.isAndroid) {
-      showErrorMessage(context, '$serviceName는 Android 전용 기능입니다.');
-      AmplitudeAnalytics.logEvent('${buttonEvent}_wrong_platform_clicked');
-      return;
-    }
+  // Terra 기반 헬스 연결 공통 로직은 일시적으로 비활성화되었습니다.
 
-    AmplitudeAnalytics.logButtonClick(buttonEvent);
-
-    // 권한 요청 전 안내 모달 표시
-    await _showHealthPermissionDialog(
-      title: dialogTitle,
-      serviceName: serviceName,
-      cancelEvent: '${buttonEvent}_permission_dialog_cancelled',
-      confirmEvent: '${buttonEvent}_permission_dialog_confirmed',
-      onConfirm: () async {
-        await _syncHealthData(
-          provider: provider,
-          serviceName: serviceName,
-          buttonEvent: buttonEvent,
-          successEvent: '${buttonEvent}_success',
-          failedEvent: '${buttonEvent}_failed',
-          syncMethod: syncMethod,
-        );
-      },
-    );
-  }
-
-  /// Health Connect 동기화
-  Future<void> _syncHealthConnectData() async {
-    await _syncTerraHealthData(
-      provider: HealthProvider.healthConnect,
-      serviceName: 'Health Connect',
-      buttonEvent: 'workout_sync_health_connect',
-      dialogTitle: 'Google Health Connect 연동',
-      syncMethod:
-          () => ref.read(workoutSyncFacadeProvider).syncHealthConnectData(),
-    );
-  }
-
-  /// Samsung Health 동기화
-  Future<void> _syncSamsungHealthData() async {
-    await _syncTerraHealthData(
-      provider: HealthProvider.samsungHealth,
-      serviceName: 'Samsung Health',
-      buttonEvent: 'workout_sync_samsung_health',
-      dialogTitle: 'Samsung Health 연동',
-      syncMethod:
-          () => ref.read(workoutSyncFacadeProvider).syncSamsungHealthData(),
-    );
-  }
+  // Health Connect / Samsung Health 동기화 기능은 일시적으로 비활성화되었습니다.
 
   /// 공통 OAuth 기반 권한 요청 (Garmin, Suunto 등)
   Future<void> _requestOAuthPermission({
@@ -632,43 +506,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
 
                   const SizedBox(height: 16),
 
-                  // Google Health Connect 섹션 (Android 전용)
-                  _buildSyncButton(
-                    provider: HealthProvider.healthConnect,
-                    isConnected:
-                        syncState.connectionStatus[HealthProvider
-                            .healthConnect] ??
-                        false,
-                    isLoading:
-                        syncState.loadingStatus[HealthProvider.healthConnect] ??
-                        false,
-                    onPressed: _syncHealthConnectData,
-                    onDisconnectPressed:
-                        () => _showDisconnectModal(
-                          HealthProvider.healthConnect.serviceName,
-                        ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Samsung Health 섹션 (Android 전용)
-                  _buildSyncButton(
-                    provider: HealthProvider.samsungHealth,
-                    isConnected:
-                        syncState.connectionStatus[HealthProvider
-                            .samsungHealth] ??
-                        false,
-                    isLoading:
-                        syncState.loadingStatus[HealthProvider.samsungHealth] ??
-                        false,
-                    onPressed: _syncSamsungHealthData,
-                    onDisconnectPressed:
-                        () => _showDisconnectModal(
-                          HealthProvider.samsungHealth.serviceName,
-                        ),
-                  ),
-
-                  const SizedBox(height: 16),
+                  // Google Health Connect / Samsung Health 버튼 임시 비활성화
 
                   // Garmin Connect 섹션
                   _buildSyncButton(

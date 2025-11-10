@@ -324,33 +324,8 @@ class WorkoutSyncFacade {
         }
       }
 
-      // Android에서만 Google Health Connect 시도
-      if (Platform.isAndroid) {
-        totalAttempts++;
-        try {
-          // 권한 확인
-          final bool hasPermission =
-              await syncGoogleHealthConnectDataUseCase.checkPermissions();
-
-          if (hasPermission) {
-            final Map<WorkoutRecord, Map<String, dynamic>> completeData =
-                await syncGoogleHealthConnectDataUseCase
-                    .syncCompleteWorkoutData(
-                      startDate: DateTime.now().subtract(
-                        const Duration(days: 1000),
-                      ),
-                      endDate: DateTime.now(),
-                    );
-            allWorkouts.addAll(completeData.keys.toList());
-            successCount++;
-          } else {
-            // 권한이 없으면 카운트 증가
-            noPermissionCount++;
-          }
-        } catch (e) {
-          // Google Health Connect 오류는 카운트만 하고 상세 메시지는 표시하지 않음
-        }
-      }
+      // Android에서 Google Health Connect는 Terra SDK를 통해 처리
+      // (Samsung Health와 동일하게 선택적 동기화에서 처리)
 
       // 연동된 서비스들의 활동 기록 새로고침
       integrationTotalAttempts = 1;

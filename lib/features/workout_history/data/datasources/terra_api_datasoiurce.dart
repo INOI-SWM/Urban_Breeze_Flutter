@@ -126,30 +126,14 @@ class TerraApiDataSource extends BaseRemoteDataSource {
     // 1. Activity 데이터 가져오기 (운동 기본 정보)
     final DataMessage? activityResult = await TerraFlutter.getActivity(
       connection,
-      startDate,
+      endDate.subtract(const Duration(days: 30)),
       endDate,
-      toWebhook: toWebhook,
+      toWebhook: true,
     );
 
     if (activityResult?.error != null && activityResult?.error != '') {
       throw Exception(activityResult?.error);
     }
-
-    // 2. Body 데이터 가져오기 (심박수 등 상세 정보)
-    final DataMessage? bodyResult = await TerraFlutter.getBody(
-      connection,
-      startDate,
-      endDate,
-      toWebhook: toWebhook,
-    );
-
-    // 3. Daily 데이터 가져오기 (일일 통계)
-    final DataMessage? dailyResult = await TerraFlutter.getDaily(
-      connection,
-      startDate,
-      endDate,
-      toWebhook: toWebhook,
-    );
 
     // 4. 모든 데이터 병합
     final Map<String, dynamic> combinedData = <String, dynamic>{};
@@ -158,14 +142,14 @@ class TerraApiDataSource extends BaseRemoteDataSource {
       combinedData['activity'] = activityResult!.data;
     }
 
-    if (bodyResult?.data != null) {
-      combinedData['body'] = bodyResult!.data;
+    if (combinedData.isEmpty) {
+      return <String, dynamic>{
+        'success': true,
+        'connection': connection.name,
+        'deliveredToWebhook': toWebhook,
+      };
     }
 
-    if (dailyResult?.data != null) {
-      combinedData['daily'] = dailyResult!.data;
-    }
-
-    return combinedData.isEmpty ? null : combinedData;
+    return combinedData;
   }
 }
