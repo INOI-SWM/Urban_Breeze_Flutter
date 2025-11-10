@@ -2,8 +2,8 @@ import 'package:urban_breeze/features/integration/data/datasources/integration_d
 import 'package:urban_breeze/features/integration/data/mappers/integration_mapper.dart';
 import 'package:urban_breeze/features/integration/data/models/integration_response_model.dart';
 import 'package:urban_breeze/features/integration/domain/entities/integration_auth.dart';
+import 'package:urban_breeze/features/integration/domain/entities/sync_status.dart';
 import 'package:urban_breeze/features/integration/domain/repositories/integration_repository.dart';
-import 'package:urban_breeze/shared/api/data/models/api_response_model.dart';
 
 /// 연동 Repository 구현체
 class IntegrationRepositoryImpl implements IntegrationRepository {
@@ -21,9 +21,12 @@ class IntegrationRepositoryImpl implements IntegrationRepository {
   }
 
   @override
-  Future<Map<String, dynamic>> getIntegrationActivity() async {
-    final ApiResponseModel<Map<String, dynamic>> response =
-        await dataSource.getIntegrationActivity();
-    return response.data;
+  Future<void> getIntegrationActivity() async {
+    await dataSource.getIntegrationActivity();
+  }
+
+  @override
+  Future<SyncStatus> getSyncStatus() async {
+    return await dataSource.getSyncStatus();
   }
 }

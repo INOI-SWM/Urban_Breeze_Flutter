@@ -7,6 +7,7 @@ import '../application/use_cases/delete_provider_use_case.dart';
 import '../application/use_cases/get_api_usage_use_case.dart';
 import '../application/use_cases/get_integration_activity_use_case.dart';
 import '../application/use_cases/get_integration_status_use_case.dart';
+import '../application/use_cases/poll_sync_status_use_case.dart';
 import '../application/use_cases/request_garmin_permission_use_case.dart';
 import '../application/use_cases/request_suunto_permission_use_case.dart';
 import '../application/use_cases/request_wahoo_permission_use_case.dart';
@@ -134,6 +135,14 @@ final Provider<DeleteProviderUseCase> deleteProviderUseCaseProvider =
         providerRepositoryProvider,
       );
       return DeleteProviderUseCase(repository: repository);
+    });
+
+final Provider<PollSyncStatusUseCase> pollSyncStatusUseCaseProvider =
+    Provider<PollSyncStatusUseCase>((Ref ref) {
+      final IntegrationRepository repository = ref.watch(
+        integrationRepositoryProvider,
+      );
+      return PollSyncStatusUseCase(repository: repository);
     });
 
 // ============================================

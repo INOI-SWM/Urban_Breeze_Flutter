@@ -19,7 +19,6 @@ class RemoteWorkoutStatisticsDataSource extends BaseRemoteDataSource {
     int? week,
   }) async {
     try {
-      // 날짜 범위 계산
       final DateRange dateRange = StatisticsDateUtils.calculateDateRange(
         periodType: periodType,
         year: year,
@@ -27,10 +26,8 @@ class RemoteWorkoutStatisticsDataSource extends BaseRemoteDataSource {
         week: week,
       );
 
-      // API 쿼리 파라미터 생성
       final Map<String, String> queryParams = dateRange.toApiParams(periodType);
 
-      // API 호출
       final http.Response response = await get(
         ApiEndpoints.workoutStatistics,
         queryParameters: queryParams,

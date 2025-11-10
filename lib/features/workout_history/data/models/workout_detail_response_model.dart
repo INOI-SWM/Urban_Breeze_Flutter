@@ -120,8 +120,8 @@ class WorkoutDetailResponseModel {
     required this.thumbnailImageUrl,
     required this.activityImages,
     required this.trackPointsCount,
-    required this.trackPoints,
-    required this.bbox,
+    this.trackPoints,
+    this.bbox,
   });
 
   factory WorkoutDetailResponseModel.fromJson(Map<String, dynamic> json) {
@@ -144,25 +144,26 @@ class WorkoutDetailResponseModel {
       calories: (json['calories'] as num?)?.toDouble(),
       provider: json['provider'] as String,
       user: WorkoutUserModel.fromJson(json['user'] as Map<String, dynamic>),
-      thumbnailImageUrl: json['thumbnailImageUrl'] as String,
+      thumbnailImageUrl: json['thumbnailImageUrl'] as String? ?? '',
       activityImages:
-          (json['activityImages'] as List<dynamic>)
-              .map(
+          (json['activityImages'] as List<dynamic>?)
+              ?.map(
                 (dynamic item) =>
                     ActivityImageModel.fromJson(item as Map<String, dynamic>),
               )
-              .toList(),
-      trackPointsCount: json['trackPointsCount'] as int,
+              .toList() ??
+          <ActivityImageModel>[],
+      trackPointsCount: json['trackPointsCount'] as int? ?? 0,
       trackPoints:
-          (json['trackPoints'] as List<dynamic>)
-              .map(
+          (json['trackPoints'] as List<dynamic>?)
+              ?.map(
                 (dynamic item) =>
                     TrackPointModel.fromJson(item as Map<String, dynamic>),
               )
               .toList(),
       bbox:
-          (json['bbox'] as List<dynamic>)
-              .map((dynamic item) => (item as num).toDouble())
+          (json['bbox'] as List<dynamic>?)
+              ?.map((dynamic item) => (item as num).toDouble())
               .toList(),
     );
   }
@@ -188,8 +189,8 @@ class WorkoutDetailResponseModel {
   final String thumbnailImageUrl;
   final List<ActivityImageModel> activityImages;
   final int trackPointsCount;
-  final List<TrackPointModel> trackPoints;
-  final List<double> bbox; // [minLng, minLat, maxLng, maxLat]
+  final List<TrackPointModel>? trackPoints;
+  final List<double>? bbox; // [minLng, minLat, maxLng, maxLat]
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -218,7 +219,7 @@ class WorkoutDetailResponseModel {
               .toList(),
       'trackPointsCount': trackPointsCount,
       'trackPoints':
-          trackPoints.map((TrackPointModel point) => point.toJson()).toList(),
+          trackPoints?.map((TrackPointModel point) => point.toJson()).toList(),
       'bbox': bbox,
     };
   }

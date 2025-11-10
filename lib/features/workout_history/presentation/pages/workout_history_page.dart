@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:urban_breeze/core/extensions/theme_extensions.dart';
-import 'package:urban_breeze/features/workout_history/application/facades/workout_refresh_facade.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/features/workout_history/domain/entities/workout_record.dart';
 import 'package:urban_breeze/features/workout_history/presentation/notifiers/workout_refresh_notifier.dart';
@@ -189,9 +188,6 @@ class SyncModal extends ConsumerStatefulWidget {
 }
 
 class _SyncModalState extends ConsumerState<SyncModal> {
-  bool _isSyncing = false;
-  String _statusMessage = '동기화를 시작합니다...';
-
   @override
   void initState() {
     super.initState();
@@ -206,62 +202,31 @@ class _SyncModalState extends ConsumerState<SyncModal> {
       syncingStateProvider.notifier,
     );
 
-    setState(() {
-      _isSyncing = true;
-      _statusMessage = '연동된 서비스에서 데이터를 가져오는 중...';
-    });
-
     syncNotifier.setSyncing(true);
 
-    try {
-      // WorkoutRefreshNotifier를 사용하여 새로고침 수행
-      final WorkoutRefreshNotifier refreshNotifier = ref.read(
-        workoutRefreshNotifierProvider.notifier,
-      );
-      await refreshNotifier.performRefresh();
-
-      // 새로고침 결과 확인
-      final WorkoutRefreshState refreshState = ref.read(
-        workoutRefreshNotifierProvider,
-      );
-
-      syncNotifier.setSyncing(false);
-
-      if (mounted) {
-        setState(() {
-          _isSyncing = false;
-          _statusMessage = refreshState.statusMessage;
-        });
-
-        // 새로고침 결과가 있으면 데이터 업데이트
-        if (refreshState.lastRefreshResult != null) {
-          final WorkoutRefreshResult result = refreshState.lastRefreshResult!;
-
-          // WorkoutListScreen에 데이터 전달을 위해 Provider 업데이트
-          if (result.allWorkouts.isNotEmpty) {
-            ref
-                .read(workoutDataProvider.notifier)
-                .updateWorkouts(result.allWorkouts);
-          }
-        }
-      }
-    } catch (e) {
-      syncNotifier.setSyncing(false);
-      if (mounted) {
-        setState(() {
-          _isSyncing = false;
-          _statusMessage = '동기화 중 오류가 발생했습니다.';
-        });
-      }
-    }
+    // WorkoutRefreshNotifier를 사용하여 새로고침 수행
+    final WorkoutRefreshNotifier refreshNotifier = ref.read(
+      workoutRefreshNotifierProvider.notifier,
+    );
+    await refreshNotifier.performRefresh();
   }
 
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
+    final WorkoutRefreshState refreshState = ref.watch(
+      workoutRefreshNotifierProvider,
+    );
+
+    // 동기화 완료 시 syncingState 업데이트
+    if (!refreshState.isRefreshing && refreshState.syncStatus != null) {
+      Future<void>.microtask(() {
+        ref.read(syncingStateProvider.notifier).setSyncing(false);
+      });
+    }
 
     return PopScope(
-      canPop: !_isSyncing, // 동기화 중일 때는 뒤로 가기 막기
+      canPop: !refreshState.isRefreshing, // 동기화 중일 때는 뒤로 가기 막기
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
@@ -273,23 +238,25 @@ class _SyncModalState extends ConsumerState<SyncModal> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             // 상태 표시
-            if (_isSyncing) ...<Widget>[
+            if (refreshState.isRefreshing) ...<Widget>[
               const AppLoadingIndicator(),
               const SizedBox(height: 16),
             ],
 
             Text(
-              _statusMessage,
+              refreshState.statusMessage.isEmpty
+                  ? '동기화를 시작합니다...'
+                  : refreshState.statusMessage,
               style: AppTextStyles.body1.normalBold.copyWith(
                 color: colors.labelStrong,
               ),
               textAlign: TextAlign.center,
             ),
 
-            if (_isSyncing) ...<Widget>[
+            if (refreshState.isRefreshing) ...<Widget>[
               const SizedBox(height: 12),
               Text(
-                '3~5분정도 걸릴 수 있습니다.',
+                '최대 1분 정도 걸릴 수 있습니다.',
                 style: AppTextStyles.body2.normalBold.copyWith(
                   color: colors.labelAlternative,
                 ),
@@ -297,9 +264,22 @@ class _SyncModalState extends ConsumerState<SyncModal> {
               ),
               const SizedBox(height: 8),
               Text(
-                '어플을 끄지 마세요',
+                '앱을 끄지 마세요',
                 style: AppTextStyles.body2.normalBold.copyWith(
                   color: colors.labelAlternative,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+
+            // 진행 상태 표시
+            if (refreshState.syncStatus != null &&
+                refreshState.syncStatus!.isInProgress) ...<Widget>[
+              const SizedBox(height: 12),
+              Text(
+                '수신된 기록: ${refreshState.syncStatus!.receivedCount}개',
+                style: AppTextStyles.caption1.medium.copyWith(
+                  color: colors.labelNormal,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -308,7 +288,7 @@ class _SyncModalState extends ConsumerState<SyncModal> {
             const SizedBox(height: 24),
 
             // 동기화 중이 아닐 때만 닫기 버튼 표시
-            if (!_isSyncing)
+            if (!refreshState.isRefreshing)
               SizedBox(
                 width: double.infinity,
                 child: ButtonSolid(

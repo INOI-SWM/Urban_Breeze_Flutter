@@ -35,6 +35,8 @@ class ApiEndpoints {
   static const String integrationAuthenticationWidget =
       '/api/v1/integration/authentication/widget';
   static const String integrationActivity = '/api/v1/integration/activity';
+  static const String integrationActivitySyncStatus =
+      '/api/v1/integration/activity/sync-status';
   static const String terraAuthToken = '/api/v1/integration/terra/auth-token';
   static const String apiUsage = '/api/v1/integration/usage';
   static const String appleHealthConnect = '/api/v1/integration/apple/connect';

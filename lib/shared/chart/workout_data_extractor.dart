@@ -12,7 +12,8 @@ class WorkoutDataExtractor {
   static List<FlSpot> extractAltitudeDataFromDetail(
     WorkoutDetail workoutDetail,
   ) {
-    final List<TrackPoint> trackPoints = workoutDetail.trackPoints;
+    final List<TrackPoint> trackPoints =
+        workoutDetail.trackPoints ?? <TrackPoint>[];
 
     if (trackPoints.isEmpty) return <FlSpot>[];
 
@@ -24,7 +25,8 @@ class WorkoutDataExtractor {
   /// WorkoutDetail에서 속도 데이터 추출 (TrackPoint → FlSpot)
   /// index를 시간축으로 사용
   static List<FlSpot> extractSpeedDataFromDetail(WorkoutDetail workoutDetail) {
-    final List<TrackPoint> trackPoints = workoutDetail.trackPoints;
+    final List<TrackPoint> trackPoints =
+        workoutDetail.trackPoints ?? <TrackPoint>[];
 
     if (trackPoints.isEmpty) return <FlSpot>[];
 
@@ -40,7 +42,8 @@ class WorkoutDataExtractor {
   static List<FlSpot> extractHeartRateDataFromDetail(
     WorkoutDetail workoutDetail,
   ) {
-    final List<TrackPoint> trackPoints = workoutDetail.trackPoints;
+    final List<TrackPoint> trackPoints =
+        workoutDetail.trackPoints ?? <TrackPoint>[];
 
     if (trackPoints.isEmpty) return <FlSpot>[];
 

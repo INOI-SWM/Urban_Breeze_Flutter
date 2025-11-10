@@ -63,8 +63,6 @@ android/key.properties
 # Curosr 관련
 /.cursor
 
-# 테스트 관련
-test/
 
 # FVM Version Cache
 .fvm/

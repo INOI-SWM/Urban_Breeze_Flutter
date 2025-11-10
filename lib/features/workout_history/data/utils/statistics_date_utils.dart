@@ -1,3 +1,5 @@
+import 'package:urban_breeze/shared/utils/period_utils.dart';
+
 import '../../domain/enums/statistic_enums.dart';
 
 /// 통계 API를 위한 날짜 계산 유틸리티
@@ -22,52 +24,36 @@ class StatisticsDateUtils {
     }
   }
 
-  /// 주간 날짜 범위 계산
+  /// 주간 날짜 범위 계산 (PeriodUtils 직접 사용)
   static DateRange _calculateWeekRange(int year, int month, int week) {
-    // 해당 월의 첫 번째 날
-    final DateTime firstDayOfMonth = DateTime(year, month, 1);
+    final DateTime startOfWeek = PeriodUtils.getStartOfWeek(year, month, week);
+    final DateTime endOfWeek = PeriodUtils.getEndOfWeek(year, month, week);
 
-    // 월의 첫 번째 월요일 찾기
-    final int firstMondayOffset =
-        (DateTime.monday - firstDayOfMonth.weekday + 7) % 7;
-    final DateTime firstMonday = firstDayOfMonth.add(
-      Duration(days: firstMondayOffset),
-    );
-
-    // N번째 주의 시작일과 종료일 계산
-    final DateTime weekStart = firstMonday.add(Duration(days: (week - 1) * 7));
-    final DateTime weekEnd = weekStart.add(
-      const Duration(days: 6, hours: 23, minutes: 59, seconds: 59),
-    );
-
-    // 해당 월 범위를 벗어나지 않도록 조정
-    final DateTime monthEnd = DateTime(year, month + 1, 0, 23, 59, 59);
-    final DateTime adjustedStart =
-        weekStart.isBefore(firstDayOfMonth) ? firstDayOfMonth : weekStart;
-    final DateTime adjustedEnd = weekEnd.isAfter(monthEnd) ? monthEnd : weekEnd;
-
-    return DateRange(startDate: adjustedStart, endDate: adjustedEnd);
-  }
-
-  /// 월간 날짜 범위 계산
-  static DateRange _calculateMonthRange(int year, int month) {
-    final DateTime startDate = DateTime(year, month, 1);
-    final DateTime endDate = DateTime(
-      year,
-      month + 1,
-      0,
+    // 종료일 시간을 23:59:59로 설정
+    final DateTime adjustedEnd = DateTime(
+      endOfWeek.year,
+      endOfWeek.month,
+      endOfWeek.day,
       23,
       59,
       59,
-    ); // 해당 월의 마지막 날
+    );
+
+    return DateRange(startDate: startOfWeek, endDate: adjustedEnd);
+  }
+
+  /// 월간 날짜 범위 계산 (PeriodUtils 직접 사용)
+  static DateRange _calculateMonthRange(int year, int month) {
+    final DateTime startDate = PeriodUtils.getStartOfMonth(year, month);
+    final DateTime endDate = PeriodUtils.getEndOfMonth(year, month);
 
     return DateRange(startDate: startDate, endDate: endDate);
   }
 
-  /// 연간 날짜 범위 계산
+  /// 연간 날짜 범위 계산 (PeriodUtils 직접 사용)
   static DateRange _calculateYearRange(int year) {
-    final DateTime startDate = DateTime(year, 1, 1);
-    final DateTime endDate = DateTime(year, 12, 31, 23, 59, 59);
+    final DateTime startDate = PeriodUtils.getStartOfYear(year);
+    final DateTime endDate = PeriodUtils.getEndOfYear(year);
 
     return DateRange(startDate: startDate, endDate: endDate);
   }

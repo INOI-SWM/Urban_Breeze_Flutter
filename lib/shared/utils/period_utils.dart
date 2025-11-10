@@ -42,4 +42,24 @@ class PeriodUtils {
       return '($startMonth/$startDay - $endMonth/$endDay)';
     }
   }
+
+  /// 월의 시작일 반환
+  static DateTime getStartOfMonth(int year, int month) {
+    return DateTime(year, month, 1);
+  }
+
+  /// 월의 종료일 반환 (23:59:59)
+  static DateTime getEndOfMonth(int year, int month) {
+    return DateTime(year, month + 1, 0, 23, 59, 59);
+  }
+
+  /// 연의 시작일 반환
+  static DateTime getStartOfYear(int year) {
+    return DateTime(year, 1, 1);
+  }
+
+  /// 연의 종료일 반환 (23:59:59)
+  static DateTime getEndOfYear(int year) {
+    return DateTime(year, 12, 31, 23, 59, 59);
+  }
 }
