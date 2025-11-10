@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.1](https://github.com/INOI-SWM/Urban_Breeze_Flutter/compare/v1.3.0...v1.3.1) (2025-11-10)
+
+
+### Bug Fixes
+
+* 동기화부분 ux 개선 ([#197](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/197)) ([a353f61](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/a353f618aeb4c41933e44335d7b4c0595386b6ee))
+* 삼성헬스, 구글 버튼 비활성화 ([#199](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/199)) ([0c2be6c](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/0c2be6cb290dc3a8d2db35d4610cb99e7bb73bb9))
+
 ## [1.3.0](https://github.com/INOI-SWM/Urban_Breeze_Flutter/compare/v1.2.0...v1.3.0) (2025-11-06)
 
 
