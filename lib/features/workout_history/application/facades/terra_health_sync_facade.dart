@@ -117,6 +117,20 @@ class TerraHealthSyncFacade {
     bool toWebhook = true,
   }) async {
     try {
+      // Terra 초기화 확인 (데이터 가져오기 전 필수)
+      final AppResult<void> initResult = await initializeTerraUseCase.execute();
+      if (!initResult.isSuccess) {
+        AmplitudeAnalytics.logEvent(
+          'terra_initialization_failed_on_fetch',
+          properties: <String, dynamic>{
+            'connection': connection.name,
+            'error_message':
+                initResult.exceptionOrNull?.toString() ?? 'Unknown error',
+          },
+        );
+        return AppFailure<Map<String, dynamic>?>(initResult.exceptionOrNull!);
+      }
+
       final AppResult<Map<String, dynamic>?> result =
           await syncTerraHealthDataUseCase.execute(
             connection: connection,

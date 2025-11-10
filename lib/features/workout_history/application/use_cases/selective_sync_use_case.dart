@@ -91,46 +91,51 @@ class SelectiveSyncUseCase {
       return result;
     }
 
-    // Android에서만 Samsung Health 동기화
-    if (Platform.isAndroid &&
-        lastSyncTimes.containsKey(HealthProvider.samsungHealth)) {
-      final DateTime lastSyncAt = lastSyncTimes[HealthProvider.samsungHealth]!;
-      final AppResult<Map<String, dynamic>?> result = await _workoutSyncFacade
-          .fetchSamsungHealthData(
-            startDate: lastSyncAt,
-            endDate: DateTime.now(),
-          );
+    // Android에서 Samsung Health 및/또는 Google Health Connect 동기화
+    if (Platform.isAndroid) {
+      int totalSuccess = 0;
+      final List<Map<String, dynamic>> allWorkouts = <Map<String, dynamic>>[];
 
-      if (result.isSuccess && result.dataOrNull != null) {
-        final Map<String, dynamic> data = Map<String, dynamic>.from(
-          result.dataOrNull!,
-        );
-        data['hasRemoteIntegration'] = hasRemoteIntegration;
-        return AppSuccess<Map<String, dynamic>?>(data);
+      // 1. Samsung Health 동기화
+      if (lastSyncTimes.containsKey(HealthProvider.samsungHealth)) {
+        final DateTime lastSyncAt =
+            lastSyncTimes[HealthProvider.samsungHealth]!;
+        final AppResult<Map<String, dynamic>?> result = await _workoutSyncFacade
+            .fetchSamsungHealthData(
+              startDate: lastSyncAt,
+              endDate: DateTime.now(),
+            );
+
+        if (result.isSuccess && result.dataOrNull != null) {
+          totalSuccess++;
+          allWorkouts.add(result.dataOrNull!);
+        }
       }
 
-      return result;
-    }
+      // 2. Google Health Connect 동기화
+      if (lastSyncTimes.containsKey(HealthProvider.healthConnect)) {
+        final DateTime lastSyncAt =
+            lastSyncTimes[HealthProvider.healthConnect]!;
+        final AppResult<Map<String, dynamic>?> result = await _workoutSyncFacade
+            .fetchHealthConnectData(
+              startDate: lastSyncAt,
+              endDate: DateTime.now(),
+            );
 
-    // Android에서만 Google Health Connect 동기화
-    if (Platform.isAndroid &&
-        lastSyncTimes.containsKey(HealthProvider.healthConnect)) {
-      final DateTime lastSyncAt = lastSyncTimes[HealthProvider.healthConnect]!;
-      final AppResult<Map<String, dynamic>?> result = await _workoutSyncFacade
-          .fetchHealthConnectData(
-            startDate: lastSyncAt,
-            endDate: DateTime.now(),
-          );
-
-      if (result.isSuccess && result.dataOrNull != null) {
-        final Map<String, dynamic> data = Map<String, dynamic>.from(
-          result.dataOrNull!,
-        );
-        data['hasRemoteIntegration'] = hasRemoteIntegration;
-        return AppSuccess<Map<String, dynamic>?>(data);
+        if (result.isSuccess && result.dataOrNull != null) {
+          totalSuccess++;
+          allWorkouts.add(result.dataOrNull!);
+        }
       }
 
-      return result;
+      // 하나라도 성공했으면 결과 반환
+      if (totalSuccess > 0) {
+        return AppSuccess<Map<String, dynamic>?>(<String, dynamic>{
+          'hasRemoteIntegration': hasRemoteIntegration,
+          'totalSuccess': totalSuccess,
+          'allWorkouts': allWorkouts,
+        });
+      }
     }
 
     // 원격 연동만 있는 경우 또는 플랫폼과 맞지 않는 경우
