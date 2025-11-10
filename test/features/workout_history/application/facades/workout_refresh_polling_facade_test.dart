@@ -64,17 +64,6 @@ void main() {
           createdAt: DateTime.now(),
         );
 
-        final SyncStatus completedStatus = SyncStatus(
-          jobId: 123,
-          status: SyncStatusType.completed,
-          startDate: '2025-01-01',
-          endDate: '2025-01-31',
-          receivedCount: 10,
-          lastMessageReceivedAt: DateTime.now(),
-          completedAt: DateTime.now(),
-          createdAt: DateTime.now(),
-        );
-
         when(mockSelectiveSyncUseCase.execute()).thenAnswer(
           (_) async => AppSuccess<Map<String, dynamic>?>(initialSyncData),
         );
@@ -320,27 +309,6 @@ void main() {
           endDate: '2025-01-31',
           receivedCount: 5,
           lastMessageReceivedAt: DateTime.now(),
-          createdAt: DateTime.now(),
-        );
-
-        final SyncStatus inProgressStatus2 = SyncStatus(
-          jobId: 123,
-          status: SyncStatusType.inProgress,
-          startDate: '2025-01-01',
-          endDate: '2025-01-31',
-          receivedCount: 8,
-          lastMessageReceivedAt: DateTime.now(),
-          createdAt: DateTime.now(),
-        );
-
-        final SyncStatus completedStatus = SyncStatus(
-          jobId: 123,
-          status: SyncStatusType.completed,
-          startDate: '2025-01-01',
-          endDate: '2025-01-31',
-          receivedCount: 10,
-          lastMessageReceivedAt: DateTime.now(),
-          completedAt: DateTime.now(),
           createdAt: DateTime.now(),
         );
 

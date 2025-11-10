@@ -3,10 +3,12 @@ import 'package:http/http.dart' as http;
 import 'package:urban_breeze/core/di/core_providers.dart';
 import 'package:urban_breeze/features/integration/application/facades/integration_sync_facade.dart';
 import 'package:urban_breeze/features/integration/application/use_cases/get_integration_status_use_case.dart';
+import 'package:urban_breeze/features/integration/application/use_cases/poll_sync_status_use_case.dart';
 import 'package:urban_breeze/features/integration/di/integration_providers.dart';
 
 import '../application/facades/terra_health_sync_facade.dart';
 import '../application/facades/workout_refresh_facade.dart';
+import '../application/facades/workout_refresh_polling_facade.dart';
 import '../application/facades/workout_sync_facade.dart';
 import '../application/use_cases/connect_apple_health_use_case.dart';
 import '../application/use_cases/connect_terra_health_app_use_case.dart';
@@ -360,6 +362,23 @@ final Provider<WorkoutRefreshFacade> workoutRefreshFacadeProvider =
       return WorkoutRefreshFacade(selectiveSyncUseCase);
     });
 
+// WorkoutRefreshPollingFacade Provider
+final Provider<WorkoutRefreshPollingFacade>
+workoutRefreshPollingFacadeProvider = Provider<WorkoutRefreshPollingFacade>((
+  Ref ref,
+) {
+  final SelectiveSyncUseCase selectiveSyncUseCase = ref.watch(
+    selectiveSyncUseCaseProvider,
+  );
+  final PollSyncStatusUseCase pollSyncStatusUseCase = ref.watch(
+    pollSyncStatusUseCaseProvider,
+  );
+  return WorkoutRefreshPollingFacade(
+    selectiveSyncUseCase: selectiveSyncUseCase,
+    pollSyncStatusUseCase: pollSyncStatusUseCase,
+  );
+});
+
 // WorkoutRefreshNotifier Provider
 final StateNotifierProvider<WorkoutRefreshNotifier, WorkoutRefreshState>
 workoutRefreshNotifierProvider =
@@ -369,5 +388,11 @@ workoutRefreshNotifierProvider =
       final WorkoutRefreshFacade workoutRefreshFacade = ref.watch(
         workoutRefreshFacadeProvider,
       );
-      return WorkoutRefreshNotifier(workoutRefreshFacade);
+      final WorkoutRefreshPollingFacade workoutRefreshPollingFacade = ref.watch(
+        workoutRefreshPollingFacadeProvider,
+      );
+      return WorkoutRefreshNotifier(
+        workoutRefreshFacade,
+        workoutRefreshPollingFacade,
+      );
     });
