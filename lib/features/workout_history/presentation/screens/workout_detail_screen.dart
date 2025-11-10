@@ -282,38 +282,76 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen>
                     ),
                   ),
                   const SizedBox(height: 20),
-                  SizedBox(
-                    height: 300,
-                    child: WorkoutDetailMapWidget(workoutDetail: detail),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ButtonOutlined(
-                      text: '상세 경로',
-                      onPressed: () {
-                        AmplitudeAnalytics.logButtonClick(
-                          'workout_detail_route',
-                          additionalProperties: <String, dynamic>{
-                            'workout_id': detail.id,
-                          },
-                        );
-
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder:
-                                (BuildContext context) =>
-                                    WorkoutDetailRouteScreen(
-                                      workoutDetail: detail,
-                                    ),
-                          ),
-                        );
-                      },
-                      textColor: colors.labelNormal,
-                      borderColor: colors.lineNormalNormal,
+                  if (detail.trackPoints != null &&
+                      detail.trackPoints!.isNotEmpty) ...<Widget>[
+                    SizedBox(
+                      height: 300,
+                      child: WorkoutDetailMapWidget(workoutDetail: detail),
                     ),
-                  ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ButtonOutlined(
+                        text: '상세 경로',
+                        onPressed: () {
+                          AmplitudeAnalytics.logButtonClick(
+                            'workout_detail_route',
+                            additionalProperties: <String, dynamic>{
+                              'workout_id': detail.id,
+                            },
+                          );
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(
+                              builder:
+                                  (BuildContext context) =>
+                                      WorkoutDetailRouteScreen(
+                                        workoutDetail: detail,
+                                      ),
+                            ),
+                          );
+                        },
+                        textColor: colors.labelNormal,
+                        borderColor: colors.lineNormalNormal,
+                      ),
+                    ),
+                  ] else
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: colors.backgroundElevatedNormal,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: colors.lineNormalNormal,
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        children: <Widget>[
+                          Icon(
+                            Icons.map_outlined,
+                            size: 48,
+                            color: colors.labelAlternative,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            '경로 정보 없음',
+                            style: AppTextStyles.body1.normalBold.copyWith(
+                              color: colors.labelNormal,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '이 운동 기록에는 GPS 경로 정보가 포함되어 있지 않습니다.',
+                            style: AppTextStyles.body2.normalMedium.copyWith(
+                              color: colors.labelAlternative,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
                   const SizedBox(height: 20),
                   WorkoutPhotoGalleryWidget(
                     activityId: detail.id.toString(),

@@ -25,6 +25,10 @@ class _WorkoutDetailMapWidgetState extends State<WorkoutDetailMapWidget>
     SemanticColors colors,
   ) async {
     if (mapOverlayService == null || !mounted) return;
+    if (workoutDetail.trackPoints == null ||
+        workoutDetail.trackPoints!.isEmpty) {
+      return;
+    }
 
     try {
       // 기존 오버레이 제거
@@ -34,7 +38,7 @@ class _WorkoutDetailMapWidgetState extends State<WorkoutDetailMapWidget>
 
       // 경로 포인트 변환
       final List<latlong2.LatLng> routePoints =
-          workoutDetail.trackPoints
+          workoutDetail.trackPoints!
               .map(
                 (TrackPoint point) =>
                     latlong2.LatLng(point.latitude, point.longitude),
@@ -49,9 +53,9 @@ class _WorkoutDetailMapWidgetState extends State<WorkoutDetailMapWidget>
             distance: workoutDetail.distance,
             duration: workoutDetail.totalDurationMinutes,
             elevationGain: workoutDetail.elevationGain ?? 0.0,
-            bbox: workoutDetail.bbox,
+            bbox: workoutDetail.bbox ?? <double>[],
             elevations:
-                workoutDetail.trackPoints
+                workoutDetail.trackPoints!
                     .map((TrackPoint p) => p.elevation)
                     .toList(),
             originalGeometry:
@@ -89,11 +93,13 @@ class _WorkoutDetailMapWidgetState extends State<WorkoutDetailMapWidget>
         if (!mounted) return;
 
         // 카메라 위치 조정
-        await updateMapBounds(
-          widget.workoutDetail.bbox,
-          0.0,
-          context: this.context,
-        );
+        if (widget.workoutDetail.bbox != null) {
+          await updateMapBounds(
+            widget.workoutDetail.bbox!,
+            0.0,
+            context: this.context,
+          );
+        }
 
         // 오버레이 추가
         _updateMapOverlays(widget.workoutDetail, colors);

@@ -66,11 +66,13 @@ class WorkoutDetailRouteScreen extends StatefulWidget {
 class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen>
     with KakaoMapStateMixin<WorkoutDetailRouteScreen> {
   Future<void> _updateMapBounds(double bottomSheetSize) async {
-    await updateMapBounds(
-      widget.workoutDetail.bbox,
-      bottomSheetSize,
-      context: context,
-    );
+    if (widget.workoutDetail.bbox != null) {
+      await updateMapBounds(
+        widget.workoutDetail.bbox!,
+        bottomSheetSize,
+        context: context,
+      );
+    }
   }
 
   Future<void> _updateMapOverlays(
@@ -78,6 +80,10 @@ class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen>
     SemanticColors colors,
   ) async {
     if (mapOverlayService == null || !mounted) return;
+    if (workoutDetail.trackPoints == null ||
+        workoutDetail.trackPoints!.isEmpty) {
+      return;
+    }
 
     try {
       // 기존 오버레이 제거
@@ -87,7 +93,7 @@ class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen>
 
       // 경로 포인트 변환
       final List<latlong2.LatLng> routePoints =
-          workoutDetail.trackPoints
+          workoutDetail.trackPoints!
               .map(
                 (TrackPoint point) =>
                     latlong2.LatLng(point.latitude, point.longitude),
@@ -102,9 +108,9 @@ class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen>
             distance: workoutDetail.distance,
             duration: workoutDetail.totalDurationMinutes,
             elevationGain: workoutDetail.elevationGain ?? 0.0,
-            bbox: workoutDetail.bbox,
+            bbox: workoutDetail.bbox ?? <double>[],
             elevations:
-                workoutDetail.trackPoints
+                workoutDetail.trackPoints!
                     .map((TrackPoint p) => p.elevation)
                     .toList(),
             originalGeometry:

@@ -52,8 +52,8 @@ class WorkoutDetail {
   final String thumbnailImageUrl;
   final List<ActivityImage> activityImages;
   final int trackPointsCount;
-  final List<TrackPoint> trackPoints;
-  final List<double> bbox; // [minLng, minLat, maxLng, maxLat]
+  final List<TrackPoint>? trackPoints;
+  final List<double>? bbox; // [minLng, minLat, maxLng, maxLat]
 
   /// 총 운동 시간을 Duration으로 반환
   Duration get totalDuration => Duration(seconds: totalDurationMinutes);

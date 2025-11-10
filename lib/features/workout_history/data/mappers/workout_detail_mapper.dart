@@ -63,7 +63,7 @@ class WorkoutDetailMapper {
         model.activityImages.map(toActivityImageEntity).toList(),
       ),
       trackPointsCount: model.trackPointsCount,
-      trackPoints: model.trackPoints.map(toTrackPointEntity).toList(),
+      trackPoints: model.trackPoints?.map(toTrackPointEntity).toList(),
       bbox: model.bbox,
     );
   }
