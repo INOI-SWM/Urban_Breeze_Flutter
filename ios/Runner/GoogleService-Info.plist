@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>723259332020-btu686vg8mlo6p0kb1v5f9cd498gmuue.apps.googleusercontent.com</string>
+	<string>723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.723259332020-btu686vg8mlo6p0kb1v5f9cd498gmuue</string>
+	<string>com.googleusercontent.apps.723259332020-8mal2t0s1r0k582qdqdhj8dtp1fbc9cc</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>723259332020-2ms0qnupo6ntk7um52d6f8ct4s0fvk3h.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.inoi.urbanbreeze</string>
+	<string>com.inoi.urbanbreeze.dev</string>
 	<key>PROJECT_ID</key>
 	<string>urban-breeze</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:723259332020:ios:8591b0d2e24ada341a8ee1</string>
+	<string>1:723259332020:ios:1ed3660599c235cf1a8ee1</string>
 </dict>
 </plist>

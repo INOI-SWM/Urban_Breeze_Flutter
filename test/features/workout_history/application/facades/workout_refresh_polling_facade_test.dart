@@ -3,6 +3,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:urban_breeze/core/exceptions/integration_exceptions.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
+import 'package:urban_breeze/features/integration/application/use_cases/get_integration_activity_use_case.dart';
 import 'package:urban_breeze/features/integration/application/use_cases/poll_sync_status_use_case.dart';
 import 'package:urban_breeze/features/integration/domain/entities/sync_status.dart';
 import 'package:urban_breeze/features/workout_history/application/facades/workout_refresh_polling_facade.dart';
@@ -10,11 +11,16 @@ import 'package:urban_breeze/features/workout_history/application/use_cases/sele
 
 import 'workout_refresh_polling_facade_test.mocks.dart';
 
-@GenerateMocks(<Type>[SelectiveSyncUseCase, PollSyncStatusUseCase])
+@GenerateMocks(<Type>[
+  SelectiveSyncUseCase,
+  PollSyncStatusUseCase,
+  GetIntegrationActivityUseCase,
+])
 void main() {
   late WorkoutRefreshPollingFacade facade;
   late MockSelectiveSyncUseCase mockSelectiveSyncUseCase;
   late MockPollSyncStatusUseCase mockPollSyncStatusUseCase;
+  late MockGetIntegrationActivityUseCase mockGetIntegrationActivityUseCase;
 
   setUpAll(() {
     // Mockito에게 AppResult의 더미 값 제공
@@ -33,14 +39,23 @@ void main() {
         ),
       ),
     );
+    provideDummy<AppResult<void>>(const AppSuccess<void>(null));
   });
 
   setUp(() {
     mockSelectiveSyncUseCase = MockSelectiveSyncUseCase();
     mockPollSyncStatusUseCase = MockPollSyncStatusUseCase();
+    mockGetIntegrationActivityUseCase = MockGetIntegrationActivityUseCase();
+
+    // 기본 stub: GetIntegrationActivity는 성공 응답
+    when(
+      mockGetIntegrationActivityUseCase.execute(),
+    ).thenAnswer((_) async => const AppSuccess<void>(null));
+
     facade = WorkoutRefreshPollingFacade(
       selectiveSyncUseCase: mockSelectiveSyncUseCase,
       pollSyncStatusUseCase: mockPollSyncStatusUseCase,
+      getIntegrationActivityUseCase: mockGetIntegrationActivityUseCase,
     );
   });
 
@@ -213,42 +228,24 @@ void main() {
     );
 
     test(
-      'performRefreshWithPolling should continue polling when sync job not found (404)',
+      'performRefreshWithPolling should stop polling when sync job not found (404)',
       () async {
-        // Arrange: 404는 작업이 아직 시작 안됐다는 의미로 계속 폴링
+        // Arrange: 404는 동기화 작업이 생성되지 않았다는 의미로 즉시 종료
         final Map<String, dynamic> initialSyncData = <String, dynamic>{
           'success': true,
           'message': 'Sync started',
         };
 
-        final SyncStatus completedStatus = SyncStatus(
-          jobId: 123,
-          status: SyncStatusType.completed,
-          startDate: '2025-01-01',
-          endDate: '2025-01-31',
-          receivedCount: 10,
-          completedAt: DateTime.now(),
-          createdAt: DateTime.now(),
-        );
-
         when(mockSelectiveSyncUseCase.execute()).thenAnswer(
           (_) async => AppSuccess<Map<String, dynamic>?>(initialSyncData),
         );
 
-        // 처음엔 404(작업 없음), 나중에 완료 상태 반환
-        int callCount = 0;
-        when(mockPollSyncStatusUseCase.execute()).thenAnswer((_) async {
-          callCount++;
-          if (callCount == 1) {
-            // 첫 호출: 404 에러 (작업 아직 시작 안됨)
-            return const AppFailure<SyncStatus>(
-              SyncJobNotFoundException('동기화 작업을 찾을 수 없습니다.'),
-            );
-          } else {
-            // 두 번째 호출: 완료 상태
-            return AppSuccess<SyncStatus>(completedStatus);
-          }
-        });
+        // 404 에러 반환
+        when(mockPollSyncStatusUseCase.execute()).thenAnswer(
+          (_) async => const AppFailure<SyncStatus>(
+            SyncJobNotFoundException('동기화 작업을 찾을 수 없습니다.'),
+          ),
+        );
 
         // Act
         final Stream<SyncPollingState> stream =
@@ -257,15 +254,12 @@ void main() {
 
         await for (final SyncPollingState state in stream) {
           states.add(state);
-          if (state.currentStatus?.isCompleted ?? false) {
-            break;
-          }
         }
 
-        // Assert: 404 이후에도 계속 폴링하여 최종적으로 완료 상태 받음
+        // Assert: 404 발생 시 NO_ACTIVITIES 상태로 즉시 종료
         expect(states.last.isPolling, false);
-        expect(states.last.currentStatus?.status, SyncStatusType.completed);
-        expect(callCount, greaterThan(1)); // 최소 2번 호출됨
+        expect(states.last.currentStatus?.status, SyncStatusType.noActivities);
+        verify(mockPollSyncStatusUseCase.execute()).called(1); // 1번만 호출
       },
     );
 

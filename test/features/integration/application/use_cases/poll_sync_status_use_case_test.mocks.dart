@@ -68,14 +68,13 @@ class MockIntegrationRepository extends _i1.Mock
           as _i5.Future<_i2.IntegrationAuth>);
 
   @override
-  _i5.Future<Map<String, dynamic>> getIntegrationActivity() =>
+  _i5.Future<void> getIntegrationActivity() =>
       (super.noSuchMethod(
             Invocation.method(#getIntegrationActivity, []),
-            returnValue: _i5.Future<Map<String, dynamic>>.value(
-              <String, dynamic>{},
-            ),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i5.Future<Map<String, dynamic>>);
+          as _i5.Future<void>);
 
   @override
   _i5.Future<_i3.SyncStatus> getSyncStatus() =>

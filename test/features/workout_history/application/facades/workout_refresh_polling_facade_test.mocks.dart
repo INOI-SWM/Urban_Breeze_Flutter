@@ -8,6 +8,8 @@ import 'dart:async' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i6;
 import 'package:urban_breeze/core/result/app_result.dart' as _i5;
+import 'package:urban_breeze/features/integration/application/use_cases/get_integration_activity_use_case.dart'
+    as _i9;
 import 'package:urban_breeze/features/integration/application/use_cases/poll_sync_status_use_case.dart'
     as _i7;
 import 'package:urban_breeze/features/integration/domain/entities/sync_status.dart'
@@ -93,4 +95,38 @@ class MockPollSyncStatusUseCase extends _i1.Mock
             ),
           )
           as _i4.Future<_i5.AppResult<_i8.SyncStatus>>);
+}
+
+/// A class which mocks [GetIntegrationActivityUseCase].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockGetIntegrationActivityUseCase extends _i1.Mock
+    implements _i9.GetIntegrationActivityUseCase {
+  MockGetIntegrationActivityUseCase() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i2.IntegrationRepository get repository =>
+      (super.noSuchMethod(
+            Invocation.getter(#repository),
+            returnValue: _FakeIntegrationRepository_0(
+              this,
+              Invocation.getter(#repository),
+            ),
+          )
+          as _i2.IntegrationRepository);
+
+  @override
+  _i4.Future<_i5.AppResult<void>> execute() =>
+      (super.noSuchMethod(
+            Invocation.method(#execute, []),
+            returnValue: _i4.Future<_i5.AppResult<void>>.value(
+              _i6.dummyValue<_i5.AppResult<void>>(
+                this,
+                Invocation.method(#execute, []),
+              ),
+            ),
+          )
+          as _i4.Future<_i5.AppResult<void>>);
 }

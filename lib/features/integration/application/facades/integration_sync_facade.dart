@@ -126,23 +126,19 @@ class IntegrationSyncFacade {
   }
 
   /// 연동된 서비스들의 활동 기록 새로고침
-  Future<AppResult<Map<String, dynamic>>> refreshIntegrationActivity() async {
+  Future<AppResult<void>> refreshIntegrationActivity() async {
     try {
-      // 연동 활동 기록 새로고침 버튼 클릭 이벤트
       AmplitudeAnalytics.logButtonClick('workout_sync_refresh_activity');
 
-      final AppResult<Map<String, dynamic>> result =
+      final AppResult<void> result =
           await getIntegrationActivityUseCase.execute();
 
       if (result.isSuccess) {
-        // 연동 활동 기록 새로고침 성공 이벤트
         AmplitudeAnalytics.logEvent(
           'integration_activity_refresh_success',
           properties: <String, dynamic>{},
         );
-        return result;
       } else {
-        // 연동 활동 기록 새로고침 실패 이벤트
         AmplitudeAnalytics.logEvent(
           'integration_activity_refresh_failed',
           properties: <String, dynamic>{
@@ -150,17 +146,14 @@ class IntegrationSyncFacade {
                 result.exceptionOrNull?.toString() ?? 'Unknown error',
           },
         );
-        return result;
       }
+      return result;
     } catch (e) {
-      // 연동 활동 기록 새로고침 예외 이벤트
       AmplitudeAnalytics.logEvent(
         'integration_activity_refresh_exception',
         properties: <String, dynamic>{'error_message': e.toString()},
       );
-      return AppFailure<Map<String, dynamic>>(
-        IntegrationException(e.toString()),
-      );
+      return AppFailure<void>(IntegrationException(e.toString()));
     }
   }
 }

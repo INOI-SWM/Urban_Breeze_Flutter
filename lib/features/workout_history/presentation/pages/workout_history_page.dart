@@ -256,7 +256,7 @@ class _SyncModalState extends ConsumerState<SyncModal> {
             if (refreshState.isRefreshing) ...<Widget>[
               const SizedBox(height: 12),
               Text(
-                '최대 3분 정도 걸릴 수 있습니다.',
+                '최대 1분 정도 걸릴 수 있습니다.',
                 style: AppTextStyles.body2.normalBold.copyWith(
                   color: colors.labelAlternative,
                 ),

@@ -85,35 +85,51 @@ class WorkoutRefreshNotifier extends StateNotifier<WorkoutRefreshState> {
     // 상태에 따라 메시지 업데이트
     String statusMessage = '동기화 중...';
 
-    if (syncStatus.isInProgress) {
+    // 폴링 중일 때 (60초 이내)
+    if (pollingState.isPolling) {
       statusMessage = '데이터를 가져오는 중... (${syncStatus.receivedCount}개 수신)';
-    } else if (syncStatus.isCompleted) {
-      statusMessage = '동기화 완료! ${syncStatus.receivedCount}개의 기록을 가져왔습니다.';
+    }
+    // 폴링 완료 (60초 경과 또는 조기 완료)
+    else {
+      if (syncStatus.receivedCount > 0) {
+        statusMessage = '운동 기록 ${syncStatus.receivedCount}개 연동 성공!';
 
-      AmplitudeAnalytics.logEvent(
-        'workout_refresh_success',
-        properties: <String, dynamic>{
-          'received_count': syncStatus.receivedCount,
-          'job_id': syncStatus.jobId,
-        },
-      );
-    } else if (syncStatus.isNoActivities) {
-      statusMessage = '새로운 운동 기록이 없습니다.';
+        AmplitudeAnalytics.logEvent(
+          'workout_refresh_success',
+          properties: <String, dynamic>{
+            'received_count': syncStatus.receivedCount,
+            'job_id': syncStatus.jobId,
+          },
+        );
+      } else if (syncStatus.isNoActivities) {
+        statusMessage = '새로운 운동 기록이 없습니다.';
 
-      AmplitudeAnalytics.logEvent(
-        'workout_refresh_no_activities',
-        properties: <String, dynamic>{'job_id': syncStatus.jobId},
-      );
-    } else if (syncStatus.isFailed) {
-      statusMessage = '동기화 실패. 다시 시도해주세요.';
+        AmplitudeAnalytics.logEvent(
+          'workout_refresh_no_activities',
+          properties: <String, dynamic>{'job_id': syncStatus.jobId},
+        );
+      } else if (syncStatus.isFailed) {
+        statusMessage = '동기화 실패. 다시 시도해주세요.';
 
-      AmplitudeAnalytics.logEvent(
-        'workout_refresh_failed',
-        properties: <String, dynamic>{
-          'job_id': syncStatus.jobId,
-          'received_count': syncStatus.receivedCount,
-        },
-      );
+        AmplitudeAnalytics.logEvent(
+          'workout_refresh_failed',
+          properties: <String, dynamic>{
+            'job_id': syncStatus.jobId,
+            'received_count': syncStatus.receivedCount,
+          },
+        );
+      } else {
+        // 완료 상태
+        statusMessage = '운동 기록 ${syncStatus.receivedCount}개 연동 성공!';
+
+        AmplitudeAnalytics.logEvent(
+          'workout_refresh_success',
+          properties: <String, dynamic>{
+            'received_count': syncStatus.receivedCount,
+            'job_id': syncStatus.jobId,
+          },
+        );
+      }
     }
 
     state = state.copyWith(

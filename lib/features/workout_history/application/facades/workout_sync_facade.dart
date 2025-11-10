@@ -113,13 +113,11 @@ class WorkoutSyncFacade {
               );
 
           if (uploadResult.isSuccess) {
-            // 서버 업로드 성공 이벤트
             AmplitudeAnalytics.logEvent(
               'apple_health_kit_server_upload_success',
               properties: <String, dynamic>{'workout_count': workouts.length},
             );
           } else {
-            // 서버 업로드 실패 이벤트
             AmplitudeAnalytics.logEvent(
               'apple_health_kit_server_upload_failed',
               properties: <String, dynamic>{
@@ -129,7 +127,6 @@ class WorkoutSyncFacade {
             );
           }
         } catch (e) {
-          // 서버 업로드 예외 이벤트
           AmplitudeAnalytics.logEvent(
             'apple_health_kit_server_upload_exception',
             properties: <String, dynamic>{'error_message': e.toString()},
@@ -233,7 +230,7 @@ class WorkoutSyncFacade {
   }
 
   /// 연동된 서비스들의 활동 기록 새로고침
-  Future<AppResult<Map<String, dynamic>>> refreshIntegrationActivity() async {
+  Future<AppResult<void>> refreshIntegrationActivity() async {
     return integrationSyncFacade.refreshIntegrationActivity();
   }
 
@@ -356,9 +353,9 @@ class WorkoutSyncFacade {
       }
 
       // 연동된 서비스들의 활동 기록 새로고침
-      integrationTotalAttempts = 1; // 연동 새로고침은 항상 1번 시도
+      integrationTotalAttempts = 1;
       try {
-        final AppResult<Map<String, dynamic>> result =
+        final AppResult<void> result =
             await integrationSyncFacade.refreshIntegrationActivity();
 
         if (result.isSuccess) {

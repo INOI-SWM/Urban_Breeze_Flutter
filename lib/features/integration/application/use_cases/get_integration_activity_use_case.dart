@@ -7,15 +7,12 @@ class GetIntegrationActivityUseCase {
 
   final IntegrationRepository repository;
 
-  Future<AppResult<Map<String, dynamic>>> execute() async {
+  Future<AppResult<void>> execute() async {
     try {
-      final Map<String, dynamic> result =
-          await repository.getIntegrationActivity();
-      return AppSuccess<Map<String, dynamic>>(result);
+      await repository.getIntegrationActivity();
+      return const AppSuccess<void>(null);
     } catch (e) {
-      return AppFailure<Map<String, dynamic>>(
-        IntegrationException(e.toString()),
-      );
+      return AppFailure<void>(IntegrationException(e.toString()));
     }
   }
 }
