@@ -17,8 +17,8 @@ class KakaoMapWithBottomSheetLayout extends StatefulWidget {
     this.snapSizes = const <double>[0.2, 0.5, 0.8],
     required this.sheetChild,
     this.showOptionButton = false,
-    required this.onDownloadButtonTap,
-    required this.onShareButtonTap,
+    this.onDownloadButtonTap,
+    this.onShareButtonTap,
     this.onOptionButtonTap,
     this.initialZoom,
     this.initialCameraPosition,
@@ -34,8 +34,8 @@ class KakaoMapWithBottomSheetLayout extends StatefulWidget {
   final List<double> snapSizes;
   final Widget sheetChild;
   final bool showOptionButton;
-  final Function(BuildContext context) onDownloadButtonTap;
-  final Function(BuildContext context) onShareButtonTap;
+  final Function(BuildContext context)? onDownloadButtonTap;
+  final Function(BuildContext context)? onShareButtonTap;
   final Function(BuildContext context)? onOptionButtonTap;
   final double? initialZoom;
   final kakao.CameraPosition? initialCameraPosition;
@@ -179,14 +179,19 @@ class _KakaoMapWithBottomSheetLayoutState
                           onTap: () => Navigator.pop(context),
                         ),
                         actions: <Widget>[
-                          CustomIconButton(
-                            icon: Icons.file_download_outlined,
-                            onTap: () => widget.onDownloadButtonTap(context),
-                          ),
-                          CustomIconButton(
-                            icon: Icons.share_outlined,
-                            onTap: () => widget.onShareButtonTap(context),
-                          ),
+                          if (widget.onDownloadButtonTap != null)
+                            CustomIconButton(
+                              icon: Icons.file_download_outlined,
+                              onTap:
+                                  () =>
+                                      widget.onDownloadButtonTap?.call(context),
+                            ),
+                          if (widget.onShareButtonTap != null)
+                            CustomIconButton(
+                              icon: Icons.share_outlined,
+                              onTap:
+                                  () => widget.onShareButtonTap?.call(context),
+                            ),
                           if (widget.showOptionButton)
                             CustomIconButton(
                               icon: Icons.more_horiz_outlined,
