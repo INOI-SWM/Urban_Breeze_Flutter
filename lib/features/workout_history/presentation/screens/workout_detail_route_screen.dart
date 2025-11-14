@@ -180,8 +180,6 @@ class _WorkoutDetailRouteScreenState extends State<WorkoutDetailRouteScreen>
             setUserDraggedMap(true);
           }
         },
-        onDownloadButtonTap: (BuildContext context) {},
-        onShareButtonTap: (BuildContext context) {},
         sheetChild: _DraggableBottomSheet(workoutDetail: widget.workoutDetail),
       ),
     );
@@ -291,21 +289,10 @@ class _DraggableBottomSheetState extends State<_DraggableBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final SemanticColors colors = context.semanticColor;
-
     return SingleChildScrollView(
       physics: const ClampingScrollPhysics(),
       child: Column(
         children: <Widget>[
-          Container(
-            width: _dragHandleWidth,
-            height: _dragHandleHeight,
-            margin: const EdgeInsets.only(top: 12, bottom: 8),
-            decoration: BoxDecoration(
-              color: colors.lineNormalNormal,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
           if (_availableDataTypes.isNotEmpty)
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
