@@ -227,14 +227,14 @@ class _SyncModalState extends ConsumerState<SyncModal> {
 
     return PopScope(
       canPop: !refreshState.isRefreshing, // 동기화 중일 때는 뒤로 가기 막기
-      child: SafeArea(
-        child: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: colors.backgroundElevatedNormal,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          padding: const EdgeInsets.all(24),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: colors.backgroundElevatedNormal,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
