@@ -199,9 +199,6 @@ class _DraggableBottomSheetState extends State<_DraggableBottomSheet> {
   int _selectedCardIndex = 0;
   late List<WorkoutDataType> _availableDataTypes;
 
-  static const double _dragHandleWidth = 40.0;
-  static const double _dragHandleHeight = 4.0;
-
   @override
   void initState() {
     super.initState();
