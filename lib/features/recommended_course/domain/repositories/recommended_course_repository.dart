@@ -12,4 +12,6 @@ abstract class RecommendedCourseRepository {
   Future<void> addToMyRoute(String routeId);
 
   Future<String> getCourseGPX(String routeId);
+
+  Future<String> getCourseTCX(String routeId);
 }

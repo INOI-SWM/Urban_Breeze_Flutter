@@ -178,7 +178,7 @@ class _RecommendedCourseDetailScreenState
 
               showPlatformActionSheet(
                 context,
-                title: '저장 방식',
+                title: '다운로드 방식',
                 options: <PlatformActionSheetOption>[
                   PlatformActionSheetOption(
                     title: 'GPX로 다운로드',
@@ -190,6 +190,18 @@ class _RecommendedCourseDetailScreenState
                         },
                       );
                       _downloadGpx(context, courseDetail);
+                    },
+                  ),
+                  PlatformActionSheetOption(
+                    title: 'TCX로 다운로드',
+                    onSelected: () {
+                      AmplitudeAnalytics.logEvent(
+                        'recommended_course_download_tcx',
+                        properties: <String, dynamic>{
+                          'route_id': widget.routeId,
+                        },
+                      );
+                      _downloadTcx(context, courseDetail);
                     },
                   ),
                   PlatformActionSheetOption(
@@ -458,6 +470,30 @@ class _RecommendedCourseDetailScreenState
       showErrorMessage(
         context,
         result.exceptionOrNull?.message ?? 'GPX 다운로드에 실패했습니다',
+      );
+    }
+  }
+
+  /// TCX 파일 다운로드
+  Future<void> _downloadTcx(
+    BuildContext context,
+    RecommendedCourseDetail courseDetail,
+  ) async {
+    final ShareRecommendedCourseUseCase shareUseCase = ref.read(
+      shareRecommendedCourseUseCaseProvider,
+    );
+
+    final AppResult<void> result = await shareUseCase.downloadTcx(
+      context,
+      widget.routeId,
+      courseDetail.title,
+    );
+
+    if (result.isFailure) {
+      if (!context.mounted) return;
+      showErrorMessage(
+        context,
+        result.exceptionOrNull?.message ?? 'TCX 다운로드에 실패했습니다',
       );
     }
   }

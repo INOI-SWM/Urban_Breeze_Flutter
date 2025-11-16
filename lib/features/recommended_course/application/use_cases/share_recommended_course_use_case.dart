@@ -5,17 +5,21 @@ import 'package:urban_breeze/core/config/environment_config.dart';
 import 'package:urban_breeze/core/exceptions/base_domain_exception.dart';
 import 'package:urban_breeze/core/result/app_result.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/get_course_gpx_use_case.dart';
+import 'package:urban_breeze/features/recommended_course/application/use_cases/get_course_tcx_use_case.dart';
 import 'package:urban_breeze/features/route_sharing/application/facades/route_sharing_facade.dart';
 
 /// 추천경로 공유 UseCase
 class ShareRecommendedCourseUseCase {
   const ShareRecommendedCourseUseCase({
     required GetCourseGpxUseCase getCourseGpxUseCase,
+    required GetCourseTcxUseCase getCourseTcxUseCase,
     required RouteSharingFacade routeSharingFacade,
   }) : _getCourseGpxUseCase = getCourseGpxUseCase,
+       _getCourseTcxUseCase = getCourseTcxUseCase,
        _routeSharingFacade = routeSharingFacade;
 
   final GetCourseGpxUseCase _getCourseGpxUseCase;
+  final GetCourseTcxUseCase _getCourseTcxUseCase;
   final RouteSharingFacade _routeSharingFacade;
 
   /// 유니버셜 링크 공유
@@ -141,6 +145,45 @@ class ShareRecommendedCourseUseCase {
       return const AppSuccess<void>(null);
     } catch (e) {
       return AppFailure<void>(NetworkException('GPX 다운로드 실패: ${e.toString()}'));
+    }
+  }
+
+  /// TCX 파일 다운로드
+  Future<AppResult<void>> downloadTcx(
+    BuildContext context,
+    String courseId,
+    String courseTitle,
+  ) async {
+    try {
+      final AppResult<String> result = await _getCourseTcxUseCase.execute(
+        courseId: courseId,
+      );
+
+      if (result.isFailure) {
+        return AppFailure<void>(
+          NetworkException(
+            result.exceptionOrNull?.message ?? 'TCX 데이터를 가져올 수 없습니다',
+          ),
+        );
+      }
+
+      final String tcxData = result.dataOrNull!;
+
+      // TCX 파일을 생성해서 다운로드
+      if (!context.mounted) {
+        return const AppFailure<void>(NetworkException('다시 시도해주세요.'));
+      }
+
+      await _routeSharingFacade.shareTcxFromData(
+        context,
+        tcxData,
+        courseId,
+        routeTitle: courseTitle,
+      );
+
+      return const AppSuccess<void>(null);
+    } catch (e) {
+      return AppFailure<void>(NetworkException('TCX 다운로드 실패: ${e.toString()}'));
     }
   }
 
