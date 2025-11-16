@@ -388,14 +388,14 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
     return await useCase(widget.routeId);
   }
 
-  String _formatDuration(int minutes) {
-    final int hours = minutes ~/ 60;
-    final int remainingMinutes = minutes % 60;
+  String _formatDuration(int seconds) {
+    final int hours = seconds ~/ 3600;
+    final int minutes = (seconds % 3600) ~/ 60;
 
     if (hours > 0) {
-      return '$hours시간 $remainingMinutes분';
+      return '$hours시간 $minutes분';
     } else {
-      return '$remainingMinutes분';
+      return '$minutes분';
     }
   }
 
