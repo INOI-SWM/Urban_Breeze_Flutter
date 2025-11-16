@@ -399,6 +399,16 @@ class _RecommendedCourseDetailScreenState
             _shareGpx(context, courseDetail);
           },
         ),
+        PlatformActionSheetOption(
+          title: 'TCX 파일로 공유',
+          onSelected: () {
+            AmplitudeAnalytics.logEvent(
+              'recommended_course_share_tcx',
+              properties: <String, dynamic>{'course_id': widget.routeId},
+            );
+            _shareTcx(context, courseDetail);
+          },
+        ),
       ],
     );
   }
@@ -446,6 +456,30 @@ class _RecommendedCourseDetailScreenState
       showErrorMessage(
         context,
         result.exceptionOrNull?.message ?? 'GPX 공유에 실패했습니다',
+      );
+    }
+  }
+
+  /// TCX 파일 공유
+  Future<void> _shareTcx(
+    BuildContext context,
+    RecommendedCourseDetail courseDetail,
+  ) async {
+    final ShareRecommendedCourseUseCase shareUseCase = ref.read(
+      shareRecommendedCourseUseCaseProvider,
+    );
+
+    final AppResult<void> result = await shareUseCase.shareTcx(
+      context,
+      widget.routeId,
+      courseDetail.title,
+    );
+
+    if (result.isFailure) {
+      if (!context.mounted) return;
+      showErrorMessage(
+        context,
+        result.exceptionOrNull?.message ?? 'TCX 공유에 실패했습니다',
       );
     }
   }

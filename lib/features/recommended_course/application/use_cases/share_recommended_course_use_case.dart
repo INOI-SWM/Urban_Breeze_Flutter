@@ -109,6 +109,45 @@ class ShareRecommendedCourseUseCase {
     }
   }
 
+  /// TCX 파일 공유
+  Future<AppResult<void>> shareTcx(
+    BuildContext context,
+    String courseId,
+    String courseTitle,
+  ) async {
+    try {
+      final AppResult<String> result = await _getCourseTcxUseCase.execute(
+        courseId: courseId,
+      );
+
+      if (result.isFailure) {
+        return AppFailure<void>(
+          NetworkException(
+            result.exceptionOrNull?.message ?? 'TCX 데이터를 가져올 수 없습니다',
+          ),
+        );
+      }
+
+      final String tcxData = result.dataOrNull!;
+
+      // TCX 파일을 생성해서 공유
+      if (!context.mounted) {
+        return const AppFailure<void>(NetworkException('다시 시도해주세요.'));
+      }
+
+      await _routeSharingFacade.shareTcxFromData(
+        context,
+        tcxData,
+        courseId,
+        routeTitle: courseTitle,
+      );
+
+      return const AppSuccess<void>(null);
+    } catch (e) {
+      return AppFailure<void>(NetworkException('TCX 공유 실패: ${e.toString()}'));
+    }
+  }
+
   /// GPX 파일 다운로드
   Future<AppResult<void>> downloadGpx(
     BuildContext context,
