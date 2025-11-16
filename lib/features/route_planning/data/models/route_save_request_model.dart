@@ -24,7 +24,8 @@ class RouteSaveRequestModel {
       'title': title,
       'polyline': polyline,
       'distance': distance,
-      'duration': duration,
+      // API 스펙은 duration(초) 이므로, 내부에서 사용 중인 분 단위를 초로 변환해서 전송
+      'duration': duration * 60,
       'elevationGain': elevationGain,
       'geometry':
           geometry.map((GeometryPointModel point) => point.toJson()).toList(),

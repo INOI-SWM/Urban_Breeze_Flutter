@@ -86,7 +86,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
             route_planning.RouteSegment(
               points: routePoints,
               distance: routeDetail.distance,
-              duration: routeDetail.durationMinutes,
+              duration: routeDetail.durationSeconds,
               elevationGain: routeDetail.elevationGain,
               bbox: routeDetail.bbox,
               elevations:
@@ -352,7 +352,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
                       ),
                       InfoItemData(
                         label: '예상 소요 시간',
-                        value: _formatDuration(routeDetail.durationMinutes),
+                        value: _formatDuration(routeDetail.durationSeconds),
                       ),
                       InfoItemData(
                         label: '상승 고도',

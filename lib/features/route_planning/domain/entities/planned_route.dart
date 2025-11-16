@@ -91,7 +91,7 @@ class PlannedRoute {
     );
   }
 
-  /// 총 소요 시간을 계산합니다 (분).
+  /// 총 소요 시간을 계산합니다 (초).
   int get totalDuration {
     return segments.fold(
       0,
