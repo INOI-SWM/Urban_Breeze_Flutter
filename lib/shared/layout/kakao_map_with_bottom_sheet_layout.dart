@@ -138,11 +138,15 @@ class _KakaoMapWithBottomSheetLayoutState
         minChildSize: widget.minChildSize,
         maxChildSize: _calculatedMaxChildSize,
         snap: true,
-        snapSizes: <double>[
-          widget.minChildSize,
-          widget.initialChildSize,
-          _calculatedMaxChildSize,
-        ],
+        snapSizes: () {
+          final Set<double> uniqueSizes = <double>{
+            widget.minChildSize,
+            widget.initialChildSize,
+            _calculatedMaxChildSize,
+          };
+          final List<double> sortedSizes = uniqueSizes.toList()..sort();
+          return sortedSizes;
+        }(),
         builder: (BuildContext context, ScrollController scrollController) {
           return ClipRRect(
             borderRadius: const BorderRadius.only(
