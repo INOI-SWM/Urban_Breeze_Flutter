@@ -18,13 +18,10 @@ import 'package:urban_breeze/features/route_planning/domain/entities/waypoint.da
 import 'package:urban_breeze/features/route_planning/presentation/mappers/lat_lng_mapper.dart';
 import 'package:urban_breeze/features/route_planning/presentation/screens/route_create_complete_screen.dart';
 import 'package:urban_breeze/features/route_planning/presentation/services/kakao_map_overlay_service.dart';
-import 'package:urban_breeze/features/route_planning/presentation/widgets/route_create_bottom_panel.dart';
-import 'package:urban_breeze/features/route_planning/presentation/widgets/route_creation_actions.dart';
+import 'package:urban_breeze/features/route_planning/presentation/widgets/route_planning_overlay.dart';
 import 'package:urban_breeze/features/route_planning/presentation/widgets/waypoint_setting_modal.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
-import 'package:urban_breeze/shared/design_system/widgets/app_bar/floating_search_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/widgets/loading/app_loading_indicator.dart';
-import 'package:urban_breeze/shared/map/map_bounds_calculator.dart';
 import 'package:urban_breeze/shared/map/map_constants.dart';
 import 'package:urban_breeze/shared/mixins/error_display_mixin.dart';
 
@@ -335,35 +332,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     );
   }
 
-  Future<void> _fitMapToAllRoutes() async {
-    if (_mapController == null || _route.segments.isEmpty) return;
-
-    // 모든 세그먼트의 포인트 수집
-    final List<latlong2.LatLng> allPoints = <latlong2.LatLng>[];
-    for (final route_planning.RouteSegment segment in _route.segments) {
-      if (segment.points.isNotEmpty) {
-        allPoints.addAll(segment.points);
-      }
-    }
-
-    if (allPoints.isEmpty) return;
-
-    // bbox 계산
-    final List<double> bbox = MapBoundsCalculator.calculateBboxFromPoints(
-      allPoints,
-    );
-
-    // 바텀시트 확장 (저장 모드일 때 바텀시트가 있으므로 0.5로 가정)
-    final double bottomSheetSize = _isSaveMode ? 0.5 : 0.0;
-
-    await MapBoundsCalculator.fitMapToBounds(
-      _mapController!,
-      bbox,
-      bottomSheetSize,
-      context: context,
-    );
-  }
-
   Future<void> _fitMapToSearchResults(SearchResult searchResult) async {
     if (searchResult.places.isEmpty || _mapController == null) return;
 
@@ -395,7 +363,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
   }
 
   void _enterSaveMode() {
-    _fitMapToAllRoutes();
     setState(() {
       _isSaveMode = true;
       _isButtonPressed = false;
@@ -547,25 +514,6 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     }
   }
 
-  Widget _buildBottomBar() {
-    return IgnorePointer(
-      ignoring: _isRouteLoading,
-      child: Opacity(
-        opacity: _isRouteLoading ? 0.5 : 1.0,
-        child: RouteCreateBottomPanel(
-          mode: _isSaveMode ? RouteCreateMode.save : RouteCreateMode.create,
-          totalDistance: formattedTotalDistance,
-          totalDuration: formattedTotalDuration,
-          elevationGain: formattedElevationGain,
-          hasRoute: _route.segments.isNotEmpty,
-          onSave: _enterSaveMode,
-          onBack: _exitSaveMode,
-          onComplete: _completeRouteSave,
-        ),
-      ),
-    );
-  }
-
   Future<void> _updateCurrentLocationMarker() async {
     if (_mapOverlayService == null || !mounted) return;
 
@@ -713,9 +661,70 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
     }
   }
 
+  void _onMapReady(kakao.KakaoMapController controller) async {
+    _mapController = controller;
+    _mapOverlayService = KakaoMapOverlayService(
+      mapController: controller,
+      colors: context.semanticColor,
+    );
+    try {
+      await _updateCurrentLocationMarker();
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      await _updateRoutePins();
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      await _updateRouteLines();
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      await _updateSearchPlaceMarkers();
+    } catch (e) {
+      debugPrint('지도 준비 후 마커 업데이트 실패: $e');
+    }
+  }
+
+  void _onPoiClick(kakao.LabelController labelController, kakao.Poi poi) {
+    if (_poiIdToPinIndex.containsKey(poi.id)) {
+      _isRoutePinPoiClicked = true;
+
+      Future<void>.delayed(const Duration(milliseconds: 200), () {
+        if (mounted) {
+          _isRoutePinPoiClicked = false;
+        }
+      });
+
+      final int pinIndex = _poiIdToPinIndex[poi.id]!;
+      if (pinIndex < _route.pins.length) {
+        _showWaypointSettingModal(pinIndex);
+      }
+    }
+  }
+
+  void _onMapClick(kakao.KPoint point, kakao.LatLng latLng) {
+    Future<void>.delayed(const Duration(milliseconds: 100), () {
+      if (!mounted) return;
+
+      if (_isButtonPressed && !_isRouteLoading) {
+        if (_isRoutePinPoiClicked) {
+          _isRoutePinPoiClicked = false;
+          return;
+        }
+
+        if (_lastButtonToggleTime != null) {
+          final Duration difference = DateTime.now().difference(
+            _lastButtonToggleTime!,
+          );
+          if (difference.inMilliseconds < 300) {
+            return;
+          }
+        }
+
+        _addPin(LatLngMapper.toLatlong2LatLng(latLng));
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final SemanticColors colors = context.semanticColor;
+    final double bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     // 테마 변경 시 서비스 컬러 업데이트
     if (_mapOverlayService != null) {
@@ -728,149 +737,118 @@ class _RoutePlanningScreenState extends ConsumerState<RoutePlanningScreen>
 
     return Scaffold(
       backgroundColor: colors.backgroundNormalNormal,
-      resizeToAvoidBottomInset: _isSaveMode, // 저장 모드에서만 키보드 리사이즈 허용
-      body: SafeArea(
-        child: Column(
-          children: <Widget>[
-            Expanded(
-              child: Stack(
-                children: <Widget>[
-                  kakao.KakaoMap(
-                    option: kakao.KakaoMapOption(
-                      position:
-                          _currentPosition != null
-                              ? LatLngMapper.toKakaoLatLng(_currentPosition!)
-                              : LatLngMapper.toKakaoLatLng(initialCenter),
-                      zoomLevel: initialZoom.toInt(),
-                      mapType: kakao.MapType.normal,
-                    ),
-                    onMapReady: (kakao.KakaoMapController controller) async {
-                      _mapController = controller;
-                      _mapOverlayService = KakaoMapOverlayService(
-                        mapController: controller,
-                        colors: context.semanticColor,
-                      );
-                      try {
-                        await _updateCurrentLocationMarker();
-                        await Future<void>.delayed(
-                          const Duration(milliseconds: 50),
-                        );
-                        await _updateRoutePins();
-                        await Future<void>.delayed(
-                          const Duration(milliseconds: 50),
-                        );
-                        await _updateRouteLines();
-                        await Future<void>.delayed(
-                          const Duration(milliseconds: 50),
-                        );
-                        await _updateSearchPlaceMarkers();
-                      } catch (e) {
-                        debugPrint('지도 준비 후 마커 업데이트 실패: $e');
-                      }
-                    },
-                    onPoiClick: (
-                      kakao.LabelController labelController,
-                      kakao.Poi poi,
-                    ) {
-                      if (_poiIdToPinIndex.containsKey(poi.id)) {
-                        _isRoutePinPoiClicked = true;
-
-                        Future<void>.delayed(
-                          const Duration(milliseconds: 200),
-                          () {
-                            if (mounted) {
-                              _isRoutePinPoiClicked = false;
-                            }
-                          },
-                        );
-
-                        final int pinIndex = _poiIdToPinIndex[poi.id]!;
-                        if (pinIndex < _route.pins.length) {
-                          _showWaypointSettingModal(pinIndex);
-                        }
-                      }
-                    },
-                    onMapClick: (kakao.KPoint point, kakao.LatLng latLng) {
-                      Future<void>.delayed(
-                        const Duration(milliseconds: 100),
-                        () {
-                          if (!mounted) return;
-
-                          if (_isButtonPressed && !_isRouteLoading) {
-                            if (_isRoutePinPoiClicked) {
-                              _isRoutePinPoiClicked = false;
-                              return;
-                            }
-
-                            if (_lastButtonToggleTime != null) {
-                              final DateTime now = DateTime.now();
-                              final Duration timeSinceToggle = now.difference(
-                                _lastButtonToggleTime!,
-                              );
-                              if (timeSinceToggle.inMilliseconds < 500) {
-                                return;
-                              }
-                            }
-
-                            _addPin(LatLngMapper.toLatlong2LatLng(latLng));
-                          }
-                        },
-                      );
-                    },
-                  ),
-                  if (_isRouteLoading)
-                    const Positioned.fill(
-                      child: Center(child: AppLoadingIndicator()),
-                    ),
-                  if (!_isSaveMode)
-                    Positioned(
-                      top: 30,
-                      left: 0,
-                      right: 0,
-                      child: FloatingSearchAppBar(
-                        searchText: _getSearchText(),
-                        onSearchTap: _openSearchScreen,
-                        onCloseTap: _onCloseTap,
-                        onClearTap: _onClearTap,
-                        isSearchActive:
-                            _selectedPlace != null ||
-                            _searchedPlaces.isNotEmpty,
-                      ),
-                    ),
-                  if (!_isSaveMode)
-                    Positioned(
-                      right: 16,
-                      bottom: 16,
-                      child: AbsorbPointer(
-                        absorbing: _isRouteLoading,
-                        child: Opacity(
-                          opacity: _isRouteLoading ? 0.5 : 1.0,
-                          child: RouteCreationActionButtons(
-                            isPinButtonPressed: _isButtonPressed,
-                            onTogglePinButton: () {
-                              _lastButtonToggleTime = DateTime.now();
-                              _toggleButtonState();
-                            },
-                            onRemoveLastPin: () {
-                              _lastButtonToggleTime = DateTime.now();
-                              _removeLastPin();
-                            },
-                            onMoveToCurrentLocation: () {
-                              _lastButtonToggleTime = DateTime.now();
-                              _moveToCurrentLocation();
-                            },
-                            hasPins: _route.pins.isNotEmpty,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+      // 키보드가 올라와도 지도 영역은 리사이즈되지 않도록 전체 리사이즈 비활성화
+      resizeToAvoidBottomInset: false,
+      body: Stack(
+        children: <Widget>[
+          // 지도 영역: 전체 화면 채움 (키보드 영향 없음)
+          Positioned.fill(
+            child: _RoutePlanningMap(
+              initialPosition: _currentPosition ?? initialCenter,
+              initialZoom: initialZoom,
+              onMapReady: _onMapReady,
+              onPoiClick: _onPoiClick,
+              onMapClick: _onMapClick,
             ),
-            _buildBottomBar(),
-          ],
-        ),
+          ),
+          // 키보드 마스킹 영역: 키보드가 올라왔을 때 지도 하단을 가림
+          if (bottomInset > 0)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: bottomInset,
+              child: Container(color: colors.backgroundNormalNormal),
+            ),
+          // UI 오버레이 영역
+          RoutePlanningOverlay(
+            isRouteLoading: _isRouteLoading,
+            isSaveMode: _isSaveMode,
+            isSearchActive:
+                _selectedPlace != null || _searchedPlaces.isNotEmpty,
+            searchText: _getSearchText(),
+            isPinButtonPressed: _isButtonPressed,
+            hasPins: _route.pins.isNotEmpty,
+            totalDistance: formattedTotalDistance,
+            totalDuration: formattedTotalDuration,
+            elevationGain: formattedElevationGain,
+            hasRoute: _route.segments.isNotEmpty && !_isRouteLoading,
+            onSearchTap: _openSearchScreen,
+            onCloseTap: _onCloseTap,
+            onClearTap: _onClearTap,
+            onTogglePinButton: () {
+              _lastButtonToggleTime = DateTime.now();
+              _toggleButtonState();
+            },
+            onRemoveLastPin: () {
+              _lastButtonToggleTime = DateTime.now();
+              _removeLastPin();
+            },
+            onMoveToCurrentLocation: () {
+              _lastButtonToggleTime = DateTime.now();
+              _moveToCurrentLocation();
+            },
+            onSave: _enterSaveMode,
+            onBack: _exitSaveMode,
+            onComplete: _completeRouteSave,
+          ),
+        ],
       ),
     );
+  }
+}
+
+class _RoutePlanningMap extends StatefulWidget {
+  const _RoutePlanningMap({
+    required this.initialPosition,
+    required this.initialZoom,
+    required this.onMapReady,
+    required this.onPoiClick,
+    required this.onMapClick,
+  });
+
+  final latlong2.LatLng initialPosition;
+  final double initialZoom;
+  final void Function(kakao.KakaoMapController) onMapReady;
+  final void Function(kakao.LabelController, kakao.Poi) onPoiClick;
+  final void Function(kakao.KPoint, kakao.LatLng) onMapClick;
+
+  @override
+  State<_RoutePlanningMap> createState() => _RoutePlanningMapState();
+}
+
+class _RoutePlanningMapState extends State<_RoutePlanningMap> {
+  late final kakao.KakaoMapOption _mapOption;
+
+  @override
+  void initState() {
+    super.initState();
+    _mapOption = kakao.KakaoMapOption(
+      position: LatLngMapper.toKakaoLatLng(widget.initialPosition),
+      zoomLevel: widget.initialZoom.toInt(),
+      mapType: kakao.MapType.normal,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return kakao.KakaoMap(
+      option: _mapOption,
+      onMapReady: _onMapReady,
+      onPoiClick: _onPoiClick,
+      onMapClick: _onMapClick,
+    );
+  }
+
+  void _onMapReady(kakao.KakaoMapController controller) {
+    widget.onMapReady(controller);
+  }
+
+  void _onPoiClick(kakao.LabelController labelController, kakao.Poi poi) {
+    widget.onPoiClick(labelController, poi);
+  }
+
+  void _onMapClick(kakao.KPoint point, kakao.LatLng latLng) {
+    widget.onMapClick(point, latLng);
   }
 }
