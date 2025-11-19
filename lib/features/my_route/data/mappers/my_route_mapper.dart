@@ -127,7 +127,7 @@ class MyRouteMapper {
       title: data.title,
       polyline: data.polyline,
       createdAt: data.createdAt,
-      durationMinutes: data.durationMinutes,
+      durationSeconds: data.durationSeconds,
       distance: data.distance,
       elevationGain: data.elevationGain,
       userId: data.userId,

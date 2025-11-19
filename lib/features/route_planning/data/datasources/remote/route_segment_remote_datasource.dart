@@ -25,6 +25,7 @@ class RouteSegmentRemoteDataSource extends BaseRemoteDataSource {
       );
 
       final Map<String, dynamic> jsonMap = decodeResponse(response);
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         final ApiResponseModel<RouteApiResponseModel> apiResp =
             ApiResponseModel<RouteApiResponseModel>.fromJson(

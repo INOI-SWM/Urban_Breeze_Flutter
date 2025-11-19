@@ -31,6 +31,7 @@ class RecommendedCourseRemoteDataSource extends BaseRemoteDataSource {
     );
 
     final Map<String, dynamic> json = decodeResponse(response);
+
     return ApiResponseModel<RecommendedCourseDetailResponseModel>.fromJson(
       json,
       (Map<String, dynamic> dataJson) =>
@@ -51,6 +52,18 @@ class RecommendedCourseRemoteDataSource extends BaseRemoteDataSource {
       return response.body;
     } else {
       throw Exception('GPX 다운로드 실패: ${response.statusCode}');
+    }
+  }
+
+  Future<String> getCourseTCX(String routeId) async {
+    final http.Response response = await get(
+      ApiEndpoints.routeTCXDownload(routeId),
+    );
+
+    if (response.statusCode == 200) {
+      return response.body;
+    } else {
+      throw Exception('TCX 다운로드 실패: ${response.statusCode}');
     }
   }
 }

@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:urban_breeze/core/di/core_providers.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/add_to_my_route_use_case.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/get_course_gpx_use_case.dart';
+import 'package:urban_breeze/features/recommended_course/application/use_cases/get_course_tcx_use_case.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/get_recommended_course_detail_use_case.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/get_recommended_course_list_usecase.dart';
 import 'package:urban_breeze/features/recommended_course/application/use_cases/share_recommended_course_use_case.dart';
@@ -69,17 +70,29 @@ final Provider<GetCourseGpxUseCase> getCourseGpxUseCaseProvider =
       return GetCourseGpxUseCase(repository: repository);
     });
 
+final Provider<GetCourseTcxUseCase> getCourseTcxUseCaseProvider =
+    Provider<GetCourseTcxUseCase>((Ref<GetCourseTcxUseCase> ref) {
+      final RecommendedCourseRepository repository = ref.watch(
+        recommendedCourseRepositoryProvider,
+      );
+      return GetCourseTcxUseCase(repository: repository);
+    });
+
 final Provider<ShareRecommendedCourseUseCase>
 shareRecommendedCourseUseCaseProvider = Provider<ShareRecommendedCourseUseCase>(
   (Ref<ShareRecommendedCourseUseCase> ref) {
     final GetCourseGpxUseCase getCourseGpxUseCase = ref.watch(
       getCourseGpxUseCaseProvider,
     );
+    final GetCourseTcxUseCase getCourseTcxUseCase = ref.watch(
+      getCourseTcxUseCaseProvider,
+    );
     final RouteSharingFacade routeSharingFacade = ref.watch(
       routeSharingFacadeProvider,
     );
     return ShareRecommendedCourseUseCase(
       getCourseGpxUseCase: getCourseGpxUseCase,
+      getCourseTcxUseCase: getCourseTcxUseCase,
       routeSharingFacade: routeSharingFacade,
     );
   },

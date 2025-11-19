@@ -4,7 +4,7 @@ class MyRouteDetailModel {
     required this.title,
     required this.polyline,
     required this.createdAt,
-    required this.durationMinutes,
+    required this.durationSeconds,
     required this.distance,
     required this.elevationGain,
     required this.userId,
@@ -21,7 +21,7 @@ class MyRouteDetailModel {
       title: json['title'] as String,
       polyline: json['polyline'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      durationMinutes: json['durationSeconds'] as int, // 초 단위
+      durationSeconds: json['durationSeconds'] as int,
       distance: (json['distanceM'] as num).toDouble(),
       elevationGain: (json['elevationGain'] as num).toDouble(),
       userId: json['userId'] as String,
@@ -46,7 +46,7 @@ class MyRouteDetailModel {
   final String title;
   final String polyline;
   final DateTime createdAt;
-  final int durationMinutes; // 초 단위 (API 필드명은 durationSeconds로 변경됨)
+  final int durationSeconds; // 초 단위
   final double distance;
   final double elevationGain;
   final String userId;
@@ -62,7 +62,7 @@ class MyRouteDetailModel {
       'title': title,
       'polyline': polyline,
       'createdAt': createdAt,
-      'durationMinutes': durationMinutes,
+      'durationSeconds': durationSeconds,
       'distance': distance,
       'elevationGain': elevationGain,
       'userId': userId,

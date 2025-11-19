@@ -86,7 +86,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
             route_planning.RouteSegment(
               points: routePoints,
               distance: routeDetail.distance,
-              duration: routeDetail.durationMinutes,
+              duration: routeDetail.durationSeconds,
               elevationGain: routeDetail.elevationGain,
               bbox: routeDetail.bbox,
               elevations:
@@ -352,7 +352,7 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
                       ),
                       InfoItemData(
                         label: '예상 소요 시간',
-                        value: _formatDuration(routeDetail.durationMinutes),
+                        value: _formatDuration(routeDetail.durationSeconds),
                       ),
                       InfoItemData(
                         label: '상승 고도',
@@ -388,14 +388,14 @@ class _MyRouteDetailScreenState extends ConsumerState<MyRouteDetailScreen>
     return await useCase(widget.routeId);
   }
 
-  String _formatDuration(int minutes) {
-    final int hours = minutes ~/ 60;
-    final int remainingMinutes = minutes % 60;
+  String _formatDuration(int seconds) {
+    final int hours = seconds ~/ 3600;
+    final int minutes = (seconds % 3600) ~/ 60;
 
     if (hours > 0) {
-      return '$hours시간 $remainingMinutes분';
+      return '$hours시간 $minutes분';
     } else {
-      return '$remainingMinutes분';
+      return '$minutes분';
     }
   }
 

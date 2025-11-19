@@ -7,7 +7,7 @@ class MyRouteDetail {
     required this.title,
     required this.polyline,
     required this.createdAt,
-    required this.durationMinutes,
+    required this.durationSeconds,
     required this.distance,
     required this.elevationGain,
     required this.userId,
@@ -22,7 +22,7 @@ class MyRouteDetail {
   final String title;
   final String polyline;
   final DateTime createdAt;
-  final int durationMinutes;
+  final int durationSeconds; // 초 단위
   final double distance; // m 단위 (API에서 미터로 받음)
   final double elevationGain;
   final String userId;

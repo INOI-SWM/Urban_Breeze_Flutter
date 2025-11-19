@@ -15,9 +15,12 @@ class RouteBarLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     return ColoredBox(
       color: context.semanticColor.backgroundNormalNormal,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[topNavigationBar, content],
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[topNavigationBar, content],
+        ),
       ),
     );
   }
