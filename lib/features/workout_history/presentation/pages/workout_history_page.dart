@@ -7,6 +7,7 @@ import 'package:urban_breeze/features/workout_history/presentation/notifiers/wor
 import 'package:urban_breeze/features/workout_history/presentation/screens/sync_screen.dart';
 import 'package:urban_breeze/features/workout_history/presentation/screens/workout_list_screen.dart';
 import 'package:urban_breeze/features/workout_history/presentation/screens/workout_statics_screen.dart';
+import 'package:urban_breeze/features/workout_history/presentation/widgets/terra_service_notice_popup.dart';
 import 'package:urban_breeze/navigation/navigation_providers.dart';
 import 'package:urban_breeze/navigation/page_with_app_bar.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
@@ -138,11 +139,25 @@ class WorkoutHistoryPage extends ConsumerStatefulWidget
 
 class _WorkoutHistoryPageState extends ConsumerState<WorkoutHistoryPage> {
   WorkoutHistoryTab _selectedTab = WorkoutHistoryTab.statistics;
+  bool _hasShownTerraEndPopup = false;
 
   static const List<WorkoutHistoryTab> _tabs = <WorkoutHistoryTab>[
     WorkoutHistoryTab.statistics,
     WorkoutHistoryTab.ridingHistory,
   ];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Terra 연동 종료 안내 팝업 (세션당 1회만 표시)
+    if (!_hasShownTerraEndPopup) {
+      _hasShownTerraEndPopup = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        TerraServiceNoticePopup.show(context);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

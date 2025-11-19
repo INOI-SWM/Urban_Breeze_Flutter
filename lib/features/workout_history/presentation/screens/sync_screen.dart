@@ -10,6 +10,7 @@ import 'package:urban_breeze/features/integration/domain/entities/integration_au
 import 'package:urban_breeze/features/integration/domain/enums/health_provider.dart';
 import 'package:urban_breeze/features/workout_history/di/workout_history_providers.dart';
 import 'package:urban_breeze/features/workout_history/presentation/notifiers/sync_screen_notifier.dart';
+import 'package:urban_breeze/features/workout_history/presentation/widgets/terra_service_notice_popup.dart';
 import 'package:urban_breeze/shared/design_system/tokens/semantic_colors.dart';
 import 'package:urban_breeze/shared/design_system/tokens/typography/app_text_style.dart';
 import 'package:urban_breeze/shared/design_system/widgets/app_bar/custom_app_bar.dart';
@@ -36,9 +37,10 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     // 화면 조회 이벤트
     AmplitudeAnalytics.logScreenView('workout_sync_screen');
 
-    // 연동 상태 확인
+    // 연동 상태 확인 및 Terra 종료 안내 팝업 표시
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(syncScreenNotifierProvider.notifier).checkIntegrationStatus();
+      TerraServiceNoticePopup.show(context);
     });
   }
 
@@ -521,6 +523,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
                         () => _showDisconnectModal(
                           HealthProvider.garmin.serviceName,
                         ),
+                    isDisabled: true,
                   ),
 
                   const SizedBox(height: 16),
@@ -538,6 +541,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
                         () => _showDisconnectModal(
                           HealthProvider.suunto.serviceName,
                         ),
+                    isDisabled: true,
                   ),
 
                   const SizedBox(height: 16),
@@ -555,6 +559,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
                         () => _showDisconnectModal(
                           HealthProvider.wahoo.serviceName,
                         ),
+                    isDisabled: true,
                   ),
                 ],
               ),
@@ -600,6 +605,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
     required bool isLoading,
     required VoidCallback onPressed,
     required VoidCallback onDisconnectPressed,
+    bool isDisabled = false,
   }) {
     final SemanticColors colors = context.semanticColor;
 
@@ -610,14 +616,19 @@ class _SyncScreenState extends ConsumerState<SyncScreen>
               ? ButtonSolid(
                 text: isLoading ? '동기화 중...' : '${provider.serviceName} 연동됨',
                 textColor: colors.staticWhite,
-                backgroundColor: colors.primaryNormal,
-                onPressed: isLoading ? null : onDisconnectPressed,
+                backgroundColor:
+                    isDisabled
+                        ? colors.interactionDisable
+                        : colors.primaryNormal,
+                onPressed:
+                    (isLoading || isDisabled) ? null : onDisconnectPressed,
               )
               : ButtonOutlined(
                 text: isLoading ? '동기화 중...' : '${provider.serviceName} 동기화',
-                textColor: colors.labelNormal,
+                textColor:
+                    isDisabled ? colors.labelDisable : colors.labelNormal,
                 borderColor: colors.lineNormalNormal,
-                onPressed: isLoading ? null : onPressed,
+                onPressed: (isLoading || isDisabled) ? null : onPressed,
               ),
     );
   }
