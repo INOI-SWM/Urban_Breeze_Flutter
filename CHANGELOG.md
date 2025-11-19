@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.4.0](https://github.com/INOI-SWM/Urban_Breeze_Flutter/compare/v1.3.1...v1.4.0) (2025-11-19)
+
+
+### Features
+
+* 연동 일시중지 안내 팝업 생성 ([#207](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/207)) ([a14ce03](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/a14ce03164a6a71237a88fa3ae653c9191b40a14))
+* 추천경로 tcx 다운로드, 카카오맵 버그수정 ([#206](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/206)) ([34c0b35](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/34c0b35c2514fffe4a4b880e3bf3c19cc875083a))
+
+
+### Bug Fixes
+
+* safearea 위치수정을 통한 apple layout 꺠짐 수정 ([#202](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/202)) ([c87b84b](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/c87b84b0b6184c711b06627105e1fe81dbcbd098))
+* 레이아웃 연산 버그수정 ([#205](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/205)) ([dfd1fa1](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/dfd1fa1794a8c722fa5fe4a4cdf454b5a507d190))
+* 운동기록 상세경로 레이아웃 버그 수정 ([#204](https://github.com/INOI-SWM/Urban_Breeze_Flutter/issues/204)) ([5eba422](https://github.com/INOI-SWM/Urban_Breeze_Flutter/commit/5eba422cc5d9fba990aae233bf41e823cd96b256))
+
 ## [1.3.1](https://github.com/INOI-SWM/Urban_Breeze_Flutter/compare/v1.3.0...v1.3.1) (2025-11-10)
 
 
