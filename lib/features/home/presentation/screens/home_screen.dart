@@ -9,6 +9,7 @@ import 'package:urban_breeze/features/home/domain/entities/recommended_courses_f
 import 'package:urban_breeze/features/home/presentation/widgets/latest_workout_card.dart';
 import 'package:urban_breeze/features/home/presentation/widgets/photo_banner.dart';
 import 'package:urban_breeze/features/home/presentation/widgets/recommended_courses_section.dart';
+import 'package:urban_breeze/features/home/presentation/widgets/service_termination_notice_popup.dart';
 import 'package:urban_breeze/features/home/presentation/widgets/stats_summary_card.dart';
 import 'package:urban_breeze/features/recommended_course/presentation/screens/recommended_course_detail_screen.dart';
 import 'package:urban_breeze/features/workout_history/presentation/pages/workout_history_page.dart';
@@ -25,13 +26,20 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  bool _hasShownServiceTerminationPopup = false;
+
   @override
-  void initState() {
-    super.initState();
-    // 홈 화면 진입 이벤트
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      AmplitudeAnalytics.logScreenView('home_screen');
-    });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // 서비스 종료 안내 팝업 (세션당 1회만 표시)
+    if (!_hasShownServiceTerminationPopup) {
+      _hasShownServiceTerminationPopup = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ServiceTerminationNoticePopup.show(context);
+        AmplitudeAnalytics.logScreenView('home_screen');
+      });
+    }
   }
 
   @override

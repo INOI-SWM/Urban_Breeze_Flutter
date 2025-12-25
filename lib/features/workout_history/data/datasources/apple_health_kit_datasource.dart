@@ -58,8 +58,7 @@ class AppleHealthKitDataSource {
   }) async {
     try {
       final DateTime end = endDate ?? DateTime.now();
-      final DateTime start =
-          startDate ?? end.subtract(const Duration(days: 30));
+      final DateTime start = end.subtract(const Duration(days: 365));
 
       final Predicate predicate = Predicate(start, end);
       final List<Workout> workouts = await HealthKitReporter.workoutQuery(
