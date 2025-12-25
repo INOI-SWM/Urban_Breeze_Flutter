@@ -19,6 +19,8 @@ class ServiceTerminationNoticePopup {
           'Urban Breeze 서비스가\n2026년 1월 31일부로 종료됩니다.\n\n'
           '그동안 Urban Breeze를 이용해주신\n'
           '모든 분들께 진심으로 감사드립니다.\n\n'
+          '서비스 종료 후 개인정보 및 위치정보는\n'
+          '안전하게 모두 삭제될 예정입니다.\n\n'
           '서비스 종료 전까지는 정상적으로\n'
           '이용하실 수 있습니다.',
           style: AppTextStyles.body2.normalRegular.copyWith(
